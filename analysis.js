@@ -268,14 +268,14 @@ function analyzeBeat() {
   lines.push('Click any section card in the Arrangement panel above to switch the grid view and hear that section.');
   var secDescs = {
     intro: 'Kick+hat or full groove. The sample/melody sets the mood.',
-    verse: 'Full groove — kick A/B, snare+clap on 2&4, 8th note hats, ghost notes. This is where the rapper lives.',
-    verse2: 'Same structure as verse 1 but with a DIFFERENT kick pattern. Keeps the song moving forward.',
-    pre: 'Builds density — extra kicks and ghost snares in the last bar create anticipation before the chorus drops.',
-    chorus: 'Bigger kick pattern. Crash on beat 1. This is the hook.',
-    chorus2: 'Variation of chorus 1. Same energy, slightly different pattern.',
-    breakdown: 'Gradual strip-down — bar 1 drops ghost kicks and rimshots, bar 2 drops claps and ghost snares, bar 3+ goes to just kick-on-1 and sparse hats. The contrast makes the last chorus hit twice as hard.',
-    instrumental: 'Space for the sample/melody to shine. Simpler drum pattern.',
-    lastchorus: 'Maximum energy — open hats added, crash on beat 1. The climax.',
+    verse: 'Full groove — kick A/B, snare+clap on 2&4, 8th note hats, ghost notes. This is where the rapper lives. <b>May end with a fill</b> — listen for hats dropping out in the last 2-3 steps.',
+    verse2: 'Same structure as verse 1 but with a DIFFERENT kick pattern. Keeps the song moving forward. <b>May end with a fill.</b>',
+    pre: 'Builds density — extra kicks and ghost snares in the last bar. <b>Almost always ends with a fill</b> — hats drop out, snare builds up, then the chorus crashes in.',
+    chorus: 'Bigger kick pattern. Crash on beat 1. This is the hook. <b>May end with a fill.</b>',
+    chorus2: 'Variation of chorus 1. Same energy, slightly different pattern. <b>May end with a fill.</b>',
+    breakdown: '<b>Gradual strip-down</b> — bar 1 drops ghost kicks and rimshots, bar 2 drops claps and ghost snares, bar 3+ goes to just kick-on-1 and sparse hats. The contrast makes the last chorus hit twice as hard.',
+    instrumental: 'Space for the sample/melody to shine. Simpler drum pattern. <b>May end with a fill.</b>',
+    lastchorus: 'Maximum energy — open hats added, crash on beat 1. The climax. <b>Always ends with a fill</b> leading into the outro.',
     outro: 'Beat rides out then either fades (last bar = just hat + kick on 1) or stops (one big hit on the last downbeat).'
   };
   var shownSecs = {};
