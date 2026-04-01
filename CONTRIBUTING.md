@@ -27,15 +27,16 @@ The project is split into focused modules:
 - **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
 - **`analysis.js`** — `analyzeBeat()` educational text generator, `keyData` per feel
 - **`ui.js`** — Grid rendering, arrangement editor, tooltips, glossary
-- **`midi-export.js`** — MIDI file writer, ZIP export, MIDI player
+- **`midi-export.js`** — MIDI file writer, ZIP export, MIDI player, DAW help file builders, export dialog logic
 - **`pdf-export.js`** — PDF beat sheet generator
-- **`app.js`** — Main controller, New Beat dialog, event wiring, playback cursor
+- **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor
 
 ## Key Concepts
 
 - **Feels** — 15 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
 - **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 12 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent. Palette format: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`.
 - **New Beat Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style shows producers and filters key/BPM to only show authentic options. Key shows a rap mood description. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
+- **Export Dialog** — `showExportDialog()` in `app.js`. Three sections: MIDI files (full song, sections, MPC patterns), DAW help files (9 DAWs, individually toggleable), PDF. `exportMIDI(opts)` accepts `{fullSong, sections, mpc, pdf, daws[]}` and only builds the selected content.
 - **STYLE_DATA** — Defined in `patterns.js`. Maps each feel key to `{label, bpmRange, keys[], artists, ...}`. Used by the New Beat dialog. Must be kept in sync with `keyData` in `analysis.js`.
 - **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). The general 30-pattern library is the fallback for unlisted feels.
 - **Ghost Density** — A per-song random value (0.5–1.8) clamped per feel (chopbreak floors at 1.0, lofi/memphis cap at 1.0, crunk caps at 0.4). Scales all ghost note probabilities.
