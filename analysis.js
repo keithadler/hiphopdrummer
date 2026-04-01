@@ -68,7 +68,7 @@ function analyzeBeat() {
   lines.push('🎚 <b>TEMPO: ' + bpm + ' BPM</b>');
   if (bpm <= 74) lines.push('Slow and heavy. This tempo sits in Griselda/Westside Gunn territory — dark, cinematic, and menacing. The space between hits lets every kick and snare breathe. Also works for lo-fi and abstract hip hop.');
   else if (bpm <= 82) lines.push('Slow pocket. Classic Mobb Deep and Wu-Tang tempo range — heavy enough to feel dangerous, with room for complex rhyme schemes. Think "Shook Ones Pt. II" or "C.R.E.A.M."');
-  else if (bpm <= 92) lines.push('The boom bap sweet spot. Most classic East Coast records sit right here — DJ Premier, Pete Rock, Large Professor. Fast enough to bounce, slow enough to feel heavy.');
+  else if (bpm <= 92) lines.push('The boom bap sweet spot. Most classic hip hop records sit right here — DJ Premier, Pete Rock, Large Professor. Fast enough to bounce, slow enough to feel heavy.');
   else if (bpm <= 102) lines.push('Mid-tempo groove. This is Nas "Illmatic" and A Tribe Called Quest territory. The pocket is tight and the rapper can flow with precision.');
   else if (bpm <= 112) lines.push('Uptempo energy. Good for hype tracks and battle rap — think EPMD, Onyx, and early Busta Rhymes. The hat pattern drives harder at this speed.');
   else lines.push('Fast and aggressive. B-Boy break tempo — this is where cyphers and battle rap live. Think Black Moon, Jeru the Damaja, and Gangstarr\'s uptempo cuts. The groove has to be tight or it falls apart.');
@@ -80,7 +80,7 @@ function analyzeBeat() {
   lines.push('<b>Using the MIDI files:</b> The exported MIDI files already have swing baked in — every even step is delayed by the right amount. If you import the MIDI into your drum machine or DAW, you do NOT need to add swing. Just import and play.');
   lines.push('<b>Hand-programming:</b> If you\'re programming these patterns from scratch on your drum machine, set the swing/shuffle to ' + swing + '% with a 1/16 note resolution. 50% = robotic/straight. 58% = classic feel. 66%+ = heavy/drunk groove. Most drum machines and DAWs have a swing or shuffle knob — that\'s what controls this.');
   if (swing >= 62) lines.push('At ' + swing + '% the groove is heavy — the even steps drag noticeably behind the grid. This is the feel that defined golden era hip hop. The hats will sound like they\'re "leaning back." Think J Dilla, Questlove, and Pete Rock.');
-  else if (swing >= 55) lines.push('At ' + swing + '% you get a natural human feel without it sounding sloppy. Solid East Coast pocket — DJ Premier and Large Professor territory.');
+  else if (swing >= 55) lines.push('At ' + swing + '% you get a natural human feel without it sounding sloppy. Solid boom bap pocket — DJ Premier and Large Professor territory.');
   else lines.push('At ' + swing + '% the groove is nearly straight — minimal swing gives a rigid, mechanical feel. Think early Run-DMC, some Alchemist beats, or Mobb Deep\'s harder tracks where the drums hit like a machine.');
 
   // === STYLE ===
@@ -98,7 +98,7 @@ function analyzeBeat() {
     hard: 'Hard and aggressive — Mobb Deep "Shook Ones," Onyx "Slam," M.O.P. "Ante Up" territory. Everything hits at maximum velocity with minimal ghost notes. The drums are a weapon, not a groove. Snare and clap crack at full force, kick punches through, hats drive relentlessly.',
     jazzy: 'Jazz-influenced pocket — A Tribe Called Quest "Midnight Marauders," Pete Rock & CL Smooth "Mecca and the Soul Brother," De La Soul "Stakes Is High." Dense ghost notes, softer dynamics, wider velocity range. The groove breathes and swings like a live drummer sitting in with a jazz quartet.',
     dark: 'Dark and minimal — Wu-Tang Clan "36 Chambers," Griselda, early Mobb Deep. Stripped-back drums with heavy kicks, hard snares, and sparse hats. The space between hits is as important as the hits themselves. The atmosphere and samples carry the weight.',
-    bounce: 'Danceable bounce — The Notorious B.I.G. "Ready to Die," Craig Mack, Puff Daddy/Bad Boy era. Busier kick pattern with extra hits that keep the low end moving. The groove makes you move — it\'s hip hop you can dance to without losing the East Coast edge.',
+    bounce: 'Danceable bounce — The Notorious B.I.G. "Ready to Die," Craig Mack, Puff Daddy/Bad Boy era. Busier kick pattern with extra hits that keep the low end moving. The groove makes you move — it\'s hip hop you can dance to.',
     big: 'Big anthem feel — maximum energy for hooks and climaxes. Extra kick hits, full clap layering, open hats. This is the sound of a chorus that fills a stadium.',
     driving: 'Driving feel — forward momentum with extra syncopated kicks. The groove pushes relentlessly, never letting up. Think Gangstarr\'s uptempo cuts or EPMD\'s harder productions.',
     sparse: 'Sparse and minimal — just enough drums to hold the groove. The space creates tension and lets the sample or melody dominate.',
@@ -121,7 +121,7 @@ function analyzeBeat() {
     if (kickHitsForFlow >= 4) lines.push('The busy kick pattern gives you anchor points to lock your flow to. Try landing key syllables on the kick hits — your voice and the kick will punch together.');
     else lines.push('The sparse kick leaves a lot of open space. You can fill it with your flow or let the words breathe. Both work — density is a choice, not a requirement.');
   } else if (bpm <= 95) {
-    lines.push('The sweet spot for East Coast flow. At ' + bpm + ' BPM, you can ride the pocket with a relaxed cadence or push into double-time on the hook. The snare on 2 and 4 is your metronome — lock your bars to it and everything else falls into place.');
+    lines.push('The sweet spot for hip hop flow. At ' + bpm + ' BPM, you can ride the pocket with a relaxed cadence or push into double-time on the hook. The snare on 2 and 4 is your metronome — lock your bars to it and everything else falls into place.');
     lines.push('The groove ' + (swing >= 62 ? 'has heavy swing, so lean back with your delivery — don\'t fight the bounce, ride it.' : 'is relatively straight, so you can be precise with your syllable placement.'));
   } else if (bpm <= 108) {
     lines.push('Mid-tempo energy at ' + bpm + ' BPM. This is Nas "Illmatic" territory — tight, precise flow with room for storytelling. The pocket rewards clarity over complexity. Each bar should feel like a complete thought.');
@@ -246,7 +246,7 @@ function analyzeBeat() {
 
   lines.push('<b>Key: ' + chosenKey.root + ' ' + chosenKey.type + '</b> — ' + chosenKey.context);
   lines.push('');
-  lines.push('<b>Hip hop chord philosophy:</b> Most classic East Coast beats use only 1-3 chords. The I chord is home, the IV chord creates tension, the V chord resolves. You don\'t need more than that. The sample does the harmonic work — the bass just needs to lock in.');
+  lines.push('<b>Hip hop chord philosophy:</b> Most classic hip hop beats use only 1-3 chords. The I chord is home, the IV chord creates tension, the V chord resolves. You don\'t need more than that. The sample does the harmonic work — the bass just needs to lock in.');
   lines.push('');
   lines.push('<b>Core chords in ' + chosenKey.root + ':</b>');
   lines.push('• <b>I chord (home):</b> ' + chosenKey.i + ' — where the groove lives. Start and end here.');
@@ -264,7 +264,7 @@ function analyzeBeat() {
   lines.push('• Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
   lines.push('');
   lines.push('<b>Programming tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
-  lines.push('<b>East Coast bass vs. 808s:</b> This is boom bap, not trap. The low end comes from a <b>sub bass or bass guitar sample</b>, not a sliding 808. The bass should be tight and punchy — it hits with the kick and stops. It doesn\'t sustain or slide between notes. Think of the bass as a second kick drum that plays a note. Keep it simple: root note on beat 1, maybe a passing note on the "and-of-2." The kick and bass together ARE the groove — everything else sits on top.');
+  lines.push('<b>Hip hop bass vs. 808s:</b> For boom bap, G-Funk, and Memphis styles, the low end comes from a <b>sub bass or bass guitar sample</b>, not a sliding 808. The bass should be tight and punchy — it hits with the kick and stops. It doesn\'t sustain or slide between notes. Think of the bass as a second kick drum that plays a note. Keep it simple: root note on beat 1, maybe a passing note on the "and-of-2." The kick and bass together ARE the groove — everything else sits on top. (Crunk and trap use 808s differently — but that\'s a different tool.)');
 
   // === SONG ELEMENTS ===
   lines.push('');
@@ -459,7 +459,7 @@ function analyzeBeat() {
     'The velocity curve on most drum machines is not linear — hitting a pad at 50% force doesn\'t produce 50% volume. Understanding your specific machine\'s velocity curve is essential for programming realistic dynamics.',
     'J Dilla\'s "Donuts" was made almost entirely from a hospital bed during his final months. He programmed beats on a Boss SP-303 sampler that his mother brought to the hospital. The album\'s raw, unquantized feel wasn\'t just a stylistic choice — it was the sound of a genius working with whatever tools he had left.',
     'Madlib has said he makes 3-4 beats a day and has thousands of unreleased instrumentals. His lo-fi aesthetic comes partly from speed — he doesn\'t spend hours polishing dynamics because he\'s already moved on to the next beat. The dusty, compressed sound is a byproduct of prolific output.',
-    'The "Impeach the President" break by The Honeydrippers (1973) is the second most sampled drum break after Funky Drummer. Its distinctive kick pattern — 1, beat 3, e-of-3, and-of-4 — appears in hundreds of East Coast hip hop records and is one of the patterns in this generator\'s kick library.'
+    'The "Impeach the President" break by The Honeydrippers (1973) is the second most sampled drum break after Funky Drummer. Its distinctive kick pattern — 1, beat 3, e-of-3, and-of-4 — appears in hundreds of hip hop records and is one of the patterns in this generator\'s kick library.'
   ];
   lines.push(pick(didYouKnow));
 
@@ -672,7 +672,7 @@ function analyzeBeat() {
   if (hatPatternType === '8th') {
     lines.push('Standard swung 8th notes — a hit on every other step (1, 3, 5, 7, 9, 11, 13, 15). This is the classic boom bap ride pattern used by Premier, Pete Rock, and most golden-era producers. Quarter note positions (1, 5, 9, 13) are accented louder, upbeats are softer.');
   } else if (hatPatternType === '16th') {
-    lines.push('Full 16th note hats — every step gets a hit. This creates a busier, more modern feel. Quarter notes are loudest, 8th note upbeats are medium, and the 16th note "e" and "ah" positions are softest. This pattern is common in modern boom bap, lo-fi hip hop, and trap-influenced East Coast beats.');
+    lines.push('Full 16th note hats — every step gets a hit. This creates a busier, more modern feel. Quarter notes are loudest, 8th note upbeats are medium, and the 16th note "e" and "ah" positions are softest. Common in G-Funk, modern boom bap, lo-fi hip hop, and trap-influenced beats.');
   } else if (hatPatternType === '16th_sparse') {
     lines.push('Sparse 16th notes — 8th note base with selective 16th note fills leading into the snare. This creates a pattern that\'s busier than straight 8ths but not as relentless as full 16ths. The 16th notes appear in specific spots (usually before beats 2 and 4) to push momentum into the backbeat.');
   } else if (hatPatternType === 'triplet') {
@@ -749,7 +749,7 @@ function analyzeBeat() {
   if (hasMinimalKick) lines.push('• <b>RZA</b> — Minimal kick pattern. RZA\'s Wu-Tang productions used sparse, dark drum patterns where the kick barely appears, letting the atmosphere and samples carry the weight.');
   if (hasNoDownbeat) lines.push('• <b>Madlib</b> — No kick on beat 1. Madlib\'s production for Madvillain and his Beat Konducta series often displaced the kick from the expected downbeat, creating a floating, off-kilter groove.');
   if (hasBusyKick) lines.push('• <b>Pete Rock</b> — Busy, syncopated kick pattern. Pete Rock\'s work with CL Smooth and his Soul Survivor productions featured intricate kick patterns that kept the low end constantly moving.');
-  if (baseKick[6]) lines.push('• <b>DJ Premier / Large Professor</b> — Kick on the "and" of 2. This syncopation is the signature of East Coast boom bap, used extensively by Premier on Gang Starr records and Large Professor on Main Source\'s "Breaking Atoms."');
+  if (baseKick[6]) lines.push('• <b>DJ Premier / Large Professor</b> — Kick on the "and" of 2. This syncopation is the signature of boom bap, used extensively by Premier on Gang Starr records and Large Professor on Main Source\'s "Breaking Atoms."');
   if (baseKick[14]) lines.push('• <b>Hi-Tek</b> — Kick on the "and" of 4. Hi-Tek\'s productions for Talib Kweli (Reflection Eternal) often pushed the kick into the last 16th of the bar, creating forward momentum.');
   if (hasBreakFeel) lines.push('• <b>Breakbeat heritage</b> — This pattern echoes the "Funky Drummer" (Clyde Stubblefield) and "Amen Brother" (Gregory Coleman) breaks that are the DNA of hip hop drumming, sampled thousands of times since the 1980s.');
 
