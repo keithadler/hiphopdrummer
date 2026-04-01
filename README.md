@@ -38,7 +38,7 @@ Hit **REGENERATE** and get a complete hip hop drum arrangement — verse, chorus
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements — section descriptions
   - Reference Tracks — 3 specific songs per feel to study
-  - Technique spotlights, producer history, difficulty rating, ear training prompts
+  - Technique spotlights (16 topics), producer history (15 entries), difficulty rating, ear training prompts, common mistakes (17 entries), equipment guides
 - Click any grid cell for an explanation of why that hit is at that velocity
 - Glossary tooltips — hover over drum terms in the About panel for instant definitions
 - Responsive — works on desktop and mobile
