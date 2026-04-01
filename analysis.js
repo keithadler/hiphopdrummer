@@ -158,7 +158,7 @@ function analyzeBeat() {
     dark: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Cold and minimal. Let the bass carry the weight, keep the melody sparse. Wu-Tang "C.R.E.A.M." energy.' },
-        { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'Cb major', relNote: 'Cb, Gb, Db', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
+        { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'B major', relNote: 'B, F#, E', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
         { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Haunting and atmospheric. Good for minor key piano loops. RZA-style.' }
       ]
     },
