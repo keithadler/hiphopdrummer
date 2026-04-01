@@ -22,6 +22,7 @@ Hit **REGENERATE** to open a dialog where you can optionally pick a style, key, 
 - **Per-section feel tags** — each arrangement card shows its feel
 - **Song key** displayed in header — updates with each generation
 - **MIDI export** (GM Channel 10) — full song + individual sections, swing baked in, ZIP download
+- **MPC pattern export** — each section also exported as `.mpcpattern` for Akai Force, MPC Live, MPC X, and other Akai devices (in `MPC/` subfolder of the ZIP)
 - **PDF beat sheet** — color-coded pattern grids with full analysis text
 - **"About This Beat" panel** — collapsed by default, Key/Scale open:
   - Suggested Key / Scale — I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic guide
@@ -71,6 +72,10 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Credits
+
+MPC pattern export format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev, which is a restructured version of the original implementation by Catnip / Jamie Faye Fenton (Fentonia). The `.mpcpattern` JSON format and static header event structure are derived from that work. No license was specified in the original project; credit is given here in accordance with open source attribution best practices.
 
 ---
 
