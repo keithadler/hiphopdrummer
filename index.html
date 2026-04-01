@@ -17,6 +17,7 @@
     <div class="header-bar">
       <div class="brand">HipHop<span>Drummer</span></div>
       <div class="controls-bar">
+        <button class="btn btn-play" id="btnPlay" title="Play / Stop (Space)">▶ PLAY</button>
         <button class="btn btn-gen" id="btnGen" title="Regenerate (R)">REGENERATE</button>
         <div class="ctrl-group">
           <span class="ctrl-label">BPM</span>
@@ -44,7 +45,11 @@
       <div class="top-row">
         <div class="top-left">
           <div class="panel" id="midiPanel">
-            <div class="panel-title">Full Song</div>
+            <div class="panel-title">Full Song
+              <span id="midiOutWrap" class="midi-out-wrap">
+                <select id="midiOutPort" class="midi-out-select" title="MIDI Out port"></select>
+              </span>
+            </div>
             <midi-player id="midiPlayer" sound-font></midi-player>
           </div>
           <div class="panel">
@@ -67,8 +72,7 @@
           Pattern — <span id="patternLabel">Intro</span>
           <span class="pattern-info" id="patternInfo"></span>
         </div>
-        <midi-player id="secMidiPlayer" sound-font style="display:none"></midi-player>
-        <div id="barTabs" class="bar-tabs"></div>
+<div id="barTabs" class="bar-tabs"></div>
         <div id="gridR"></div>
       </div>
 
@@ -86,6 +90,7 @@
   <script src="ui.js"></script>
   <script src="midi-export.js"></script>
   <script src="pdf-export.js"></script>
+  <script src="midi-out.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

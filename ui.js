@@ -149,7 +149,7 @@ function renderGrid() {
  * @returns {string} Formatted time string "M:SS"
  */
 function calcArrTime() {
-  var bpm = parseInt(document.getElementById('bpm').textContent) || 140;
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   var totalSteps = 0;
   arrangement.forEach(function(s) { totalSteps += secSteps[s] || 32; });
   var totalSec = totalSteps * (60 / bpm / 4); // each step = one 16th note
