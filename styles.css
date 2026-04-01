@@ -96,7 +96,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 
 /* Mobile responsive layout */
 @media (max-width: 1024px) {
-  body{overflow:auto}
+  body{overflow:auto;font-size:17px}
   #app-wrap{height:auto;min-height:100vh}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
