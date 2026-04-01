@@ -131,8 +131,6 @@ function renderGrid() {
       rows.appendChild(row);
     });
   }
-  // Wire click-to-explain tooltips on grid cells
-  wireGridTooltips();
 }
 
 // =============================================
@@ -187,9 +185,9 @@ var dragIdx = null;
  */
 function renderArr(skipMidiUpdate) {
   var f = document.getElementById('arrFlow');
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   f.innerHTML = arrangement.map(function(s, i) {
     var bars = Math.ceil((secSteps[s] || 32) / 16);
-    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
     var secTime = (secSteps[s] || 32) * (60 / bpm / 4);
     var secSec = Math.floor(secTime % 60);
     var secMin = Math.floor(secTime / 60);
@@ -494,11 +492,8 @@ function explainCell(instrument, step, velocity) {
   return lines;
 }
 
-/**
- * Wire click-to-explain on all grid cells.
- * Called after renderGrid() to attach event listeners.
- */
-function wireGridTooltips() {
+// Wire grid tooltips once on boot using stable parent delegation
+(function() {
   var gridR = document.getElementById('gridR');
   if (!gridR) return;
   gridR.addEventListener('click', function(e) {
@@ -506,7 +501,6 @@ function wireGridTooltips() {
     if (!cell) { hideTooltip(); return; }
     var step = parseInt(cell.dataset.step);
     if (isNaN(step)) return;
-    // Determine which instrument row this cell belongs to
     var row = cell.parentElement;
     var label = row.querySelector('.row-label');
     if (!label) return;
@@ -518,11 +512,10 @@ function wireGridTooltips() {
     if (!pat) return;
     var vel = pat[instrument][step] || 0;
     showTooltip(cell, explainCell(instrument, step, vel));
-    // Auto-hide after 6 seconds
     if (_tooltipTimeout) clearTimeout(_tooltipTimeout);
     _tooltipTimeout = setTimeout(hideTooltip, 6000);
   });
-}
+})();
 
 // Close tooltip when clicking outside the grid
 document.addEventListener('click', function(e) {
@@ -536,14 +529,22 @@ document.addEventListener('click', function(e) {
  * Wraps known terms in <span class="glossary-term"> with hover tooltips.
  * Called after makeAboutCollapsible().
  */
+// Pre-compile glossary regex once at startup for performance
+var _glossaryRegex = null;
+function _getGlossaryRegex() {
+  if (_glossaryRegex) return _glossaryRegex;
+  var terms = Object.keys(GLOSSARY).sort(function(a, b) { return b.length - a.length; });
+  if (terms.length === 0) return null;
+  var termPattern = terms.map(function(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|');
+  _glossaryRegex = new RegExp('\\b(' + termPattern + ')\\b', 'gi');
+  return _glossaryRegex;
+}
+
 function applyGlossaryHighlights() {
   var el = document.getElementById('aboutBeat');
   if (!el) return;
-  // Build a regex that matches glossary terms (case-insensitive, word boundaries)
-  var terms = Object.keys(GLOSSARY).sort(function(a, b) { return b.length - a.length; }); // longest first
-  if (terms.length === 0) return;
-  var termPattern = terms.map(function(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|');
-  var regex = new RegExp('\\b(' + termPattern + ')\\b', 'gi');
+  var regex = _getGlossaryRegex();
+  if (!regex) return;
 
   // Walk text nodes inside .about-body elements only (not headers)
   el.querySelectorAll('.about-body').forEach(function(body) {

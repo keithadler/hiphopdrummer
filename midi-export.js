@@ -83,6 +83,8 @@ function buildMidiBytes(sectionList, bpm) {
   var noteDurTicks = Math.floor(ticksPerStep * 0.75); // 18-tick note duration
   var events = [];
   var tickPos = 0;
+  // Map of "tick:note" → event index for O(1) deduplication
+  var eventMap = {};
 
   // Read swing percentage from the UI (50 = straight, 66+ = heavy shuffle)
   // and convert to a tick delay applied to even-numbered 16th-note steps
@@ -94,8 +96,6 @@ function buildMidiBytes(sectionList, bpm) {
     if (!pat) return;
     var len = secSteps[sec] || 32;
     for (var s = 0; s < len; s++) {
-      // Swing: even steps within each bar (0-indexed odd positions: 1,3,5,…,15)
-      // get delayed by swingAmount ticks. Odd steps stay on the grid.
       var stepInBar = s % 16;
       var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
       var stepTick = tickPos + swingOffset;
@@ -104,17 +104,12 @@ function buildMidiBytes(sectionList, bpm) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
-          // Deduplicate: if another row already placed a note-on for this
-          // note at this exact tick, keep the louder velocity only
-          var existing = null;
-          for (var ei = events.length - 1; ei >= 0; ei--) {
-            if (events[ei].tick === stepTick && events[ei].type === 'on' && events[ei].note === note) {
-              existing = events[ei]; break;
-            }
-          }
-          if (existing) {
-            if (vel > existing.vel) existing.vel = vel;
+          var key = stepTick + ':' + note;
+          if (eventMap[key] !== undefined) {
+            // Duplicate note at same tick — keep louder velocity
+            if (vel > events[eventMap[key]].vel) events[eventMap[key]].vel = vel;
           } else {
+            eventMap[key] = events.length;
             events.push({ tick: stepTick, type: 'on', note: note, vel: vel });
             events.push({ tick: stepTick + noteDurTicks, type: 'off', note: note });
           }
