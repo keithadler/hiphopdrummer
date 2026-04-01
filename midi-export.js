@@ -200,8 +200,8 @@ function buildMidiBytes(sectionList, bpm) {
  *   - Notes use MPC_NOTE_MAP (Chromatic C1 layout, not GM):
  *       A01=36 Kick, A02=37 Snare, A03=38 Clap, A04=39 Rimshot,
  *       A05=40 Ghost Kick, A06=41 Hat, A07=42 Open Hat, A08=43 Ride, A09=44 Crash
- *   - NO swing baked in — MPC patterns are straight grid. Set swing
- *     on the MPC device itself to match the beat's swing value.
+ *   - NO swing baked in — notes are on a straight grid.
+ *     Set swing on the MPC device itself (see HOW_TO_USE_MPC.txt).
  *
  * @param {string[]} sectionList - Section ids to include
  * @param {number} bpm - Tempo (used for swing calculation)
@@ -419,6 +419,8 @@ function buildHelpAbleton(bpm, swing) {
     '----------',
     'The MIDI files have swing baked in. Do NOT enable Ableton\'s',
     'groove/swing on these clips — it will double the timing offset.',
+    'Also: when Ableton asks to quantize on import, click "No" or',
+    '"Don\'t quantize" — quantizing will destroy the swing timing.',
     'If you want to adjust the feel, use the Warp controls instead.',
     '',
     'DRUM RACK SETUP',
@@ -505,7 +507,7 @@ function buildHelpFL(bpm, swing) {
     '1. Create a new channel in the Channel Rack with your drum plugin',
     '   (FPC, FLEX with a drum kit, or a third-party sampler).',
     '2. Right-click the channel > Piano Roll.',
-    '3. In the Piano Roll, go to File > Import MIDI file.',
+    '3. In the Piano Roll, go to File > Import > MIDI file.',
     '4. Import each section .mid file from MIDI Patterns/ one at a time.',
     '5. Each section becomes a pattern in the Channel Rack.',
     '6. Arrange the patterns in the Playlist in the order you want.',
@@ -599,7 +601,7 @@ function buildHelpMPC(bpm, swing) {
     'Covers: MPC Live, MPC X, MPC One, MPC Key, Akai Force',
     'Firmware: MPC 3.x (tested on 3.7.1) and MPC 2.x',
     '',
-    'BPM: ' + bpm + '  |  Swing: ' + s + '% (already baked in — do not add more)',
+    'BPM: ' + bpm + '  |  Swing: ' + s + '% (set on MPC device — see SWING section below)',
     '',
     'THIS FOLDER CONTAINS',
     '--------------------',
@@ -772,13 +774,14 @@ function exportMIDI() {
     if (pdfBlob) folder.file('beat_sheet_' + bpm + 'bpm.pdf', pdfBlob);
   } catch(e) { console.warn('PDF generation failed:', e); }
 
-  // DAW help files
-  folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swing));
-  midiFolder.file('HOW_TO_USE_ABLETON.txt', buildHelpAbleton(bpm, swing));
-  midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swing));
-  midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swing));
-  midiFolder.file('HOW_TO_USE_MASCHINE.txt', buildHelpMaschine(bpm, swing));
-  mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swing));
+  // DAW help files — read swing from DOM here so all builders get the correct value
+  var swingVal = parseInt(document.getElementById('swing').textContent) || 62;
+  folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal));
+  midiFolder.file('HOW_TO_USE_ABLETON.txt', buildHelpAbleton(bpm, swingVal));
+  midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal));
+  midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal));
+  midiFolder.file('HOW_TO_USE_MASCHINE.txt', buildHelpMaschine(bpm, swingVal));
+  mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swingVal));
 
   // Generate and trigger download
   zip.generateAsync({ type: 'blob' }).then(function(blob) {
