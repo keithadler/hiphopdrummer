@@ -155,8 +155,16 @@ function writeOutro(p, feel, len) {
  * @param {number[]} kickPat - 16-element binary kick pattern to use
  */
 function writeBarK(p, feel, off, kickPat) {
-  if (feel === 'sparse') { p.kick[off] = v(110, 10); p.kick[off + 8] = v(90, 15); return; }
-  if (feel === 'halftime') { p.kick[off] = v(110, 10); if (maybe(.4)) p.kick[off + 10] = v(90, 15); return; }
+  if (feel === 'sparse') {
+    // Sparse: use the kick library pattern (now sparse-specific), apply minimal velocity
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(108, 12);
+    return;
+  }
+  if (feel === 'halftime') {
+    // Halftime: use the kick library pattern (now halftime-specific)
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(112, 12);
+    return;
+  }
   if (feel === 'dark') {
     // Wu-Tang/Griselda: heavy hits, dynamically quieter, more space but not empty
     p.kick[off] = v(120, 8);
@@ -598,8 +606,13 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'big') {
-    // Big/anthem: loud, insistent hats — more energy than normal
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,8):v(80,10);
+    // Big/anthem: aggressive hats — 16th sparse or loud 8ths, more energy than normal
+    if (hatPatternType === '16th' || hatPatternType === '16th_sparse' || maybe(.5)) {
+      // 16th note hats for maximum anthem energy
+      for (var i=0;i<16;i++) p.hat[off+i]=i%4===0?v(102,6):i%2===0?v(88,8):v(68,10);
+    } else {
+      for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(102,6):v(85,8);
+    }
     return;
   }
   if (feel === 'driving') {
@@ -726,7 +739,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'big') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,8):v(80,10);
+    if (hatPatternType === '16th' || hatPatternType === '16th_sparse' || maybe(.5)) {
+      for (var i=0;i<16;i++) p.hat[off+i]=i%4===0?v(102,6):i%2===0?v(88,8):v(68,10);
+    } else {
+      for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(102,6):v(85,8);
+    }
     return;
   }
   if (feel === 'driving') {
@@ -800,8 +817,13 @@ function writeHB(p, feel, off) {
 function writeOpenHat(p, feel, off) {
   if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
   if (feel === 'memphis') {
-    // Memphis: sparse open hat on &4 at low velocity — sinister and dark
-    if (maybe(.35)) { p.openhat[off + 14] = v(65, 10); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
+    // Memphis: sparse open hat — 50/50 &2 vs &4, skips more bars than other feels
+    if (maybe(.35)) {
+      var mPos = maybe(.5) ? 14 : 6; // &4 or &2 — equal chance
+      p.openhat[off + mPos] = v(65, 10);
+      p.hat[off + mPos] = 0;
+      if (mPos === 14 && off + 15 < STEPS) p.hat[off + 15] = 0;
+    }
     return;
   }
   if (feel === 'crunk') {
@@ -814,8 +836,9 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.9)) { p.openhat[off + 14] = v(95, 8); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
     return;
   }
-  // Open hat on &4 (step 14) — 75% chance, the B-Boy signature
-  if (maybe(.75)) {
+  // Open hat on &4 (step 14) — 75% chance (85% for bounce), the B-Boy signature
+  var oh4chance = (feel === 'bounce') ? .85 : .75;
+  if (maybe(oh4chance)) {
     p.openhat[off + 14] = v(85, 10);
     p.hat[off + 14] = 0;  // choke: open hat kills closed hat on same step
     if (off + 15 < STEPS) p.hat[off + 15] = 0; // and the next step
@@ -829,8 +852,8 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.7)) { p.openhat[off + 6] = v(82, 10); p.hat[off + 6] = 0; }
     return;
   }
-  // Sometimes on &2 (step 6) — 25% chance (higher for jazzy/bounce)
-  var oh2chance = (feel === 'jazzy' || feel === 'bounce') ? .4 : (feel === 'dilla') ? .5 : (feel === 'chopbreak') ? .35 : .25;
+  // Sometimes on &2 (step 6) — 25% chance (higher for jazzy/bounce/dilla)
+  var oh2chance = (feel === 'bounce') ? .5 : (feel === 'jazzy') ? .4 : (feel === 'dilla') ? .5 : (feel === 'chopbreak') ? .35 : .25;
   if (maybe(oh2chance)) {
     p.openhat[off + 6] = v(80, 10);
     p.hat[off + 6] = 0;
@@ -1019,13 +1042,17 @@ function writeRimshot(p, feel, off) {
  */
 function writeCR(p, sec, off, feel) {
   if (off > 0) return;
-  // Chopbreak: original breaks often had a cymbal on beat 1 — higher crash probability
+  // Feel-specific crash probability adjustments
   var chopBoost = (feel === 'chopbreak') ? 0.2 : 0;
-  if (sec === 'verse') { if (maybe(.7 + chopBoost)) p.crash[0] = v(100, 10); }
-  if (sec === 'verse2') { if (maybe(.3 + chopBoost)) p.crash[0] = v(90, 10); }
-  if (sec === 'chorus' || sec === 'chorus2') { if (maybe(.8)) p.crash[0] = v(110, 10); }
+  var crunkBoost = (feel === 'crunk') ? 0.25 : 0;       // Crunk always announces itself
+  var memphisCut = (feel === 'memphis') ? -0.45 : 0;    // Memphis avoids bright cymbal hits
+  var gfunkAdj = (feel === 'gfunk') ? -0.1 : 0;         // G-Funk: moderate crash
+  var adj = chopBoost + crunkBoost + memphisCut + gfunkAdj;
+  if (sec === 'verse') { if (maybe(Math.max(0.05, Math.min(0.95, .7 + adj)))) p.crash[0] = v(100, 10); }
+  if (sec === 'verse2') { if (maybe(Math.max(0.05, Math.min(0.95, .3 + adj)))) p.crash[0] = v(90, 10); }
+  if (sec === 'chorus' || sec === 'chorus2') { if (maybe(Math.max(0.1, Math.min(0.98, .8 + crunkBoost + memphisCut)))) p.crash[0] = v(110, 10); }
   if (sec === 'lastchorus') { p.crash[0] = v(115, 10); }
-  if ((sec === 'instrumental' || sec === 'pre') && maybe(.4 + chopBoost)) { p.crash[0] = v(90, 10); }
+  if ((sec === 'instrumental' || sec === 'pre') && maybe(Math.max(0.05, .4 + adj))) { p.crash[0] = v(90, 10); }
 }
 
 // =============================================
