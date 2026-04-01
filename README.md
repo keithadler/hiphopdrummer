@@ -74,6 +74,10 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 
 MIT — see [LICENSE](LICENSE).
 
+## Disclaimer
+
+Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.
+
 ## Credits
 
 MPC pattern export format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev, which is a restructured version of the original implementation by Catnip / Jamie Faye Fenton (Fentonia). The `.mpcpattern` JSON format and static header event structure are derived from that work. No license was specified in the original project; credit is given here in accordance with open source attribution best practices.
