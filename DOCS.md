@@ -144,23 +144,40 @@ Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggesti
 ### MIDI
 Standard MIDI Format 0, GM Channel 10. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
 
-ZIP structure:
+### Export Dialog
+Clicking EXPORT opens a dialog with three sections:
+
+- **MIDI Files** — Full song .mid (all sections in order), Individual section .mid files, Akai MPC .mpcpattern files. Each independently toggleable.
+- **DAW Help Files** — Step-by-step import guides for 9 DAWs, all checked by default. "Deselect all / Select all" toggle. DAW files only appear in the ZIP if the MIDI Patterns folder is also being created. Supported: Ableton Live, Logic Pro, FL Studio, GarageBand (macOS + iOS), Pro Tools, Reason (ReDrum + Kong), Reaper, Studio One (Impact XT), Maschine.
+- **Other** — PDF beat sheet.
+
+ZIP structure (all items selected):
 ```
 hiphop_{bpm}bpm_{key}/
   00_full_song_{bpm}bpm.mid     ← full arrangement, root level
+  HOW_TO_USE.txt                ← general overview + note maps
   beat_sheet_{bpm}bpm.pdf
   MIDI Patterns/
     01_intro_2bars_{bpm}bpm.mid
     02_verse_8bars_{bpm}bpm.mid
     ...
+    HOW_TO_USE_ABLETON.txt
+    HOW_TO_USE_LOGIC_PRO.txt
+    HOW_TO_USE_FL_STUDIO.txt
+    HOW_TO_USE_GARAGEBAND.txt
+    HOW_TO_USE_PRO_TOOLS.txt
+    HOW_TO_USE_REASON.txt
+    HOW_TO_USE_REAPER.txt
+    HOW_TO_USE_STUDIO_ONE.txt
+    HOW_TO_USE_MASCHINE.txt
   MPC/
     01_intro_2bars_{bpm}bpm.mpcpattern
-    02_verse_8bars_{bpm}bpm.mpcpattern
     ...
+    HOW_TO_USE_MPC.txt
 ```
 
 ### MPC Patterns
-Each section is also exported as a `.mpcpattern` file in the `MPC/` subfolder of the ZIP. Compatible with Akai Force, MPC Live, MPC X, MPC One, and other Akai devices running firmware 2.11+. Format: JSON with 960 PPQ resolution, type-2 note events (time, len, MIDI note, velocity as 0-1 float string), and 3 required static type-1 header events. Swing is applied identically to the MIDI export.
+Each section exported as a `.mpcpattern` file in `MPC/`. Compatible with Akai Force, MPC Live, MPC X, MPC One, firmware 2.11+. Format: JSON with 960 PPQ, type-2 note events, 3 required static type-1 header events. **No swing baked in** — notes are on a straight grid. Set swing on the MPC device itself (see `HOW_TO_USE_MPC.txt` in the ZIP).
 
 Note mapping uses the **Chromatic C1** layout (MPC default since firmware 2.11) — not GM. Assign samples to pads A01–A09 in this order:
 

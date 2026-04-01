@@ -22,8 +22,9 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **Per-section feel tags** — each arrangement card shows its feel
 - **Song key** displayed in header — updates with each generation
 - **MIDI export** (GM Channel 10) — full song at root of ZIP, individual sections in `MIDI Patterns/` subfolder, swing baked in
-- **MPC pattern export** — each section also exported as `.mpcpattern` for Akai Force, MPC Live, MPC X, and other Akai devices (in `MPC/` subfolder of the ZIP). Uses Chromatic C1 note layout (MPC default since firmware 2.11) — assign samples to pads A01–A09: Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
+- **MPC pattern export** — each section also exported as `.mpcpattern` for Akai Force, MPC Live, MPC X, and other Akai devices (in `MPC/` subfolder). Uses Chromatic C1 note layout — assign samples to pads A01–A09: Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash. MPC patterns are straight grid — set swing on the device
 - **PDF beat sheet** — color-coded pattern grids with full analysis text
+- **Export dialog** — click EXPORT to choose exactly what to download: full song MIDI, individual section MIDIs, MPC patterns, PDF, and DAW help files for Ableton, Logic Pro, FL Studio, GarageBand, Pro Tools, Reason, Reaper, Studio One, and Maschine
 - **"About This Beat" panel** — collapsed by default, Key/Scale open:
   - Suggested Key / Scale — I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic guide
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
