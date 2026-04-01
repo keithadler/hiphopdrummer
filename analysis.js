@@ -239,6 +239,7 @@ function analyzeBeat() {
   lines.push('• Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
   lines.push('');
   lines.push('<b>Programming tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
+  lines.push('<b>East Coast bass vs. 808s:</b> This is boom bap, not trap. The low end comes from a <b>sub bass or bass guitar sample</b>, not a sliding 808. The bass should be tight and punchy — it hits with the kick and stops. It doesn\'t sustain or slide between notes. Think of the bass as a second kick drum that plays a note. Keep it simple: root note on beat 1, maybe a passing note on the "and-of-2." The kick and bass together ARE the groove — everything else sits on top.');
 
   // === SONG ELEMENTS ===
   lines.push('');
