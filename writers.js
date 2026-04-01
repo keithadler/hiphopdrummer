@@ -166,19 +166,10 @@ function writeBarK(p, feel, off, kickPat) {
     return;
   }
   if (feel === 'dark') {
-    // Wu-Tang/Griselda: heavy hits, dynamically quieter, more space but not empty
-    p.kick[off] = v(120, 8);
-    // Use the kick pattern but only keep 2-3 hits, played softer
-    var darkHits = 0;
-    for (var i = 1; i < 16; i++) {
-      if (kickPat[i] && darkHits < 2) { p.kick[off + i] = v(100, 12); darkHits++; }
-    }
-    // If the pattern only gave us beat 1, add one syncopation
-    if (darkHits === 0) {
-      if (kickPat[6]) p.kick[off + 6] = v(100, 10);
-      else if (kickPat[10]) p.kick[off + 10] = v(100, 10);
-      else p.kick[off + 8] = v(95, 12);
-    }
+    // Dark: use the kick library pattern (now dark-specific), heavy and minimal
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(118, 10);
+    // Beat 1 always hardest
+    if (p.kick[off] > 0) p.kick[off] = v(122, 8);
     return;
   }
   for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(110, 15);
@@ -193,24 +184,26 @@ function writeBarK(p, feel, off, kickPat) {
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(100, 20);
   }
   if (feel === 'bounce') {
-    // Biggie/Puff: busier kick, danceable — but check density first
-    var bounceKickCount = 0;
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) bounceKickCount++;
-    // Only add extras if the base pattern isn't already busy (4+ hits)
-    if (bounceKickCount < 4) {
+    // Biggie/Puff: busier kick, danceable — check total density after adding
+    var bounceBase = 0;
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) bounceBase++;
+    // Cap total at 5 hits — add extras only if there's room
+    if (bounceBase < 3) {
       if (!kickPat[6] && maybe(.5)) p.kick[off + 6] = v(95, 12);
       if (!kickPat[14] && maybe(.4)) p.kick[off + 14] = v(90, 12);
-      if (maybe(.3)) p.kick[off + 10] = v(85, 15);
-    } else if (bounceKickCount < 5) {
-      // Already busy — add at most one extra
-      if (!kickPat[6] && maybe(.3)) p.kick[off + 6] = v(95, 12);
+      if (maybe(.3) && !p.kick[off+10]) p.kick[off + 10] = v(85, 15);
+    } else if (bounceBase < 4) {
+      if (!kickPat[6] && maybe(.4)) p.kick[off + 6] = v(95, 12);
+      if (!kickPat[14] && maybe(.3)) p.kick[off + 14] = v(90, 12);
+    } else if (bounceBase < 5) {
+      if (!kickPat[6] && maybe(.25)) p.kick[off + 6] = v(95, 12);
     }
+    // Never exceed 5 total hits for bounce
   }
-  if (feel === 'driving' || feel === 'big') {
-    // Extra syncopated kicks for forward momentum
+  if (feel === 'big') {
+    // Big: extra syncopated kicks for anthem energy
     if (maybe(.4)) p.kick[off + 3] = v(75, 15);
     if (maybe(.3)) p.kick[off + 11] = v(75, 15);
-    if (feel === 'driving' && maybe(.25)) p.kick[off + 7] = v(70, 12);
   }
   if (feel === 'dilla') {
     // Dilla: use the full kick pattern but soften everything, add extra off-grid hits
@@ -273,7 +266,7 @@ function writeSnA(p, feel, off) {
     if (maybe(.3 * ghostDensity)) { var sp = pick([5, 9, 15]); p.snare[off + sp] = v(48, 10); }
     return;
   }
-  if (feel === 'halftime') { p.snare[off + 8] = v(120, 10); if (maybe(.4)) p.snare[off + 7] = v(68, 10); return; }
+  if (feel === 'halftime') { p.snare[off + 8] = v(125, 8); if (maybe(.4)) p.snare[off + 7] = v(72, 12); return; }
   if (feel === 'dark') {
     p.snare[off + 4] = v(122, 5); p.snare[off + 12] = v(127, 5);
     // Dark still gets ghost activity, just sparser and quieter (C.R.E.A.M. style)
@@ -305,14 +298,17 @@ function writeSnA(p, feel, off) {
     var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : 1.0;
     for (var g = 0; g < baseSnareGhostA.length; g++) {
       var gPos = baseSnareGhostA[g][0], gVel = baseSnareGhostA[g][1];
+      // Crunk: ghost snares are aggressive accent hits, not subtle ghosts
+      // Memphis: ghost snares are barely audible — very quiet
+      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : gVel;
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
-        p.snare[off + gPos] = v(gVel, 10);
+        p.snare[off + gPos] = v(adjVel, 10);
       }
     }
   }
   if (feel === 'big' && maybe(.4 * ghostDensity)) p.snare[off + 8] = v(75, 15);
-  // Big: snare slightly louder than normal to match the anthem energy
-  if (feel === 'big') { p.snare[off + 4] = v(122, 8); p.snare[off + 12] = v(126, 8); }
+  // Big: snare strong but not as aggressive as hard — energy comes from hat and kick
+  if (feel === 'big') { p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(124, 6); }
   // Dilla: soften the backbeat, add extra ghost snares everywhere
   if (feel === 'dilla') {
     p.snare[off + 4] = v(105, 18); p.snare[off + 12] = v(110, 18);
@@ -369,7 +365,7 @@ function writeSnB(p, feel, off) {
     if (maybe(.3 * ghostDensity)) { var sp = pick([3, 7, 11]); p.snare[off + sp] = v(45, 10); }
     return;
   }
-  if (feel === 'halftime') { p.snare[off + 8] = v(118, 10); if (maybe(.4)) p.snare[off + 6] = v(68, 10); return; }
+  if (feel === 'halftime') { p.snare[off + 8] = v(123, 8); if (maybe(.4)) p.snare[off + 6] = v(70, 12); return; }
   if (feel === 'dark') {
     p.snare[off + 4] = v(122, 5); p.snare[off + 12] = v(127, 5);
     // Dark B bar: use B ghost library for variation
@@ -397,13 +393,14 @@ function writeSnB(p, feel, off) {
     var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : 1.0;
     for (var g = 0; g < baseSnareGhostB.length; g++) {
       var gPos = baseSnareGhostB[g][0], gVel = baseSnareGhostB[g][1];
+      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : gVel;
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
-        p.snare[off + gPos] = v(gVel, 10);
+        p.snare[off + gPos] = v(adjVel, 10);
       }
     }
   }
   if (feel === 'big' && maybe(.35 * ghostDensity)) p.snare[off + 8] = v(70, 15);
-  if (feel === 'big') { p.snare[off + 4] = v(122, 8); p.snare[off + 12] = v(126, 8); }
+  if (feel === 'big') { p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(124, 6); }
   // Dilla: soften backbeat, extra ghosts everywhere
   if (feel === 'dilla') {
     p.snare[off + 4] = v(105, 18); p.snare[off + 12] = v(110, 18);
@@ -836,8 +833,8 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.9)) { p.openhat[off + 14] = v(95, 8); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
     return;
   }
-  // Open hat on &4 (step 14) — 75% chance (85% for bounce), the B-Boy signature
-  var oh4chance = (feel === 'bounce') ? .85 : .75;
+  // Open hat on &4 (step 14) — 75% chance (85% for bounce, 90% for big), the B-Boy signature
+  var oh4chance = (feel === 'big') ? .90 : (feel === 'bounce') ? .85 : .75;
   if (maybe(oh4chance)) {
     p.openhat[off + 14] = v(85, 10);
     p.hat[off + 14] = 0;  // choke: open hat kills closed hat on same step
@@ -853,7 +850,7 @@ function writeOpenHat(p, feel, off) {
     return;
   }
   // Sometimes on &2 (step 6) — 25% chance (higher for jazzy/bounce/dilla)
-  var oh2chance = (feel === 'bounce') ? .5 : (feel === 'jazzy') ? .4 : (feel === 'dilla') ? .5 : (feel === 'chopbreak') ? .35 : .25;
+  var oh2chance = (feel === 'big') ? .5 : (feel === 'bounce') ? .5 : (feel === 'jazzy') ? .4 : (feel === 'dilla') ? .5 : (feel === 'chopbreak') ? .35 : .25;
   if (maybe(oh2chance)) {
     p.openhat[off + 6] = v(80, 10);
     p.hat[off + 6] = 0;

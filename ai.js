@@ -643,6 +643,55 @@ function generatePattern(sec) {
     kickB[cbPos] = kickB[cbPos] ? 0 : 1;
   }
 
+  // Normal: bias toward classic boom bap patterns (first 5 in the library)
+  if (feel === 'normal' && !isCh) {
+    var normalKicks = [
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard boom bap: 1, and-of-2, 3
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // chopped: 1, and-of-2, and-of-3
+      [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // break pattern: 1, and-of-2, 3, and-of-3
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // simple: 1 and 3
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // two-kick: 1, and-of-2
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // offbeat: 1, e-of-2, 3
+    ];
+    kick = pick(normalKicks);
+    kickB = kick.slice();
+    var nmPos = pick([8, 10, 14]);
+    kickB[nmPos] = kickB[nmPos] ? 0 : 1;
+  }
+
+  // Jazzy: 1-and-3 patterns with occasional syncopation — Tribe, Pete Rock
+  if (feel === 'jazzy' && !isCh) {
+    var jazzyKicks = [
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // pure 1 and 3 — clean jazz pocket
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal jazz
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
+    ];
+    kick = pick(jazzyKicks);
+    kickB = kick.slice();
+    var jzPos = pick([8, 10, 14]);
+    kickB[jzPos] = kickB[jzPos] ? 0 : 1;
+  }
+
+  // Dark: use minimal/sparse patterns from the kick library
+  if (feel === 'dark' && !isCh) {
+    var darkKicks = [
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // kick on 1 only — maximum space
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark minimal
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — sparse
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3
+      [0,1,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // ghost entry: e-of-1, and-of-3
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
+    ];
+    kick = pick(darkKicks);
+    kickB = kick.slice();
+    var dkPos = pick([8, 10, 11]);
+    kickB[dkPos] = kickB[dkPos] ? 0 : 1;
+  }
+
   // Chopbreak: override kick with break-derived patterns (breakbeat/funky subset)
   if (feel === 'chopbreak' && !isCh) {
     var breakKicks = [
