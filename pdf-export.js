@@ -251,6 +251,11 @@ function exportPDF(returnBlob) {
     doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(170, 170, 170);
     doc.text('Hip Hop Drummer  |  ' + bpm + ' BPM  |  Generated ' + new Date().toLocaleDateString(), margin, 290);
     doc.text('Page ' + p + ' of ' + pageCount, pageW - margin, 290, { align: 'right' });
+    // Educational disclaimer on last page only
+    if (p === pageCount) {
+      doc.setFontSize(6); doc.setTextColor(200, 200, 200);
+      doc.text('Artist and track references are for educational purposes only. Not affiliated with or endorsed by any artist, producer, or label mentioned.', margin, 295);
+    }
   }
 
   if (returnBlob) return doc.output('blob');
