@@ -265,6 +265,28 @@ function analyzeBeat() {
   lines.push('');
   lines.push('<b>Programming tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
   lines.push('<b>Hip hop bass vs. 808s:</b> For boom bap, G-Funk, and Memphis styles, the low end comes from a <b>sub bass or bass guitar sample</b>, not a sliding 808. The bass should be tight and punchy — it hits with the kick and stops. It doesn\'t sustain or slide between notes. Think of the bass as a second kick drum that plays a note. Keep it simple: root note on beat 1, maybe a passing note on the "and-of-2." The kick and bass together ARE the groove — everything else sits on top. (Crunk and trap use 808s differently — but that\'s a different tool.)');
+  lines.push('');
+  lines.push('🎼 <b>MELODIC ARRANGEMENT — How to use these chords across your song</b>');
+  lines.push('This is about your <b>melodic parts, samples, and chops</b> — not the bass. Think Rhodes piano, synth pads, horn stabs, vocal chops, guitar loops. The bass locks to the kick; these elements float above it and create the emotional arc of the song.');
+  lines.push('');
+  lines.push('The secret of great hip hop production: <b>each section uses the same chords differently</b>. The intro teases, the verse establishes, the chorus opens up, the breakdown strips back. The chords don\'t change — how you use them does.');
+  lines.push('');
+
+  // Build section-by-section arrangement guide based on the chosen key
+  var root = chosenKey.i, fourth = chosenKey.iv, fifth = chosenKey.v;
+  var relChord = chosenKey.relNote.split(',')[0].trim();
+  var isMinor = (chosenKey.type === 'minor');
+
+  lines.push('• <b>Intro</b> — Just the <b>' + root + '</b>. One chord, looping. Let the drums and the vibe do the work. A single chord pad or a two-bar sample chop on the root is all you need. The listener doesn\'t know where you\'re going yet — that tension is the hook. Play it slow and spacious.');
+  lines.push('• <b>Verse</b> — Introduce the movement: <b>' + root + ' → ' + fourth + '</b>. Two chords, 2 bars each. The ' + root + ' is home, the ' + fourth + ' creates a gentle pull away. Keep the melodic part simple — a Rhodes stab on beat 1, or a sample chop that lands on the chord change. Medium pace. The rapper needs space.');
+  lines.push('• <b>Pre-Chorus</b> — Borrow from the relative ' + (isMinor ? 'major' : 'minor') + ': try <b>' + relChord + '</b>. This is the pivot — the moment the song shifts gear. A single chord from the relative ' + (isMinor ? 'major' : 'minor') + ' feels unexpected but right. Play it with more urgency, shorter note lengths, building energy.');
+  lines.push('• <b>Chorus</b> — Open it up: <b>' + root + ' → ' + fourth + ' → ' + fifth + '</b>. All three chords, moving faster. This is the payoff. Bigger sound, fuller arrangement — layer a pad under the stab, add a counter-melody. The ' + fifth + ' chord creates the strongest pull back to the root, which is why the chorus loops so satisfyingly.');
+  lines.push('• <b>Breakdown</b> — Strip to just <b>' + root + '</b> again, but darker. Remove layers one by one. A single sustained pad, or silence between hits. The listener has heard the full progression — now the absence of it creates tension. This is where the beat breathes.');
+  lines.push('• <b>Last Chorus</b> — Everything at once. Add a counter-melody or a new element you\'ve been holding back. The <b>' + root + ' → ' + fourth + ' → ' + fifth + '</b> progression hits harder because the breakdown just stripped it away. This is the climax.');
+  lines.push('• <b>Outro</b> — Back to just <b>' + root + '</b>. Fade the layers out one by one. End where you started — the circle closes.');
+  lines.push('');
+  lines.push('<b>Tempo of melodic parts:</b> Not everything needs to move at the same speed as the drums. A pad that changes every 4 bars feels slow and hypnotic. A sample chop that hits every bar feels medium. A stab on every beat feels fast and energetic. Mix these within a section — a slow pad underneath a fast stab creates depth. The drums are the clock; your melodic parts can breathe at their own pace.');
+  lines.push('<b>The one-chord trick:</b> Some of the greatest hip hop beats never leave the I chord. The entire groove comes from the drums, the bass, and the texture of the sample. If your ' + root + ' loop is right, you don\'t need to go anywhere. Movement is a choice, not a requirement.');
 
   // === SONG ELEMENTS ===
   lines.push('');
