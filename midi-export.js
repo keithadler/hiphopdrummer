@@ -154,16 +154,136 @@ function buildMidiBytes(sectionList, bpm) {
 }
 
 /**
+ * Build an Akai MPC .mpcpattern JSON string for a list of sections.
+ *
+ * The .mpcpattern format is JSON with 960 PPQ resolution, compatible with
+ * Akai Force, MPC Live, MPC X, and other Akai devices.
+ *
+ * Format adapted from medianmpc by miathedev / Catnip (Jamie Faye Fenton).
+ * https://github.com/miathedev/medianmpc
+ * Original credit: Catnip/Fentonia. Restructured version by miathedev.
+ *
+ * Structure:
+ *   - 3 static header events (type 1) required by the MPC firmware
+ *   - One type-2 event per drum hit: time, len, note, velocity (0-1 float string)
+ *   - All times in MPC ticks (960 PPQ)
+ *   - Swing applied identically to the MIDI export
+ *
+ * @param {string[]} sectionList - Section ids to include
+ * @param {number} bpm - Tempo (used for swing calculation)
+ * @returns {string} .mpcpattern JSON string (CRLF line endings, Akai standard)
+ */
+function buildMpcPattern(sectionList, bpm) {
+  var mpcPPQ = 960;          // Akai MPC standard PPQ
+  var srcPPQ = 96;           // Our internal MIDI PPQ
+  var ticksPerStep = srcPPQ / 4;  // 24 src ticks per 16th note
+  var noteDurSrc = Math.floor(ticksPerStep * 0.75); // 18 src ticks
+
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
+  var swingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+
+  var noteEvents = [];
+  var tickPos = 0;
+
+  sectionList.forEach(function(sec) {
+    var pat = patterns[sec];
+    if (!pat) return;
+    var len = secSteps[sec] || 32;
+    for (var s = 0; s < len; s++) {
+      var stepInBar = s % 16;
+      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
+      var stepTick = tickPos + swingOffset;
+
+      ROWS.forEach(function(r) {
+        var vel = pat[r][s];
+        if (vel > 0) {
+          var note = MIDI_NOTE_MAP[r];
+          var midiVel = Math.min(127, Math.max(1, vel));
+          // Convert src ticks → MPC ticks (960 PPQ)
+          var mpcStart = Math.round(mpcPPQ * stepTick / srcPPQ);
+          var mpcLen   = Math.round(mpcPPQ * noteDurSrc / srcPPQ);
+          // Velocity as 0-1 float string, max 17 chars (matches medianmpc exactly)
+          var velFloat = (midiVel / 127).toString(10);
+          if (velFloat.length > 17) velFloat = velFloat.substring(0, 17);
+          noteEvents.push({ time: mpcStart, len: mpcLen, note: note, vel: velFloat });
+        }
+      });
+      tickPos += ticksPerStep;
+    }
+  });
+
+  // Sort by time ascending (MPC requires ordered events)
+  noteEvents.sort(function(a, b) { return a.time - b.time; });
+
+  // Build JSON string with CRLF line endings (Akai standard)
+  var eol = '\r\n';
+  var lines = [];
+  lines.push('{');
+  lines.push('    "pattern": {');
+  lines.push('        "length": 9223372036854775807,');
+  lines.push('        "events": [');
+
+  // 3 required static header events (type 1) — present in every valid .mpcpattern
+  var staticEvents = [
+    { type: 1, time: 0, len: 0, one: 0,   two: '0.0',                   modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 32,  two: '0.0',                   modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 130, two: '0.787401556968689',      modVal: '0.0' }
+  ];
+  var totalEvents = staticEvents.length + noteEvents.length;
+  var eventIdx = 0;
+
+  staticEvents.forEach(function(e) {
+    var comma = (eventIdx < totalEvents - 1) ? ',' : '';
+    eventIdx++;
+    lines.push('            {');
+    lines.push('                "type": ' + e.type + ',');
+    lines.push('                "time": ' + e.time + ',');
+    lines.push('                "len": ' + e.len + ',');
+    lines.push('                "1": ' + e.one + ',');
+    lines.push('                "2": ' + e.two + ',');
+    lines.push('                "3": 0,');
+    lines.push('                "mod": 0,');
+    lines.push('                "modVal": ' + e.modVal);
+    lines.push('            }' + comma);
+  });
+
+  noteEvents.forEach(function(e) {
+    var comma = (eventIdx < totalEvents - 1) ? ',' : '';
+    eventIdx++;
+    lines.push('            {');
+    lines.push('                "type": 2,');
+    lines.push('                "time": ' + e.time + ',');
+    lines.push('                "len": ' + e.len + ',');
+    lines.push('                "1": ' + e.note + ',');
+    lines.push('                "2": ' + e.vel + ',');
+    lines.push('                "3": 0,');
+    lines.push('                "mod": 0,');
+    lines.push('                "modVal": 0');
+    lines.push('            }' + comma);
+  });
+
+  lines.push('        ]');
+  lines.push('    }');
+  lines.push('}');
+
+  return lines.join(eol) + eol;
+}
+
+/**
  * Export the full song and individual sections as MIDI files bundled in a ZIP.
  *
  * ZIP structure:
  *   hiphop_{bpm}bpm/
- *     00_full_song_{bpm}bpm.mid        — all sections concatenated
- *     01_{section}_{bars}bars_{bpm}bpm.mid — one file per unique section
- *     beat_sheet_{bpm}bpm.pdf           — printable PDF (if generation succeeds)
+ *     00_full_song_{bpm}bpm.mid              — all sections concatenated
+ *     01_{section}_{bars}bars_{bpm}bpm.mid   — one file per unique section
+ *     MPC/
+ *       01_{section}_{bars}bars_{bpm}bpm.mpcpattern — Akai MPC pattern per section
+ *     beat_sheet_{bpm}bpm.pdf
  *
- * Sections are deduplicated — if "chorus" appears twice in the arrangement,
- * only one MIDI file is exported for it.
+ * MPC patterns use 960 PPQ and the .mpcpattern JSON format compatible with
+ * Akai Force, MPC Live, MPC X, and other Akai devices.
+ * MPC conversion logic adapted from medianmpc by miathedev / Catnip (Jamie Faye Fenton).
+ * https://github.com/miathedev/medianmpc — original credit to Catnip/Fentonia.
  *
  * Side effects: triggers a browser file download of the ZIP.
  */
@@ -174,12 +294,13 @@ function exportMIDI() {
   var zip = new JSZip();
   var folderName = 'hiphop_' + bpm + 'bpm' + (keyStr && keyStr !== '—' ? '_' + keyStr : '');
   var folder = zip.folder(folderName);
+  var mpcFolder = folder.folder('MPC');
 
   // Full song MIDI — all arrangement sections in order
   var fullSong = buildMidiBytes(arrangement, bpm);
   folder.file('00_full_song_' + bpm + 'bpm.mid', fullSong);
 
-  // Individual section MIDIs — one per unique section (deduplicated)
+  // Individual section MIDIs + MPC patterns — one per unique section (deduplicated)
   var exported = {};
   var idx = 1;
   arrangement.forEach(function(sec) {
@@ -189,7 +310,13 @@ function exportMIDI() {
     var padIdx = idx < 10 ? '0' + idx : '' + idx;
     var secName = SL[sec] || sec;
     var barCount = Math.ceil((secSteps[sec] || 32) / 16);
-    folder.file(padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm.mid', secBytes);
+    var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
+    folder.file(baseName + '.mid', secBytes);
+
+    // MPC pattern for this section
+    var mpcStr = buildMpcPattern([sec], bpm);
+    mpcFolder.file(baseName + '.mpcpattern', mpcStr);
+
     idx++;
   });
 
