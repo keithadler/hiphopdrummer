@@ -22,12 +22,12 @@ Fifteen feel types covering the full range of hip hop (listed alphabetically):
 - **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo; slow, sinister, skeletal
 - **Sparse** — Minimal drums, space dominates; RZA, Alchemist
 
-## Regenerate Dialog
+## New Beat Dialog
 
-Clicking REGENERATE (or pressing R) opens a modal dialog with three optional fields:
+Clicking NEW BEAT (or pressing R) opens a modal dialog with three optional fields:
 
-- **Style** — all 15 feels, sorted alphabetically. Selecting a style filters the other two fields.
-- **Key** — only shows keys authentic to the selected style, sorted alphabetically. Resets to Auto when style changes if the previous key isn't valid for the new style.
+- **Style** — all 15 feels, sorted alphabetically. Selecting a style shows the key producers for that style and filters the other two fields.
+- **Key** — only shows keys authentic to the selected style, sorted alphabetically. Selecting a key shows a one-line rap mood description. Resets to Auto when style changes if the previous key isn't valid for the new style.
 - **BPM** — only shows tempos in the style's authentic range (e.g. Crunk: 115–130, Memphis: 68–88, G-Funk: 80–105).
 
 All three fields are optional. Leaving any on Auto picks randomly. Cancel / Escape / clicking outside dismisses without generating. Enter confirms.

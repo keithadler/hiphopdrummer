@@ -29,14 +29,14 @@ The project is split into focused modules:
 - **`ui.js`** — Grid rendering, arrangement editor, tooltips, glossary
 - **`midi-export.js`** — MIDI file writer, ZIP export, MIDI player
 - **`pdf-export.js`** — PDF beat sheet generator
-- **`app.js`** — Main controller, regenerate dialog, event wiring, playback cursor
+- **`app.js`** — Main controller, New Beat dialog, event wiring, playback cursor
 
 ## Key Concepts
 
 - **Feels** — 15 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
 - **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 12 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent. Palette format: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`.
-- **Regenerate Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style filters key and BPM to only show authentic options. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
-- **STYLE_DATA** — Defined in `patterns.js`. Maps each feel key to `{label, bpmRange, keys[]}`. Used by the regen dialog to filter options. Must be kept in sync with `keyData` in `analysis.js`.
+- **New Beat Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style shows producers and filters key/BPM to only show authentic options. Key shows a rap mood description. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
+- **STYLE_DATA** — Defined in `patterns.js`. Maps each feel key to `{label, bpmRange, keys[], artists, ...}`. Used by the New Beat dialog. Must be kept in sync with `keyData` in `analysis.js`.
 - **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). The general 30-pattern library is the fallback for unlisted feels.
 - **Ghost Density** — A per-song random value (0.5–1.8) clamped per feel (chopbreak floors at 1.0, lofi/memphis cap at 1.0, crunk caps at 0.4). Scales all ghost note probabilities.
 - **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` (interlock, choke, clustering) → `applyGroove()` (per-instrument accents) → `humanizeVelocities()` (micro-velocity jitter). Each stage is a separate function.
@@ -59,7 +59,7 @@ The project is split into focused modules:
 10. Add style description in `analyzeBeat()` — `styleNames`, `styleDescs`, key data, reference tracks, difficulty scoring, TRY THIS exercise, LISTEN FOR prompt, producer technique attribution
 11. Add feel coherence entry in the `compatMap` for verse2 (`ai.js`)
 12. Add section transition velocity scaling in `applySectionTransitions()` (`ai.js`)
-13. Add an entry to `STYLE_DATA` in `patterns.js` — `{label, bpmRange, keys[]}`. Keys must match roots in `keyData` in `analysis.js`.
+13. Add an entry to `STYLE_DATA` in `patterns.js` — `{label, bpmRange, keys[], artists}`. Keys must match roots in `keyData` in `analysis.js`.
 
 ## Adding Educational Content
 
@@ -78,7 +78,7 @@ Each pool uses `pick()` to select one random entry per generation. Keep entries 
 
 ## Keyboard Shortcuts
 
-- **R** — open the regenerate dialog
+- **R** — open the New Beat dialog
 - **Escape** — close the dialog without generating
 - **Enter** — confirm the dialog and generate
 
