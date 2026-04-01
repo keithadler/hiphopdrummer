@@ -34,7 +34,7 @@ The project is split into focused modules:
 ## Key Concepts
 
 - **Feels** — 15 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
-- **Kick Libraries** — Each feel has a dedicated kick pattern library (7-8 patterns). Normal, jazzy, dark, halftime, sparse, driving, chopbreak, G-Funk, crunk, and Memphis all have curated libraries. The general 30-pattern library is the fallback.
+- **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). Normal, jazzy, dark, halftime, sparse, driving, bounce, big, chopbreak, G-Funk, crunk, and Memphis all have curated libraries. The general 30-pattern library is the fallback for unlisted feels.
 - **Ghost Density** — A per-song random value (0.5–1.8) clamped per feel (chopbreak floors at 1.0, lofi/memphis cap at 1.0, crunk caps at 0.4). Scales all ghost note probabilities.
 - **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` (interlock, choke, clustering) → `applyGroove()` (per-instrument accents) → `humanizeVelocities()` (micro-velocity jitter). Each stage is a separate function.
 - **Bar Writers** — Each instrument has dedicated writer functions (`writeBarK`, `writeSnA/B`, `writeHA/B`, `writeOpenHat`, `writeClap`, `writeRimshot`, `writeRide`, `writeCR`). New feels must be handled in every relevant writer.
@@ -60,11 +60,12 @@ The project is split into focused modules:
 
 The `analyzeBeat()` function in `analysis.js` contains several content pools that rotate randomly on each generation:
 
-- `spotlights` — In-depth explanations of single production concepts (13 entries)
-- `didYouKnow` — Short production facts and trivia (21 entries)
+- `spotlights` — In-depth explanations of single production concepts (16 entries)
+- `didYouKnow` — Short production facts and trivia (26 entries)
 - `history` — Deeper stories about producers, gear, and techniques (15 entries)
 - `mistakes` — Common beginner pitfalls with explanations (17 entries)
 - `equipment` — Gear-specific programming guides (6 entries)
+- `keyData` — Key/chord suggestions per feel (4-5 keys each, 15 feels covered)
 - `exercises` — Beat-specific challenges (conditional on pattern characteristics)
 - `listenFor` — Ear training prompts (conditional on pattern characteristics)
 

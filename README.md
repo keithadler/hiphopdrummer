@@ -11,10 +11,18 @@ Hit **REGENERATE** and get a complete hip hop drum arrangement — verse, chorus
 ## Highlights
 
 - 15 hip hop feels — Classic Boom Bap, Hard, Jazz, Dark, Bounce, Dilla, Lo-Fi, Chopped Break, Halftime, Driving, Big, Sparse, G-Funk, Crunk, Memphis
-- Dedicated kick libraries per feel — halftime, sparse, driving, chopbreak, G-Funk, crunk, and Memphis each have their own curated kick patterns
+- Dedicated kick libraries for every feel — all 15 styles have curated kick patterns (4-10 patterns each) matched to their aesthetic
 - 9 instrument rows — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
 - Per-section ghost snare patterns — verse, verse 2, and chorus each get distinct ghost positions
 - Feel-aware everything — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
+- Jazzy ghost snares at whisper velocity (35-50%) — softer than standard boom bap, like real jazz-influenced hip hop
+- Bounce has its own hat writer — consistent 8ths with occasional 16th flurries on beat 2 or 4
+- Hard extra kicks check snare adjacency — never muddy the backbeat
+- Normal feel biases toward 8th note hats (70% chance) — classic boom bap
+- Ghost kick bar B uses non-overlapping positions for high-density feels — clear A/B differentiation
+- Dark snare at 118-122 (not 127) — leaves headroom for clap layer and beat-4 accent
+- Memphis hat skips on beats 2 and 4 occasionally — creates unsettling, incomplete feel
+- Instrumental section ghost density 0.8× — the sample breathes, drums are sparser
 - Section-level ghost density scaling — choruses denser, breakdowns sparser
 - Chorus hat step-up — choruses can upgrade from 8th to 16th note hats for more energy
 - Big/anthem feel — 16th note hats or aggressive 8ths, distinct from bounce
@@ -31,10 +39,11 @@ Hit **REGENERATE** and get a complete hip hop drum arrangement — verse, chorus
 - Click any section to jump to that point in the song player
 - Playback cursor — highlights the current step in the grid during playback
 - Per-section feel tags — each arrangement card shows its feel
+- Song key displayed in header — updates with each generation
 - MIDI export (GM Channel 10) — import into any DAW or drum machine, swing baked in
 - PDF beat sheet with color-coded grids
 - "About This Beat" panel — organized into tiers, collapsed by default
-  - Suggested Key / Scale with I/IV/V chord progressions, 3-chord combos, relative major/minor companions, and section-by-section melodic arrangement guide
+  - Suggested Key / Scale — 4-5 keys per feel with I/IV/V chord progressions, 3-chord combos, relative major/minor companions, section-by-section melodic arrangement guide, and sub bass vs 808 guidance
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements — section descriptions
   - Reference Tracks — 3 specific songs per feel to study
