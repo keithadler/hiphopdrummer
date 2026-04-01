@@ -17,6 +17,12 @@ function analyzeBeat() {
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
   var lines = [];
 
+  // === START HERE — quick orientation for new users ===
+  lines.push('🚀 <b>START HERE</b>');
+  lines.push('<b>New to this?</b> Three steps: <b>1.</b> Hit EXPORT → download the ZIP. <b>2.</b> Open <b>HOW_TO_USE.txt</b> inside the ZIP — it tells you exactly how to load these patterns into your DAW or MPC. <b>3.</b> Read the sections below to understand what makes this beat work and how to recreate it.');
+  lines.push('<b>Already know what you\'re doing?</b> Skip to Suggested Key, Compare Sections, or Drum Machine Workflow below.');
+  lines.push('');
+
   // === TEMPO ===
   lines.push('🎚 <b>TEMPO: ' + bpm + ' BPM</b>');
   if (bpm <= 74) lines.push('Slow and heavy — Griselda/Westside Gunn territory. Dark, cinematic, menacing. Every hit breathes.');
@@ -98,6 +104,7 @@ function analyzeBeat() {
   // === KEY SUGGESTION ===
   lines.push('');
   lines.push('🎹 <b>SUGGESTED KEY / SCALE</b>');
+  lines.push('<b>Note: the drums are key-neutral</b> — they work in any key. This suggestion is for your <b>melodic parts, samples, and bass</b> only. The key shown in the header is a starting point, not a constraint.');
 
   var keyData = {
     normal: { keys: [
@@ -321,7 +328,7 @@ function analyzeBeat() {
     'This specific mix of tempo, feel, and ghost density creates a groove that sits in its own lane.'
   ]));
 
-  // === DIFFICULTY RATING ===
+  // === DIFFICULTY RATING — accounts for all sections, not just verse ===
   var diffScore = 0;
   var diffReasons = [];
   var kickCount = 0; for (var i = 0; i < 16; i++) if (baseKick[i]) kickCount++;
@@ -331,19 +338,49 @@ function analyzeBeat() {
   if (!baseKick[0]) { diffScore += 3; diffReasons.push('no kick on beat 1 (displaced downbeat)'); }
   if (ghostDensity > 1.3) { diffScore += 1; diffReasons.push('dense ghost notes to manage'); }
   if (swing >= 64) { diffScore += 1; diffReasons.push('heavy swing timing'); }
-  if (songFeel === 'jazzy') { diffScore += 2; diffReasons.push('jazz-influenced dynamics'); }
-  if (songFeel === 'hard') { diffScore += 1; diffReasons.push('precise velocity control needed'); }
-  if (songFeel === 'dilla') { diffScore += 3; diffReasons.push('Dilla-style loose timing and dense ghosts'); }
-  if (songFeel === 'lofi') { diffScore += 1; diffReasons.push('narrow velocity band requires subtle control'); }
-  if (songFeel === 'chopbreak') { diffScore += 2; diffReasons.push('dense break-style ghost snares'); }
-  if (songFeel === 'gfunk') { diffScore += 1; diffReasons.push('16th note hat dynamics require precise velocity control'); }
-  if (songFeel === 'crunk') { diffScore += 0; diffReasons.push('maximum velocity throughout — straightforward but intense'); }
-  if (songFeel === 'memphis') { diffScore += 1; diffReasons.push('sparse and sinister — restraint is the challenge'); }
-  if (songFeel === 'halftime') { diffScore += 1; diffReasons.push('snare on beat 3 requires relearning the backbeat position'); }
-  if (songFeel === 'bounce') { diffScore += 1; diffReasons.push('busy kick pattern with extra hits to manage'); }
-  if (songFeel === 'driving') { diffScore += 1; diffReasons.push('relentless syncopated kicks require tight programming'); }
-  if (songFeel === 'big') { diffScore += 1; diffReasons.push('maximum energy — every element at full intensity'); }
-  if (songFeel === 'sparse') { diffScore += 0; diffReasons.push('minimal pattern — simplicity is the challenge'); }
+
+  // Score the hardest feel across all sections in the arrangement
+  // (not just the verse — a beginner-rated verse with a chopbreak chorus is intermediate overall)
+  var feelDiffMap = {
+    dilla: 3, jazzy: 2, chopbreak: 2, hard: 1, lofi: 1, gfunk: 1,
+    memphis: 1, halftime: 1, bounce: 1, driving: 1, big: 1,
+    crunk: 0, sparse: 0, normal: 0, dark: 0
+  };
+  var hardestFeel = songFeel;
+  var hardestFellScore = feelDiffMap[songFeel] || 0;
+  var sectionFeelNotes = [];
+  arrangement.forEach(function(s) {
+    var f = secFeels[s];
+    if (!f) return;
+    var fs = feelDiffMap[f] || 0;
+    if (fs > hardestFellScore) { hardestFellScore = fs; hardestFeel = f; }
+  });
+  // Add the hardest section's feel score
+  diffScore += hardestFellScore;
+  // Describe the feel complexity
+  var feelDescMap = {
+    dilla: 'Dilla-style loose timing and dense ghosts',
+    jazzy: 'jazz-influenced dynamics',
+    chopbreak: 'dense break-style ghost snares',
+    hard: 'precise velocity control needed',
+    lofi: 'narrow velocity band requires subtle control',
+    gfunk: '16th note hat dynamics require precise velocity control',
+    memphis: 'sparse and sinister — restraint is the challenge',
+    halftime: 'snare on beat 3 requires relearning the backbeat position',
+    bounce: 'busy kick pattern with extra hits to manage',
+    driving: 'relentless syncopated kicks require tight programming',
+    big: 'maximum energy — every element at full intensity',
+    crunk: 'maximum velocity throughout — straightforward but intense',
+    sparse: 'minimal pattern — simplicity is the challenge'
+  };
+  if (feelDescMap[hardestFeel]) diffReasons.push(feelDescMap[hardestFeel]);
+
+  // Note if the arrangement has multiple different feels (adds complexity)
+  var uniqueFeels = {};
+  arrangement.forEach(function(s) { if (secFeels[s]) uniqueFeels[secFeels[s]] = true; });
+  var uniqueFeelCount = Object.keys(uniqueFeels).length;
+  if (uniqueFeelCount >= 3) { diffScore += 1; diffReasons.push('arrangement uses ' + uniqueFeelCount + ' different feels'); }
+
   var diffLabel = diffScore <= 2 ? 'BEGINNER' : diffScore <= 5 ? 'INTERMEDIATE' : 'ADVANCED';
   lines.push('');
   lines.push('📈 <b>DIFFICULTY: ' + diffLabel + '</b>');
@@ -412,7 +449,7 @@ function analyzeBeat() {
   lines.push(pick(listenFor));
   lines.push('');
   lines.push('🔍 <b>COMPARE SECTIONS</b>');
-  lines.push('Click any section card in the Arrangement panel above to switch the grid view.');
+  lines.push('<b>How to navigate:</b> The Arrangement panel (above the grid) shows all sections as clickable cards — Intro, Verse, Chorus, etc. Click any card to load that section\'s pattern into the grid below. The grid updates instantly so you can compare kick patterns, ghost note density, and hat approaches between sections side by side.');
   var v1Kicks = 0, chKicks = 0, v2Kicks = 0;
   for (var i = 0; i < 16; i++) { if (baseKick[i]) v1Kicks++; if (baseKickChorus[i]) chKicks++; if (baseKickV2[i]) v2Kicks++; }
   if (chKicks > v1Kicks) lines.push('Chorus has ' + chKicks + ' kick hits vs verse\'s ' + v1Kicks + '. The chorus feels more energetic purely from the busier kick — snare and hats are the same. This is the simplest way to create section contrast: change the kick, keep everything else.');
