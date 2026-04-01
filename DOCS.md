@@ -137,7 +137,24 @@ Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit.
 
 Organized into collapsible accordion sections. Key/Scale is expanded by default; all others collapsed.
 
-Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic arrangement guide), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating, Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis), Song Elements.
+Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Song Elements (with fill and strip-down notes per section), Start Here (beginner orientation).
+
+### Alternate Progressions
+The key section shows style-matched alternate progressions with actual chord names computed for the chosen key. Progressions covered:
+
+- **Minor Plagal** (i→iv) — two chords, the backbone of boom bap
+- **Andalusian Cadence** (i→bVII→bVI→V) — descending to a major V, RZA/Alchemist territory
+- **Soul Loop** (I→bVII→IV→I) — circular and warm, Bad Boy/Biggie era
+- **Trap Minor** (i→bVI→bVII) — dark but melodic, borrowed chords
+- **Dark Trap** (i→bIII→bVI→bVII) — four borrowed chords, cinematic
+- **Boom Bap** (i→iv→i→bVI) — the bVI surprise lift on bar 4
+- **West Coast** (I→bIII→bVII→IV) — P-Funk borrowed-chord bounce
+- **Lo-Fi Descending** (i→bVII→bVI) — melancholy and hypnotic
+- **Emo Rap** (i→bIII→iv→bVI) — emotional, cinematic
+- **ii-V-I** (ii7→V7→IM7) — jazz foundation, Guru/Pete Rock
+- **Tritone Substitution** (ii7→bII7→IM7) — advanced jazz-rap, Jazzmatazz
+- **Neo-Soul Turnaround** (IM7→iii7→vi7→ii7) — Tribe/D'Angelo/Erykah Badu
+- **Sad Trap** (vi→IV→I) — emotional, melancholy quality
 
 ## Export
 
