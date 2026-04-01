@@ -603,6 +603,8 @@ function generatePattern(sec) {
   if (feel === 'gfunk') sectionHatType = '16th';        // G-Funk: 16th note hats are the signature sound
   if (feel === 'crunk') sectionHatType = '8th';         // Crunk: driving 8ths, loud and mechanical
   if (feel === 'memphis') sectionHatType = '8th';       // Memphis: sparse 8ths, dark and minimal
+  // Normal: bias toward 8th notes (classic boom bap) — 70% chance regardless of song-level selection
+  if (feel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
   // Chorus/lastchorus: step up hat density if currently on 8ths (more energy)
   if (isCh && sectionHatType === '8th' && feel !== 'dilla' && feel !== 'lofi' && feel !== 'memphis') {
     sectionHatType = pick(['8th', '8th', '16th_sparse', '16th']); // 50% chance of busier hats
@@ -625,6 +627,7 @@ function generatePattern(sec) {
   if (sec === 'lastchorus') ghostDensity = Math.min(1.8, ghostDensity * 1.2);
   else if (sec === 'chorus' || sec === 'chorus2') ghostDensity = Math.min(1.8, ghostDensity * 1.1);
   else if (sec === 'breakdown') ghostDensity = Math.max(0.3, ghostDensity * 0.6);
+  else if (sec === 'instrumental') ghostDensity = Math.max(0.3, ghostDensity * 0.8); // instrumental breathes
 
   // Chorus kick: 40% chance of deriving from verse kick (add 1-2 hits)
   // Boosted to 80% when previous section is pre-chorus (natural escalation)
@@ -643,7 +646,7 @@ function generatePattern(sec) {
     kickB[cbPos] = kickB[cbPos] ? 0 : 1;
   }
 
-  // Normal: bias toward classic boom bap patterns (first 5 in the library)
+  // Normal: bias toward classic boom bap patterns
   if (feel === 'normal' && !isCh) {
     var normalKicks = [
       [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard boom bap: 1, and-of-2, 3
@@ -653,6 +656,9 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // two-kick: 1, and-of-2
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
       [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // offbeat: 1, e-of-2, 3
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 1,0,0,0],  // stutter: 1, and-of-3, beat 4 — Premier style
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // minimal: 1 only — maximum space
+      [1,0,0,1, 0,0,0,0, 1,0,0,0, 0,1,0,0],  // push-pull: 1, ah-of-1, 3, e-of-4
     ];
     kick = pick(normalKicks);
     kickB = kick.slice();

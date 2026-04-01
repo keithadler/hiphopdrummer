@@ -176,8 +176,9 @@ function writeBarK(p, feel, off, kickPat) {
   if (feel === 'hard') {
     // Mobb Deep/Onyx: full velocity, extra hits for aggression
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(125, 5);
-    if (maybe(.5)) p.kick[off + 3] = v(100, 8);
-    if (maybe(.4)) p.kick[off + 11] = v(100, 8);
+    // Extra kicks — check they don't land adjacent to the snare (would muddy the backbeat)
+    if (maybe(.5) && !p.snare[off + 3] && !p.snare[off + 4]) p.kick[off + 3] = v(100, 8);
+    if (maybe(.4) && !p.snare[off + 11] && !p.snare[off + 12]) p.kick[off + 11] = v(100, 8);
   }
   if (feel === 'jazzy') {
     // Tribe/Pete Rock: softer kicks, more dynamic range
@@ -268,7 +269,7 @@ function writeSnA(p, feel, off) {
   }
   if (feel === 'halftime') { p.snare[off + 8] = v(125, 8); if (maybe(.4)) p.snare[off + 7] = v(72, 12); return; }
   if (feel === 'dark') {
-    p.snare[off + 4] = v(122, 5); p.snare[off + 12] = v(127, 5);
+    p.snare[off + 4] = v(118, 6); p.snare[off + 12] = v(122, 6);
     // Dark still gets ghost activity, just sparser and quieter (C.R.E.A.M. style)
     if (baseSnareGhostA && maybe(0.4 * ghostDensity)) {
       var gPick = pick(baseSnareGhostA);
@@ -300,7 +301,8 @@ function writeSnA(p, feel, off) {
       var gPos = baseSnareGhostA[g][0], gVel = baseSnareGhostA[g][1];
       // Crunk: ghost snares are aggressive accent hits, not subtle ghosts
       // Memphis: ghost snares are barely audible — very quiet
-      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : gVel;
+      // Jazzy: ghost snares are whispers — softer than standard boom bap
+      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
         p.snare[off + gPos] = v(adjVel, 10);
       }
@@ -367,7 +369,7 @@ function writeSnB(p, feel, off) {
   }
   if (feel === 'halftime') { p.snare[off + 8] = v(123, 8); if (maybe(.4)) p.snare[off + 6] = v(70, 12); return; }
   if (feel === 'dark') {
-    p.snare[off + 4] = v(122, 5); p.snare[off + 12] = v(127, 5);
+    p.snare[off + 4] = v(118, 6); p.snare[off + 12] = v(122, 6);
     // Dark B bar: use B ghost library for variation
     if (baseSnareGhostB && maybe(0.4 * ghostDensity)) {
       var gPick = pick(baseSnareGhostB);
@@ -393,7 +395,7 @@ function writeSnB(p, feel, off) {
     var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : 1.0;
     for (var g = 0; g < baseSnareGhostB.length; g++) {
       var gPos = baseSnareGhostB[g][0], gVel = baseSnareGhostB[g][1];
-      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : gVel;
+      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
         p.snare[off + gPos] = v(adjVel, 10);
       }
@@ -510,7 +512,9 @@ function writeGKB(p, feel, off) {
     return;
   }
   // Bar B uses distinct positions from bar A for clear A/B differentiation
-  var pos = [1,5,7,13,15], ch = .15 * ghostDensity;
+  // For high-density feels (jazzy, dilla, chopbreak), use fully non-overlapping positions
+  var highDensity = (feel === 'jazzy' || feel === 'dilla' || feel === 'chopbreak');
+  var pos = highDensity ? [3, 7, 9, 11, 15] : [1,5,7,13,15], ch = .15 * ghostDensity;
   if (feel === 'halftime') ch *= .4;
   if (feel === 'big' || feel === 'driving') ch *= 1.5;
   if (feel === 'jazzy') ch *= 2.0;
@@ -617,6 +621,13 @@ function writeHA(p, feel, off) {
     for (var i=0;i<16;i+=2) p.hat[off+i]=v(95,6);
     return;
   }
+  if (feel === 'bounce') {
+    // Bounce: consistent 8ths with occasional 16th flurries — Bad Boy energy
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(92,8):v(78,10);
+    // Occasional 16th note flurry on beat 2 or 4 — the danceable bounce signature
+    if (maybe(.45)) { var bp=pick([4,12]); p.hat[off+bp+1]=v(62,10); }
+    return;
+  }
   if (feel === 'gfunk') {
     // G-Funk: 16th note hats with wide dynamics — the signature West Coast bounce
     // Quarter notes loud, 8th upbeats medium, 16th "e/ah" positions soft
@@ -633,10 +644,11 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'memphis') {
-    // Memphis: sparse, dark 8ths at low velocity — Three 6 Mafia sinister feel
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,8):v(52,10);
-    // Occasionally skip a hat for that eerie, incomplete feel
-    if (maybe(.35)) { var skip=pick([2,6,10,14]); p.hat[off+skip]=0; }
+    // Memphis: sparse, dark 8ths — slightly louder than lofi, skip on backbeat positions
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,8):v(58,10);
+    // Skip on beat 2 or 4 occasionally — creates unsettling, incomplete feel
+    if (maybe(.3)) p.hat[off+4]=0;
+    if (maybe(.25)) p.hat[off+12]=0;
     return;
   }
 
@@ -747,6 +759,12 @@ function writeHB(p, feel, off) {
     for (var i=0;i<16;i+=2) p.hat[off+i]=v(95,6);
     return;
   }
+  if (feel === 'bounce') {
+    // Bounce B: same 8ths with flurry on different beat than A
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(92,8):v(78,10);
+    if (maybe(.45)) { var bp=pick([4,12]); if (bp !== 4 || !p.hat[off+5]) p.hat[off+bp+1]=v(60,10); }
+    return;
+  }
   if (feel === 'gfunk') {
     for (var i=0;i<16;i++) {
       if (i%4===0) p.hat[off+i]=v(95,8);
@@ -760,8 +778,10 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'memphis') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,8):v(52,10);
-    if (maybe(.35)) { var skip=pick([4,8,12,14]); p.hat[off+skip]=0; }
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,8):v(58,10);
+    // Bar B: skip on different backbeat position than A
+    if (maybe(.3)) p.hat[off+12]=0;
+    if (maybe(.25)) p.hat[off+4]=0;
     return;
   }
 
