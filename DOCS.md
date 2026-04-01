@@ -204,3 +204,7 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 - **Rendering** — Vanilla DOM, CSS flexbox, responsive layout
 - **Export** — JSZip for MIDI bundles, jsPDF for beat sheets
 - **Dependencies** — JSZip, jsPDF, html-midi-player (all via CDN)
+
+## Disclaimer
+
+Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.

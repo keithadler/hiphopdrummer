@@ -107,3 +107,7 @@ Open an issue with:
 - What happened instead
 - Browser and OS
 - Steps to reproduce
+
+## Disclaimer
+
+Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.
