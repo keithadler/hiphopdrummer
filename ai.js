@@ -1328,6 +1328,8 @@ function generateAll(opts) {
   // Add small per-song jitter (±2) for uniqueness
   swing = Math.max(50, Math.min(72, swing + pick([-2, -1, 0, 0, 1, 2])));
   document.getElementById('swing').textContent = swing;
+  var swingDescEl = document.getElementById('swingDesc');
+  if (swingDescEl) swingDescEl.textContent = swing >= 66 ? ' heavy' : swing >= 60 ? ' groove' : swing >= 55 ? ' feel' : ' straight';
 
   // Per-feel ghost density bias: clamp ghostDensity to match the palette's verse feel aesthetic.
   // Use songPalette[0] (the verse feel) as the primary reference — it defines the song's identity.

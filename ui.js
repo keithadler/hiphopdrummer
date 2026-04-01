@@ -68,20 +68,29 @@ function renderGrid() {
   var bars = Math.ceil(secLen / 16);
   var infoEl = document.getElementById('patternInfo');
   if (infoEl) {
-    var feelStr = secFeels[curSec] ? ' · ' + secFeels[curSec] : '';
-    infoEl.textContent = bars + ' bar' + (bars > 1 ? 's' : '') + feelStr + ' — ' + secMin + ':' + (secSec < 10 ? '0' : '') + secSec;
+    var feelStr = secFeels[curSec] ? ' · ' + (STYLE_DATA[secFeels[curSec]] ? STYLE_DATA[secFeels[curSec]].label : secFeels[curSec]) : '';
+    var secNote = '';
+    if (curSec === 'breakdown') secNote = ' · gradual strip-down';
+    else if (curSec === 'pre' || curSec === 'lastchorus') secNote = ' · ends with fill';
+    else if (curSec === 'verse' || curSec === 'verse2' || curSec === 'chorus' || curSec === 'chorus2') secNote = ' · may end with fill';
+    infoEl.textContent = bars + ' bar' + (bars > 1 ? 's' : '') + feelStr + secNote + ' — ' + secMin + ':' + (secSec < 10 ? '0' : '') + secSec;
   }
 
   // Section MIDI player removed — use the full song player above
 
-  // Build bar tab buttons for quick navigation between bars
+  // Build bar tab buttons — highlight the active bar as user scrolls
   var bt = document.getElementById('barTabs'), bh = '';
   for (var b = 0; b < totalPages; b++) {
-    bh += '<button class="bar-btn" data-b="' + b + '">Bar ' + (b + 1) + '</button>';
+    bh += '<button class="bar-btn" data-b="' + b + '" id="bar-tab-' + b + '">Bar ' + (b + 1) + '</button>';
   }
   bt.innerHTML = bh;
+  // Highlight bar 0 as active by default
+  var firstTab = bt.querySelector('.bar-btn');
+  if (firstTab) firstTab.classList.add('bar-btn-active');
   bt.querySelectorAll('.bar-btn').forEach(function(btn) {
     btn.onclick = function() {
+      bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+      btn.classList.add('bar-btn-active');
       var target = document.getElementById('grid-page-' + btn.dataset.b);
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
@@ -117,7 +126,8 @@ function renderGrid() {
     ROWS.forEach(function(r) {
       var row = document.createElement('div');
       row.className = 'grid-row';
-      var html = '<div class="row-label">' + RN[r] + '</div>';
+      var rowTip = ROW_TIPS[r] ? ' title="' + ROW_TIPS[r] + '"' : '';
+      var html = '<div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
         var pct = vel > 0 ? Math.round(vel / 127 * 100) : 0;
@@ -130,6 +140,24 @@ function renderGrid() {
       row.innerHTML = html;
       rows.appendChild(row);
     });
+  }
+
+  // IntersectionObserver: highlight the bar tab matching the bar currently in view
+  if (window.IntersectionObserver && totalPages > 1) {
+    var barObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var barIdx = entry.target.id.replace('grid-page-', '');
+          bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+          var activeTab = bt.querySelector('[data-b="' + barIdx + '"]');
+          if (activeTab) activeTab.classList.add('bar-btn-active');
+        }
+      });
+    }, { root: document.getElementById('gridR').parentElement, threshold: 0.5 });
+    for (var ob = 0; ob < totalPages; ob++) {
+      var lbl = document.getElementById('grid-page-' + ob);
+      if (lbl) barObserver.observe(lbl);
+    }
   }
 }
 
@@ -192,7 +220,7 @@ function renderArr(skipMidiUpdate) {
     var secSec = Math.floor(secTime % 60);
     var secMin = Math.floor(secTime / 60);
     var timeStr = secMin > 0 ? secMin + ':' + (secSec < 10 ? '0' : '') + secSec : secSec + 's';
-    var feelTag = secFeels[s] ? '<span class="feel-tag">' + secFeels[s] + '</span>' : '';
+    var feelTag = secFeels[s] ? '<span class="feel-tag">' + (STYLE_DATA[secFeels[s]] ? STYLE_DATA[secFeels[s]].label : secFeels[s]) + '</span>' : '';
     return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + '" draggable="true" data-i="' + i + '">'
       + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>'
       + '<span class="rm" data-i="' + i + '" title="Remove">&times;</span></div>';

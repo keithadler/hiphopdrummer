@@ -206,3 +206,21 @@ var KEY_MOODS = {
   'Gm7':    'Deep and warm. Bass-heavy grooves with a soulful undertone.',
   'Gbm':    'Rare and heavy. Maximum flatness — dark and cinematic.',
 };
+
+
+/**
+ * Tooltip descriptions for each instrument row label.
+ * Shown on hover over the row label in the grid.
+ * @type {Object.<string, string>}
+ */
+var ROW_TIPS = {
+  kick:      'Main kick drum — the low-end anchor. Hits on beat 1 and syncopated positions.',
+  snare:     'Snare drum — the backbeat on beats 2 and 4. The most important element in hip hop.',
+  clap:      'Clap layered with the snare on beats 2 and 4. Adds sharp attack to the backbeat.',
+  rimshot:   'Rimshot / sidestick — a thin, clicky sound on off-beat ghost positions.',
+  ghostkick: 'Ghost kick — soft kick hits between the main pattern. Adds low-end texture. Felt, not heard.',
+  hat:       'Closed hi-hat — the ride hand timekeeper. Usually 8th or 16th notes with accent curves.',
+  openhat:   'Open hi-hat — the B-Boy signature on the "and-of-4." Chokes the closed hat when it plays.',
+  ride:      'Ride cymbal — alternate timekeeper used in jazz-influenced styles (Tribe, Pete Rock).',
+  crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.'
+};
