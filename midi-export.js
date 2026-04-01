@@ -26,17 +26,11 @@
 
 /**
  * Maps internal instrument names to General MIDI drum note numbers.
- * These are the standard GM percussion map assignments:
- *   36 = Bass Drum 1 (kick / ghostkick share the same note — velocity differentiates)
- *   37 = Side Stick (rimshot)
- *   38 = Acoustic Snare
- *   39 = Hand Clap
- *   42 = Closed Hi-Hat
- *   46 = Open Hi-Hat
- *   49 = Crash Cymbal 1
+ * ghostkick uses note 35 (Bass Drum 2) instead of 36 to avoid
+ * note-off collisions when kick and ghostkick hit the same step.
  * @type {Object.<string, number>}
  */
-var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 36, hat: 42, openhat: 46, ride: 51, crash: 49 };
+var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 35, hat: 42, openhat: 46, ride: 51, crash: 49 };
 
 /**
  * Build raw MIDI file bytes for a list of sections played in sequence.
@@ -80,10 +74,21 @@ function buildMidiBytes(sectionList, bpm) {
       ROWS.forEach(function(r) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
-          // Clamp velocity to valid MIDI range 1–127
           var vel = Math.min(127, Math.max(1, pat[r][s]));
-          events.push({ tick: stepTick, type: 'on', note: note, vel: vel });
-          events.push({ tick: stepTick + noteDurTicks, type: 'off', note: note });
+          // Deduplicate: if another row already placed a note-on for this
+          // note at this exact tick, keep the louder velocity only
+          var existing = null;
+          for (var ei = events.length - 1; ei >= 0; ei--) {
+            if (events[ei].tick === stepTick && events[ei].type === 'on' && events[ei].note === note) {
+              existing = events[ei]; break;
+            }
+          }
+          if (existing) {
+            if (vel > existing.vel) existing.vel = vel;
+          } else {
+            events.push({ tick: stepTick, type: 'on', note: note, vel: vel });
+            events.push({ tick: stepTick + noteDurTicks, type: 'off', note: note });
+          }
         }
       });
       tickPos += ticksPerStep;
@@ -164,8 +169,10 @@ function buildMidiBytes(sectionList, bpm) {
  */
 function exportMIDI() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var keyEl = document.getElementById('songKey');
+  var keyStr = keyEl ? keyEl.textContent.replace(/[^a-zA-Z0-9#b]/g, '') : '';
   var zip = new JSZip();
-  var folderName = 'hiphop_' + bpm + 'bpm';
+  var folderName = 'hiphop_' + bpm + 'bpm' + (keyStr && keyStr !== '—' ? '_' + keyStr : '');
   var folder = zip.folder(folderName);
 
   // Full song MIDI — all arrangement sections in order

@@ -52,11 +52,11 @@ function exportPDF(returnBlob) {
     var tmp = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
     // Strip all HTML tags
     tmp = tmp.replace(/<[^>]*>/g, '');
-    // Strip everything outside basic printable ASCII + common punctuation
-    // Keeps: space (32) through tilde (126), plus common extended chars like em-dash, curly quotes
-    tmp = tmp.replace(/[^\x20-\x7E\u2014\u2018\u2019\u201C\u201D\u2026]/g, '');
-    // Convert em-dash and curly quotes to ASCII equivalents for jsPDF compatibility
+    // Convert special chars before stripping — bullets become dashes, typographic chars become ASCII
+    tmp = tmp.replace(/[\u2022\u2023\u25E6\u2043]/g, '-');
     tmp = tmp.replace(/\u2014/g, ' -- ').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/\u2026/g, '...');
+    // Strip everything outside basic printable ASCII (32–126)
+    tmp = tmp.replace(/[^\x20-\x7E]/g, '');
     // Collapse multiple spaces
     tmp = tmp.replace(/\s{2,}/g, ' ');
     return tmp.trim();
@@ -94,8 +94,9 @@ function exportPDF(returnBlob) {
   }
 
   // === TITLE ===
+  var keyText = document.getElementById('songKey') ? document.getElementById('songKey').textContent : '';
   addText('HIP HOP DRUMMER - Beat Sheet', 16, true);
-  addText(bpm + ' BPM  |  Swing ' + swing + '%  |  ' + (document.getElementById('arrTime').textContent || '').replace('— ', ''), 10, false, '#666666');
+  addText(bpm + ' BPM  |  Swing ' + swing + '%' + (keyText && keyText !== '-' ? '  |  Key ' + keyText : '') + '  |  ' + (document.getElementById('arrTime').textContent || '').replace('- ', ''), 10, false, '#666666');
   y += 2;
   addLine();
 
@@ -111,7 +112,7 @@ function exportPDF(returnBlob) {
       var line = clean(aboutLines[i]);
       if (!line) { y += 1.5; continue; }
       // Detect section headers by looking for known all-caps prefixes
-      var isHeader = /^(TEMPO|SWING|STYLE|FLOW|SUGGESTED|REFERENCE|KICK|SNARE|HI-HAT|CRASH|RIMSHOT|A\/B|SECTION|SONG|DRUM|BAR|OPEN|ABOUT|GHOST|VELOCITY|PER-INSTRUMENT|RIDE|PRODUCER|WHAT MAKES|DIFFICULTY|TRY THIS|LISTEN|COMPARE|TECHNIQUE|DID YOU|HISTORY|COMMON|EQUIPMENT|-- PROGRAMMING|-- ADVANCED|-- ARRANGEMENT)/.test(line);
+      var isHeader = /^(TEMPO|SWING|STYLE|FLOW GUIDE|SUGGESTED KEY|MELODIC ARRANGEMENT|SONG ELEMENTS|REFERENCE TRACKS|WHAT MAKES THIS|DIFFICULTY|TRY THIS|LISTEN FOR|COMPARE SECTIONS|TECHNIQUE SPOTLIGHT|HISTORY|COMMON MISTAKES|EQUIPMENT|KICK|SNARE|HI-HAT|CRASH|RIMSHOT|A\/B|SECTION|DRUM|BAR|OPEN|ABOUT|GHOST|VELOCITY|PER-INSTRUMENT|RIDE|PRODUCER|-- PROGRAMMING|-- ADVANCED|-- ARRANGEMENT)/.test(line);
       if (isHeader) {
         y += 3;
         checkPage(10);
