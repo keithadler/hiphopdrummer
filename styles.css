@@ -7,7 +7,9 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .header-bar{display:flex;align-items:center;gap:16px;padding:0 20px;height:56px;background:var(--bg-surface);border-bottom:1px solid var(--border);flex-shrink:0}
 .brand{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text-muted);letter-spacing:1.5px;white-space:nowrap;text-transform:uppercase}
 .brand span{color:#fff}
-.credit{font-family:var(--mono);font-size:18px;color:var(--text-dim);white-space:nowrap;margin-left:auto;letter-spacing:.5px}
+.credit{font-family:var(--mono);font-size:13px;color:var(--text-dim);white-space:nowrap;margin-left:auto;letter-spacing:.5px}
+.credit-link{color:var(--text-dim);text-decoration:none;transition:color .15s}
+.credit-link:hover{color:var(--accent-blue)}
 .controls-bar{display:flex;align-items:center;gap:12px;margin-left:8px}
 .ctrl-group{display:flex;align-items:center;gap:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;height:36px}
 .ctrl-label{font-family:var(--mono);font-size:18px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:500}
@@ -94,17 +96,17 @@ midi-player::part(play-button){color:var(--accent-green)}
 .glossary-term{border-bottom:1px dotted var(--accent-blue);cursor:help}
 .loading{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:19px;color:var(--text-dim);letter-spacing:1px}
 
-/* Mobile responsive layout */
+/* ── Mobile responsive layout ── */
 @media (max-width: 1024px) {
   body{overflow:auto;font-size:17px}
   #app-wrap{height:auto;min-height:100vh}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
   #aboutBeatPanel{position:static;max-height:none}
-  .header-bar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:8px}
-  .brand{font-size:18px}
-  .credit{margin-left:0;width:100%;text-align:center;order:3}
-  .controls-bar{flex-wrap:wrap;gap:8px}
+  .header-bar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
+  .brand{font-size:17px}
+  .credit{margin-left:auto;font-size:11px;letter-spacing:0}
+  .controls-bar{flex-wrap:wrap;gap:6px}
   .grid-row{overflow-x:hidden}
   .cell{flex:1;min-width:0}
   .row-label{width:70px;font-size:13px;padding-right:4px}
@@ -113,15 +115,82 @@ midi-player::part(play-button){color:var(--accent-green)}
   .arr-flow{min-height:60px}
   .panel{padding:8px 10px}
 }
+
 @media (max-width: 600px) {
-  .header-bar{padding:6px 8px}
-  .controls-bar{width:100%;justify-content:center}
-  .cell{flex:1;min-width:0;height:26px;font-size:10px}
-  .beat-num{flex:1;min-width:0;font-size:10px}
-  .row-label{width:52px;font-size:10px;padding-right:3px}
-  .grid-header{padding-left:52px}
-  #aboutBeat{font-size:15px;line-height:1.6}
-  .panel-title{font-size:18px}
-  .arr-item{font-size:18px;padding:4px 8px}
-  .arr-add{font-size:11px}
+  /* Header: stack brand + URL on one line, controls below */
+  .header-bar{
+    padding:8px 10px;
+    gap:6px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .brand{font-size:16px;flex-shrink:0}
+  .credit{
+    margin-left:auto;
+    font-size:10px;
+    letter-spacing:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:180px;
+  }
+  .controls-bar{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:5px;
+    order:2;
+  }
+  /* Regenerate spans full width */
+  .btn-gen{
+    grid-column:1 / -1;
+    justify-content:center;
+    font-size:13px;
+    height:38px;
+  }
+  /* Export spans full width */
+  .btn-export{
+    grid-column:1 / -1;
+    justify-content:center;
+    font-size:12px;
+    height:36px;
+  }
+  .ctrl-group{
+    justify-content:center;
+    padding:4px 6px;
+    height:34px;
+  }
+  .ctrl-label{font-size:11px}
+  .ctrl-input{font-size:14px;width:32px}
+
+  /* Grid: tighter but readable */
+  .cell{flex:1;min-width:0;height:24px;font-size:9px}
+  .beat-num{flex:1;min-width:0;font-size:9px}
+  .row-label{width:48px;font-size:9px;padding-right:3px;letter-spacing:0}
+  .grid-header{padding-left:48px}
+
+  /* Panels */
+  .panel{padding:8px 8px}
+  .panel-title{font-size:13px;letter-spacing:.8px}
+  .pattern-info{font-size:12px}
+
+  /* Arrangement */
+  .arr-hint{font-size:12px}
+  .arr-item{font-size:12px;padding:4px 8px;gap:5px}
+  .arr-item .bar-count{font-size:11px}
+  .arr-item .feel-tag{font-size:9px;padding:1px 4px}
+  .arr-add{font-size:11px;padding:3px 7px}
+  .arr-flow{min-height:50px;gap:4px;padding:5px}
+
+  /* About panel */
+  #aboutBeat{font-size:13px;line-height:1.6}
+  .about-header{font-size:13px;padding:5px 8px}
+  .about-arrow{font-size:14px}
+
+  /* Bar tabs */
+  .bar-btn{font-size:12px;padding:3px 8px}
+  .bar-tabs{gap:3px;flex-wrap:wrap}
+
+  /* MIDI player */
+  midi-player::part(control-panel){padding:3px 6px}
 }
