@@ -82,6 +82,40 @@
   <!-- Tooltip for grid cell explanations and glossary -->
   <div id="tooltip" class="tooltip" style="display:none"></div>
 
+  <!-- Regenerate dialog -->
+  <div id="regenOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog">
+      <div class="regen-title">Generate New Beat</div>
+      <div class="regen-subtitle">All fields are optional — leave any on Auto for a random choice.</div>
+
+      <div class="regen-fields">
+        <div class="regen-field">
+          <label class="regen-label">Style</label>
+          <select id="regenStyle" class="regen-select">
+            <option value="">Auto</option>
+          </select>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">Key</label>
+          <select id="regenKey" class="regen-select">
+            <option value="">Auto</option>
+          </select>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">BPM</label>
+          <select id="regenBpm" class="regen-select">
+            <option value="">Auto</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="regenCancel">Cancel</button>
+        <button class="btn regen-go btn-gen" id="regenGo">Generate</button>
+      </div>
+    </div>
+  </div>
+
   <script src="patterns.js"></script>
   <script src="ai.js"></script>
   <script src="writers.js"></script>
