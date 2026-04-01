@@ -39,8 +39,8 @@ function applyGroove(p, len, feel) {
       else p.openhat[i] = grooveVel(i, p.openhat[i]);
     }
     // Snare: backbeat is king, ghosts stay low, step-15 pickup gets a boost
-    // Ghost snares decay across the bar — louder near beat 1, softer near beat 4
-    if (p.snare[i] > 0) {
+    // Crunk: skip snare accent — already at 127, adding would clip
+    if (p.snare[i] > 0 && feel !== 'crunk') {
       if (pos === 4 || pos === 12) p.snare[i] = Math.min(127, p.snare[i] + 5);
       else if (pos === 15 && p.snare[i] < 85) p.snare[i] = Math.min(85, p.snare[i] + 6); // pickup into next downbeat
       else if (p.snare[i] < 85) {

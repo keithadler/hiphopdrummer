@@ -560,6 +560,10 @@ function generatePattern(sec) {
     };
     if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
   }
+  // Memphis verse: chorus should never be crunk or hard (jarring aesthetic mismatch)
+  if (sec === 'chorus' && (songFeel === 'memphis') && (feel === 'crunk' || feel === 'hard')) {
+    feel = pick(['dark', 'lofi', 'memphis', 'bounce']);
+  }
   // Track the verse feel as the song's dominant style (for analysis display)
   if (sec === 'verse') songFeel = feel;
   var bars = secBarCount(sec), len = Math.min(bars * 16, STEPS);
@@ -654,6 +658,52 @@ function generatePattern(sec) {
     kickB = kick.slice();
     var bkPos = pick([8,10,14]);
     kickB[bkPos] = kickB[bkPos] ? 0 : 1;
+  }
+
+  // Halftime: dedicated kick library — specific halftime patterns (Havoc, RZA)
+  if (feel === 'halftime' && !isCh) {
+    var halftimeKicks = [
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — classic halftime
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — simple halftime
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — Havoc syncopation
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,1, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, ah-of-1, and-of-3 — RZA feel
+    ];
+    kick = pick(halftimeKicks);
+    kickB = kick.slice();
+    var htPos = pick([8, 10, 11, 14]);
+    kickB[htPos] = kickB[htPos] ? 0 : 1;
+  }
+
+  // Sparse: use minimal/dark patterns
+  if (feel === 'sparse' && !isCh) {
+    var sparseKicks = [
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // kick on 1 only
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    ];
+    kick = pick(sparseKicks);
+    kickB = kick.slice();
+    var spPos = pick([8, 10, 11]);
+    kickB[spPos] = kickB[spPos] ? 0 : 1;
+  }
+
+  // Driving: bias toward rolling/forward-momentum patterns (Gangstarr, EPMD)
+  if (feel === 'driving' && !isCh) {
+    var drivingKicks = [
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling — constant and-of kicks
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // chopped forward
+      [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // break pattern with momentum
+      [1,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // relentless ands
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard with and-of-2
+    ];
+    kick = pick(drivingKicks);
+    kickB = kick.slice();
+    var dvPos = pick([8, 10, 14]);
+    kickB[dvPos] = kickB[dvPos] ? 0 : 1;
   }
 
   // G-Funk: dedicated West Coast kick library — 1-and-3 patterns with occasional syncopation
@@ -914,8 +964,12 @@ function generatePattern(sec) {
 
   // Chorus: reinforce beat 1 with kick+snare for impact
   if (isCh) { p.kick[0]=v(127,5); p.snare[0]=v(110,10); }
-  // Last chorus: add open hats every other bar for extra energy
-  if (sec==='lastchorus') { for (var i=0;i<len;i+=32) if (i+14<len) p.openhat[i+14]=v(90,10); }
+  // Last chorus: add open hats every other bar + crashes on every 4-bar phrase start
+  if (sec==='lastchorus') {
+    for (var i=0;i<len;i+=32) if (i+14<len) p.openhat[i+14]=v(90,10);
+    // Crash on beat 1 of every 4-bar phrase (bars 1, 5, 9...) — marks the climax
+    for (var i=0;i<len;i+=64) if (i>0 && i<len) p.crash[i]=v(110,8);
+  }
   // Pre-chorus: build density in the last bar (extra kicks and ghost snares)
   if (sec==='pre' && len>=32) { var ds=len-16; for (var i=ds;i<len;i+=2) { if (!p.kick[i]&&maybe(.3)) p.kick[i]=v(85,15); if (!p.snare[i]&&maybe(.2)) p.snare[i]=v(65,10); } }
   // Breakdown: gradual strip-down over the full section (natural drummer approach)
