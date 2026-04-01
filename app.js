@@ -114,8 +114,45 @@ document.getElementById('regenGo').onclick = function() {
 /** New Beat button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
-/** Export button: build MIDI files + PDF and download as ZIP */
-document.getElementById('btnExport').onclick = exportMIDI;
+/** Export button: show the export dialog */
+document.getElementById('btnExport').onclick = showExportDialog;
+
+// ── Export Dialog ──
+
+function showExportDialog() {
+  document.getElementById('exportOverlay').style.display = 'flex';
+  // Wire the DAW toggle button
+  var toggle = document.getElementById('exportDawToggle');
+  toggle.onclick = function() {
+    var checks = document.querySelectorAll('.daw-check');
+    var anyChecked = Array.from(checks).some(function(c) { return c.checked; });
+    checks.forEach(function(c) { c.checked = !anyChecked; });
+    toggle.textContent = anyChecked ? 'Select all' : 'Deselect all';
+  };
+}
+
+function hideExportDialog() {
+  document.getElementById('exportOverlay').style.display = 'none';
+}
+
+document.getElementById('exportCancel').onclick = hideExportDialog;
+document.getElementById('exportOverlay').onclick = function(e) {
+  if (e.target === this) hideExportDialog();
+};
+
+document.getElementById('exportGo').onclick = function() {
+  var opts = {
+    fullSong:    document.getElementById('expFullSong').checked,
+    sections:    document.getElementById('expSections').checked,
+    mpc:         document.getElementById('expMpc').checked,
+    pdf:         document.getElementById('expPdf').checked,
+    daws: Array.from(document.querySelectorAll('.daw-check'))
+               .filter(function(c) { return c.checked; })
+               .map(function(c) { return c.value; })
+  };
+  hideExportDialog();
+  exportMIDI(opts);
+};
 
 /**
  * Keyboard shortcuts:

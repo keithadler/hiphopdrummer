@@ -111,6 +111,14 @@ midi-player::part(play-button){color:var(--accent-green)}
 .regen-cancel{color:var(--text-muted);min-width:80px}
 .regen-go{min-width:120px;justify-content:center;font-size:14px}
 .regen-artists{font-family:var(--mono);font-size:11px;color:var(--accent-green);line-height:1.4;min-height:14px;padding-top:4px;letter-spacing:.2px}
+.export-dialog{width:480px}
+.export-checks{display:flex;flex-direction:column;gap:6px;padding:4px 0}
+.export-daws{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.export-check{font-family:var(--mono);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+.export-check input[type=checkbox]{accent-color:var(--accent-blue);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.export-check:hover{color:var(--text-primary)}
+.export-toggle{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:11px;cursor:pointer;padding:4px 0;text-align:left;letter-spacing:.3px}
+.export-toggle:hover{color:var(--accent-blue)}
 
 /* ── Mobile responsive layout ── */
 @media (max-width: 1024px) {
