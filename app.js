@@ -51,6 +51,10 @@ function showRegenDialog() {
     var style = styleEl.value;
     var data = style ? STYLE_DATA[style] : null;
 
+    // Artists — show who makes this style
+    var artistsEl = document.getElementById('regenArtists');
+    if (artistsEl) artistsEl.textContent = data ? data.artists : '';
+
     // Keys — only show keys for the selected style, sorted alphabetically
     var prevKey = keyEl.value;
     keyEl.innerHTML = '<option value="">Auto</option>';

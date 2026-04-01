@@ -154,19 +154,19 @@ function emptyPat() {
  * @type {Object}
  */
 var STYLE_DATA = {
-  normal:    { label: 'Classic Boom Bap',  bpmRange: [83, 110], keys: ['Cm','Dm','Am','Gm','Em'] },
-  halftime:  { label: 'Halftime',          bpmRange: [75, 98],  keys: ['Cm','Fm','Bbm','Gm'] },
-  hard:      { label: 'Hard / Aggressive', bpmRange: [88, 115], keys: ['Cm','Bbm','Dm','Am','Fm'] },
-  jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 100], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7'] },
-  dark:      { label: 'Dark Minimal',      bpmRange: [68, 90],  keys: ['Cm','Abm','Fm','Bbm','Gm'] },
-  bounce:    { label: 'Bounce',            bpmRange: [90, 108], keys: ['G','C','Bb','F','D'] },
-  big:       { label: 'Big / Anthem',      bpmRange: [88, 110], keys: ['Cm','G','Bb','Am'] },
-  driving:   { label: 'Driving',           bpmRange: [90, 115], keys: ['Am','Dm','Em','Cm'] },
-  sparse:    { label: 'Sparse',            bpmRange: [72, 95],  keys: ['Am','Dm','Em','Cm'] },
-  dilla:     { label: 'Dilla / Neo-Soul',  bpmRange: [78, 98],  keys: ['Dm7','Am7','Gm7','Em7','Cm7'] },
-  lofi:      { label: 'Lo-Fi / Dusty',     bpmRange: [75, 95],  keys: ['Cm7','Fm','Dm','Am7','Gm'] },
-  chopbreak: { label: 'Chopped Break',     bpmRange: [88, 110], keys: ['Am','Dm','Em','Gm','Cm'] },
-  gfunk:     { label: 'G-Funk',            bpmRange: [80, 105], keys: ['Gm','Dm','Cm','Am','Fm'] },
-  crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'] },
-  memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'] }
+  normal:    { label: 'Classic Boom Bap',  bpmRange: [83, 110], keys: ['Cm','Dm','Am','Gm','Em'],          artists: 'DJ Premier, Pete Rock, Buckwild, Large Professor, Gangstarr' },
+  halftime:  { label: 'Halftime',          bpmRange: [75, 98],  keys: ['Cm','Fm','Bbm','Gm'],              artists: 'Havoc (Mobb Deep), RZA (Wu-Tang), Alchemist' },
+  hard:      { label: 'Hard / Aggressive', bpmRange: [88, 115], keys: ['Cm','Bbm','Dm','Am','Fm'],         artists: 'Havoc, DJ Premier, Onyx, M.O.P., early Mobb Deep' },
+  jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 100], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7'], artists: 'Q-Tip, Pete Rock, De La Soul, Guru (Jazzmatazz), Buckwild' },
+  dark:      { label: 'Dark Minimal',      bpmRange: [68, 90],  keys: ['Cm','Abm','Fm','Bbm','Gm'],        artists: 'RZA, Daringer, Havoc, Griselda, Westside Gunn' },
+  bounce:    { label: 'Bounce',            bpmRange: [90, 108], keys: ['G','C','Bb','F','D'],               artists: 'Easy Mo Bee, Puff Daddy, Craig Mack, Bad Boy era' },
+  big:       { label: 'Big / Anthem',      bpmRange: [88, 110], keys: ['Cm','G','Bb','Am'],                artists: 'DJ Premier, Pete Rock, Easy Mo Bee, large-scale productions' },
+  driving:   { label: 'Driving',           bpmRange: [90, 115], keys: ['Am','Dm','Em','Cm'],               artists: 'DJ Premier (Gangstarr), EPMD, Erick Sermon, Redman' },
+  sparse:    { label: 'Sparse',            bpmRange: [72, 95],  keys: ['Am','Dm','Em','Cm'],               artists: 'RZA, Alchemist, early Wu-Tang, Roc Marciano' },
+  dilla:     { label: 'Dilla / Neo-Soul',  bpmRange: [78, 98],  keys: ['Dm7','Am7','Gm7','Em7','Cm7'],     artists: 'J Dilla, Madlib, Karriem Riggins, Slum Village, Kaytranada' },
+  lofi:      { label: 'Lo-Fi / Dusty',     bpmRange: [75, 95],  keys: ['Cm7','Fm','Dm','Am7','Gm'],        artists: 'Madlib, Knxwledge, MF DOOM, Roc Marciano, Dibia$e' },
+  chopbreak: { label: 'Chopped Break',     bpmRange: [88, 110], keys: ['Am','Dm','Em','Gm','Cm'],          artists: 'DJ Premier, Havoc, Alchemist, Large Professor, Pete Rock' },
+  gfunk:     { label: 'G-Funk',            bpmRange: [80, 105], keys: ['Gm','Dm','Cm','Am','Fm'],          artists: 'Dr. Dre, DJ Quik, Warren G, Snoop Dogg, Nate Dogg' },
+  crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
+  memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' }
 };
