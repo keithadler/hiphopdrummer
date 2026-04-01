@@ -89,7 +89,8 @@ function analyzeBeat() {
     normal: 'CLASSIC BOOM BAP', halftime: 'HALFTIME', hard: 'HARD/AGGRESSIVE',
     jazzy: 'JAZZ-INFLUENCED', dark: 'DARK MINIMAL', bounce: 'BOUNCE',
     big: 'BIG/ANTHEM', driving: 'DRIVING', sparse: 'SPARSE',
-    dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK'
+    dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
+    gfunk: 'G-FUNK', crunk: 'CRUNK', memphis: 'MEMPHIS'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. This is the sound of DJ Premier, Pete Rock, and Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, and ghost notes for groove. The template that defined a generation.',
@@ -103,7 +104,10 @@ function analyzeBeat() {
     sparse: 'Sparse and minimal — just enough drums to hold the groove. The space creates tension and lets the sample or melody dominate.',
     dilla: 'Dilla/neo-soul pocket — J Dilla "Donuts," Slum Village "Fantastic Vol. 2," Madlib "Madvillainy." The kick intentionally avoids the grid, ghost notes are everywhere, the swing is heavy and loose. Everything feels behind the beat — not sloppy, but deliberately relaxed. The groove leans back so hard it almost falls over, but never does. This is the feel that changed hip hop production forever.',
     lofi: 'Lo-fi/dusty — Madlib\'s Beat Konducta, Knxwledge, Roc Marciano, early MF DOOM. Everything lives in a narrow velocity band — no hit is too loud, no hit is too soft. The dynamics are compressed and muted, like the beat is playing through a dusty SP-404 with the gain turned down. Sparse hats, kick and snare almost the same volume, ghost notes barely there. The vibe is hazy and meditative.',
-    chopbreak: 'Chopped breakbeat — DJ Premier "Mass Appeal," Havoc, Alchemist, Large Professor. The kick and snare placements mirror real drummer phrasing from classic funk/soul breaks (Funky Drummer, Impeach the President, Apache). Dense ghost snares, busy kick patterns, and the hat rides hard. This is boom bap connected directly to its breakbeat DNA — the patterns sound like a chopped and reprogrammed drum break because that\'s exactly what they\'re modeled on.'
+    chopbreak: 'Chopped breakbeat — DJ Premier "Mass Appeal," Havoc, Alchemist, Large Professor. The kick and snare placements mirror real drummer phrasing from classic funk/soul breaks (Funky Drummer, Impeach the President, Apache). Dense ghost snares, busy kick patterns, and the hat rides hard. This is boom bap connected directly to its breakbeat DNA — the patterns sound like a chopped and reprogrammed drum break because that\'s exactly what they\'re modeled on.',
+    gfunk: 'G-Funk — Dr. Dre "The Chronic," DJ Quik, Warren G "Regulate," Snoop Dogg "Gin and Juice." Slow to mid-tempo with heavy swing, 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare. The groove is smooth and hypnotic — it bounces without rushing. The synth bass and P-Funk samples do the heavy lifting; the drums just hold the pocket.',
+    crunk: 'Crunk — Lil Jon "Get Low," Ying Yang Twins, Three 6 Mafia "Tear Da Club Up." Fast tempo, nearly straight (minimal swing), maximum velocity on everything. Kick on every beat or 4-on-the-floor, snare and clap cracking at full force, hats driving relentlessly. The drums are a weapon — no subtlety, no ghost notes, just raw energy. This is the sound of a club at 2am.',
+    memphis: 'Memphis rap — Three 6 Mafia "Slob on My Knob," DJ Paul, Juicy J, early Gangsta Boo. Slow tempo, minimal swing, sparse kick, dark and sinister. The drums are skeletal — just enough to hold the groove while the eerie samples and menacing lyrics carry the weight. Low-velocity hats, minimal ghost notes, and a snare that snaps rather than cracks. This is the sound that influenced trap before trap existed.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeel] || styleDescs.normal);
@@ -213,6 +217,27 @@ function analyzeBeat() {
         { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Minimal and open. Am leaves space for the sample to breathe. RZA-style.' },
         { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Sparse and focused. Just the skeleton. Alchemist "Albert Einstein."' }
       ]
+    },
+    gfunk: {
+      keys: [
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'The G-Funk key. Warm, funky, and smooth. Dr. Dre "Nuthin\' But a G Thang" lives here. P-Funk samples love Gm.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'West Coast smooth. Warren G "Regulate" energy. Synth bass and Rhodes piano territory.' },
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Deeper and darker G-Funk. DJ Quik territory. The minor key gives it that melancholy bounce.' }
+      ]
+    },
+    crunk: {
+      keys: [
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Crunk energy in Am. Simple, aggressive, and effective. Lil Jon "Get Low" territory.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Driving and relentless. The minor key matches the aggressive drums. Ying Yang Twins.' },
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Good for synth stabs and horn hits. Crunk club energy.' }
+      ]
+    },
+    memphis: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The Memphis key. Dark, cold, and sinister. Three 6 Mafia "Tear Da Club Up" energy. Eerie samples live here.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Deep and haunting. DJ Paul, Juicy J territory. The flat key adds menace to everything.' },
+        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest Memphis key. Gangsta Boo, early Three 6 Mafia. The lowest, most sinister register.' }
+      ]
     }
   };
 
@@ -279,7 +304,10 @@ function analyzeBeat() {
     chopbreak: ['DJ Premier — "Mass Appeal" (Gangstarr)', 'DJ Premier — "Moment of Truth" (Gangstarr)', 'Havoc — "Shook Ones Pt. II" (Mobb Deep)', 'Large Professor — "Breaking Atoms" (Main Source)'],
     driving: ['DJ Premier — "Full Clip" (Gangstarr)', 'EPMD — "Crossover"', 'Erick Sermon — "React"'],
     big: ['DJ Premier — "Kick in the Door" (Notorious B.I.G.)', 'Pete Rock — "The World Is Yours" (Nas)', 'Easy Mo Bee — "Ready to Die" (Notorious B.I.G.)'],
-    sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"']
+    sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"'],
+    gfunk: ['Dr. Dre — "Nuthin\' But a G Thang" (Snoop Dogg)', 'Warren G — "Regulate"', 'DJ Quik — "Tonite"', 'Dr. Dre — "Let Me Ride"'],
+    crunk: ['Lil Jon & The East Side Boyz — "Get Low"', 'Ying Yang Twins — "Whistle While You Twurk"', 'Three 6 Mafia — "Tear Da Club Up \'97"'],
+    memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"']
   };
   var refs = refMap[songFeel] || refMap.normal;
   lines.push('Study these tracks to hear the ' + (styleNames[songFeel] || 'boom bap').toLowerCase() + ' feel in action:');
@@ -319,6 +347,9 @@ function analyzeBeat() {
   if (songFeel === 'dilla') { diffScore += 3; diffReasons.push('Dilla-style loose timing and dense ghosts'); }
   if (songFeel === 'lofi') { diffScore += 1; diffReasons.push('narrow velocity band requires subtle control'); }
   if (songFeel === 'chopbreak') { diffScore += 2; diffReasons.push('dense break-style ghost snares'); }
+  if (songFeel === 'gfunk') { diffScore += 1; diffReasons.push('16th note hat dynamics require precise velocity control'); }
+  if (songFeel === 'crunk') { diffScore += 0; diffReasons.push('maximum velocity throughout — straightforward but intense'); }
+  if (songFeel === 'memphis') { diffScore += 1; diffReasons.push('sparse and sinister — restraint is the challenge'); }
   var diffLabel = diffScore <= 2 ? 'BEGINNER' : diffScore <= 5 ? 'INTERMEDIATE' : 'ADVANCED';
   lines.push('');
   lines.push('📈 <b>DIFFICULTY: ' + diffLabel + '</b>');
@@ -344,6 +375,9 @@ function analyzeBeat() {
   if (songFeel === 'dilla') exercises.push('This is a Dilla-style beat. Try quantizing all the kicks to the nearest beat (steps 1, 5, 9, 13) and listen — the groove will snap to the grid and lose all its looseness. Now undo it. That difference between grid-locked and behind-the-beat is the entire Dilla revolution. The "wrong" timing is what makes it feel right.');
   if (songFeel === 'lofi') exercises.push('This is a lo-fi beat with compressed dynamics. Try boosting the snare to 100% and the ghost notes to 60% — suddenly the beat sounds "normal" instead of dusty. Now bring them back down. That narrow velocity band is what creates the lo-fi aesthetic — it\'s not about the samples, it\'s about the dynamics.');
   if (songFeel === 'chopbreak') exercises.push('This is a chopped-break style beat. Try muting all the ghost snares and listen — the groove will thin out dramatically. Those ghost snares are what make it sound like a real drum break instead of a programmed pattern. The density of ghost activity is the difference between "beat" and "break."');
+  if (songFeel === 'gfunk') exercises.push('This is a G-Funk beat. The 16th note hats are the signature — try replacing them with 8th notes and hear how the groove loses its West Coast bounce. The wide dynamic range on the 16ths (loud on quarter notes, soft on the "e" and "ah" positions) is what creates the hypnotic feel. Try making all the hat hits the same volume — it\'ll sound mechanical instead of smooth.');
+  if (songFeel === 'crunk') exercises.push('This is a crunk beat — maximum energy, minimal subtlety. Try lowering the snare and clap to 70% velocity. The beat will suddenly feel like a different genre. Crunk lives at 100% — the aggression IS the style. Now bring it back up. That\'s the difference between crunk and everything else.');
+  if (songFeel === 'memphis') exercises.push('This is a Memphis rap beat. Try adding ghost snares at 50% on every odd step — suddenly it sounds like a different style. Memphis is defined by what\'s NOT there. The sparse, skeletal drums create space for the sinister samples and menacing delivery. Restraint is the technique.');
   if (swing >= 62) exercises.push('Try setting your DAW\'s swing to 50% (straight) and listen to this pattern. It\'ll sound robotic and stiff. Now set it to ' + swing + '% and hear the bounce come back. Swing is the single most important setting in hip hop production.');
   if (swing <= 53) exercises.push('This beat has minimal swing — it\'s almost straight. Try bumping the swing to 62% and listen to how the hats start to "lean back." Some beats want that looseness, others (like this one) want precision.');
   if (exercises.length === 0) exercises.push('Try copying the verse pattern and removing one kick hit. Listen to how the groove changes. Then add a kick in a different position. This is how producers create section variations — same skeleton, different kick.');
@@ -362,6 +396,9 @@ function analyzeBeat() {
   if (songFeel === 'dilla') listenFor.push('Listen for the ghost snares scattered across the bar — they\'re everywhere, not just in the usual positions. That density of soft hits is what creates the Dilla "cloud" of rhythm. The backbeat is softer than usual too — the snare sits IN the groove instead of on top of it.');
   if (songFeel === 'lofi') listenFor.push('Listen to how close the kick and snare are in volume — there\'s no dramatic contrast between them. Everything sits in a narrow band, like the beat is playing through a cheap speaker or a dusty sampler. That compressed dynamic range IS the lo-fi sound.');
   if (songFeel === 'chopbreak') listenFor.push('Listen for the dense ghost snares between the main hits — they mimic the phrasing of a real drummer playing a funk break. The ghost activity is what makes this sound like a chopped breakbeat rather than a programmed pattern. Count the ghost snares in one bar — there are more than in any other style.');
+  if (songFeel === 'gfunk') listenFor.push('Listen to the 16th note hats — they\'re not all the same volume. The quarter note positions are loud, the 8th note upbeats are medium, and the "e" and "ah" positions are very soft. That three-level dynamic is the G-Funk hat signature. It creates a rolling, hypnotic feel that 8th note hats can\'t replicate.');
+  if (songFeel === 'crunk') listenFor.push('Listen to how everything is at maximum velocity — kick, snare, clap, hats all hitting at full force. There\'s no dynamic variation, no ghost notes, no subtlety. That uniformity IS the crunk aesthetic. The energy comes from density and volume, not from dynamics.');
+  if (songFeel === 'memphis') listenFor.push('Listen to the space between hits — Memphis is defined by what\'s absent. The kick barely appears, the hats are quiet, the ghost notes are almost nonexistent. The beat is a skeleton. Notice how the silence creates tension — your brain expects more hits, and when they don\'t come, the groove feels menacing.');
   lines.push(pick(listenFor));
 
   // === #4: COMPARE SECTIONS ===
@@ -718,6 +755,9 @@ function analyzeBeat() {
 
   // Feel-specific producer attributions
   if (songFeel === 'dilla') lines.push('• <b>J Dilla — Full Dilla feel</b> — This beat uses the Dilla approach: softened backbeat (~82% instead of 95%), ghost snares scattered across every odd step, off-grid kick placements, and heavy swing. Dilla\'s "Donuts" (2006) and his work with Slum Village on "Fantastic Vol. 2" defined this technique. The groove leans back so hard it almost falls over — but never does.');
+  if (songFeel === 'gfunk') lines.push('• <b>Dr. Dre / DJ Quik — G-Funk</b> — This beat uses the West Coast G-Funk approach: 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare, heavy swing. Dr. Dre\'s "The Chronic" (1992) and DJ Quik\'s "Quik Is the Name" defined this style. The groove is smooth and hypnotic — it bounces without rushing. P-Funk samples and synth bass complete the picture.');
+  if (songFeel === 'crunk') lines.push('• <b>Lil Jon / Ying Yang Twins — Crunk</b> — This beat uses the crunk approach: maximum velocity on everything, kick on every beat, snare and clap at full force, driving 8th note hats. Lil Jon\'s "Get Low" (2003) and Ying Yang Twins\' "Whistle While You Twurk" defined this style. No subtlety, no ghost notes — just raw, aggressive energy.');
+  if (songFeel === 'memphis') lines.push('• <b>DJ Paul / Juicy J / Three 6 Mafia — Memphis rap</b> — This beat uses the Memphis approach: sparse kick, dark and sinister, minimal ghost notes, low-velocity hats. Three 6 Mafia\'s "Tear Da Club Up \'97" and DJ Paul\'s production style defined this sound. The drums are skeletal — just enough to hold the groove while the eerie samples carry the weight. This is the sound that influenced trap before trap existed.');
   if (songFeel === 'lofi') lines.push('• <b>Madlib / Knxwledge — Lo-fi dynamics</b> — This beat uses compressed dynamics where every hit lives in a narrow velocity band. Madlib\'s Beat Konducta series and Knxwledge\'s NxWorries productions pioneered this approach — running drums through the SP-404\'s vinyl simulation effect to create a warm, dusty, meditative feel. MF DOOM\'s "MM..FOOD" and Roc Marciano\'s "Marcberg" are textbook examples.');
   if (songFeel === 'chopbreak') lines.push('• <b>DJ Premier / Havoc — Chopped break phrasing</b> — This beat\'s dense ghost snares mimic the phrasing of real funk drummers whose breaks were sampled and reprogrammed. Premier\'s "Mass Appeal" and Havoc\'s "Shook Ones Pt. II" both feature this approach — the ghost note density comes from the original break, not from programming. Alchemist and Large Professor use the same technique on their sample-heavy productions.');
 

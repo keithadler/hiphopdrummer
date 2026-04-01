@@ -137,14 +137,14 @@ var songFeel = 'normal';
  */
 var FEELS = {
   intro: ['intro_a', 'intro_b', 'intro_c'],
-  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak'],
-  pre: ['normal', 'driving', 'hard', 'chopbreak'],  // No dilla/lofi — pre must build energy
-  chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak'],
-  verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak'],
-  chorus2: ['big', 'driving', 'bounce', 'chopbreak'],
-  breakdown: ['sparse', 'halftime', 'dark', 'lofi'],
-  instrumental: ['halftime', 'normal', 'jazzy', 'dilla', 'lofi'],
-  lastchorus: ['big', 'driving', 'big', 'hard', 'bounce', 'chopbreak'],
+  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis'],
+  pre: ['normal', 'driving', 'hard', 'chopbreak', 'crunk'],  // No dilla/lofi — pre must build energy
+  chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak', 'crunk', 'gfunk'],
+  verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis'],
+  chorus2: ['big', 'driving', 'bounce', 'chopbreak', 'crunk'],
+  breakdown: ['sparse', 'halftime', 'dark', 'lofi', 'memphis'],
+  instrumental: ['halftime', 'normal', 'jazzy', 'dilla', 'lofi', 'gfunk'],
+  lastchorus: ['big', 'driving', 'big', 'hard', 'bounce', 'chopbreak', 'crunk'],
   outro: ['outro_fade', 'outro_stop']
 };
 
@@ -275,7 +275,10 @@ var SWING_POOLS = {
   sparse:    [52, 54, 56, 58, 60, 62, 64],
   dilla:     [62, 64, 64, 66, 66, 68, 68, 70, 70, 72],
   lofi:      [56, 58, 58, 60, 60, 62, 62, 64],
-  chopbreak: [58, 60, 60, 62, 62, 64, 64, 66, 66]
+  chopbreak: [58, 60, 60, 62, 62, 64, 64, 66, 66],
+  gfunk:     [62, 64, 64, 66, 66, 68, 68, 70],   // heavy swing — the G-Funk bounce
+  crunk:     [50, 50, 52, 52, 54, 54, 56],        // nearly straight — crunk is mechanical
+  memphis:   [50, 52, 52, 54, 54, 56, 56, 58]     // minimal swing — dark and cold
 };
 
 /**
@@ -544,7 +547,10 @@ function generatePattern(sec) {
       chopbreak: ['chopbreak', 'chopbreak', 'normal', 'hard'],
       jazzy: ['jazzy', 'jazzy', 'dilla', 'normal'],
       hard: ['hard', 'hard', 'chopbreak', 'driving'],
-      dark: ['dark', 'dark', 'lofi', 'halftime']
+      dark: ['dark', 'dark', 'lofi', 'halftime'],
+      gfunk: ['gfunk', 'gfunk', 'bounce', 'normal'],
+      crunk: ['crunk', 'crunk', 'hard', 'bounce'],
+      memphis: ['memphis', 'memphis', 'dark', 'lofi']
     };
     if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
   }
@@ -584,8 +590,11 @@ function generatePattern(sec) {
   if (feel === 'dilla') sectionHatType = '8th';        // Dilla: always swung 8ths, never triplets or full 16ths
   if (feel === 'lofi') sectionHatType = '8th';          // Lo-fi: always sparse 8ths
   if (feel === 'chopbreak' && sectionHatType === 'triplet') sectionHatType = '16th'; // Chopbreak: bias toward 16ths, never triplets
+  if (feel === 'gfunk') sectionHatType = '16th';        // G-Funk: 16th note hats are the signature sound
+  if (feel === 'crunk') sectionHatType = '8th';         // Crunk: driving 8ths, loud and mechanical
+  if (feel === 'memphis') sectionHatType = '8th';       // Memphis: sparse 8ths, dark and minimal
   // Chorus/lastchorus: step up hat density if currently on 8ths (more energy)
-  if (isCh && sectionHatType === '8th' && feel !== 'dilla' && feel !== 'lofi') {
+  if (isCh && sectionHatType === '8th' && feel !== 'dilla' && feel !== 'lofi' && feel !== 'memphis') {
     sectionHatType = pick(['8th', '8th', '16th_sparse', '16th']); // 50% chance of busier hats
   }
 
@@ -971,7 +980,7 @@ function applySectionTransitions() {
  *   110–118: Uptempo/battle rap (EPMD, Onyx, Black Moon)
  * @type {number[]}
  */
-var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118];
+var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118, 120, 125, 128, 130];
 
 /**
  * Master generation function — creates an entire song from scratch.
@@ -1060,6 +1069,9 @@ function generateAll() {
   if (songFeel === 'chopbreak' && ghostDensity < 1.0) ghostDensity = 1.0;
   if (songFeel === 'lofi' && ghostDensity > 1.0) ghostDensity = 1.0;
   if (songFeel === 'dilla' && ghostDensity < 0.8) ghostDensity = 0.8;
+  if (songFeel === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
+  if (songFeel === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
+  if (songFeel === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
