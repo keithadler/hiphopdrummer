@@ -142,105 +142,133 @@ function analyzeBeat() {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The classic boom bap key. Dark enough to feel heavy, versatile enough for any sample. DJ Premier, Pete Rock.' },
         { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Slightly brighter than Cm. Works great with piano and horn samples. Nas "N.Y. State of Mind" energy.' },
-        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Natural minor, the most common key in hip hop. Every instrument sounds good here.' }
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Natural minor, the most common key in hip hop. Every instrument sounds good here.' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. Great for soul sample chops. Buckwild, Large Professor territory.' },
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Guitar-based samples and string loops love Em. Gangstarr energy.' }
       ]
     },
     hard: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and aggressive. Minor thirds and flat sevenths give it that menacing edge. Mobb Deep territory.' },
         { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and low. The flat key adds weight to everything. Onyx, M.O.P. energy.' },
-        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Good for aggressive piano or string loops.' }
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Good for aggressive piano or string loops.' },
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw and direct. Hard beats in Am hit like a punch. DJ Premier "Kick in the Door" energy.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Cold and relentless. The flat minor key gives hard beats a cinematic, dangerous quality.' }
       ]
     },
     jazzy: {
       keys: [
-        { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', rel: 'Dm', relNote: 'Dm, Am, Em', context: 'Warm and jazzy. The major 7th chord is the sound of Tribe Called Quest. "Electric Relaxation" lives here.' },
-        { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', rel: 'Gm', relNote: 'Gm, Dm, Am', context: 'Smooth and sophisticated. Rhodes piano and muted trumpet live here. Pete Rock & CL Smooth.' },
-        { root: 'Ebmaj7', type: 'major', i: 'Ebmaj7', iv: 'Abmaj7', v: 'Bb7', rel: 'Cm', relNote: 'Cm, Gm, Fm', context: 'Rich and full. Classic jazz voicing that works with any horn arrangement.' }
+        { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', rel: 'Dm', relNote: 'Dm7, Am7, Em7', context: 'Warm and jazzy. The major 7th chord is the sound of Tribe Called Quest. "Electric Relaxation" lives here.' },
+        { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Rhodes piano and muted trumpet live here. Pete Rock & CL Smooth.' },
+        { root: 'Ebmaj7', type: 'major', i: 'Ebmaj7', iv: 'Abmaj7', v: 'Bb7', rel: 'Cm', relNote: 'Cm7, Gm7, Fm7', context: 'Rich and full. Classic jazz voicing that works with any horn arrangement.' },
+        { root: 'Abmaj7', type: 'major', i: 'Abmaj7', iv: 'Dbmaj7', v: 'Eb7', rel: 'Fm', relNote: 'Fm7, Cm7, Bbm7', context: 'Lush and sophisticated. De La Soul, A Tribe Called Quest territory. Add a 9th for extra warmth.' },
+        { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Minor jazz pocket. Guru "Jazzmatazz" energy. The minor 7th keeps it soulful without being dark.' }
       ]
     },
     dark: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Cold and minimal. Let the bass carry the weight, keep the melody sparse. Wu-Tang "C.R.E.A.M." energy.' },
         { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'B major', relNote: 'B, F#, E', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
-        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Haunting and atmospheric. Good for minor key piano loops. RZA-style.' }
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Haunting and atmospheric. Good for minor key piano loops. RZA-style.' },
+        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and ominous. The flat minor key creates maximum darkness. Griselda, Westside Gunn.' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but not oppressive. Good for eerie string samples and minor key piano. Early Mobb Deep.' }
       ]
     },
     bounce: {
       keys: [
         { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Bright and danceable. The major key lifts the energy and makes hooks catchy. Bad Boy era.' },
         { root: 'C', type: 'major', i: 'C', iv: 'F', v: 'G', rel: 'Am', relNote: 'Am, Em, Dm', context: 'Simple and effective. Bad Boy era production loved major keys for radio appeal. Biggie "Juicy."' },
-        { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs.' }
+        { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs.' },
+        { root: 'F', type: 'major', i: 'F', iv: 'Bb', v: 'C', rel: 'Dm', relNote: 'Dm, Am, Gm', context: 'Bright and soulful. Craig Mack, early Bad Boy energy. Works great with vocal samples.' },
+        { root: 'D', type: 'major', i: 'D', iv: 'G', v: 'A', rel: 'Bm', relNote: 'Bm, F#m, Em', context: 'Upbeat and energetic. Less common in hip hop — makes your beat stand out. Danceable and fresh.' }
       ]
     },
     dilla: {
       keys: [
         { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here. "Donuts" energy.' },
         { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Neo-soul foundation. Add a 9th for extra color. Slum Village territory.' },
-        { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy Dilla-style grooves.' }
+        { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy Dilla-style grooves.' },
+        { root: 'Em7', type: 'minor', i: 'Em7', iv: 'Am7', v: 'Bm7', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Introspective and soulful. Madlib, Kaytranada territory. The minor 7th floats above the beat.' },
+        { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Darker Dilla pocket. Flying Lotus, Thundercat energy. Add a flat 9th for extra tension.' }
       ]
     },
     lofi: {
       keys: [
         { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Hazy and meditative. The minor 7th adds warmth without brightness. Madlib territory.' },
         { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dusty and introspective. Vinyl crackle and detuned piano territory. Knxwledge.' },
-        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Simple and muted. Keep the melody as compressed as the drums. MF DOOM.' }
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Simple and muted. Keep the melody as compressed as the drums. MF DOOM.' },
+        { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Warm and hazy. The 7th chord adds just enough color. Roc Marciano, Alchemist lo-fi territory.' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dusty and melancholy. Good for detuned Rhodes and vinyl-warped samples. Dibia$e energy.' }
       ]
     },
     chopbreak: {
       keys: [
         { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'The break key. Most classic funk breaks were in minor keys. Premier "Mass Appeal."' },
         { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Funky and raw. Horn stabs and wah guitar live here. Havoc, Alchemist.' },
-        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and driving. Good for guitar-based samples. Large Professor.' }
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and driving. Good for guitar-based samples. Large Professor.' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Funky and soulful. P-Funk breaks love Gm. DJ Premier, Buckwild territory.' },
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and funky. Break patterns in Cm hit hard. Havoc, early Mobb Deep production.' }
       ]
     },
     halftime: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Heavy and slow. The halftime feel needs a key with weight. Havoc "Quiet Storm" energy.' },
-        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dark and spacious. The halftime groove breathes in Fm. RZA-style.' }
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dark and spacious. The halftime groove breathes in Fm. RZA-style.' },
+        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Deep and ominous. Halftime at this pitch feels like slow motion. Mobb Deep "Survival of the Fittest."' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm but heavy. Halftime in Gm has a melancholy weight. Good for minor key piano loops.' }
       ]
     },
     driving: {
       keys: [
         { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Forward momentum. Am drives hard without being too dark. Gangstarr, EPMD.' },
-        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Relentless and focused. The driving feel pushes in Dm. EPMD "Crossover."' }
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Relentless and focused. The driving feel pushes in Dm. EPMD "Crossover."' },
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Guitar-based samples drive hard in Em. Gangstarr "Full Clip."' },
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and relentless. Driving beats in Cm feel unstoppable. Erick Sermon, EPMD territory.' }
       ]
     },
     big: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Anthem energy in minor. Big choruses hit harder in minor keys. Premier "Kick in the Door."' },
-        { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Uplifting and powerful. Major key anthems feel triumphant. Pete Rock "The World Is Yours."' }
+        { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Uplifting and powerful. Major key anthems feel triumphant. Pete Rock "The World Is Yours."' },
+        { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Big and warm. Bb major anthems feel full and stadium-ready. Easy Mo Bee "Ready to Die."' },
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Powerful minor anthem. Am choruses hit with emotional weight. DJ Premier "Mass Appeal" chorus energy.' }
       ]
     },
     sparse: {
       keys: [
         { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Minimal and open. Am leaves space for the sample to breathe. RZA-style.' },
-        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Sparse and focused. Just the skeleton. Alchemist "Albert Einstein."' }
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Sparse and focused. Just the skeleton. Alchemist "Albert Einstein."' },
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Open and minimal. Em gives sparse beats a slightly brighter, more introspective quality.' },
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and spacious. Sparse beats in Cm feel cinematic. Wu-Tang instrumental energy.' }
       ]
     },
     gfunk: {
       keys: [
         { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'The G-Funk key. Warm, funky, and smooth. Dr. Dre "Nuthin\' But a G Thang" lives here. P-Funk samples love Gm.' },
         { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'West Coast smooth. Warren G "Regulate" energy. Synth bass and Rhodes piano territory.' },
-        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Deeper and darker G-Funk. DJ Quik territory. The minor key gives it that melancholy bounce.' }
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Deeper and darker G-Funk. DJ Quik territory. The minor key gives it that melancholy bounce.' },
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Lighter West Coast feel. Good for uptempo G-Funk. Snoop Dogg "Gin and Juice" energy.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dark G-Funk. The flat minor key gives West Coast beats a heavier, more menacing quality.' }
       ]
     },
     crunk: {
       keys: [
         { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Crunk energy in Am. Simple, aggressive, and effective. Lil Jon "Get Low" territory.' },
         { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Driving and relentless. The minor key matches the aggressive drums. Ying Yang Twins.' },
-        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Good for synth stabs and horn hits. Crunk club energy.' }
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Good for synth stabs and horn hits. Crunk club energy.' },
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark crunk. Cm gives the aggressive drums a menacing backdrop. Three 6 Mafia crossover energy.' }
       ]
     },
     memphis: {
       keys: [
         { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The Memphis key. Dark, cold, and sinister. Three 6 Mafia "Tear Da Club Up" energy. Eerie samples live here.' },
         { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Deep and haunting. DJ Paul, Juicy J territory. The flat key adds menace to everything.' },
-        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest Memphis key. Gangsta Boo, early Three 6 Mafia. The lowest, most sinister register.' }
+        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest Memphis key. Gangsta Boo, early Three 6 Mafia. The lowest, most sinister register.' },
+        { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Eerie and atmospheric. Memphis beats in Gm feel like a horror movie. Good for minor key synth pads.' },
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Slightly brighter Memphis. Am gives the sinister drums a more accessible backdrop. Early Three 6 Mafia.' }
       ]
     }
   };
-
   var feelKeys = keyData[songFeel] || keyData.normal;
   var chosenKey = pick(feelKeys.keys);
 
