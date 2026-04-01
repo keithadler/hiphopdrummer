@@ -814,5 +814,9 @@ function analyzeBeat() {
   lines.push('3. <b>Key: ' + chosenKey.root + '</b> — program your bassline on the root note first, lock it to the kick, then build the melody on top.');
   lines.push('Export the MIDI, load it into your DAW, assign your drum sounds, and start building. The patterns are ready to use.');
 
+  // Educational disclaimer
+  lines.push('');
+  lines.push('<span style="font-size:0.85em;color:#404058;font-style:italic;">Artist and track references are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.</span>');
+
   return lines.join('<br>');
 }
