@@ -781,7 +781,7 @@ function analyzeBeat() {
   // === DRUM MACHINE WORKFLOW ===
   lines.push('');
   lines.push('💡 <b>DRUM MACHINE WORKFLOW</b>');
-  lines.push('<b>DAW-specific help files are included in the ZIP</b> — HOW_TO_USE_ABLETON.txt, HOW_TO_USE_LOGIC_PRO.txt, HOW_TO_USE_FL_STUDIO.txt, HOW_TO_USE_MASCHINE.txt in the MIDI Patterns folder, and HOW_TO_USE_MPC.txt in the MPC folder. Each covers step-by-step import for that platform including MPC 3.7.1 and older MPC 2.x workflows.');
+  lines.push('<b>DAW-specific help files are included in the ZIP</b> — Ableton, Logic Pro, FL Studio, GarageBand, Pro Tools, Reason, Reaper, Studio One, and Maschine guides are in the MIDI Patterns folder. The MPC guide (covering firmware 3.7.1 and older 2.x workflows) is in the MPC folder.');
   lines.push('');
   lines.push('<b>Option A — Import the MIDI files:</b>');
   lines.push('1. Export the MIDI ZIP — each section is a separate .mid file in the MIDI Patterns folder.');
