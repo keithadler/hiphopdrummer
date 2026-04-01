@@ -131,18 +131,114 @@ function analyzeBeat() {
   // === KEY SUGGESTION — musical context for producers ===
   lines.push('');
   lines.push('🎹 <b>SUGGESTED KEY / SCALE</b>');
-  var keyMap = {
-    normal: pick(['Cm (C minor) — the classic boom bap key. Dark enough to feel heavy, versatile enough for any sample.', 'Dm (D minor) — slightly brighter than Cm, works great with piano and horn samples.', 'Am (A minor) — natural minor, the most common key in hip hop. Every instrument sounds good here.']),
-    hard: pick(['Cm (C minor) — dark and aggressive. Minor thirds and flat sevenths give it that menacing edge.', 'Bbm (Bb minor) — heavy and low. The flat key adds weight to everything.', 'Dm (D minor) — tight and focused. Good for aggressive piano or string loops.']),
-    jazzy: pick(['Fmaj7 (F major 7th) — warm and jazzy. The major 7th chord is the sound of Tribe Called Quest.', 'Bbmaj7 (Bb major 7th) — smooth and sophisticated. Rhodes piano and muted trumpet live here.', 'Ebmaj7 (Eb major 7th) — rich and full. Classic jazz voicing that works with any horn arrangement.']),
-    dark: pick(['Cm (C minor) — cold and minimal. Let the bass carry the weight, keep the melody sparse.', 'Abm (Ab minor) — deep and cinematic. Wu-Tang territory — dark strings and eerie samples.', 'Fm (F minor) — haunting and atmospheric. Good for minor key piano loops.']),
-    bounce: pick(['G major — bright and danceable. The major key lifts the energy and makes hooks catchy.', 'C major — simple and effective. Bad Boy era production loved major keys for radio appeal.', 'Bb major — warm and full. Great for soul sample chops and horn stabs.']),
-    dilla: pick(['Dm7 (D minor 7th) — the Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here.', 'Am7 (A minor 7th) — neo-soul foundation. Add a 9th for extra color.', 'Gm7 (G minor 7th) — deep and warm. Perfect for bass-heavy Dilla-style grooves.']),
-    lofi: pick(['Cm7 (C minor 7th) — hazy and meditative. The minor 7th adds warmth without brightness.', 'Fm (F minor) — dusty and introspective. Vinyl crackle and detuned piano territory.', 'Dm (D minor) — simple and muted. Keep the melody as compressed as the drums.']),
-    chopbreak: pick(['Am (A minor) — the break key. Most classic funk breaks were in minor keys.', 'Dm (D minor) — funky and raw. Horn stabs and wah guitar live here.', 'Em (E minor) — tight and driving. Good for guitar-based samples.'])
+
+  // Key data: root, scale type, I/IV/V chords, relative companion, chord combos, hip hop context
+  var keyData = {
+    normal: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The classic boom bap key. Dark enough to feel heavy, versatile enough for any sample. DJ Premier, Pete Rock.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Slightly brighter than Cm. Works great with piano and horn samples. Nas "N.Y. State of Mind" energy.' },
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Natural minor, the most common key in hip hop. Every instrument sounds good here.' }
+      ]
+    },
+    hard: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and aggressive. Minor thirds and flat sevenths give it that menacing edge. Mobb Deep territory.' },
+        { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and low. The flat key adds weight to everything. Onyx, M.O.P. energy.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Good for aggressive piano or string loops.' }
+      ]
+    },
+    jazzy: {
+      keys: [
+        { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', rel: 'Dm', relNote: 'Dm, Am, Em', context: 'Warm and jazzy. The major 7th chord is the sound of Tribe Called Quest. "Electric Relaxation" lives here.' },
+        { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', rel: 'Gm', relNote: 'Gm, Dm, Am', context: 'Smooth and sophisticated. Rhodes piano and muted trumpet live here. Pete Rock & CL Smooth.' },
+        { root: 'Ebmaj7', type: 'major', i: 'Ebmaj7', iv: 'Abmaj7', v: 'Bb7', rel: 'Cm', relNote: 'Cm, Gm, Fm', context: 'Rich and full. Classic jazz voicing that works with any horn arrangement.' }
+      ]
+    },
+    dark: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Cold and minimal. Let the bass carry the weight, keep the melody sparse. Wu-Tang "C.R.E.A.M." energy.' },
+        { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'Cb major', relNote: 'Cb, Gb, Db', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Haunting and atmospheric. Good for minor key piano loops. RZA-style.' }
+      ]
+    },
+    bounce: {
+      keys: [
+        { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Bright and danceable. The major key lifts the energy and makes hooks catchy. Bad Boy era.' },
+        { root: 'C', type: 'major', i: 'C', iv: 'F', v: 'G', rel: 'Am', relNote: 'Am, Em, Dm', context: 'Simple and effective. Bad Boy era production loved major keys for radio appeal. Biggie "Juicy."' },
+        { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs.' }
+      ]
+    },
+    dilla: {
+      keys: [
+        { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here. "Donuts" energy.' },
+        { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Neo-soul foundation. Add a 9th for extra color. Slum Village territory.' },
+        { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy Dilla-style grooves.' }
+      ]
+    },
+    lofi: {
+      keys: [
+        { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Hazy and meditative. The minor 7th adds warmth without brightness. Madlib territory.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dusty and introspective. Vinyl crackle and detuned piano territory. Knxwledge.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Simple and muted. Keep the melody as compressed as the drums. MF DOOM.' }
+      ]
+    },
+    chopbreak: {
+      keys: [
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'The break key. Most classic funk breaks were in minor keys. Premier "Mass Appeal."' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Funky and raw. Horn stabs and wah guitar live here. Havoc, Alchemist.' },
+        { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and driving. Good for guitar-based samples. Large Professor.' }
+      ]
+    },
+    halftime: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Heavy and slow. The halftime feel needs a key with weight. Havoc "Quiet Storm" energy.' },
+        { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dark and spacious. The halftime groove breathes in Fm. RZA-style.' }
+      ]
+    },
+    driving: {
+      keys: [
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Forward momentum. Am drives hard without being too dark. Gangstarr, EPMD.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Relentless and focused. The driving feel pushes in Dm. EPMD "Crossover."' }
+      ]
+    },
+    big: {
+      keys: [
+        { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Anthem energy in minor. Big choruses hit harder in minor keys. Premier "Kick in the Door."' },
+        { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Uplifting and powerful. Major key anthems feel triumphant. Pete Rock "The World Is Yours."' }
+      ]
+    },
+    sparse: {
+      keys: [
+        { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Minimal and open. Am leaves space for the sample to breathe. RZA-style.' },
+        { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Sparse and focused. Just the skeleton. Alchemist "Albert Einstein."' }
+      ]
+    }
   };
-  lines.push(keyMap[songFeel] || keyMap.normal);
-  lines.push('This is a suggestion based on the feel — not a rule. Try it as a starting point for your bassline or sample selection, then follow your ear.');
+
+  var feelKeys = keyData[songFeel] || keyData.normal;
+  var chosenKey = pick(feelKeys.keys);
+
+  lines.push('<b>Key: ' + chosenKey.root + ' ' + chosenKey.type + '</b> — ' + chosenKey.context);
+  lines.push('');
+  lines.push('<b>Hip hop chord philosophy:</b> Most classic East Coast beats use only 1-3 chords. The I chord is home, the IV chord creates tension, the V chord resolves. You don\'t need more than that. The sample does the harmonic work — the bass just needs to lock in.');
+  lines.push('');
+  lines.push('<b>Core chords in ' + chosenKey.root + ':</b>');
+  lines.push('• <b>I chord (home):</b> ' + chosenKey.i + ' — where the groove lives. Start and end here.');
+  lines.push('• <b>IV chord (tension):</b> ' + chosenKey.iv + ' — creates movement away from home. Use on bar 3 or 5.');
+  lines.push('• <b>V chord (resolution):</b> ' + chosenKey.v + ' — pulls back to the I. Use before returning to the root.');
+  lines.push('');
+  lines.push('<b>3-chord combos that work in ' + chosenKey.root + ':</b>');
+  lines.push('• <b>I → IV → I</b> (' + chosenKey.i + ' → ' + chosenKey.iv + ' → ' + chosenKey.i + ') — the most common hip hop progression. Simple, hypnotic, loops perfectly.');
+  lines.push('• <b>I → IV → V</b> (' + chosenKey.i + ' → ' + chosenKey.iv + ' → ' + chosenKey.v + ') — classic blues-influenced. The V creates a strong pull back to the I on the next loop.');
+  lines.push('• <b>I → V → IV</b> (' + chosenKey.i + ' → ' + chosenKey.v + ' → ' + chosenKey.iv + ') — reversed resolution. Feels more unresolved and tense — good for verses.');
+  lines.push('');
+  lines.push('<b>Relative ' + (chosenKey.type === 'minor' ? 'major' : 'minor') + ' companion (' + chosenKey.rel + '):</b>');
+  lines.push('Every minor key has a relative major that shares the same notes — they\'re interchangeable. ' + chosenKey.root + ' ' + chosenKey.type + ' and ' + chosenKey.rel + ' use the exact same scale. You can borrow chords freely between them.');
+  lines.push('• Chords from ' + chosenKey.rel + ' that work over ' + chosenKey.root + ': <b>' + chosenKey.relNote + '</b>');
+  lines.push('• Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
+  lines.push('');
+  lines.push('<b>Programming tip:</b> Program your bassline on the root note (' + chosenKey.root.replace(/maj7|m7|7/, '') + ') first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
 
   // === SONG ELEMENTS ===
   lines.push('');
