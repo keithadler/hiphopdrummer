@@ -131,6 +131,14 @@ function analyzeBeat() {
   if (songFeel === 'dilla' || songFeel === 'lofi') lines.push('The ' + (songFeel === 'dilla' ? 'Dilla' : 'lo-fi') + ' feel is loose and behind the beat. Don\'t try to be metronomic — let your delivery drift with the groove. The best flows on these beats sound like the rapper is half-asleep but every word still lands.');
   if (songFeel === 'hard') lines.push('Hard beats demand hard delivery. Punch your consonants, keep your cadence aggressive, and don\'t let up. The drums are a weapon — your voice should match.');
   if (songFeel === 'bounce') lines.push('The bounce feel wants movement. This is a head-nodder — your flow should make people move. Rhythmic, catchy, hook-friendly. Think Biggie\'s conversational cadence on "Juicy."');
+  if (songFeel === 'gfunk') lines.push('G-Funk is smooth and laid back. Let your delivery float over the groove — don\'t fight the swing, ride it. Think Snoop Dogg\'s effortless cadence on "Gin and Juice." The beat is hypnotic; your flow should match that energy.');
+  if (songFeel === 'crunk') lines.push('Crunk demands aggression. Short, punchy phrases, maximum energy, call-and-response hooks. Think Lil Jon\'s chants — simple, loud, and impossible to ignore. The beat is already at 100%; your delivery needs to match it.');
+  if (songFeel === 'memphis') lines.push('Memphis rap is dark and deliberate. Slow your delivery down, let the words hang in the air. Think Three 6 Mafia\'s menacing cadence — every word feels like a threat. The space between your lines is as important as the lines themselves.');
+  if (songFeel === 'halftime') lines.push('Halftime feel gives you double the space. The snare on beat 3 (instead of 2 and 4) creates a slower, heavier pocket. You can flow at the normal tempo or drop into half-time with your delivery — both work. Think Prodigy\'s slow, deliberate cadence on Mobb Deep\'s darker cuts.');
+  if (songFeel === 'chopbreak') lines.push('Chopped break energy is raw and funky. The dense ghost snares and busy kick create a lot of rhythmic information — your flow needs to cut through it. Short, punchy bars work better than long sentences. Think Premier\'s MC choices: Jeru, Nas, Biggie — all precise, all punchy.');
+  if (songFeel === 'sparse') lines.push('Sparse beats give you maximum space. You can be as dense or as minimal as you want — the beat won\'t crowd you. Think RZA\'s Wu-Tang instrumentals: the space IS the vibe. Let your words breathe.');
+  if (songFeel === 'big') lines.push('Big/anthem energy calls for big delivery. This is hook territory — catchy, memorable, singable. Think Nas on "The World Is Yours" or Biggie on "Ready to Die." The beat is already massive; your hook needs to match it.');
+  if (songFeel === 'driving') lines.push('Driving beats push forward relentlessly. Your flow should match that momentum — keep the cadence tight and consistent. Think EPMD\'s locked-in delivery or Gangstarr\'s precision. No wasted syllables, no dead air.');
 
   // === KEY SUGGESTION — musical context for producers ===
   lines.push('');
@@ -364,9 +372,9 @@ function analyzeBeat() {
     dilla: ['J Dilla — "Don\'t Cry" (Donuts)', 'J Dilla — "Fall in Love" (Slum Village)', 'Madlib — "Accordion" (Madvillain)', 'Kaytranada — "Glowed Up"'],
     lofi: ['Madlib — "Meat Grinder" (Madvillain)', 'Knxwledge — "Lyk Dis"', 'MF DOOM — "Rapp Snitch Knishes"', 'Roc Marciano — "Snow"'],
     chopbreak: ['DJ Premier — "Mass Appeal" (Gangstarr)', 'DJ Premier — "Moment of Truth" (Gangstarr)', 'Havoc — "Shook Ones Pt. II" (Mobb Deep)', 'Large Professor — "Breaking Atoms" (Main Source)'],
-    driving: ['DJ Premier — "Full Clip" (Gangstarr)', 'EPMD — "Crossover"', 'Erick Sermon — "React"'],
-    big: ['DJ Premier — "Kick in the Door" (Notorious B.I.G.)', 'Pete Rock — "The World Is Yours" (Nas)', 'Easy Mo Bee — "Ready to Die" (Notorious B.I.G.)'],
-    sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"'],
+    driving: ['DJ Premier — "Full Clip" (Gangstarr)', 'EPMD — "Crossover"', 'Erick Sermon — "React"', 'Redman — "Whateva Man"'],
+    big: ['DJ Premier — "Kick in the Door" (Notorious B.I.G.)', 'Pete Rock — "The World Is Yours" (Nas)', 'Easy Mo Bee — "Ready to Die" (Notorious B.I.G.)', 'DJ Premier — "Mass Appeal" (Gangstarr)'],
+    sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"', 'RZA — "Tearz" (Wu-Tang Clan)', 'Daringer — "Shawn vs. Ironman" (Westside Gunn)'],
     gfunk: ['Dr. Dre — "Nuthin\' But a G Thang" (Snoop Dogg)', 'Warren G — "Regulate"', 'DJ Quik — "Tonite"', 'Dr. Dre — "Let Me Ride"'],
     crunk: ['Lil Jon & The East Side Boyz — "Get Low"', 'Ying Yang Twins — "Whistle While You Twurk"', 'Three 6 Mafia — "Tear Da Club Up \'97"'],
     memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"']
@@ -412,6 +420,11 @@ function analyzeBeat() {
   if (songFeel === 'gfunk') { diffScore += 1; diffReasons.push('16th note hat dynamics require precise velocity control'); }
   if (songFeel === 'crunk') { diffScore += 0; diffReasons.push('maximum velocity throughout — straightforward but intense'); }
   if (songFeel === 'memphis') { diffScore += 1; diffReasons.push('sparse and sinister — restraint is the challenge'); }
+  if (songFeel === 'halftime') { diffScore += 1; diffReasons.push('snare on beat 3 requires relearning the backbeat position'); }
+  if (songFeel === 'bounce') { diffScore += 1; diffReasons.push('busy kick pattern with extra hits to manage'); }
+  if (songFeel === 'driving') { diffScore += 1; diffReasons.push('relentless syncopated kicks require tight programming'); }
+  if (songFeel === 'big') { diffScore += 1; diffReasons.push('maximum energy — every element at full intensity'); }
+  if (songFeel === 'sparse') { diffScore += 0; diffReasons.push('minimal pattern — simplicity is the challenge'); }
   var diffLabel = diffScore <= 2 ? 'BEGINNER' : diffScore <= 5 ? 'INTERMEDIATE' : 'ADVANCED';
   lines.push('');
   lines.push('📈 <b>DIFFICULTY: ' + diffLabel + '</b>');
@@ -420,7 +433,7 @@ function analyzeBeat() {
   } else if (diffScore <= 5) {
     lines.push('This pattern has some complexity that requires attention. ' + diffReasons.join(', ') + '. Start with the basic kick-snare-hat framework, then layer in the details.');
   } else {
-    lines.push('This is a complex pattern with advanced techniques: ' + diffReasons.join(', ') + '. If you\'re just starting out, try regenerating for a simpler beat first, then come back to this one.');
+    lines.push('This is a complex pattern with advanced techniques: ' + diffReasons.join(', ') + '. If you\'re just starting out, try generating a new beat for a simpler pattern first, then come back to this one.');
   }
 
   // === #2: TRY THIS — beat-specific exercise ===
