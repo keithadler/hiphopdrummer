@@ -238,7 +238,7 @@ function analyzeBeat() {
   lines.push('• Chords from ' + chosenKey.rel + ' that work over ' + chosenKey.root + ': <b>' + chosenKey.relNote + '</b>');
   lines.push('• Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
   lines.push('');
-  lines.push('<b>Programming tip:</b> Program your bassline on the root note (' + chosenKey.root.replace(/maj7|m7|7/, '') + ') first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
+  lines.push('<b>Programming tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick drum — when the kick hits, the bass hits. Then add the chord on top. The bass + kick relationship is the foundation of the groove.');
 
   // === SONG ELEMENTS ===
   lines.push('');
