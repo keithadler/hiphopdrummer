@@ -170,3 +170,39 @@ var STYLE_DATA = {
   crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
   memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' }
 };
+
+/**
+ * Mood descriptions for each key root as used in rap/hip hop production.
+ * Shown in the regenerate dialog when a key is selected.
+ * @type {Object.<string, string>}
+ */
+var KEY_MOODS = {
+  'Am':     'Raw and direct. Hits like a punch — the most common rap key.',
+  'Am7':    'Soulful and warm. Floats above the beat with a melancholy glow.',
+  'Abm':    'Deep and cinematic. Dark strings, eerie samples, maximum tension.',
+  'Abmaj7': 'Lush and sophisticated. Add a 9th and it becomes something special.',
+  'Bbm':    'Heavy and ominous. The lowest, most sinister register in rap.',
+  'Bbmaj7': 'Smooth and sophisticated. Rhodes piano and muted trumpet territory.',
+  'Bb':     'Warm and full. Stadium-ready anthems and soulful hooks.',
+  'Bm':     'Focused and introspective. Less common — makes your beat stand out.',
+  'Cm':     'Cold and dark. The classic boom bap key. Menacing and versatile.',
+  'Cm7':    'Hazy and meditative. Narrow dynamics, dusty and hypnotic.',
+  'C':      'Simple and effective. Major key radio appeal — bright and catchy.',
+  'Dm':     'Tight and focused. Relentless forward momentum. Funky and raw.',
+  'Dm7':    'The Dilla key. Warm, soulful, slightly melancholy. Rhodes lives here.',
+  'Dbm':    'Darkest of the dark. Barely used — when you need maximum menace.',
+  'D':      'Upbeat and energetic. Bright major energy, fresh and danceable.',
+  'Ebm':    'Slow motion and heavy. Halftime at this pitch feels like a nightmare.',
+  'Ebmaj7': 'Rich and full. Classic jazz voicing — works with any horn arrangement.',
+  'Em':     'Tight and aggressive. Guitar samples and string loops love Em.',
+  'Em7':    'Introspective and soulful. The minor 7th floats above the beat.',
+  'F':      'Bright and soulful. Vocal samples and horn stabs feel natural here.',
+  'Fm':     'Haunting and atmospheric. Eerie piano loops and dark synth pads.',
+  'Fm7':    'Deep and warm. Perfect for bass-heavy neo-soul grooves.',
+  'Fmaj7':  'The jazz-rap key. Warm and sophisticated — Tribe Called Quest energy.',
+  'F#m':    'Tense and angular. Uncommon in rap — creates an unsettling edge.',
+  'G':      'Bright and triumphant. Major key anthems that feel uplifting.',
+  'Gm':     'Warm and funky. The G-Funk key. P-Funk samples love Gm.',
+  'Gm7':    'Deep and warm. Bass-heavy grooves with a soulful undertone.',
+  'Gbm':    'Rare and heavy. Maximum flatness — dark and cinematic.',
+};
