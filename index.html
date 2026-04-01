@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- Hip Hop Drummer (MIT License) -->
+<!-- Copyright (c) 2026 Keith Adler -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5">
+  <title>Hip Hop Drummer</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/html-midi-player@1.5.0"></script>
+</head>
+<body>
+  <div id="app-wrap">
+
+    <div class="header-bar">
+      <div class="brand">HipHop<span>Drummer</span></div>
+      <div class="controls-bar">
+        <button class="btn btn-gen" id="btnGen" title="Regenerate (R)">REGENERATE</button>
+        <div class="ctrl-group">
+          <span class="ctrl-label">BPM</span>
+          <span class="ctrl-input" id="bpm">90</span>
+        </div>
+        <div class="ctrl-group">
+          <span class="ctrl-label">Swing</span>
+          <span class="ctrl-input" id="swing">62</span>
+        </div>
+        <button class="btn btn-export" id="btnExport">EXPORT</button>
+      </div>
+      <div class="credit">by Keith Adler</div>
+    </div>
+
+    <div id="loadMsg" class="loading">Loading...</div>
+
+    <div class="scroll-area" id="app" style="display:none">
+
+      <div class="top-row">
+        <div class="top-left">
+          <div class="panel" id="midiPanel">
+            <div class="panel-title">Full Song</div>
+            <midi-player id="midiPlayer" sound-font></midi-player>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Arrangement <span class="arr-time" id="arrTime"></span></div>
+            <div class="arr-hint">Click a section to view its pattern. Drag to reorder. Use + buttons to add.</div>
+            <div class="arr-flow" id="arrFlow"></div>
+            <div class="arr-controls" id="arrCtrl"></div>
+          </div>
+        </div>
+        <div class="top-right-wrap">
+        <div class="panel" id="aboutBeatPanel">
+          <div class="panel-title">About This Beat</div>
+          <div id="aboutBeat"></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="panel" id="patternPanel">
+        <div class="panel-title">
+          Pattern — <span id="patternLabel">Intro</span>
+          <span class="pattern-info" id="patternInfo"></span>
+        </div>
+        <midi-player id="secMidiPlayer" sound-font style="display:none"></midi-player>
+        <div id="barTabs" class="bar-tabs"></div>
+        <div id="gridR"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tooltip for grid cell explanations and glossary -->
+  <div id="tooltip" class="tooltip" style="display:none"></div>
+
+  <script src="patterns.js"></script>
+  <script src="ai.js"></script>
+  <script src="writers.js"></script>
+  <script src="groove.js"></script>
+  <script src="analysis.js"></script>
+  <script src="ui.js"></script>
+  <script src="midi-export.js"></script>
+  <script src="pdf-export.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
