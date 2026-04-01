@@ -1025,59 +1025,75 @@ function buildHelpMPC(bpm, swing) {
   ].join('\r\n');
 }
 
-function exportMIDI() {
+function exportMIDI(opts) {
+  // Default: everything on if called without options
+  opts = opts || { fullSong: true, sections: true, mpc: true, pdf: true, daws: ['ableton','logic','fl','garageband','protools','reason','reaper','studioone','maschine'] };
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   var keyEl = document.getElementById('songKey');
   var keyStr = keyEl ? keyEl.textContent.replace(/[^a-zA-Z0-9#b]/g, '') : '';
   var zip = new JSZip();
   var folderName = 'hiphop_' + bpm + 'bpm' + (keyStr && keyStr !== '—' ? '_' + keyStr : '');
   var folder = zip.folder(folderName);
-  var mpcFolder = folder.folder('MPC');
-  var midiFolder = folder.folder('MIDI Patterns');
-
-  // Full song MIDI — all arrangement sections in order
-  var fullSong = buildMidiBytes(arrangement, bpm);
-  folder.file('00_full_song_' + bpm + 'bpm.mid', fullSong);
-
-  // Individual section MIDIs + MPC patterns — one per unique section (deduplicated)
-  var exported = {};
-  var idx = 1;
-  arrangement.forEach(function(sec) {
-    if (exported[sec]) return;
-    exported[sec] = true;
-    var secBytes = buildMidiBytes([sec], bpm);
-    var padIdx = idx < 10 ? '0' + idx : '' + idx;
-    var secName = SL[sec] || sec;
-    var barCount = Math.ceil((secSteps[sec] || 32) / 16);
-    var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
-    midiFolder.file(baseName + '.mid', secBytes);
-
-    // MPC pattern for this section
-    var mpcStr = buildMpcPattern([sec], bpm);
-    mpcFolder.file(baseName + '.mpcpattern', mpcStr);
-
-    idx++;
-  });
-
-  // PDF beat sheet — bundled into the ZIP for convenience
-  try {
-    var pdfBlob = generatePDFBlob();
-    if (pdfBlob) folder.file('beat_sheet_' + bpm + 'bpm.pdf', pdfBlob);
-  } catch(e) { console.warn('PDF generation failed:', e); }
-
-  // DAW help files — read swing from DOM here so all builders get the correct value
   var swingVal = parseInt(document.getElementById('swing').textContent) || 62;
-  folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_ABLETON.txt', buildHelpAbleton(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_MASCHINE.txt', buildHelpMaschine(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_GARAGEBAND.txt', buildHelpGarageBand(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_REASON.txt', buildHelpReason(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_REAPER.txt', buildHelpReaper(bpm, swingVal));
-  midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt', buildHelpStudioOne(bpm, swingVal));
-  mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swingVal));
+
+  // Full song MIDI
+  if (opts.fullSong) {
+    var fullSong = buildMidiBytes(arrangement, bpm);
+    folder.file('00_full_song_' + bpm + 'bpm.mid', fullSong);
+  }
+
+  // Individual section MIDIs + MPC patterns
+  var midiFolder = opts.sections ? folder.folder('MIDI Patterns') : null;
+  var mpcFolder  = opts.mpc      ? folder.folder('MPC')           : null;
+
+  if (opts.sections || opts.mpc) {
+    var exported = {};
+    var idx = 1;
+    arrangement.forEach(function(sec) {
+      if (exported[sec]) return;
+      exported[sec] = true;
+      var padIdx = idx < 10 ? '0' + idx : '' + idx;
+      var secName = SL[sec] || sec;
+      var barCount = Math.ceil((secSteps[sec] || 32) / 16);
+      var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
+      if (opts.sections) {
+        midiFolder.file(baseName + '.mid', buildMidiBytes([sec], bpm));
+      }
+      if (opts.mpc) {
+        mpcFolder.file(baseName + '.mpcpattern', buildMpcPattern([sec], bpm));
+      }
+      idx++;
+    });
+  }
+
+  // PDF beat sheet
+  if (opts.pdf) {
+    try {
+      var pdfBlob = generatePDFBlob();
+      if (pdfBlob) folder.file('beat_sheet_' + bpm + 'bpm.pdf', pdfBlob);
+    } catch(e) { console.warn('PDF generation failed:', e); }
+  }
+
+  // DAW help files — only include selected DAWs
+  var dawMap = {
+    ableton:   function() { return midiFolder && midiFolder.file('HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal)); },
+    logic:     function() { return midiFolder && midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal)); },
+    fl:        function() { return midiFolder && midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal)); },
+    garageband:function() { return midiFolder && midiFolder.file('HOW_TO_USE_GARAGEBAND.txt',buildHelpGarageBand(bpm, swingVal)); },
+    protools:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal)); },
+    reason:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal)); },
+    reaper:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal)); },
+    studioone: function() { return midiFolder && midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal)); },
+    maschine:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal)); }
+  };
+  // Always include the general overview and MPC guide if those folders exist
+  if (opts.daws && opts.daws.length > 0) {
+    folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal));
+    opts.daws.forEach(function(daw) { if (dawMap[daw]) dawMap[daw](); });
+  }
+  if (opts.mpc) {
+    mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swingVal));
+  }
 
   // Generate and trigger download
   zip.generateAsync({ type: 'blob' }).then(function(blob) {

@@ -30,7 +30,7 @@
           <span class="ctrl-label">Key</span>
           <span class="ctrl-input" id="songKey" style="width:68px">—</span>
         </div>
-        <button class="btn btn-export" id="btnExport">EXPORT MIDI + PDF</button>
+        <button class="btn btn-export" id="btnExport">EXPORT</button>
       </div>
       <div class="credit">
         <a href="https://keithadler.github.io/hiphopdrummer/" target="_blank" rel="noopener" class="credit-link">keithadler.github.io/hiphopdrummer</a>
@@ -113,7 +113,53 @@
     </div>
   </div>
 
-  <script src="patterns.js"></script>
+  <!-- Export dialog -->
+  <div id="exportOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog export-dialog">
+      <div class="regen-title">Export</div>
+
+      <div class="regen-fields">
+
+        <div class="regen-field">
+          <label class="regen-label">MIDI Files</label>
+          <div class="export-checks">
+            <label class="export-check"><input type="checkbox" id="expFullSong" checked> Full song .mid (all sections)</label>
+            <label class="export-check"><input type="checkbox" id="expSections" checked> Individual section .mid files</label>
+            <label class="export-check"><input type="checkbox" id="expMpc" checked> Akai MPC .mpcpattern files</label>
+          </div>
+        </div>
+
+        <div class="regen-field">
+          <label class="regen-label">DAW Help Files</label>
+          <div class="export-checks export-daws">
+            <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="logic" checked> Logic Pro</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="fl" checked> FL Studio</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="garageband" checked> GarageBand</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="protools" checked> Pro Tools</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="reason" checked> Reason</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="reaper" checked> Reaper</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="studioone" checked> Studio One</label>
+            <label class="export-check"><input type="checkbox" class="daw-check" value="maschine" checked> Maschine</label>
+          </div>
+          <button class="export-toggle" id="exportDawToggle">Deselect all</button>
+        </div>
+
+        <div class="regen-field">
+          <label class="regen-label">Other</label>
+          <div class="export-checks">
+            <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="exportCancel">Cancel</button>
+        <button class="btn regen-go btn-export" id="exportGo">Download ZIP</button>
+      </div>
+    </div>
+  </div>
   <script src="ai.js"></script>
   <script src="writers.js"></script>
   <script src="groove.js"></script>
