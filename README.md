@@ -2,7 +2,7 @@
 
 Generate authentic East Coast hip hop drum patterns in your browser. Learn the art of boom bap drum programming while you create.
 
-**[▶ Play Now](https://keithadler.github.io/hiphop-drummer/)**
+**[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
 ## What It Does
 
