@@ -553,7 +553,9 @@ function genBasePatterns() {
     true, true, true                     // 30% — ride cymbal active
   ]);
   // G-Funk: ride cymbal more likely (Dr. Dre often uses cowbell/ride)
-  if (songFeel === 'gfunk') useRide = maybe(.5);
+  // Use songPalette[0] since songFeel isn't set yet at this point in the pipeline
+  var paletteFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
+  if (paletteFeel === 'gfunk') useRide = maybe(.5);
 }
 
 // =============================================
@@ -1299,15 +1301,16 @@ function generateAll() {
   swing = Math.max(50, Math.min(72, swing + pick([-2, -1, 0, 0, 1, 2])));
   document.getElementById('swing').textContent = swing;
 
-  // Per-feel ghost density bias: clamp ghostDensity to match the feel's aesthetic
-  // Chopbreak needs dense ghosts (floor 1.0), lofi needs sparse (cap 1.0),
-  // dilla needs moderate-to-dense (floor 0.8)
-  if (songFeel === 'chopbreak' && ghostDensity < 1.0) ghostDensity = 1.0;
-  if (songFeel === 'lofi' && ghostDensity > 1.0) ghostDensity = 1.0;
-  if (songFeel === 'dilla' && ghostDensity < 0.8) ghostDensity = 0.8;
-  if (songFeel === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
-  if (songFeel === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
-  if (songFeel === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
+  // Per-feel ghost density bias: clamp ghostDensity to match the palette's verse feel aesthetic.
+  // Use songPalette[0] (the verse feel) as the primary reference — it defines the song's identity.
+  // songFeel is also set to palette[0] via generatePattern('verse'), so they should match.
+  var dominantFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
+  if (dominantFeel === 'chopbreak' && ghostDensity < 1.0) ghostDensity = 1.0;
+  if (dominantFeel === 'lofi' && ghostDensity > 1.0) ghostDensity = 1.0;
+  if (dominantFeel === 'dilla' && ghostDensity < 0.8) ghostDensity = 0.8;
+  if (dominantFeel === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
+  if (dominantFeel === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
+  if (dominantFeel === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
