@@ -17,23 +17,22 @@
 
 function applyGroove(p, len, feel) {
   // Per-instrument accent curves — each limb accents differently
-  // Accent spread scales with feel: lofi is flat, dilla is wide
-  var hatBoost = (feel === 'lofi') ? 2 : 6;
-  var hatCut = (feel === 'lofi') ? 2 : (feel === 'dilla') ? 5 : 8;
-  var hatMidCut = (feel === 'lofi') ? 1 : 3;
+  // Accent spread scales with feel: lofi/crunk flat, dilla wide, gfunk skips hat accent
+  var hatBoost = (feel === 'lofi' || feel === 'crunk') ? 2 : 6;
+  var hatCut = (feel === 'lofi' || feel === 'crunk') ? 2 : (feel === 'dilla') ? 5 : 8;
+  var hatMidCut = (feel === 'lofi' || feel === 'crunk') ? 1 : 3;
   for (var i = 0; i < len; i++) {
     var pos = i % 16;
-    // Hat: ride hand accent — scaled by feel
-    if (p.hat[i] > 0) {
+    // Hat: ride hand accent — G-Funk skips (3-level dynamic already built in writeHA)
+    if (p.hat[i] > 0 && feel !== 'gfunk') {
       if (pos === 0 || pos === 4 || pos === 12) p.hat[i] = Math.min(127, p.hat[i] + hatBoost);
       else if (pos === 8) p.hat[i] = Math.max(40, p.hat[i] - (feel === 'lofi' ? 0 : 1)); // beat 3 dip (flat for lofi)
       else if (pos % 2 === 0) p.hat[i] = Math.max(40, p.hat[i] - hatMidCut);
       else p.hat[i] = Math.max(35, p.hat[i] - hatCut);
     }
-    // Hat velocity arc — slight crescendo in last 4 steps leading to next downbeat
-    // Suppress on the last bar of the section (where fills strip hats)
+    // Hat velocity arc — suppress on last bar, and skip for G-Funk (would break 3-level dynamic)
     var isLastBar = (i >= len - 16);
-    if (p.hat[i] > 0 && pos >= 12 && !isLastBar) p.hat[i] = Math.min(127, p.hat[i] + Math.floor((pos - 11) * 2));
+    if (p.hat[i] > 0 && pos >= 12 && !isLastBar && feel !== 'gfunk') p.hat[i] = Math.min(127, p.hat[i] + Math.floor((pos - 11) * 2));
     // Open hat: custom accent — &4 (step 14) and &2 (step 6) get neutral/boosted treatment
     if (p.openhat[i] > 0) {
       if (pos === 14 || pos === 6) p.openhat[i] = Math.min(127, p.openhat[i] + 2); // primary open hat positions: slight boost
@@ -69,24 +68,30 @@ function applyGroove(p, len, feel) {
     }
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
-  // Exception: "and-of-2" (step 6) gets neutral/boosted treatment — it's the
-  // signature boom bap syncopation that drives the head nod
+  // Crunk: flat kick — all four beats equal, no accent curve
   for (var i = 0; i < len; i++) {
     if (p.kick[i] > 0) {
       var pos = i % 16;
-      if (pos === 0) p.kick[i] = Math.min(127, p.kick[i] + 8);           // beat 1: hardest
-      else if (pos === 8) p.kick[i] = Math.min(127, p.kick[i] + 3);      // beat 3: strong
-      else if (pos === 6) p.kick[i] = Math.min(127, p.kick[i] + 4);      // and-of-2: the boom bap hit — keep it strong
-      else if (pos === 4 || pos === 12) p.kick[i] = p.kick[i];            // backbeat pos: as-is (rare for kick)
-      else if (pos % 2 === 0) p.kick[i] = Math.max(50, p.kick[i] - 5);   // syncopated: slightly softer
-      else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, p.kick[i] - 5); // pickup into next bar — slight boost over other off-grid
-      else p.kick[i] = Math.max(45, p.kick[i] - 10);                     // off-grid pickup: softest
+      if (feel === 'crunk') {
+        // Crunk: keep all kicks at their written velocity — the 4-on-the-floor is the point
+        // Just clamp to valid range
+        p.kick[i] = Math.min(127, Math.max(100, p.kick[i]));
+      } else {
+        if (pos === 0) p.kick[i] = Math.min(127, p.kick[i] + 8);
+        else if (pos === 8) p.kick[i] = Math.min(127, p.kick[i] + 3);
+        else if (pos === 6) p.kick[i] = Math.min(127, p.kick[i] + 4);
+        else if (pos === 4 || pos === 12) p.kick[i] = p.kick[i];
+        else if (pos % 2 === 0) p.kick[i] = Math.max(50, p.kick[i] - 5);
+        else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, p.kick[i] - 5);
+        else p.kick[i] = Math.max(45, p.kick[i] - 10);
+      }
     }
   }
   // Velocity arc across the full section — models a drummer's natural energy
   // curve over an 8-bar phrase: settle in bars 3-4, build bars 5-6, push bar 7
   // Dampened for lo-fi and dilla to keep dynamics flat/hypnotic
-  if (len > 32 && feel !== 'lofi' && feel !== 'dilla') {
+  // Skipped for crunk — maximum energy throughout, no arc
+  if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk') {
     for (var i = 0; i < len; i++) {
       var barNum = Math.floor(i / 16);
       var barInPhrase = barNum % 8;
@@ -136,6 +141,10 @@ function humanizeVelocities(p, len) {
     else if (songFeel === 'dilla' && r === 'kick') instrJitter *= 1.4;
     else if (songFeel === 'dilla' && r === 'ghostkick') instrJitter *= 1.5;
     else if (songFeel === 'chopbreak' && r === 'snare') instrJitter *= 0.7;
+    else if (songFeel === 'gfunk' && (r === 'hat' || r === 'ride')) instrJitter *= 1.3; // G-Funk: natural hat variation
+    else if (songFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;                  // G-Funk: consistent 1-and-3 kick
+    else if (songFeel === 'crunk') instrJitter *= 0.4;                                  // Crunk: everything locked tight
+    else if (songFeel === 'memphis' && r === 'kick') instrJitter *= 0.6;                // Memphis: heavy kick is consistent
     for (var i = 0; i < len; i++) {
       if (p[r][i] > 0) {
         var pos = i % 16;
@@ -196,7 +205,7 @@ function postProcessPattern(p, len, isCh, feel) {
   // Chopbreak: higher clustering (dense diddle patterns from real breaks)
   // Lo-fi: lower clustering (sparse aesthetic)
   // Dilla: moderate clustering with wider spacing (3 steps instead of 2)
-  var clusterProb = (feel === 'chopbreak') ? 0.50 : (feel === 'lofi') ? 0.15 : (feel === 'dilla') ? 0.30 : 0.35;
+  var clusterProb = (feel === 'chopbreak') ? 0.50 : (feel === 'lofi') ? 0.15 : (feel === 'dilla') ? 0.30 : (feel === 'memphis') ? 0.12 : (feel === 'crunk') ? 0 : 0.35;
   var clusterSpacing = (feel === 'dilla') ? 3 : 2;
   clusterProb *= ghostDensity;
   for (var i = 0; i < len; i++) {

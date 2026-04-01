@@ -882,9 +882,9 @@ function generatePattern(sec) {
       // Bar 8 (posIn=7): Pre-fill
       if (posIn === 7) {
         for (var i = 12; i < 16; i++) p.hat[off+i] = 0;
-        if (feel === 'lofi') {
-          // Lo-fi: minimal pre-fill, just one soft snare
-          if (maybe(.4)) p.snare[off+14] = v(75, 6);
+        if (feel === 'lofi' || feel === 'memphis') {
+          // Lo-fi/Memphis: minimal pre-fill, just one soft snare
+          if (maybe(.4)) p.snare[off+14] = v(feel === 'memphis' ? 80 : 75, 6);
         } else {
           if (maybe(.5)) p.snare[off+13] = v(80, 10);
           if (maybe(.4)) p.snare[off+14] = v(95, 10);
@@ -1015,6 +1015,9 @@ function applySectionTransitions() {
       var reKick = 125, reSnare = 115, reClap = 110, reCrash = 110;
       if (songFeel === 'lofi') { reKick = 88; reSnare = 85; reClap = 78; reCrash = 80; }
       else if (songFeel === 'dilla') { reKick = 100; reSnare = 100; reClap = 90; reCrash = 95; }
+      else if (songFeel === 'crunk') { reKick = 127; reSnare = 127; reClap = 127; reCrash = 120; }
+      else if (songFeel === 'gfunk') { reKick = 112; reSnare = 108; reClap = 100; reCrash = 100; }
+      else if (songFeel === 'memphis') { reKick = 118; reSnare = 112; reClap = 105; reCrash = 95; }
       nextPat.kick[0] = Math.max(nextPat.kick[0], v(reKick, 5));
       if (nextPat.crash[0] === 0) nextPat.crash[0] = v(reCrash, 8);
       nextPat.snare[0] = v(reSnare, 8);
