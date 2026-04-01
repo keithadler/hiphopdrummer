@@ -21,7 +21,7 @@ Hit **REGENERATE** to open a dialog where you can optionally pick a style, key, 
 - **Playback cursor** — highlights the current step in the grid during playback
 - **Per-section feel tags** — each arrangement card shows its feel
 - **Song key** displayed in header — updates with each generation
-- **MIDI export** (GM Channel 10) — full song + individual sections, swing baked in, ZIP download
+- **MIDI export** (GM Channel 10) — full song at root of ZIP, individual sections in `MIDI Patterns/` subfolder, swing baked in
 - **MPC pattern export** — each section also exported as `.mpcpattern` for Akai Force, MPC Live, MPC X, and other Akai devices (in `MPC/` subfolder of the ZIP). Uses Chromatic C1 note layout (MPC default since firmware 2.11) — assign samples to pads A01–A09: Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
 - **PDF beat sheet** — color-coded pattern grids with full analysis text
 - **"About This Beat" panel** — collapsed by default, Key/Scale open:
