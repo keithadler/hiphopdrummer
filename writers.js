@@ -977,7 +977,7 @@ function writeClap(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeRimshot(p, feel, off) {
-  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis') return;
+  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis' || feel === 'gfunk') return;
   if (feel === 'sparse') {
     // Sparse: one possible rimshot for character
     if (maybe(.2 * ghostDensity)) { var rp = pick([5, 9, 13]); if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(52, 10); }
