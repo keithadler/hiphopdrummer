@@ -4,23 +4,47 @@ Full technical breakdown of every feature, technique, and design decision in the
 
 ## Hip Hop Styles
 
-Fifteen feel types covering the full range of hip hop:
+Fifteen feel types covering the full range of hip hop (listed alphabetically):
 
-- **Classic Boom Bap** — DJ Premier, Pete Rock, Buckwild
-- **Hard/Aggressive** — Mobb Deep, Onyx, M.O.P.
-- **Jazz-Influenced** — A Tribe Called Quest, Pete Rock & CL Smooth, De La Soul
-- **Dark Minimal** — Wu-Tang Clan, Griselda
-- **Bounce** — Notorious B.I.G., Bad Boy era
-- **Dilla/Neo-Soul** — J Dilla, Slum Village, Madvillainy
-- **Lo-Fi/Dusty** — Madlib, Knxwledge, MF DOOM, Roc Marciano
-- **Chopped Break** — DJ Premier, Havoc, Alchemist, Large Professor
-- **G-Funk** — Dr. Dre, DJ Quik, Warren G, Snoop Dogg
-- **Crunk** — Lil Jon, Ying Yang Twins, Three 6 Mafia
-- **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo
-- **Halftime** — Havoc, RZA (snare on beat 3)
-- **Driving** — Gangstarr, EPMD (forward momentum)
-- **Big/Anthem** — Maximum energy for choruses
-- **Sparse** — Minimal drums, space dominates
+- **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
+- **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
+- **Chopped Break** — DJ Premier, Havoc, Alchemist, Large Professor; break-derived patterns, dense ghosts
+- **Classic Boom Bap** — DJ Premier, Pete Rock, Buckwild; the foundational East Coast style
+- **Crunk** — Lil Jon, Ying Yang Twins, Three 6 Mafia; flat max velocity, 4-on-the-floor
+- **Dark Minimal** — Wu-Tang Clan, Griselda; sparse, heavy, lots of space
+- **Dilla/Neo-Soul** — J Dilla, Slum Village, Madvillainy; behind-the-beat, loose ghosts
+- **Driving** — Gangstarr, EPMD; forward momentum with syncopated kicks
+- **G-Funk** — Dr. Dre, DJ Quik, Warren G, Snoop Dogg; 16th note hats, West Coast pocket
+- **Halftime** — Havoc, RZA; snare on beat 3, slower feel at same tempo
+- **Hard/Aggressive** — Mobb Deep, Onyx, M.O.P.; max velocity, minimal ghosts
+- **Jazz-Influenced** — A Tribe Called Quest, Pete Rock & CL Smooth, De La Soul; dense ghosts, soft dynamics
+- **Lo-Fi/Dusty** — Madlib, Knxwledge, MF DOOM, Roc Marciano; compressed narrow velocity band
+- **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo; slow, sinister, skeletal
+- **Sparse** — Minimal drums, space dominates; RZA, Alchemist
+
+## Regenerate Dialog
+
+Clicking REGENERATE (or pressing R) opens a modal dialog with three optional fields:
+
+- **Style** — all 15 feels, sorted alphabetically. Selecting a style filters the other two fields.
+- **Key** — only shows keys authentic to the selected style, sorted alphabetically. Resets to Auto when style changes if the previous key isn't valid for the new style.
+- **BPM** — only shows tempos in the style's authentic range (e.g. Crunk: 115–130, Memphis: 68–88, G-Funk: 80–105).
+
+All three fields are optional. Leaving any on Auto picks randomly. Cancel / Escape / clicking outside dismisses without generating. Enter confirms.
+
+When a style is forced, `generateAll()` finds the matching `FEEL_PALETTES` entry so all sections stay coherent. When a key is forced, `analyzeBeat()` uses that key entry instead of picking randomly.
+
+## Song Palette System
+
+Each generation picks one of 12 compatible feel palettes from `FEEL_PALETTES`. A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
+
+- verse / verse2 / instrumental → `palette[0]`
+- chorus / chorus2 / lastchorus → `palette[1]`
+- breakdown → `palette[2]`
+- pre → `palette[3]`
+- intro / outro → their own dedicated pools
+
+This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 12 palettes cover: classic boom bap, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, crunk, Memphis, halftime/slow.
 
 ## Beat Generation
 
@@ -28,7 +52,7 @@ Fifteen feel types covering the full range of hip hop:
 
 ## Tempo & Swing
 
-68–118 BPM covering slow Griselda/Wu-Tang territory through uptempo B-Boy breaks. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
+68–130 BPM covering slow Griselda/Memphis territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
 
 ## Feel-Specific Behaviors
 
@@ -40,6 +64,15 @@ Compressed dynamics in a narrow velocity band (60-92), sparse hats with skipped 
 
 ### Chopped Break Feel
 Dense ghost snares on "e" and "ah" positions mimicking real funk break phrasing. Kick overridden with break-derived library (Funky Drummer, Impeach the President patterns). Ghost density floored at 1.0. Ghost clustering at 50% (dense diddles). Flam probability at 35% (highest). Both open hat positions (&2 and &4) active simultaneously. Hat pattern never gets triplets. Crash probability boosted on verse entries.
+
+### G-Funk Feel
+16th note hats with 3-level dynamics (quarter notes loud, 8th upbeats medium, "e/ah" positions soft). Dedicated West Coast kick library (1-and-3 patterns). Ride cymbal at 50% probability. No rimshots. Ghost density capped at 0.8. Hat accent skipped in `applyGroove()` (3-level dynamic already built in). Humanization: wider hat jitter (natural variation), tighter kick jitter (consistent 1-and-3).
+
+### Crunk Feel
+Flat maximum velocity throughout — no velocity arc, no ghost notes, no dynamic variation. 4-on-the-floor kick library. Hat pattern forced to 8ths. Ghost density capped at 0.4. Ghost clustering disabled. Humanization jitter 0.4× across all instruments (everything locked tight). Turnaround bar adds snare accent on beat 3 instead of standard turnaround.
+
+### Memphis Feel
+Slow tempo (68–88 BPM), minimal swing, sparse sinister kick library. Hat skips on beats 2 and 4 occasionally (unsettling, incomplete feel). Open hat 50/50 between &2 and &4. Minimal crash probability. Ghost density capped at 0.6. Ghost clustering at 12%. Pre-fill is a single soft snare hit.
 
 ## Drumming Techniques
 
@@ -53,10 +86,10 @@ Each limb has its own dynamics with feel-scaled spread:
 - **Ghost kick**: Velocity curve — softer before snare, firmer after rebound. Scaled relative to nearby main kicks.
 
 ### Humanization
-Per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6x across all, dilla 1.4x on kicks, chopbreak 0.7x on ghost snares.
+Per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6× across all, dilla 1.4× on kicks, chopbreak 0.7× on ghost snares, gfunk wider hat / tighter kick, crunk 0.4× everything.
 
 ### Ghost Note System
-Density randomized per song (0.5–1.8), clamped per feel (chopbreak floors at 1.0, lofi caps at 1.0, dilla floors at 0.8). Ghost kicks use distinct A/B positions with velocity curve. Ghost snare clustering: chopbreak 50%, lofi 15%, dilla 30% with 3-step spacing, standard 35% with 2-step spacing.
+Density randomized per song (0.5–1.8), clamped per feel (chopbreak floors at 1.0, lofi caps at 1.0, dilla floors at 0.8, gfunk caps at 0.8, crunk caps at 0.4, memphis caps at 0.6). Ghost kicks use distinct A/B positions with velocity curve. Ghost snare clustering: chopbreak 50%, lofi 15%, dilla 30% with 3-step spacing, memphis 12%, crunk 0%, standard 35% with 2-step spacing.
 
 ### Flam Simulation
 Grace notes (~35% velocity) one step before backbeat. Feel-weighted: chopbreak 35%, standard 20%, dilla/lofi 0%.
@@ -65,16 +98,16 @@ Grace notes (~35% velocity) one step before backbeat. Feel-weighted: chopbreak 3
 Snare on beat 4 hits ~5 velocity points harder than beat 2. Step-16 ghost snares get a pickup boost (+6).
 
 ### Velocity Arc
-8-bar phrases: bars 3-4 slightly softer (~3% lower), bar 7 pushes (~3% higher), bar 8 peaks (~5% higher). Skipped for lofi and dilla.
+8-bar phrases: bars 3-4 slightly softer (~3% lower), bar 7 pushes (~3% higher), bar 8 peaks (~5% higher). Skipped for lofi, dilla, and crunk.
 
 ## Bar Variation System
 
 ### 8-Bar Variations (Feel-Aware)
 - **Bar 3**: Ghost snare variation + open hat movement + rimshot added. Dilla adds ghosts, chopbreak increases density.
 - **Bar 4**: Kick variation (step 14 protected as bar connector). Skipped for lofi/dilla.
-- **Bar 5**: Breathing room + rimshot removed. Lofi nudges velocity, chopbreak thins ghost snares.
+- **Bar 5**: Breathing room + rimshot removed. Lofi nudges velocity, chopbreak thins ghost snares, crunk varies hat velocity, gfunk/memphis drop ghost kicks.
 - **Bar 6**: Open hat movement / hat dropout.
-- **Bar 7**: Turnaround — open hat stripped, rimshot repositioned, extra kick on last 16th.
+- **Bar 7**: Turnaround — open hat stripped, rimshot repositioned, extra kick on last 16th. Crunk: snare accent on beat 3.
 - **Bar 8**: Pre-fill — hats strip, snare builds.
 
 ### 4-Bar Variations (Feel-Aware)
@@ -85,34 +118,34 @@ Lofi nudges ghost velocity, dilla adds ghost snares, chopbreak increases ghost d
 
 ## Section System
 
-### Feel Coherence
-Verse 2 biases toward compatible feels with verse 1: dilla→dilla/jazzy/lofi, hard→hard/chopbreak/driving, dark→dark/lofi/halftime.
+### Feel Coherence (Palette System)
+All sections draw from a single song-level palette. The palette is a 4-element array of compatible feels. When a style is forced via the regen dialog, the palette is locked to the matching entry. Legacy `compatMap` still applies when no palette is set.
 
 ### Verse-Derived Chorus Kicks
-40% chance chorus kick is built by adding 1-2 hits to the verse kick pattern rather than picking from a separate library.
+40% chance chorus kick is built by adding 1-2 hits to the verse kick pattern rather than picking from a separate library. Boosted to 80% when preceded by a pre-chorus.
 
 ### Section Transitions
-Fills lead into crashes, breakdowns re-enter with feel-scaled impact velocities (lofi re-enters at 88/85, standard at 125/115), choruses always get crash on beat 1.
+Fills lead into crashes, breakdowns re-enter with feel-scaled impact velocities (lofi re-enters at 88/85, standard at 125/115, crunk at 127/127), choruses always get crash on beat 1.
 
 ### Gradual Breakdown
 Bar 1: drop ghost kicks, rimshots, ride. Bar 2: also drop claps, ghost snares. Bar 3+: just kick on 1 + sparse hats.
 
 ### Feel-Aware Fills
-Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit. Bounce: kick-snare alternation. Dilla: soft scattered ghost roll. Lofi: one muted snare. Chopbreak: dense snare flurry. Halftime: single heavy snare on beat 3.
+Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit. Bounce: kick-snare alternation. Dilla: soft scattered ghost roll. Lofi: one muted snare. Chopbreak: dense snare flurry. Halftime: single heavy snare on beat 3. G-Funk: snare build with open hat. Crunk: one massive unison hit. Memphis: single heavy snare.
 
 ## "About This Beat" Panel
 
-Organized into tiers: essentials → programming details → advanced techniques → arrangement.
+Organized into collapsible accordion sections. Key/Scale is expanded by default; all others collapsed.
 
-Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations), Reference Tracks (3 specific songs per feel), Technique Spotlight (13 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types).
+Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic arrangement guide), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating, Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis), Song Elements.
 
 ## Export
 
 ### MIDI
-Standard MIDI Format 0, GM Channel 10. Full song + individual sections. Swing baked into timing. Velocity humanization embedded.
+Standard MIDI Format 0, GM Channel 10. Full song + individual sections in a ZIP. Swing baked into timing. Velocity humanization embedded. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
 
 ### PDF
-Printable beat sheet with analysis, arrangement, and color-coded pattern grids.
+Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, and color-coded pattern grids. Bullet characters and typographic quotes are converted to ASCII before rendering.
 
 ## Tech Stack
 

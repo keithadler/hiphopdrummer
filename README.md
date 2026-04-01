@@ -6,51 +6,33 @@ Generate authentic hip hop drum patterns in your browser. Learn the art of hip h
 
 ## What It Does
 
-Hit **REGENERATE** and get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
+Hit **REGENERATE** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
 
 ## Highlights
 
-- 15 hip hop feels — Classic Boom Bap, Hard, Jazz, Dark, Bounce, Dilla, Lo-Fi, Chopped Break, Halftime, Driving, Big, Sparse, G-Funk, Crunk, Memphis
-- Dedicated kick libraries for every feel — all 15 styles have curated kick patterns (4-10 patterns each) matched to their aesthetic
-- 9 instrument rows — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
-- Per-section ghost snare patterns — verse, verse 2, and chorus each get distinct ghost positions
-- Feel-aware everything — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
-- Jazzy ghost snares at whisper velocity (35-50%) — softer than standard boom bap, like real jazz-influenced hip hop
-- Bounce has its own hat writer — consistent 8ths with occasional 16th flurries on beat 2 or 4
-- Hard extra kicks check snare adjacency — never muddy the backbeat
-- Normal feel biases toward 8th note hats (70% chance) — classic boom bap
-- Ghost kick bar B uses non-overlapping positions for high-density feels — clear A/B differentiation
-- Dark snare at 118-122 (not 127) — leaves headroom for clap layer and beat-4 accent
-- Memphis hat skips on beats 2 and 4 occasionally — creates unsettling, incomplete feel
-- Instrumental section ghost density 0.8× — the sample breathes, drums are sparser
-- Section-level ghost density scaling — choruses denser, breakdowns sparser
-- Chorus hat step-up — choruses can upgrade from 8th to 16th note hats for more energy
-- Big/anthem feel — 16th note hats or aggressive 8ths, distinct from bounce
-- Bounce open hat — 85% on &4, 50% on &2 (busier than standard)
-- G-Funk — 16th note hats with 3-level dynamics, dedicated West Coast kick library, ride cymbal at 50%, no rimshots
-- Crunk — flat maximum velocity throughout, 4-on-the-floor kick library, no velocity arc, no ghost clustering
-- Memphis — sparse sinister kick library, 50/50 &2/&4 open hat, minimal crash, low ghost clustering
-- Pre→chorus kick relationship — chorus kick derives from verse kick when preceded by a pre-chorus
-- Cross-bar kick awareness — pickup kicks on step 15 protect the next bar's downbeat kick
-- Lastchorus crashes on every 4-bar phrase start — marks the climax
-- Memphis chorus coherence — Memphis verse never leads to crunk or hard chorus
-- Feel-specific crash probabilities — crunk always crashes, Memphis rarely does
-- Full song arrangements (2:45–3:30) with drag-and-drop section editor
-- Click any section to jump to that point in the song player
-- Playback cursor — highlights the current step in the grid during playback
-- Per-section feel tags — each arrangement card shows its feel
-- Song key displayed in header — updates with each generation
-- MIDI export (GM Channel 10) — import into any DAW or drum machine, swing baked in
-- PDF beat sheet with color-coded grids
-- "About This Beat" panel — organized into tiers, collapsed by default
-  - Suggested Key / Scale — 4-5 keys per feel with I/IV/V chord progressions, 3-chord combos, relative major/minor companions, section-by-section melodic arrangement guide, and sub bass vs 808 guidance
+- **15 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Sparse
+- **Regenerate dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options
+- **9 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
+- **Dedicated kick libraries** for every feel — all 15 styles have curated kick patterns matched to their aesthetic
+- **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
+- **Song palette system** — each generation picks one of 12 compatible feel families so all sections stay coherent (no crunk verse into G-Funk chorus)
+- **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
+- **Click any section** to jump to that point in the song player
+- **Playback cursor** — highlights the current step in the grid during playback
+- **Per-section feel tags** — each arrangement card shows its feel
+- **Song key** displayed in header — updates with each generation
+- **MIDI export** (GM Channel 10) — full song + individual sections, swing baked in, ZIP download
+- **PDF beat sheet** — color-coded pattern grids with full analysis text
+- **"About This Beat" panel** — collapsed by default, Key/Scale open:
+  - Suggested Key / Scale — I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic guide
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements — section descriptions
   - Reference Tracks — 3 specific songs per feel to study
-  - Technique spotlights (16 topics), producer history (15 entries), difficulty rating, ear training prompts, common mistakes (17 entries), equipment guides
-- Click any grid cell for an explanation of why that hit is at that velocity
-- Glossary tooltips — hover over drum terms in the About panel for instant definitions
-- Responsive — works on desktop and mobile
+  - Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
+- **Click any grid cell** for an explanation of why that hit is at that velocity
+- **Glossary tooltips** — hover over drum terms in the About panel for instant definitions
+- **Keyboard shortcuts** — R to open the regenerate dialog, Escape to cancel, Enter to confirm
+- **Responsive** — works on desktop and mobile
 
 ## Quick Start
 
@@ -63,7 +45,7 @@ python3 -m http.server 8080
 
 ## How It Works
 
-The generator models real drumming principles across 15 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. Section-level adjustments (ghost density, hat type, snare ghost patterns, crash probability, kick derivation) vary by both feel and section type.
+The generator models real drumming principles across 15 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. A song-level palette system ensures all sections use compatible feels. Section-level adjustments vary by both feel and section type.
 
 See [DOCS.md](DOCS.md) for the full technical breakdown.
 
@@ -72,7 +54,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ```
 ├── index.html         — App shell, layout, script loading
 ├── styles.css         — Dark theme UI, responsive layout
-├── patterns.js        — Constants, state, section/row definitions
+├── patterns.js        — Constants, state, section/row definitions, STYLE_DATA
 ├── ai.js              — Generation pipeline, feel/swing pools, kick libraries, orchestration
 ├── writers.js         — Instrument-specific bar writers, intro/outro, fills
 ├── groove.js          — Accent curves, velocity humanization, post-processing
@@ -80,7 +62,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── ui.js              — Grid rendering, arrangement editor, tooltips, glossary
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, MIDI player
 ├── pdf-export.js      — PDF beat sheet generator
-├── app.js             — Main controller, event wiring, playback cursor
+├── app.js             — Main controller, regenerate dialog, event wiring, playback cursor
 ├── DOCS.md            — Full technical documentation
 ├── CONTRIBUTING.md    — Contribution guidelines
 └── LICENSE            — MIT

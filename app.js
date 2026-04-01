@@ -38,9 +38,12 @@ function showRegenDialog() {
   var keyEl   = document.getElementById('regenKey');
   var bpmEl   = document.getElementById('regenBpm');
 
-  // Populate style dropdown
+  // Populate style dropdown — sorted alphabetically by label
+  var styleKeys = Object.keys(STYLE_DATA).sort(function(a, b) {
+    return STYLE_DATA[a].label.localeCompare(STYLE_DATA[b].label);
+  });
   styleEl.innerHTML = '<option value="">Auto</option>'
-    + Object.keys(STYLE_DATA).map(function(k) {
+    + styleKeys.map(function(k) {
         return '<option value="' + k + '">' + STYLE_DATA[k].label + '</option>';
       }).join('');
 
@@ -48,11 +51,12 @@ function showRegenDialog() {
     var style = styleEl.value;
     var data = style ? STYLE_DATA[style] : null;
 
-    // Keys — only show keys for the selected style
+    // Keys — only show keys for the selected style, sorted alphabetically
     var prevKey = keyEl.value;
     keyEl.innerHTML = '<option value="">Auto</option>';
     if (data) {
-      data.keys.forEach(function(k) {
+      var sortedKeys = data.keys.slice().sort(function(a, b) { return a.localeCompare(b); });
+      sortedKeys.forEach(function(k) {
         keyEl.innerHTML += '<option value="' + k + '">' + k + '</option>';
       });
     }

@@ -21,20 +21,23 @@ Thanks for your interest in contributing! This project is pure vanilla JS with z
 
 The project is split into focused modules:
 
-- **`ai.js`** — Generation pipeline, feel/swing pools, kick libraries, section orchestration
+- **`patterns.js`** — Constants, state, section/row definitions, `STYLE_DATA` for the regen dialog
+- **`ai.js`** — Generation pipeline, feel/swing pools, kick libraries, `FEEL_PALETTES`, section orchestration
 - **`writers.js`** — All `write*()` bar writers, intro/outro, fills
 - **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
-- **`analysis.js`** — `analyzeBeat()` educational text generator
+- **`analysis.js`** — `analyzeBeat()` educational text generator, `keyData` per feel
 - **`ui.js`** — Grid rendering, arrangement editor, tooltips, glossary
-- **`patterns.js`** — Constants, state, section/row definitions
 - **`midi-export.js`** — MIDI file writer, ZIP export, MIDI player
 - **`pdf-export.js`** — PDF beat sheet generator
-- **`app.js`** — Main controller, event wiring, playback cursor
+- **`app.js`** — Main controller, regenerate dialog, event wiring, playback cursor
 
 ## Key Concepts
 
 - **Feels** — 15 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
-- **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). Normal, jazzy, dark, halftime, sparse, driving, bounce, big, chopbreak, G-Funk, crunk, and Memphis all have curated libraries. The general 30-pattern library is the fallback for unlisted feels.
+- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 12 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent. Palette format: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`.
+- **Regenerate Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style filters key and BPM to only show authentic options. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
+- **STYLE_DATA** — Defined in `patterns.js`. Maps each feel key to `{label, bpmRange, keys[]}`. Used by the regen dialog to filter options. Must be kept in sync with `keyData` in `analysis.js`.
+- **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). The general 30-pattern library is the fallback for unlisted feels.
 - **Ghost Density** — A per-song random value (0.5–1.8) clamped per feel (chopbreak floors at 1.0, lofi/memphis cap at 1.0, crunk caps at 0.4). Scales all ghost note probabilities.
 - **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` (interlock, choke, clustering) → `applyGroove()` (per-instrument accents) → `humanizeVelocities()` (micro-velocity jitter). Each stage is a separate function.
 - **Bar Writers** — Each instrument has dedicated writer functions (`writeBarK`, `writeSnA/B`, `writeHA/B`, `writeOpenHat`, `writeClap`, `writeRimshot`, `writeRide`, `writeCR`). New feels must be handled in every relevant writer.
@@ -46,15 +49,17 @@ The project is split into focused modules:
 
 1. Add the feel name to the relevant sections in `FEELS` (`ai.js`)
 2. Add a swing pool entry in `SWING_POOLS` (`ai.js`)
-3. Add a dedicated kick library override in `generatePattern()` (`ai.js`)
-4. Handle the feel in every `write*()` function — kick, snare A/B, ghost kick A/B, hat A/B, open hat, clap, rimshot, ride, fill
-5. Add feel-specific behavior in `applyGroove()` and `humanizeVelocities()` (`groove.js`) — hat accent, kick accent, velocity arc, jitter scaling
-6. Add feel-specific ghost clustering in `postProcessPattern()` (`groove.js`)
-7. Add ghost density bias in `generateAll()` (`ai.js`)
-8. Add hat type override in `generatePattern()` (`ai.js`)
-9. Add style description in `analyzeBeat()` — `styleNames`, `styleDescs`, key data, reference tracks, difficulty scoring, TRY THIS exercise, LISTEN FOR prompt, producer technique attribution
-10. Add feel coherence entry in the `compatMap` for verse2 (`ai.js`)
-11. Add section transition velocity scaling in `applySectionTransitions()` (`ai.js`)
+3. Add a palette entry in `FEEL_PALETTES` (`ai.js`) — `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`
+4. Add a dedicated kick library override in `generatePattern()` (`ai.js`)
+5. Handle the feel in every `write*()` function — kick, snare A/B, ghost kick A/B, hat A/B, open hat, clap, rimshot, ride, fill
+6. Add feel-specific behavior in `applyGroove()` and `humanizeVelocities()` (`groove.js`) — hat accent, kick accent, velocity arc, jitter scaling
+7. Add feel-specific ghost clustering in `postProcessPattern()` (`groove.js`)
+8. Add ghost density bias in `generateAll()` (`ai.js`)
+9. Add hat type override in `generatePattern()` (`ai.js`)
+10. Add style description in `analyzeBeat()` — `styleNames`, `styleDescs`, key data, reference tracks, difficulty scoring, TRY THIS exercise, LISTEN FOR prompt, producer technique attribution
+11. Add feel coherence entry in the `compatMap` for verse2 (`ai.js`)
+12. Add section transition velocity scaling in `applySectionTransitions()` (`ai.js`)
+13. Add an entry to `STYLE_DATA` in `patterns.js` — `{label, bpmRange, keys[]}`. Keys must match roots in `keyData` in `analysis.js`.
 
 ## Adding Educational Content
 
@@ -71,6 +76,12 @@ The `analyzeBeat()` function in `analysis.js` contains several content pools tha
 
 Each pool uses `pick()` to select one random entry per generation. Keep entries self-contained and aim for 2-4 sentences.
 
+## Keyboard Shortcuts
+
+- **R** — open the regenerate dialog
+- **Escape** — close the dialog without generating
+- **Enter** — confirm the dialog and generate
+
 ## Code Style
 
 - Vanilla JS (ES5 compatible for max browser support)
@@ -84,7 +95,6 @@ Each pool uses `pick()` to select one random entry per generation. Keep entries 
 - **Grid editing** — Click-to-toggle cells, drag to set velocity
 - **Generation history** — Ring buffer of recent generations with Previous/Next navigation
 - **URL sharing** — Encode beat state into URL hash for sharing
-- **BPM/feel controls** — Let users lock BPM range or feel preference before generating
 - **More educational content** — Add entries to any of the content pools in `analyzeBeat()`
 - **More style feels** — Reggaeton, Afrobeats, trap, drill
 - **Accessibility** — Keyboard navigation, screen reader support
