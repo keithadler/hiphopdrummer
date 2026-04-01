@@ -1,34 +1,27 @@
 // =============================================
 // Main Controller — Boot Sequence & Event Wiring
 //
-// This is the application entry point. It wires up UI event handlers
-// (button clicks, keyboard shortcuts) and runs the initial generation
-// on page load. Must be loaded LAST because it calls functions defined
-// in ai.js (generateAll), midi-export.js (exportMIDI, updateMidiPlayer),
-// and ui.js (renderGrid, renderArr).
+// Application entry point. Wires UI event handlers and runs the
+// initial generation on page load. Must be loaded LAST.
 //
-// Load order: patterns.js → ai.js → ui.js → midi-export.js →
-//             pdf-export.js → app.js
+// Load order: patterns.js → ai.js → writers.js → groove.js →
+//             analysis.js → ui.js → midi-export.js → pdf-export.js → app.js
 //
 // Boot sequence:
-//   1. Wire "Generate" button → generateAll() + updateMidiPlayer()
+//   1. Wire "New Beat" button → showRegenDialog()
 //   2. Wire "Export" button → exportMIDI()
-//   3. Bind keyboard shortcut (R) for quick regeneration
+//   3. Bind keyboard shortcuts (R, Escape, Enter)
 //   4. Run initial generation so the page is never empty
 //   5. Hide the loading overlay, reveal the app
-//
-// Regenerate always keeps the current BPM and Swing values because
-// generateAll() picks fresh ones each time.
+//   6. Start playback tracking on the full song MIDI player
 //
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-// ── Event Wiring ──
-
-// ── Regenerate Dialog ──
+// ── New Beat Dialog ──
 
 /**
- * Populate and show the regenerate dialog.
+ * Populate and show the New Beat dialog.
  * Style dropdown is always full. Key and BPM dropdowns update
  * dynamically when style changes — only showing options valid for
  * the selected style.
@@ -118,7 +111,7 @@ document.getElementById('regenGo').onclick = function() {
   updateMidiPlayer();
 };
 
-/** Generate button: show the dialog */
+/** New Beat button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
 /** Export button: build MIDI files + PDF and download as ZIP */
@@ -126,9 +119,9 @@ document.getElementById('btnExport').onclick = exportMIDI;
 
 /**
  * Keyboard shortcuts:
- *   R — open regenerate dialog
+ *   R      — open New Beat dialog
  *   Escape — close dialog
- *   Enter — confirm dialog
+ *   Enter  — confirm dialog and generate
  */
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
@@ -149,11 +142,11 @@ document.addEventListener('keydown', function(e) {
 // ── Boot ──
 
 /**
- * IIFE that runs on page load:
- *   1. Generate the first beat (populates patterns, arrangement, UI)
- *   2. Build the MIDI player blob so playback is ready immediately
- *   3. Hide the "Loading…" overlay and show the main app container
- *   4. Wire up playback tracking on the full song MIDI player
+ * IIFE boot sequence:
+ *   1. Generate the first beat
+ *   2. Build the MIDI player blob
+ *   3. Hide loading overlay, show app
+ *   4. Start playback tracking
  */
 (function() {
   generateAll();

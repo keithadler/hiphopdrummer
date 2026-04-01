@@ -6,12 +6,12 @@ Generate authentic hip hop drum patterns in your browser. Learn the art of hip h
 
 ## What It Does
 
-Hit **REGENERATE** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
+Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
 
 ## Highlights
 
 - **15 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Sparse
-- **Regenerate dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options
+- **New Beat dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options. Selecting a style shows the key producers; selecting a key shows its rap mood.
 - **9 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
 - **Dedicated kick libraries** for every feel — all 15 styles have curated kick patterns matched to their aesthetic
 - **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
@@ -32,7 +32,7 @@ Hit **REGENERATE** to open a dialog where you can optionally pick a style, key, 
   - Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
 - **Click any grid cell** for an explanation of why that hit is at that velocity
 - **Glossary tooltips** — hover over drum terms in the About panel for instant definitions
-- **Keyboard shortcuts** — R to open the regenerate dialog, Escape to cancel, Enter to confirm
+- **Keyboard shortcuts** — R to open the New Beat dialog, Escape to cancel, Enter to confirm
 - **Responsive** — works on desktop and mobile
 
 ## Quick Start
@@ -63,7 +63,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── ui.js              — Grid rendering, arrangement editor, tooltips, glossary
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, MIDI player
 ├── pdf-export.js      — PDF beat sheet generator
-├── app.js             — Main controller, regenerate dialog, event wiring, playback cursor
+├── app.js             — Main controller, New Beat dialog, event wiring, playback cursor
 ├── DOCS.md            — Full technical documentation
 ├── CONTRIBUTING.md    — Contribution guidelines
 └── LICENSE            — MIT

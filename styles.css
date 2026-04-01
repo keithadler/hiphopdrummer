@@ -96,7 +96,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .glossary-term{border-bottom:1px dotted var(--accent-blue);cursor:help}
 .loading{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:19px;color:var(--text-dim);letter-spacing:1px}
 
-/* ── Regenerate Dialog ── */
+/* ── New Beat Dialog ── */
 .regen-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .regen-dialog{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:10px;padding:28px 32px;width:420px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .regen-title{font-family:var(--mono);font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:6px}
@@ -157,7 +157,7 @@ midi-player::part(play-button){color:var(--accent-green)}
     gap:5px;
     order:2;
   }
-  /* Regenerate spans full width */
+  /* New Beat spans full width */
   .btn-gen{
     grid-column:1 / -1;
     justify-content:center;
