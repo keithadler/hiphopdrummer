@@ -95,7 +95,6 @@ document.getElementById('regenGo').onclick = function() {
   var key   = document.getElementById('regenKey').value || null;
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
-  if (_midiOut.playing) midiOutStop();
   generateAll({ style: style, key: key, bpm: bpm });
   updateMidiPlayer();
 };
@@ -103,16 +102,14 @@ document.getElementById('regenGo').onclick = function() {
 /** Generate button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
-/** Play/Stop button: toggle MIDI Out playback */
-document.getElementById('btnPlay').onclick = midiOutToggle;
-
 /** Export button: build MIDI files + PDF and download as ZIP */
 document.getElementById('btnExport').onclick = exportMIDI;
 
 /**
  * Keyboard shortcuts:
- *   R — regenerate
- *   Space — play/stop MIDI Out
+ *   R — open regenerate dialog
+ *   Escape — close dialog
+ *   Enter — confirm dialog
  */
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
@@ -128,10 +125,6 @@ document.addEventListener('keydown', function(e) {
     e.preventDefault();
     showRegenDialog();
   }
-  if (e.key === ' ') {
-    e.preventDefault();
-    midiOutToggle();
-  }
 });
 
 // ── Boot ──
@@ -146,7 +139,6 @@ document.addEventListener('keydown', function(e) {
 (function() {
   generateAll();
   updateMidiPlayer();
-  midiOutInit();
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
   initPlaybackTracking();
