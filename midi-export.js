@@ -200,6 +200,8 @@ function buildMidiBytes(sectionList, bpm) {
  *   - Notes use MPC_NOTE_MAP (Chromatic C1 layout, not GM):
  *       A01=36 Kick, A02=37 Snare, A03=38 Clap, A04=39 Rimshot,
  *       A05=40 Ghost Kick, A06=41 Hat, A07=42 Open Hat, A08=43 Ride, A09=44 Crash
+ *   - NO swing baked in — MPC patterns are straight grid. Set swing
+ *     on the MPC device itself to match the beat's swing value.
  *
  * @param {string[]} sectionList - Section ids to include
  * @param {number} bpm - Tempo (used for swing calculation)
@@ -211,9 +213,9 @@ function buildMpcPattern(sectionList, bpm) {
   var ticksPerStep = srcPPQ / 4;  // 24 src ticks per 16th note
   var noteDurSrc = Math.floor(ticksPerStep * 0.75); // 18 src ticks
 
-  var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
-
+  // MPC patterns use straight (no baked swing) — the user sets swing
+  // on the MPC device itself. The MPC help file tells users which
+  // swing value to dial in to match this beat.
   var noteEvents = [];
   var tickPos = 0;
 
@@ -222,9 +224,7 @@ function buildMpcPattern(sectionList, bpm) {
     if (!pat) return;
     var len = secSteps[sec] || 32;
     for (var s = 0; s < len; s++) {
-      var stepInBar = s % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
-      var stepTick = tickPos + swingOffset;
+      var stepTick = tickPos; // straight grid — no swing offset
 
       ROWS.forEach(function(r) {
         var vel = pat[r][s];
@@ -346,9 +346,13 @@ function buildHelpGeneral(bpm, swing) {
     '',
     'IMPORTANT — SWING',
     '-----------------',
-    'Swing (' + s + '%) is already baked into the MIDI timing.',
-    'Do NOT add additional swing in your DAW — you will double the offset.',
-    'Just import and play.',
+    'MIDI Patterns/ files: swing (' + s + '%) is BAKED IN to the note timing.',
+    '  Do NOT add additional swing in your DAW — you will double the offset.',
+    '',
+    'MPC/ .mpcpattern files: notes are on a STRAIGHT grid.',
+    '  Set swing to ' + s + '% on the MPC device itself.',
+    '  (MPC 3.x: Sequence settings > Swing)',
+    '  (MPC 2.x: Timing Correct > Swing)',
     '',
     'GM DRUM NOTE MAP (MIDI Patterns folder)',
     '---------------------------------------',
@@ -682,12 +686,25 @@ function buildHelpMPC(bpm, swing) {
     '4. You can then use the Sequence editor to split it into sections',
     '   or navigate through it using the playhead.',
     '',
-    '=== SWING NOTE ===',
+    '=== SWING ===',
     '',
-    'The swing (' + s + '%) is already baked into the MIDI note positions.',
-    'Do NOT enable MPC\'s swing/groove on these sequences.',
-    'In MPC 3.x: Sequence settings > Swing > set to 0%.',
-    'In MPC 2.x: Sequence > Timing Correct > Swing > set to 50% (straight).',
+    'Unlike the MIDI files, the .mpcpattern files are on a STRAIGHT grid',
+    '— no swing is baked in. Set swing on the MPC itself to match this beat:',
+    '',
+    'MPC 3.x:',
+    '  MAIN screen > tap the Sequence name > Sequence settings',
+    '  > Swing > set to ' + s + '%',
+    '  (or: MENU > Sequences > tap the sequence > Swing)',
+    '',
+    'MPC 2.x:',
+    '  MAIN screen > tap the Sequence name > Timing Correct',
+    '  > Swing > set to ' + s + '%',
+    '',
+    'Swing value for this beat: ' + s + '%',
+    '  50% = straight/robotic',
+    '  58% = classic boom bap feel',
+    '  62-66% = heavy golden era groove',
+    '  68%+ = very heavy/drunk feel (Dilla territory)',
     '',
     '=== OPEN/CLOSED HAT CHOKE ===',
     '',
