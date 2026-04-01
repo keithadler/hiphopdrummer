@@ -2,9 +2,9 @@
 
 Full technical breakdown of every feature, technique, and design decision in the beat generator.
 
-## East Coast Styles
+## Hip Hop Styles
 
-Twelve feel types covering the full range of East Coast hip hop:
+Fifteen feel types covering the full range of hip hop:
 
 - **Classic Boom Bap** — DJ Premier, Pete Rock, Buckwild
 - **Hard/Aggressive** — Mobb Deep, Onyx, M.O.P.
@@ -14,6 +14,9 @@ Twelve feel types covering the full range of East Coast hip hop:
 - **Dilla/Neo-Soul** — J Dilla, Slum Village, Madvillainy
 - **Lo-Fi/Dusty** — Madlib, Knxwledge, MF DOOM, Roc Marciano
 - **Chopped Break** — DJ Premier, Havoc, Alchemist, Large Professor
+- **G-Funk** — Dr. Dre, DJ Quik, Warren G, Snoop Dogg
+- **Crunk** — Lil Jon, Ying Yang Twins, Three 6 Mafia
+- **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo
 - **Halftime** — Havoc, RZA (snare on beat 3)
 - **Driving** — Gangstarr, EPMD (forward momentum)
 - **Big/Anthem** — Maximum energy for choruses

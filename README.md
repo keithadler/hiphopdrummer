@@ -1,6 +1,6 @@
 # 🥁 Hip Hop Drummer
 
-Generate authentic East Coast hip hop drum patterns in your browser. Learn the art of boom bap drum programming while you create.
+Generate authentic hip hop drum patterns in your browser. Learn the art of hip hop drum programming while you create.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -10,7 +10,7 @@ Hit **REGENERATE** and get a complete hip hop drum arrangement — verse, chorus
 
 ## Highlights
 
-- 15 East Coast and Southern feels — Classic Boom Bap, Hard, Jazz, Dark, Bounce, Dilla, Lo-Fi, Chopped Break, Halftime, Driving, Big, Sparse, G-Funk, Crunk, Memphis
+- 15 hip hop feels — Classic Boom Bap, Hard, Jazz, Dark, Bounce, Dilla, Lo-Fi, Chopped Break, Halftime, Driving, Big, Sparse, G-Funk, Crunk, Memphis
 - 30 verse kick patterns, 13 chorus patterns, 10 ghost snare pairs per section (verse, verse 2, and chorus each get distinct ghost patterns)
 - 9 instrument rows — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash
 - Per-instrument humanization — each limb has its own velocity consistency, just like a real drummer

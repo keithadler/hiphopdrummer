@@ -1,9 +1,13 @@
 // =============================================
-// AI Beat Generator — East Coast Boom Bap
+// Hip Hop Drummer — Beat Generator
 //
-// Procedurally generates authentic hip-hop drum patterns modeled on
-// the production styles of DJ Premier, Pete Rock, RZA, J Dilla,
-// Large Professor, and other golden-era East Coast producers.
+// Procedurally generates authentic hip-hop drum patterns across
+// multiple styles and eras — East Coast boom bap, West Coast G-Funk,
+// Southern crunk and Memphis rap, lo-fi, Dilla/neo-soul, and more.
+//
+// Modeled on the production styles of DJ Premier, Pete Rock, RZA,
+// J Dilla, Dr. Dre, DJ Quik, Lil Jon, Three 6 Mafia, Madlib,
+// Large Professor, and other legendary producers.
 //
 // Architecture — Generation Pipeline:
 //   generateAll()            Master orchestrator (picks BPM, swing, arrangement)
@@ -300,7 +304,7 @@ function genBasePatterns() {
   // Randomize ghost note density for this song
   ghostDensity = pick([0.5, 0.6, 0.7, 0.8, 1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8]);
 
-  // East Coast boom bap kick library — 18 classic syncopation patterns.
+  // Kick library — classic hip hop syncopation patterns across multiple styles.
   // Each is a 16-element binary array representing one bar of 16th notes.
   // Positions map to musical subdivisions:
   //   0=beat1, 1=e-of-1, 2=and-of-1, 3=ah-of-1,
@@ -973,11 +977,12 @@ function applySectionTransitions() {
 
 /**
  * Available BPM values for random selection. Range covers the full
- * spectrum of East Coast hip-hop tempos:
- *   68–78:  Slow/dark (Griselda, Wu-Tang)
+ * spectrum of hip-hop tempos:
+ *   65–78:  Slow/dark (Memphis, Griselda, Wu-Tang)
  *   80–92:  Classic boom bap sweet spot (Premier, Pete Rock)
- *   95–108: Mid-tempo (Nas, Tribe)
+ *   95–108: Mid-tempo (Nas, Tribe, G-Funk)
  *   110–118: Uptempo/battle rap (EPMD, Onyx, Black Moon)
+ *   120–130: Crunk/high energy (Lil Jon, Ying Yang Twins)
  * @type {number[]}
  */
 var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118, 120, 125, 128, 130];
