@@ -226,26 +226,23 @@ function writeBarK(p, feel, off, kickPat) {
     if (!kickPat[6] && maybe(.3)) p.kick[off + 6] = v(100, 10);
   }
   if (feel === 'gfunk') {
-    // G-Funk: kick on 1 and 3, laid back, occasionally syncopated — Dr. Dre, DJ Quik
-    p.kick[off] = v(115, 8);
-    p.kick[off + 8] = v(108, 10);
-    if (maybe(.4)) p.kick[off + 6] = v(90, 12);   // occasional and-of-2
-    if (maybe(.3)) p.kick[off + 14] = v(85, 12);  // occasional and-of-4
+    // G-Funk: use the kick library pattern (now gfunk-specific), apply West Coast velocity shaping
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(108, 12);
+    // Soften everything slightly — the West Coast pocket is laid back
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = Math.max(85, p.kick[off + i] - 8);
   }
   if (feel === 'crunk') {
-    // Crunk: maximum kick density, every beat or 4-on-the-floor — Lil Jon, Ying Yang Twins
-    p.kick[off] = v(127, 3);
-    p.kick[off + 4] = v(120, 5);
-    p.kick[off + 8] = v(127, 3);
-    p.kick[off + 12] = v(120, 5);
-    if (maybe(.5)) p.kick[off + 6] = v(110, 8);   // extra syncopation
-    if (maybe(.4)) p.kick[off + 14] = v(108, 8);
+    // Crunk: use the kick library pattern (now crunk-specific), boost to maximum
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(127, 3);
+    // Occasional extra syncopation
+    if (maybe(.5) && !kickPat[6]) p.kick[off + 6] = v(115, 8);
+    if (maybe(.4) && !kickPat[14]) p.kick[off + 14] = v(112, 8);
   }
   if (feel === 'memphis') {
-    // Memphis: sparse, heavy kick — Three 6 Mafia, DJ Paul, Juicy J
-    p.kick[off] = v(120, 8);
-    if (maybe(.5)) p.kick[off + 8] = v(105, 12);  // beat 3 sometimes
-    if (maybe(.3)) p.kick[off + 10] = v(95, 12);  // occasional syncopation
+    // Memphis: use the kick library pattern (now memphis-specific), heavy and dark
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(118, 10);
+    // Beat 1 always hardest
+    if (p.kick[off] > 0) p.kick[off] = v(122, 8);
   }
 }
 
@@ -331,9 +328,11 @@ function writeSnA(p, feel, off) {
     if (maybe(.3 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(55, 10);
   }
   // G-Funk: snare on 2 and 4, laid back, slightly softer — Dr. Dre "The Chronic" feel
+  // &2 ghost is the West Coast signature — higher probability than other feels
   if (feel === 'gfunk') {
     p.snare[off + 4] = v(110, 12); p.snare[off + 12] = v(115, 12);
-    if (maybe(.3 * ghostDensity) && !p.kick[off+6]) p.snare[off+6] = v(55, 10); // ghost on &2
+    if (maybe(.65) && !p.kick[off+6]) p.snare[off+6] = v(58, 10);  // &2 ghost — almost always
+    if (maybe(.3) && !p.kick[off+14]) p.snare[off+14] = v(52, 10); // &4 ghost — occasional
   }
   // Crunk: snare at maximum velocity, no ghosts — Lil Jon "Get Low" crack
   if (feel === 'crunk') {
@@ -420,13 +419,17 @@ function writeSnB(p, feel, off) {
   }
   if (feel === 'gfunk') {
     p.snare[off + 4] = v(110, 12); p.snare[off + 12] = v(115, 12);
-    if (maybe(.3 * ghostDensity) && !p.kick[off+10]) p.snare[off+10] = v(52, 10);
+    // Bar B: ghost on &3 instead of &2 for A/B variation
+    if (maybe(.55) && !p.kick[off+10]) p.snare[off+10] = v(55, 10); // &3 ghost
+    if (maybe(.25) && !p.kick[off+6]) p.snare[off+6] = v(50, 10);   // &2 ghost sometimes
   }
   if (feel === 'crunk') {
     p.snare[off + 4] = v(127, 2); p.snare[off + 12] = v(127, 2);
   }
   if (feel === 'memphis') {
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
+    // Bar B: occasional ghost snare for subtle A/B variation — very quiet
+    if (maybe(.2 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(42, 8);
   }
 }
 
@@ -795,7 +798,12 @@ function writeHB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeOpenHat(p, feel, off) {
-  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi' || feel === 'memphis') return;
+  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
+  if (feel === 'memphis') {
+    // Memphis: sparse open hat on &4 at low velocity — sinister and dark
+    if (maybe(.35)) { p.openhat[off + 14] = v(65, 10); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
+    return;
+  }
   if (feel === 'crunk') {
     // Crunk: open hat on &4 almost always, aggressive — Lil Jon style
     if (maybe(.85)) { p.openhat[off + 14] = v(100, 6); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
@@ -861,6 +869,14 @@ function writeRide(p, feel, off) {
     if (maybe(.5)) p.ride[off + 7] = v(48, 10);
     if (maybe(.6)) p.ride[off + 11] = v(50, 10);
     if (maybe(.4)) p.ride[off + 15] = v(45, 10);
+    return;
+  }
+  if (feel === 'gfunk') {
+    // G-Funk: quarter notes with 8th note pings — West Coast cowbell/ride feel
+    for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(88, 10);
+    if (maybe(.5)) p.ride[off + 2] = v(62, 12);   // and-of-1
+    if (maybe(.5)) p.ride[off + 10] = v(60, 12);  // and-of-3
+    if (maybe(.3)) p.ride[off + 6] = v(55, 12);   // and-of-2
     return;
   }
   if (feel === 'dark') {
@@ -1127,13 +1143,13 @@ function addFill(p, sec, len, feel) {
     if (isBig) p.crash[len - 1] = v(105, 10);
   }
   else if (feel === 'crunk') {
-    // Crunk fill: maximum energy kick+snare+clap unisons — Lil Jon "OKAYYYY"
-    for (var i = start; i < len; i++) {
-      p.snare[i] = v(127, 2);
-      p.clap[i] = v(127, 2);
-      p.kick[i] = v(127, 2);
-    }
+    // Crunk fill: one massive snare+clap+kick hit on the last step — Lil Jon "OKAYYYY"
+    p.snare[len - 1] = v(127, 2);
+    p.clap[len - 1] = v(127, 2);
+    p.kick[len - 1] = v(127, 2);
     p.crash[len - 1] = v(120, 5);
+    // Optional setup hit one step before
+    if (maybe(.6)) { p.snare[len - 2] = v(120, 5); p.clap[len - 2] = v(118, 5); }
   }
   else if (feel === 'memphis') {
     // Memphis fill: single heavy snare hit — Three 6 Mafia minimal

@@ -511,6 +511,8 @@ function genBasePatterns() {
     false, false,                        // 20% — more no-ride weight
     true, true, true                     // 30% — ride cymbal active
   ]);
+  // G-Funk: ride cymbal more likely (Dr. Dre often uses cowbell/ride)
+  if (songFeel === 'gfunk') useRide = maybe(.5);
 }
 
 // =============================================
@@ -638,7 +640,6 @@ function generatePattern(sec) {
   }
 
   // Chopbreak: override kick with break-derived patterns (breakbeat/funky subset)
-  // These mirror real drummer phrasing from Funky Drummer, Impeach the President, etc.
   if (feel === 'chopbreak' && !isCh) {
     var breakKicks = [
       [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // breakbeat feel
@@ -653,6 +654,52 @@ function generatePattern(sec) {
     kickB = kick.slice();
     var bkPos = pick([8,10,14]);
     kickB[bkPos] = kickB[bkPos] ? 0 : 1;
+  }
+
+  // G-Funk: dedicated West Coast kick library — 1-and-3 patterns with occasional syncopation
+  if (feel === 'gfunk' && !isCh) {
+    var gfunkKicks = [
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // pure 1 and 3 — Dr. Dre minimal
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic West Coast
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — DJ Quik bounce
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // 1, and-of-2, 3, and-of-4 — rolling
+      [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // 1, 3, and-of-3 — syncopated
+      [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-1, 3 — Warren G feel
+    ];
+    kick = pick(gfunkKicks);
+    kickB = kick.slice();
+    var gfPos = pick([6, 8, 10, 14]);
+    kickB[gfPos] = kickB[gfPos] ? 0 : 1;
+  }
+
+  // Memphis: use sparse/minimal patterns from the kick library
+  if (feel === 'memphis' && !isCh) {
+    var memphisKicks = [
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // kick on 1 only — maximum space
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark minimal
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — sparse
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+    ];
+    kick = pick(memphisKicks);
+    kickB = kick.slice();
+    var mpPos = pick([8, 10, 11]);
+    kickB[mpPos] = kickB[mpPos] ? 0 : 1;
+  }
+
+  // Crunk: use busy/four-on-the-floor patterns from the kick library
+  if (feel === 'crunk' && !isCh) {
+    var crunkKicks = [
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // four-on-the-floor
+      [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,0,0],  // 4-on-floor + and-of-2
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0],  // 4-on-floor + and-of-4
+      [1,0,1,0, 1,0,0,0, 1,0,1,0, 1,0,0,0],  // busy with and-of-1 and and-of-3
+      [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,1,0],  // syncopated crunk
+    ];
+    kick = pick(crunkKicks);
+    kickB = kick.slice();
+    var ckPos = pick([6, 10, 14]);
+    kickB[ckPos] = kickB[ckPos] ? 0 : 1;
   }
 
   // Dilla: B variant can toggle in the first half too (Dilla's variations weren't limited to second half)
@@ -788,12 +835,16 @@ function generatePattern(sec) {
         // Rimshot: remove one for breathing room
         if (maybe(.4)) { var rr = pick([1, 3, 5, 7, 9, 11, 13, 15]); p.rimshot[off+rr] = 0; }
         if (feel === 'lofi') {
-          // Lo-fi: just nudge a ghost velocity, don't strip anything
           var lg = pick([1, 3, 5, 9, 11, 13]);
           if (p.ghostkick[off+lg] > 0) p.ghostkick[off+lg] = Math.max(30, p.ghostkick[off+lg] - 10);
         } else if (feel === 'chopbreak') {
-          // Chopbreak: thin ghost snares slightly instead of dropping kicks
           for (var i = 0; i < 16; i++) if (p.snare[off+i] > 0 && p.snare[off+i] < 70 && maybe(.3)) p.snare[off+i] = 0;
+        } else if (feel === 'crunk') {
+          // Crunk: vary hat velocity slightly — the only real variation in crunk
+          for (var i = 0; i < 16; i += 2) if (p.hat[off+i] > 0) p.hat[off+i] = Math.max(85, p.hat[off+i] + pick([-8, -5, 5, 8]));
+        } else if (feel === 'gfunk' || feel === 'memphis') {
+          // G-Funk/Memphis: just drop ghost kicks, keep everything else stable
+          for (var i = 0; i < 16; i++) p.ghostkick[off+i] = 0;
         } else {
           for (var i = 0; i < 16; i++) p.ghostkick[off+i] = 0;
           if (maybe(.4)) for (var i = 0; i < 16; i++) p.openhat[off+i] = 0;
@@ -810,16 +861,22 @@ function generatePattern(sec) {
       }
       // Bar 7 (posIn=6): Turnaround + rimshot shift
       if (posIn === 6) {
-        if (feel !== 'lofi') for (var i = 0; i < 16; i++) p.openhat[off+i] = 0;
-        if (maybe(.5)) p.hat[off+14] = 0;
-        if (maybe(.4) && !p.kick[off+15]) p.kick[off+15] = v(80, 15);
-        if (maybe(.4) && !p.snare[off+7]) p.snare[off+7] = v(55, 10);
-        if (feel !== 'lofi' && maybe(.3)) p.clap[off+8] = v(70, 12);
-        // Rimshot: shift to a different position for turnaround character
-        if (maybe(.35)) {
-          for (var i = 0; i < 16; i++) p.rimshot[off+i] = 0; // clear existing
-          var rp = pick([1, 5, 9, 13]);
-          if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(62, 10);
+        if (feel === 'crunk') {
+          // Crunk turnaround: add snare accent on beat 3 for energy
+          if (maybe(.6)) p.snare[off+8] = v(115, 8);
+          if (maybe(.4)) p.clap[off+8] = v(110, 8);
+        } else {
+          if (feel !== 'lofi') for (var i = 0; i < 16; i++) p.openhat[off+i] = 0;
+          if (maybe(.5)) p.hat[off+14] = 0;
+          if (maybe(.4) && !p.kick[off+15]) p.kick[off+15] = v(80, 15);
+          if (maybe(.4) && !p.snare[off+7]) p.snare[off+7] = v(55, 10);
+          if (feel !== 'lofi' && maybe(.3)) p.clap[off+8] = v(70, 12);
+          // Rimshot: shift to a different position for turnaround character
+          if (maybe(.35)) {
+            for (var i = 0; i < 16; i++) p.rimshot[off+i] = 0;
+            var rp = pick([1, 5, 9, 13]);
+            if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(62, 10);
+          }
         }
       }
       // Bar 8 (posIn=7): Pre-fill
