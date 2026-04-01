@@ -234,6 +234,49 @@ function analyzeBeat() {
   lines.push('• <b>I → IV → V</b> (' + chosenKey.i + ' → ' + chosenKey.iv + ' → ' + chosenKey.v + ') — classic blues-influenced. Strong pull back to the I.');
   lines.push('• <b>I → V → IV</b> (' + chosenKey.i + ' → ' + chosenKey.v + ' → ' + chosenKey.iv + ') — reversed resolution. More unresolved and tense — good for verses.');
   lines.push('');
+
+  // === ALTERNATE PROGRESSIONS — style-matched hip hop patterns ===
+  // Compute flat chords from the key's relative major notes
+  var relParts = chosenKey.relNote.split(',').map(function(s) { return s.trim(); });
+  var bIII = relParts[0] || ''; // relative major root = bIII of minor key
+  var bVI  = relParts[1] || ''; // second note of relative = bVI
+  var bVII = relParts[2] || ''; // third note of relative = bVII
+  var root = chosenKey.i;
+
+  lines.push('<b>Alternate progressions for this style:</b>');
+
+  if (songFeel === 'normal' || songFeel === 'chopbreak' || songFeel === 'hard') {
+    lines.push('• <b>i → iv → i → bVI</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + bVI + ') — Boom Bap. The bVI adds a surprise lift on bar 4 before looping back. Classic golden era move.');
+    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+    lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
+  } else if (songFeel === 'dilla' || songFeel === 'jazzy') {
+    lines.push('• <b>ii7 → V7 → IM7</b> — Lofi Jazz. The ii-V-I is the foundation of jazz harmony. In ' + chosenKey.root + ': ' + chosenKey.relNote.split(',')[0].trim() + 'm7 → ' + chosenKey.v + '7 → ' + root + '. Sophisticated and warm.');
+    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+    lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
+  } else if (songFeel === 'gfunk' || songFeel === 'bounce') {
+    lines.push('• <b>I → bIII → bVII → IV</b> (' + root + ' → ' + bIII + ' → ' + bVII + ' → ' + chosenKey.iv + ') — West Coast. The bIII and bVII give it that P-Funk borrowed-chord bounce.');
+    lines.push('• <b>I → IV → I → V</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + chosenKey.v + ') — Danceable. The V at the end creates a strong pull back into the loop.');
+    lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
+  } else if (songFeel === 'dark' || songFeel === 'halftime' || songFeel === 'sparse') {
+    lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
+    lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIII + ' → ' + bVI + ' → ' + bVII + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
+    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+  } else if (songFeel === 'lofi') {
+    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+    lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
+    lines.push('• <b>ii7 → V7 → IM7</b> — Lofi Jazz. Sophisticated and warm. The ii-V-I is the foundation of jazz harmony.');
+  } else if (songFeel === 'memphis' || songFeel === 'crunk') {
+    lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
+    lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIII + ' → ' + bVI + ' → ' + bVII + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
+    lines.push('• <b>vi → IV → I</b> — Sad Trap. Starting on the vi minor gives it an emotional, melancholy quality before resolving to the major I.');
+  } else {
+    // Default: boom bap + lofi + west coast options
+    lines.push('• <b>i → iv → i → bVI</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + bVI + ') — Boom Bap. The bVI adds a surprise lift on bar 4.');
+    lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. Borrowed from the parallel major.');
+    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic.');
+  }
+  lines.push('<b>Tip:</b> These progressions use "borrowed chords" — chords from the parallel major or relative major that aren\'t in the strict minor scale. Hip hop producers borrow freely. If it sounds right, it is right.');
+  lines.push('');
   lines.push('<b>Relative ' + (chosenKey.type === 'minor' ? 'major' : 'minor') + ' (' + chosenKey.rel + '):</b> Same notes as ' + chosenKey.root + ' — borrow chords freely. Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
   lines.push('');
   lines.push('<b>Bass tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick — when the kick hits, the bass hits. For boom bap, G-Funk, and Memphis: use a <b>sub bass or bass guitar sample</b>, not a sliding 808. Tight and punchy — it hits with the kick and stops. (Crunk and trap use 808s differently.)');
