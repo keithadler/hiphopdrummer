@@ -118,6 +118,14 @@ var ghostDensity = 1.0;
  */
 var songFeel = 'normal';
 
+/**
+ * Song-level feel palette — a set of 2-4 compatible feels selected once per song.
+ * All sections draw from this palette to ensure coherence across the arrangement.
+ * Set in generateAll() before pattern generation begins.
+ * @type {string[]|null}
+ */
+var songPalette = null;
+
 // ── Feel Pools ──
 
 /**
@@ -267,6 +275,39 @@ var useRide = false;
  * Deep beats are often nearly straight.
  * @type {Object.<string, number[]>}
  */
+/**
+ * Compatible feel palettes — each palette is a set of feels that work together
+ * musically. The song picks one palette and all sections draw from it.
+ * Palettes are ordered by energy: [verse_feel, chorus_feel, breakdown_feel, pre_feel]
+ * @type {Array.<string[]>}
+ */
+var FEEL_PALETTES = [
+  // Classic boom bap
+  ['normal', 'big', 'sparse', 'driving'],
+  // Hard/aggressive
+  ['hard', 'big', 'dark', 'driving'],
+  // Jazz-influenced
+  ['jazzy', 'big', 'halftime', 'normal'],
+  // Dark/minimal
+  ['dark', 'hard', 'sparse', 'halftime'],
+  // Bounce/danceable
+  ['bounce', 'big', 'sparse', 'driving'],
+  // Dilla/neo-soul
+  ['dilla', 'jazzy', 'lofi', 'normal'],
+  // Lo-fi/dusty
+  ['lofi', 'dilla', 'sparse', 'normal'],
+  // Chopped break
+  ['chopbreak', 'big', 'dark', 'driving'],
+  // G-Funk
+  ['gfunk', 'big', 'bounce', 'driving'],
+  // Crunk
+  ['crunk', 'big', 'hard', 'driving'],
+  // Memphis
+  ['memphis', 'dark', 'sparse', 'halftime'],
+  // Halftime/slow
+  ['halftime', 'big', 'dark', 'sparse'],
+];
+
 var SWING_POOLS = {
   normal:    [56, 58, 58, 60, 60, 62, 62, 62, 64, 64, 66],
   halftime:  [54, 56, 58, 58, 60, 60, 62],
@@ -544,25 +585,44 @@ function genBasePatterns() {
  * Side effects: sets secSteps[sec], may set songFeel
  */
 function generatePattern(sec) {
-  var feel = pick(FEELS[sec] || ['normal']);
-  // Feel coherence: verse2 should bias toward compatible feels with verse1
-  if (sec === 'verse2' && songFeel) {
-    var compatMap = {
-      dilla: ['dilla', 'dilla', 'jazzy', 'lofi'],
-      lofi: ['lofi', 'lofi', 'dark', 'dilla'],
-      chopbreak: ['chopbreak', 'chopbreak', 'normal', 'hard'],
-      jazzy: ['jazzy', 'jazzy', 'dilla', 'normal'],
-      hard: ['hard', 'hard', 'chopbreak', 'driving'],
-      dark: ['dark', 'dark', 'lofi', 'halftime'],
-      gfunk: ['gfunk', 'gfunk', 'bounce', 'normal'],
-      crunk: ['crunk', 'crunk', 'hard', 'bounce'],
-      memphis: ['memphis', 'memphis', 'dark', 'lofi']
-    };
-    if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
-  }
-  // Memphis verse: chorus should never be crunk or hard (jarring aesthetic mismatch)
-  if (sec === 'chorus' && (songFeel === 'memphis') && (feel === 'crunk' || feel === 'hard')) {
-    feel = pick(['dark', 'lofi', 'memphis', 'bounce']);
+  var feel;
+
+  // Use song palette for coherent feel selection across all sections
+  if (songPalette) {
+    // Energy arc: assign feels from palette based on section role
+    // palette[0] = verse feel (medium energy, the song's identity)
+    // palette[1] = chorus/lastchorus feel (high energy)
+    // palette[2] = breakdown/sparse feel (low energy)
+    // palette[3] = pre/driving feel (building energy)
+    var verFeel = songPalette[0], chFeel = songPalette[1], lowFeel = songPalette[2], preFeel = songPalette[3];
+    if (sec === 'verse' || sec === 'verse2' || sec === 'instrumental') feel = verFeel;
+    else if (sec === 'chorus' || sec === 'chorus2') feel = chFeel;
+    else if (sec === 'lastchorus') feel = chFeel;
+    else if (sec === 'breakdown') feel = lowFeel;
+    else if (sec === 'pre') feel = preFeel;
+    else if (sec === 'intro') feel = pick(['intro_a', 'intro_b', 'intro_c']);
+    else if (sec === 'outro') feel = pick(['outro_fade', 'outro_stop']);
+    else feel = verFeel;
+  } else {
+    feel = pick(FEELS[sec] || ['normal']);
+    // Legacy feel coherence for verse2
+    if (sec === 'verse2' && songFeel) {
+      var compatMap = {
+        dilla: ['dilla', 'dilla', 'jazzy', 'lofi'],
+        lofi: ['lofi', 'lofi', 'dark', 'dilla'],
+        chopbreak: ['chopbreak', 'chopbreak', 'normal', 'hard'],
+        jazzy: ['jazzy', 'jazzy', 'dilla', 'normal'],
+        hard: ['hard', 'hard', 'chopbreak', 'driving'],
+        dark: ['dark', 'dark', 'lofi', 'halftime'],
+        gfunk: ['gfunk', 'gfunk', 'bounce', 'normal'],
+        crunk: ['crunk', 'crunk', 'hard', 'bounce'],
+        memphis: ['memphis', 'memphis', 'dark', 'lofi']
+      };
+      if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
+    }
+    if (sec === 'chorus' && (songFeel === 'memphis') && (feel === 'crunk' || feel === 'hard')) {
+      feel = pick(['dark', 'lofi', 'memphis', 'bounce']);
+    }
   }
   // Track the verse feel as the song's dominant style (for analysis display)
   if (sec === 'verse') songFeel = feel;
@@ -1075,19 +1135,18 @@ function generatePattern(sec) {
 // =============================================
 
 /**
- * Build a random song arrangement from one of 5 curated templates.
- * Each template follows a standard hip-hop song structure with
- * varying complexity (some include pre-chorus, breakdown, instrumental).
+ * Build a song arrangement using the standard hip-hop structure.
+ * Always uses: Intro → Verse → Pre-Chorus → Chorus → Verse 2 → Chorus 2 → Breakdown → Last Chorus → Outro
+ * Occasionally includes Instrumental for variety.
  *
  * @returns {string[]} Ordered array of section ids
  */
 function buildArrangement() {
   return pick([
-    ['intro','verse','chorus','verse2','chorus2','breakdown','lastchorus','outro'],
+    ['intro','verse','pre','chorus','verse2','chorus2','breakdown','lastchorus','outro'],
     ['intro','verse','pre','chorus','verse2','pre','chorus2','breakdown','lastchorus','outro'],
-    ['intro','verse','chorus','instrumental','verse2','chorus2','lastchorus','outro'],
-    ['intro','verse','pre','chorus','verse2','chorus2','breakdown','instrumental','lastchorus','outro'],
-    ['intro','verse','chorus','verse2','chorus','breakdown','lastchorus','outro']
+    ['intro','verse','pre','chorus','instrumental','verse2','chorus2','breakdown','lastchorus','outro'],
+    ['intro','verse','pre','chorus','verse2','chorus2','breakdown','instrumental','lastchorus','outro']
   ]);
 }
 
@@ -1177,6 +1236,9 @@ var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 
 function generateAll() {
   var bpm = pick(BPMS);
   document.getElementById('bpm').textContent = bpm;
+
+  // Select a song-level feel palette for coherent style across all sections
+  songPalette = pick(FEEL_PALETTES);
 
   // Swing: selected per-song from the verse feel's swing pool after
   // generation, so we set a placeholder here and update it below.
