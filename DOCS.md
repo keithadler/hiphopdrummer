@@ -145,7 +145,23 @@ Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggesti
 Standard MIDI Format 0, GM Channel 10. Full song + individual sections in a ZIP. Swing baked into timing. Velocity humanization embedded. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
 
 ### MPC Patterns
-Each section is also exported as a `.mpcpattern` file in the `MPC/` subfolder of the ZIP. Compatible with Akai Force, MPC Live, MPC X, and other Akai devices. Format: JSON with 960 PPQ resolution, type-2 note events (time, len, MIDI note, velocity as 0-1 float string), and 3 required static type-1 header events. Swing is applied identically to the MIDI export. Format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev / Catnip (Jamie Faye Fenton).
+Each section is also exported as a `.mpcpattern` file in the `MPC/` subfolder of the ZIP. Compatible with Akai Force, MPC Live, MPC X, MPC One, and other Akai devices running firmware 2.11+. Format: JSON with 960 PPQ resolution, type-2 note events (time, len, MIDI note, velocity as 0-1 float string), and 3 required static type-1 header events. Swing is applied identically to the MIDI export.
+
+Note mapping uses the **Chromatic C1** layout (MPC default since firmware 2.11) — not GM. Assign samples to pads A01–A09 in this order:
+
+| Pad | Note | Instrument |
+|-----|------|------------|
+| A01 | 36 (C1)  | Kick |
+| A02 | 37 (C#1) | Snare |
+| A03 | 38 (D1)  | Clap |
+| A04 | 39 (D#1) | Rimshot |
+| A05 | 40 (E1)  | Ghost Kick |
+| A06 | 41 (F1)  | Closed Hi-Hat |
+| A07 | 42 (F#1) | Open Hi-Hat |
+| A08 | 43 (G1)  | Ride |
+| A09 | 44 (G#1) | Crash |
+
+Format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev / Catnip (Jamie Faye Fenton).
 
 ### PDF
 Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, and color-coded pattern grids. Bullet characters and typographic quotes are converted to ASCII before rendering.
