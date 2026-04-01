@@ -126,6 +126,13 @@ var songFeel = 'normal';
  */
 var songPalette = null;
 
+/**
+ * Optional forced key root — set when the user picks a key in the regen dialog.
+ * When non-null, analyzeBeat() uses this key instead of picking randomly.
+ * @type {string|null}
+ */
+var _forcedKey = null;
+
 // ── Feel Pools ──
 
 /**
@@ -1235,12 +1242,33 @@ var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 
  *   secSteps, curSec, arrIdx, songFeel, ghostDensity, baseKick*),
  *   updates DOM (BPM, swing, grid, arrangement, about panel)
  */
-function generateAll() {
-  var bpm = pick(BPMS);
+function generateAll(opts) {
+  opts = opts || {};
+  var bpm = opts.bpm ? parseInt(opts.bpm) : pick(BPMS);
   document.getElementById('bpm').textContent = bpm;
 
-  // Select a song-level feel palette for coherent style across all sections
-  songPalette = pick(FEEL_PALETTES);
+  // Select a song-level feel palette for coherent style across all sections.
+  // If a style override is provided, find the palette that starts with that feel.
+  if (opts.style) {
+    var matchPalette = null;
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === opts.style) { matchPalette = FEEL_PALETTES[pi]; break; }
+    }
+    songPalette = matchPalette || pick(FEEL_PALETTES);
+    // Also pre-set songFeel so swing pool and ghost density use the right feel
+    songFeel = opts.style;
+  } else {
+    songPalette = pick(FEEL_PALETTES);
+  }
+
+  // If a key override is provided, store it so analyzeBeat() uses it
+  if (opts.key) {
+    var keyEl = document.getElementById('songKey');
+    if (keyEl) keyEl.textContent = opts.key;
+    _forcedKey = opts.key;
+  } else {
+    _forcedKey = null;
+  }
 
   // Swing: selected per-song from the verse feel's swing pool after
   // generation, so we set a placeholder here and update it below.

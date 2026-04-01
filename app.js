@@ -25,12 +25,83 @@
 
 // ── Event Wiring ──
 
-/** Generate button: create a new beat and refresh the MIDI player */
-document.getElementById('btnGen').onclick = function() {
+// ── Regenerate Dialog ──
+
+/**
+ * Populate and show the regenerate dialog.
+ * Style dropdown is always full. Key and BPM dropdowns update
+ * dynamically when style changes — only showing options valid for
+ * the selected style.
+ */
+function showRegenDialog() {
+  var styleEl = document.getElementById('regenStyle');
+  var keyEl   = document.getElementById('regenKey');
+  var bpmEl   = document.getElementById('regenBpm');
+
+  // Populate style dropdown
+  styleEl.innerHTML = '<option value="">Auto</option>'
+    + Object.keys(STYLE_DATA).map(function(k) {
+        return '<option value="' + k + '">' + STYLE_DATA[k].label + '</option>';
+      }).join('');
+
+  function updateKeyAndBpm() {
+    var style = styleEl.value;
+    var data = style ? STYLE_DATA[style] : null;
+
+    // Keys — only show keys for the selected style
+    var prevKey = keyEl.value;
+    keyEl.innerHTML = '<option value="">Auto</option>';
+    if (data) {
+      data.keys.forEach(function(k) {
+        keyEl.innerHTML += '<option value="' + k + '">' + k + '</option>';
+      });
+    }
+    // Restore previous selection if still valid
+    if (prevKey && keyEl.querySelector('option[value="' + prevKey + '"]')) keyEl.value = prevKey;
+
+    // BPM — only show BPMs in the style's range
+    var prevBpm = bpmEl.value;
+    bpmEl.innerHTML = '<option value="">Auto</option>';
+    var allBpms = [68,72,75,78,80,83,85,88,90,92,95,98,100,105,108,110,115,118,120,125,128,130];
+    var bpms = data
+      ? allBpms.filter(function(b) { return b >= data.bpmRange[0] && b <= data.bpmRange[1]; })
+      : allBpms;
+    bpms.forEach(function(b) {
+      bpmEl.innerHTML += '<option value="' + b + '">' + b + '</option>';
+    });
+    if (prevBpm && bpmEl.querySelector('option[value="' + prevBpm + '"]')) bpmEl.value = prevBpm;
+  }
+
+  styleEl.onchange = updateKeyAndBpm;
+  updateKeyAndBpm();
+
+  document.getElementById('regenOverlay').style.display = 'flex';
+  styleEl.focus();
+}
+
+function hideRegenDialog() {
+  document.getElementById('regenOverlay').style.display = 'none';
+}
+
+document.getElementById('regenCancel').onclick = hideRegenDialog;
+
+// Close on overlay click (outside dialog)
+document.getElementById('regenOverlay').onclick = function(e) {
+  if (e.target === this) hideRegenDialog();
+};
+
+document.getElementById('regenGo').onclick = function() {
+  var style = document.getElementById('regenStyle').value || null;
+  var key   = document.getElementById('regenKey').value || null;
+  var bpm   = document.getElementById('regenBpm').value || null;
+  hideRegenDialog();
   if (_midiOut.playing) midiOutStop();
-  generateAll();
+  generateAll({ style: style, key: key, bpm: bpm });
   updateMidiPlayer();
 };
+
+/** Generate button: show the dialog */
+document.getElementById('btnGen').onclick = showRegenDialog;
 
 /** Play/Stop button: toggle MIDI Out playback */
 document.getElementById('btnPlay').onclick = midiOutToggle;
@@ -45,9 +116,17 @@ document.getElementById('btnExport').onclick = exportMIDI;
  */
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'Escape') {
+    hideRegenDialog();
+  }
+  if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
+    e.preventDefault();
+    document.getElementById('regenGo').click();
+    return;
+  }
   if (e.key === 'r' || e.key === 'R') {
     e.preventDefault();
-    document.getElementById('btnGen').click();
+    showRegenDialog();
   }
   if (e.key === ' ') {
     e.preventDefault();

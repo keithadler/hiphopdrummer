@@ -145,3 +145,28 @@ function emptyPat() {
   ROWS.forEach(function(r) { p[r] = new Array(STEPS).fill(0); });
   return p;
 }
+
+/**
+ * Style metadata used by the regenerate dialog.
+ * Each entry has: label, bpmRange [min,max], and keys array (root strings).
+ * BPM ranges reflect the authentic tempo range for each style.
+ * Keys are the roots from keyData in analysis.js — kept in sync manually.
+ * @type {Object}
+ */
+var STYLE_DATA = {
+  normal:    { label: 'Classic Boom Bap',  bpmRange: [83, 110], keys: ['Cm','Dm','Am','Gm','Em'] },
+  halftime:  { label: 'Halftime',          bpmRange: [75, 98],  keys: ['Cm','Fm','Bbm','Gm'] },
+  hard:      { label: 'Hard / Aggressive', bpmRange: [88, 115], keys: ['Cm','Bbm','Dm','Am','Fm'] },
+  jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 100], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7'] },
+  dark:      { label: 'Dark Minimal',      bpmRange: [68, 90],  keys: ['Cm','Abm','Fm','Bbm','Gm'] },
+  bounce:    { label: 'Bounce',            bpmRange: [90, 108], keys: ['G','C','Bb','F','D'] },
+  big:       { label: 'Big / Anthem',      bpmRange: [88, 110], keys: ['Cm','G','Bb','Am'] },
+  driving:   { label: 'Driving',           bpmRange: [90, 115], keys: ['Am','Dm','Em','Cm'] },
+  sparse:    { label: 'Sparse',            bpmRange: [72, 95],  keys: ['Am','Dm','Em','Cm'] },
+  dilla:     { label: 'Dilla / Neo-Soul',  bpmRange: [78, 98],  keys: ['Dm7','Am7','Gm7','Em7','Cm7'] },
+  lofi:      { label: 'Lo-Fi / Dusty',     bpmRange: [75, 95],  keys: ['Cm7','Fm','Dm','Am7','Gm'] },
+  chopbreak: { label: 'Chopped Break',     bpmRange: [88, 110], keys: ['Am','Dm','Em','Gm','Cm'] },
+  gfunk:     { label: 'G-Funk',            bpmRange: [80, 105], keys: ['Gm','Dm','Cm','Am','Fm'] },
+  crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'] },
+  memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'] }
+};

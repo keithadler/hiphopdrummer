@@ -270,7 +270,15 @@ function analyzeBeat() {
     }
   };
   var feelKeys = keyData[songFeel] || keyData.normal;
-  var chosenKey = pick(feelKeys.keys);
+  // Use forced key from regen dialog if set, otherwise pick randomly
+  var chosenKey = feelKeys.keys[0]; // default fallback
+  if (typeof _forcedKey !== 'undefined' && _forcedKey) {
+    for (var fki = 0; fki < feelKeys.keys.length; fki++) {
+      if (feelKeys.keys[fki].root === _forcedKey) { chosenKey = feelKeys.keys[fki]; break; }
+    }
+  } else {
+    chosenKey = pick(feelKeys.keys);
+  }
 
   // Update the header key display
   var keyEl = document.getElementById('songKey');
