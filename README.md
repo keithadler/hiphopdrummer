@@ -26,7 +26,7 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **PDF beat sheet** — color-coded pattern grids with full analysis text
 - **Export dialog** — click EXPORT to choose exactly what to download: full song MIDI, individual section MIDIs, MPC patterns, PDF, and DAW help files for Ableton, Logic Pro, FL Studio, GarageBand, Pro Tools, Reason, Reaper, Studio One, and Maschine
 - **"About This Beat" panel** — collapsed by default, Key/Scale open:
-  - Suggested Key / Scale — I/IV/V chords, 3-chord combos, relative companions, section-by-section melodic guide
+  - Suggested Key / Scale — I/IV/V chords, 3-chord combos, style-matched alternate progressions (Minor Plagal, Andalusian Cadence, Soul Loop, Tritone Substitution, Neo-Soul Turnaround, ii-V-I, Trap Minor, Dark Trap, Boom Bap, West Coast, Emo Rap, Lo-Fi descending — all with actual chord names for the chosen key), relative companions, section-by-section melodic guide
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements — section descriptions
   - Reference Tracks — 3 specific songs per feel to study

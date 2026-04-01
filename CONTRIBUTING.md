@@ -71,9 +71,11 @@ The `analyzeBeat()` function in `analysis.js` contains several content pools tha
 - `history` — Deeper stories about producers, gear, and techniques (15 entries)
 - `mistakes` — Common beginner pitfalls with explanations (17 entries)
 - `equipment` — Gear-specific programming guides (6 entries)
-- `keyData` — Key/chord suggestions per feel (4-5 keys each, 15 feels covered)
+- `keyData` — Key/chord suggestions per feel (4-5 keys each, 15 feels covered). Each key entry includes I/IV/V chords, relative companion, and chord combos used to generate the alternate progressions section
 - `exercises` — Beat-specific challenges (conditional on pattern characteristics)
 - `listenFor` — Ear training prompts (conditional on pattern characteristics)
+
+The alternate progressions section computes chord names dynamically from `chosenKey.relNote` (which encodes bIII, bVI, bVII) and `chosenKey.v` (for the major V in the Andalusian cadence). Adding a new progression requires only adding a `lines.push()` call in the appropriate style block — no new data needed.
 
 Each pool uses `pick()` to select one random entry per generation. Keep entries self-contained and aim for 2-4 sentences.
 
