@@ -67,6 +67,9 @@ function showRegenDialog() {
     // Restore previous selection if still valid
     if (prevKey && keyEl.querySelector('option[value="' + prevKey + '"]')) keyEl.value = prevKey;
 
+    // Update key mood for the current selection
+    updateKeyMood();
+
     // BPM — only show BPMs in the style's range
     var prevBpm = bpmEl.value;
     bpmEl.innerHTML = '<option value="">Auto</option>';
@@ -80,7 +83,15 @@ function showRegenDialog() {
     if (prevBpm && bpmEl.querySelector('option[value="' + prevBpm + '"]')) bpmEl.value = prevBpm;
   }
 
+  function updateKeyMood() {
+    var moodEl = document.getElementById('regenKeyMood');
+    if (!moodEl) return;
+    var key = keyEl.value;
+    moodEl.textContent = key ? (KEY_MOODS[key] || '') : '';
+  }
+
   styleEl.onchange = updateKeyAndBpm;
+  keyEl.onchange = updateKeyMood;
   updateKeyAndBpm();
 
   document.getElementById('regenOverlay').style.display = 'flex';
