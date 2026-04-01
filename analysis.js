@@ -248,7 +248,7 @@ function analyzeBeat() {
   var keyEl = document.getElementById('songKey');
   if (keyEl) keyEl.textContent = chosenKey.root;
 
-  lines.push('<b>Key: ' + chosenKey.root + ' ' + chosenKey.type + '</b> — ' + chosenKey.context);
+  lines.push('<b>Key: ' + chosenKey.root + '</b> — ' + chosenKey.context);
   lines.push('');
   lines.push('<b>Hip hop chord philosophy:</b> Most classic hip hop beats use only 1-3 chords. The I chord is home, the IV chord creates tension, the V chord resolves. You don\'t need more than that. The sample does the harmonic work — the bass just needs to lock in.');
   lines.push('');
