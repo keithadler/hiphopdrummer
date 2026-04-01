@@ -28,9 +28,38 @@
  * Maps internal instrument names to General MIDI drum note numbers.
  * ghostkick uses note 35 (Bass Drum 2) instead of 36 to avoid
  * note-off collisions when kick and ghostkick hit the same step.
+ * Used by buildMidiBytes() only — MIDI export stays on GM standard.
  * @type {Object.<string, number>}
  */
 var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 35, hat: 42, openhat: 46, ride: 51, crash: 49 };
+
+/**
+ * MPC Chromatic C1 note map — the default drum program layout on Akai MPC
+ * firmware 2.11+ (Force, MPC Live, MPC X, MPC One, MPC Key).
+ *
+ * Pads are assigned chromatically starting at C1 (note 36), so pad A01=36,
+ * A02=37, A03=38 ... Each instrument maps to a consecutive pad in a logical
+ * hip hop drum order: Kick → Snare → Clap → Rimshot → Ghost Kick →
+ * Hat → Open Hat → Ride → Crash.
+ *
+ * Load the .mpcpattern into a Drum program with samples assigned to pads
+ * A01–A09 in this order and the pattern will play back correctly.
+ *
+ * Reference: MPC-Tutor "Re-Mapping MIDI Notes on MPC Drum Kits"
+ * https://www.mpc-tutor.com/re-mapping-midi-notes-on-mpc-drum-kits/
+ * @type {Object.<string, number>}
+ */
+var MPC_NOTE_MAP = {
+  kick:      36,  // A01 — C1  — Kick
+  snare:     37,  // A02 — C#1 — Snare
+  clap:      38,  // A03 — D1  — Clap
+  rimshot:   39,  // A04 — D#1 — Rimshot / Sidestick
+  ghostkick: 40,  // A05 — E1  — Ghost Kick
+  hat:       41,  // A06 — F1  — Closed Hi-Hat
+  openhat:   42,  // A07 — F#1 — Open Hi-Hat
+  ride:      43,  // A08 — G1  — Ride
+  crash:     44   // A09 — G#1 — Crash
+};
 
 /**
  * Build raw MIDI file bytes for a list of sections played in sequence.
@@ -168,6 +197,9 @@ function buildMidiBytes(sectionList, bpm) {
  *   - One type-2 event per drum hit: time, len, note, velocity (0-1 float string)
  *   - All times in MPC ticks (960 PPQ)
  *   - Swing applied identically to the MIDI export
+ *   - Notes use MPC_NOTE_MAP (Chromatic C1 layout, not GM):
+ *       A01=36 Kick, A02=37 Snare, A03=38 Clap, A04=39 Rimshot,
+ *       A05=40 Ghost Kick, A06=41 Hat, A07=42 Open Hat, A08=43 Ride, A09=44 Crash
  *
  * @param {string[]} sectionList - Section ids to include
  * @param {number} bpm - Tempo (used for swing calculation)
@@ -197,7 +229,8 @@ function buildMpcPattern(sectionList, bpm) {
       ROWS.forEach(function(r) {
         var vel = pat[r][s];
         if (vel > 0) {
-          var note = MIDI_NOTE_MAP[r];
+          var note = MPC_NOTE_MAP[r];
+          if (note === undefined) return; // skip unmapped rows
           var midiVel = Math.min(127, Math.max(1, vel));
           // Convert src ticks → MPC ticks (960 PPQ)
           var mpcStart = Math.round(mpcPPQ * stepTick / srcPPQ);
