@@ -645,7 +645,7 @@ function generatePattern(sec) {
     writeIntro(p, feel, len);
     postProcessPattern(p, len, false, feel);
     applyGroove(p, len, feel);
-    humanizeVelocities(p, len);
+    humanizeVelocities(p, len, feel);
     return p;
   }
   // OUTRO — 2 types, handled by dedicated writer
@@ -653,7 +653,7 @@ function generatePattern(sec) {
     writeOutro(p, feel, len);
     postProcessPattern(p, len, false, feel);
     applyGroove(p, len, feel);
-    humanizeVelocities(p, len);
+    humanizeVelocities(p, len, feel);
     return p;
   }
 
@@ -1130,7 +1130,7 @@ function generatePattern(sec) {
   addFill(p, sec, len, feel);
   postProcessPattern(p, len, isCh, feel);
   applyGroove(p, len, feel);
-  humanizeVelocities(p, len);
+  humanizeVelocities(p, len, feel);
   // Restore song-level hat pattern type and ghost globals
   hatPatternType = savedHatType;
   baseSnareGhostA = savedGhostA;

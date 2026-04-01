@@ -124,27 +124,22 @@ function applyGroove(p, len, feel) {
  * @param {Object.<string, number[]>} p - Pattern object to modify in place
  * @param {number} len - Active step count for this section
  */
-function humanizeVelocities(p, len) {
+function humanizeVelocities(p, len, feel) {
+  // Use passed feel, fall back to songFeel global for backward compatibility
+  var hFeel = feel || songFeel;
   ROWS.forEach(function(r) {
-    // Per-instrument jitter ranges model limb consistency:
-    // hat/ride = most metronomic (tight), kick = foot control (wider),
-    // snare/clap = hand control (medium), ghost instruments = loosest
     var instrJitter = (r === 'hat' || r === 'ride') ? 0.5
       : (r === 'kick') ? 1.25
       : (r === 'ghostkick') ? 1.3
       : 1.0;
-    // Feel-aware jitter scaling
-    // Lofi: tighter across the board (narrow band must stay narrow)
-    // Dilla: wider on kicks (loose foot is the aesthetic)
-    // Chopbreak: tighter on ghost snares (break drummers are precise)
-    if (songFeel === 'lofi') instrJitter *= 0.6;
-    else if (songFeel === 'dilla' && r === 'kick') instrJitter *= 1.4;
-    else if (songFeel === 'dilla' && r === 'ghostkick') instrJitter *= 1.5;
-    else if (songFeel === 'chopbreak' && r === 'snare') instrJitter *= 0.7;
-    else if (songFeel === 'gfunk' && (r === 'hat' || r === 'ride')) instrJitter *= 1.3; // G-Funk: natural hat variation
-    else if (songFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;                  // G-Funk: consistent 1-and-3 kick
-    else if (songFeel === 'crunk') instrJitter *= 0.4;                                  // Crunk: everything locked tight
-    else if (songFeel === 'memphis' && r === 'kick') instrJitter *= 0.6;                // Memphis: heavy kick is consistent
+    if (hFeel === 'lofi') instrJitter *= 0.6;
+    else if (hFeel === 'dilla' && r === 'kick') instrJitter *= 1.4;
+    else if (hFeel === 'dilla' && r === 'ghostkick') instrJitter *= 1.5;
+    else if (hFeel === 'chopbreak' && r === 'snare') instrJitter *= 0.7;
+    else if (hFeel === 'gfunk' && (r === 'hat' || r === 'ride')) instrJitter *= 1.3;
+    else if (hFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;
+    else if (hFeel === 'crunk') instrJitter *= 0.4;
+    else if (hFeel === 'memphis' && r === 'kick') instrJitter *= 0.6;
     for (var i = 0; i < len; i++) {
       if (p[r][i] > 0) {
         var pos = i % 16;
@@ -191,7 +186,7 @@ function postProcessPattern(p, len, isCh, feel) {
     var pos = i % 16;
     // Pass 1: Remove kick on backbeat positions where snare lives
     if ((pos === 4 || pos === 12) && p.kick[i] > 0 && p.snare[i] > 0) {
-      if (!(pos === 0 && isCh)) p.kick[i] = 0;
+      p.kick[i] = 0;
     }
     // Pass 1b: Remove ghost snare where kick is playing (can't accent both)
     if (p.snare[i] > 0 && p.snare[i] < 85 && p.kick[i] > 0) p.snare[i] = 0;

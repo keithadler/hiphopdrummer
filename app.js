@@ -121,15 +121,20 @@ document.getElementById('btnExport').onclick = showExportDialog;
 
 function showExportDialog() {
   document.getElementById('exportOverlay').style.display = 'flex';
-  // Wire the DAW toggle button
-  var toggle = document.getElementById('exportDawToggle');
-  toggle.onclick = function() {
-    var checks = document.querySelectorAll('.daw-check');
-    var anyChecked = Array.from(checks).some(function(c) { return c.checked; });
-    checks.forEach(function(c) { c.checked = !anyChecked; });
-    toggle.textContent = anyChecked ? 'Select all' : 'Deselect all';
-  };
 }
+
+// Wire the DAW toggle button once on boot
+(function() {
+  var toggle = document.getElementById('exportDawToggle');
+  if (toggle) {
+    toggle.onclick = function() {
+      var checks = document.querySelectorAll('.daw-check');
+      var anyChecked = Array.from(checks).some(function(c) { return c.checked; });
+      checks.forEach(function(c) { c.checked = !anyChecked; });
+      toggle.textContent = anyChecked ? 'Select all' : 'Deselect all';
+    };
+  }
+})();
 
 function hideExportDialog() {
   document.getElementById('exportOverlay').style.display = 'none';
@@ -209,27 +214,23 @@ function initPlaybackTracking() {
   var trackingInterval = null;
   var lastTrackedSection = -1;
   var lastHighlightedStep = -1;
+  // Cached section time map — rebuilt when playback starts, not every tick
+  var sectionTimeMap = [];
 
-  /**
-   * Build a map of [startTime, endTime, arrangementIndex] for each section.
-   * Uses the current BPM and secSteps to calculate real-time boundaries.
-   */
   function buildSectionTimeMap() {
     var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-    var secPerStep = 60 / bpm / 4; // seconds per 16th note step
-    var map = [];
+    var secPerStep = 60 / bpm / 4;
+    sectionTimeMap = [];
     var t = 0;
     for (var i = 0; i < arrangement.length; i++) {
       var sec = arrangement[i];
       var steps = secSteps[sec] || 32;
       var dur = steps * secPerStep;
-      map.push({ start: t, end: t + dur, idx: i, sec: sec, steps: steps });
+      sectionTimeMap.push({ start: t, end: t + dur, idx: i, sec: sec, steps: steps });
       t += dur;
     }
-    return map;
   }
 
-  /** Remove the playback cursor highlight from all cells */
   function clearCursor() {
     document.querySelectorAll('.playback-cursor').forEach(function(el) {
       el.classList.remove('playback-cursor');
@@ -237,17 +238,14 @@ function initPlaybackTracking() {
     lastHighlightedStep = -1;
   }
 
-  /** Highlight the column at the given absolute step index in the grid */
   function highlightStep(stepIdx) {
     if (stepIdx === lastHighlightedStep) return;
     clearCursor();
     lastHighlightedStep = stepIdx;
     if (stepIdx < 0) return;
-    // Find all cells and beat-nums with this step index
     document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]').forEach(function(el) {
       el.classList.add('playback-cursor');
     });
-    // Auto-scroll the highlighted bar into view
     var barIdx = Math.floor(stepIdx / 16);
     var barLabel = document.getElementById('grid-page-' + barIdx);
     if (barLabel) {
@@ -261,58 +259,45 @@ function initPlaybackTracking() {
     }
   }
 
-  /**
-   * Find which section is playing at the given time and update the UI.
-   */
   function updateCurrentSection(currentTime) {
-    var map = buildSectionTimeMap();
+    var map = sectionTimeMap;
     var foundIdx = -1;
     var sectionStartTime = 0;
     var sectionSteps = 32;
     for (var i = 0; i < map.length; i++) {
       if (currentTime >= map[i].start && currentTime < map[i].end) {
-        foundIdx = i;
-        sectionStartTime = map[i].start;
-        sectionSteps = map[i].steps;
-        break;
+        foundIdx = i; sectionStartTime = map[i].start; sectionSteps = map[i].steps; break;
       }
     }
-    // If past the last section, show the last one
     if (foundIdx === -1 && map.length > 0 && currentTime >= map[map.length - 1].start) {
       foundIdx = map.length - 1;
       sectionStartTime = map[foundIdx].start;
       sectionSteps = map[foundIdx].steps;
     }
-
     if (foundIdx >= 0 && foundIdx !== lastTrackedSection) {
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
       renderGrid();
-      renderArr(true); // skip MIDI rebuild — we're playing
+      renderArr(true);
     }
-
-    // Calculate and highlight the current step within the section
     if (foundIdx >= 0) {
       var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
       var secPerStep = 60 / bpm / 4;
-      var timeInSection = currentTime - sectionStartTime;
-      var currentStep = Math.floor(timeInSection / secPerStep);
-      if (currentStep >= 0 && currentStep < sectionSteps) {
-        highlightStep(currentStep);
-      }
+      var currentStep = Math.floor((currentTime - sectionStartTime) / secPerStep);
+      if (currentStep >= 0 && currentStep < sectionSteps) highlightStep(currentStep);
     }
   }
 
-  // Poll the player's currentTime every 100ms during playback (fast for smooth cursor)
+  // Use only the interval for tracking — timeupdate fires at inconsistent rates
+  // and combining both causes double-updates on every tick
   player.addEventListener('start', function() {
     lastTrackedSection = -1;
     lastHighlightedStep = -1;
+    buildSectionTimeMap(); // cache once at playback start
     if (trackingInterval) clearInterval(trackingInterval);
     trackingInterval = setInterval(function() {
-      if (player.currentTime !== undefined) {
-        updateCurrentSection(player.currentTime);
-      }
+      if (player.currentTime !== undefined) updateCurrentSection(player.currentTime);
     }, 100);
   });
 
@@ -320,12 +305,4 @@ function initPlaybackTracking() {
     if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
     clearCursor();
   });
-
-  // Also handle the 'timeupdate' event if the player supports it
-  player.addEventListener('timeupdate', function() {
-    if (player.currentTime !== undefined) {
-      updateCurrentSection(player.currentTime);
-    }
-  });
-
 }
