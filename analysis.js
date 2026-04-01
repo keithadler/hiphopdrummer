@@ -242,40 +242,53 @@ function analyzeBeat() {
   var bVI  = relParts[1] || ''; // second note of relative = bVI
   var bVII = relParts[2] || ''; // third note of relative = bVII
   var root = chosenKey.i;
+  // V major (for Andalusian cadence) — strip 'm' from the minor v chord
+  var vMaj = chosenKey.v.replace(/m$/, '');
+  // ii chord — the note a whole step above the root (relative major's 2nd degree)
+  // For minor keys: ii = same as bIII but a step down — use relParts[0] as bIII, ii is a 5th below bIII
+  // Simpler: just label it as the ii of the relative major
+  var iiChord = relParts[0] ? relParts[0].replace(/maj7|7/, '') + 'm7' : '';
 
   lines.push('<b>Alternate progressions for this style:</b>');
 
   if (songFeel === 'normal' || songFeel === 'chopbreak' || songFeel === 'hard') {
     lines.push('• <b>i → iv → i → bVI</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + bVI + ') — Boom Bap. The bVI adds a surprise lift on bar 4 before looping back. Classic golden era move.');
-    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
-    lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
+    lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords, alternating every 2 bars. The backbone of a huge amount of boom bap. Simple and hypnotic — never gets old.');
+    lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVII + ' → ' + bVI + ' → ' + vMaj + ') — Andalusian Cadence. Descending through borrowed chords to the major V. The major V (not minor) creates a strong pull back to the root. Nas, some Premier beats.');
+    lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVII + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor. Think Biggie "Juicy," a lot of Bad Boy era production.');
   } else if (songFeel === 'dilla' || songFeel === 'jazzy') {
-    lines.push('• <b>ii7 → V7 → IM7</b> — Lofi Jazz. The ii-V-I is the foundation of jazz harmony. In ' + chosenKey.root + ': ' + chosenKey.relNote.split(',')[0].trim() + 'm7 → ' + chosenKey.v + '7 → ' + root + '. Sophisticated and warm.');
-    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
-    lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
+    lines.push('• <b>ii7 → V7 → IM7</b> (' + iiChord + ' → ' + vMaj + '7 → ' + root + ') — ii-V-I. The foundation of jazz harmony. Sophisticated and warm. Guru\'s Jazzmatazz, Pete Rock.');
+    lines.push('• <b>ii7 → bII7 → IM7</b> (' + iiChord + ' → ' + bVI + '7 → ' + root + ') — Tritone Substitution. Replace the V7 with a chord a tritone away. More sophisticated than the standard ii-V-I. The sound of advanced jazz-rap.');
+    lines.push('• <b>IM7 → iii7 → vi7 → ii7</b> (' + root + ' → ' + bIII + 'm7 → ' + bVI + 'm7 → ' + iiChord + ') — Neo-Soul Turnaround. All diatonic 7th chords, descending. Tribe/D\'Angelo/Erykah Badu sound. Sophisticated but not jazz-complex.');
+    lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
   } else if (songFeel === 'gfunk' || songFeel === 'bounce') {
     lines.push('• <b>I → bIII → bVII → IV</b> (' + root + ' → ' + bIII + ' → ' + bVII + ' → ' + chosenKey.iv + ') — West Coast. The bIII and bVII give it that P-Funk borrowed-chord bounce.');
+    lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVII + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor. Think Biggie "Juicy," Bad Boy era.');
     lines.push('• <b>I → IV → I → V</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + chosenKey.v + ') — Danceable. The V at the end creates a strong pull back into the loop.');
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
   } else if (songFeel === 'dark' || songFeel === 'halftime' || songFeel === 'sparse') {
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
     lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIII + ' → ' + bVI + ' → ' + bVII + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
-    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+    lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVII + ' → ' + bVI + ' → ' + vMaj + ') — Andalusian Cadence. Descending to the major V. The major V creates a strong pull back to the root. RZA, Alchemist.');
+    lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
   } else if (songFeel === 'lofi') {
     lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
+    lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords, alternating every 2 bars. The simplest dark progression — and one of the most effective.');
+    lines.push('• <b>IM7 → iii7 → vi7 → ii7</b> (' + root + ' → ' + bIII + 'm7 → ' + bVI + 'm7 → ' + iiChord + ') — Neo-Soul Turnaround. All diatonic 7th chords, descending. Tribe/D\'Angelo sound. Sophisticated but not jazz-complex.');
     lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIII + ' → ' + chosenKey.iv + ' → ' + bVI + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
-    lines.push('• <b>ii7 → V7 → IM7</b> — Lofi Jazz. Sophisticated and warm. The ii-V-I is the foundation of jazz harmony.');
   } else if (songFeel === 'memphis' || songFeel === 'crunk') {
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
     lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIII + ' → ' + bVI + ' → ' + bVII + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
+    lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVII + ' → ' + bVI + ' → ' + vMaj + ') — Andalusian Cadence. Descending to the major V. The major V creates a strong pull back to the root. Sinister and inevitable.');
     lines.push('• <b>vi → IV → I</b> — Sad Trap. Starting on the vi minor gives it an emotional, melancholy quality before resolving to the major I.');
   } else {
     // Default: boom bap + lofi + west coast options
     lines.push('• <b>i → iv → i → bVI</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + bVI + ') — Boom Bap. The bVI adds a surprise lift on bar 4.');
+    lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVI + ' → ' + bVII + ') — Trap Minor. Dark but melodic. Borrowed from the parallel major.');
-    lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVII + ' → ' + bVI + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic.');
+    lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVII + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor.');
   }
-  lines.push('<b>Tip:</b> These progressions use "borrowed chords" — chords from the parallel major or relative major that aren\'t in the strict minor scale. Hip hop producers borrow freely. If it sounds right, it is right.');
+  lines.push('<b>Tip:</b> These progressions use "borrowed chords" — chords from the parallel major, relative major, or jazz substitutions. Hip hop producers borrow freely. If it sounds right, it is right.');
   lines.push('');
   lines.push('<b>Relative ' + (chosenKey.type === 'minor' ? 'major' : 'minor') + ' (' + chosenKey.rel + '):</b> Same notes as ' + chosenKey.root + ' — borrow chords freely. Try: ' + chosenKey.i + ' for 2 bars → ' + chosenKey.relNote.split(',')[0].trim() + ' for 2 bars. That shift is the sound of golden era hip hop.');
   lines.push('');
