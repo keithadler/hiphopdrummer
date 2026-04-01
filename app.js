@@ -27,23 +27,31 @@
 
 /** Generate button: create a new beat and refresh the MIDI player */
 document.getElementById('btnGen').onclick = function() {
+  if (_midiOut.playing) midiOutStop();
   generateAll();
   updateMidiPlayer();
 };
+
+/** Play/Stop button: toggle MIDI Out playback */
+document.getElementById('btnPlay').onclick = midiOutToggle;
 
 /** Export button: build MIDI files + PDF and download as ZIP */
 document.getElementById('btnExport').onclick = exportMIDI;
 
 /**
- * Keyboard shortcut: press R to regenerate the beat.
- * Ignored when focus is inside an input or textarea to avoid
- * interfering with text entry.
+ * Keyboard shortcuts:
+ *   R — regenerate
+ *   Space — play/stop MIDI Out
  */
 document.addEventListener('keydown', function(e) {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.key === 'r' || e.key === 'R') {
     e.preventDefault();
     document.getElementById('btnGen').click();
+  }
+  if (e.key === ' ') {
+    e.preventDefault();
+    midiOutToggle();
   }
 });
 
@@ -59,6 +67,7 @@ document.addEventListener('keydown', function(e) {
 (function() {
   generateAll();
   updateMidiPlayer();
+  midiOutInit();
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
   initPlaybackTracking();

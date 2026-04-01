@@ -96,7 +96,7 @@ function exportPDF(returnBlob) {
   // === TITLE ===
   var keyText = document.getElementById('songKey') ? document.getElementById('songKey').textContent : '';
   addText('HIP HOP DRUMMER - Beat Sheet', 16, true);
-  addText(bpm + ' BPM  |  Swing ' + swing + '%' + (keyText && keyText !== '-' ? '  |  Key ' + keyText : '') + '  |  ' + (document.getElementById('arrTime').textContent || '').replace('- ', ''), 10, false, '#666666');
+  addText(bpm + ' BPM  |  Swing ' + swing + '%' + (keyText && keyText !== '-' && keyText !== '\u2014' ? '  |  Key ' + keyText : '') + '  |  ' + (document.getElementById('arrTime').textContent || '').replace(/^[\u2014\-\s]+/, ''), 10, false, '#666666');
   y += 2;
   addLine();
 
