@@ -122,11 +122,11 @@ function analyzeBeat() {
       { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Cold and relentless. The flat minor key gives hard beats a cinematic, dangerous quality.' }
     ]},
     jazzy: { keys: [
-      { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', rel: 'Dm', relNote: 'Dm7, Am7, Em7', context: 'Warm and jazzy. The major 7th chord is the sound of Tribe Called Quest. "Electric Relaxation" lives here.' },
-      { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Rhodes piano and muted trumpet live here. Pete Rock & CL Smooth.' },
-      { root: 'Ebmaj7', type: 'major', i: 'Ebmaj7', iv: 'Abmaj7', v: 'Bb7', rel: 'Cm', relNote: 'Cm7, Gm7, Fm7', context: 'Rich and full. Classic jazz voicing that works with any horn arrangement.' },
-      { root: 'Abmaj7', type: 'major', i: 'Abmaj7', iv: 'Dbmaj7', v: 'Eb7', rel: 'Fm', relNote: 'Fm7, Cm7, Bbm7', context: 'Lush and sophisticated. De La Soul, A Tribe Called Quest territory. Add a 9th for extra warmth.' },
-      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Minor jazz pocket. Guru "Jazzmatazz" energy. The minor 7th keeps it soulful without being dark.' }
+      { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', ii: 'Gm7', rel: 'Dm', relNote: 'Dm7, Am7, Em7', context: 'Warm and jazzy. The major 7th chord is the sound of Tribe Called Quest. "Electric Relaxation" lives here.' },
+      { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', ii: 'Cm7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Rhodes piano and muted trumpet live here. Pete Rock & CL Smooth.' },
+      { root: 'Ebmaj7', type: 'major', i: 'Ebmaj7', iv: 'Abmaj7', v: 'Bb7', ii: 'Fm7', rel: 'Cm', relNote: 'Cm7, Gm7, Fm7', context: 'Rich and full. Classic jazz voicing that works with any horn arrangement.' },
+      { root: 'Abmaj7', type: 'major', i: 'Abmaj7', iv: 'Dbmaj7', v: 'Eb7', ii: 'Bbm7', rel: 'Fm', relNote: 'Fm7, Cm7, Bbm7', context: 'Lush and sophisticated. De La Soul, A Tribe Called Quest territory. Add a 9th for extra warmth.' },
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Minor jazz pocket. Guru "Jazzmatazz" energy. The minor 7th keeps it soulful without being dark.' }
     ]},
     dark: { keys: [
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Cold and minimal. Let the bass carry the weight, keep the melody sparse. Wu-Tang "C.R.E.A.M." energy.' },
@@ -143,11 +143,11 @@ function analyzeBeat() {
       { root: 'D', type: 'major', i: 'D', iv: 'G', v: 'A', rel: 'Bm', relNote: 'Bm, F#m, Em', context: 'Upbeat and energetic. Less common in hip hop — makes your beat stand out. Danceable and fresh.' }
     ]},
     dilla: { keys: [
-      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here. "Donuts" energy.' },
-      { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Neo-soul foundation. Add a 9th for extra color. Slum Village territory.' },
-      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy Dilla-style grooves.' },
-      { root: 'Em7', type: 'minor', i: 'Em7', iv: 'Am7', v: 'Bm7', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Introspective and soulful. Madlib, Kaytranada territory. The minor 7th floats above the beat.' },
-      { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Darker Dilla pocket. Flying Lotus, Thundercat energy. Add a flat 9th for extra tension.' }
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here. "Donuts" energy.' },
+      { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Neo-soul foundation. Add a 9th for extra color. Slum Village territory.' },
+      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy Dilla-style grooves.' },
+      { root: 'Em7', type: 'minor', i: 'Em7', iv: 'Am7', v: 'Bm7', ii: 'F#m7b5', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Introspective and soulful. Madlib, Kaytranada territory. The minor 7th floats above the beat.' },
+      { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', ii: 'Dm7b5', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Darker Dilla pocket. Flying Lotus, Thundercat energy. Add a flat 9th for extra tension.' }
     ]},
     lofi: { keys: [
       { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Hazy and meditative. The minor 7th adds warmth without brightness. Madlib territory.' },
@@ -236,18 +236,18 @@ function analyzeBeat() {
   lines.push('');
 
   // === ALTERNATE PROGRESSIONS — style-matched hip hop patterns ===
-  // Compute flat chords from the key's relative major notes
   var relParts = chosenKey.relNote.split(',').map(function(s) { return s.trim(); });
-  var bIII = relParts[0] || ''; // relative major root = bIII of minor key
-  var bVI  = relParts[1] || ''; // second note of relative = bVI
-  var bVII = relParts[2] || ''; // third note of relative = bVII
+  var bIII = relParts[0] || '';
+  var bVI  = relParts[1] || '';
+  var bVII = relParts[2] || '';
   var root = chosenKey.i;
-  // V major (for Andalusian cadence) — strip 'm' from the minor v chord
+  // V major (for Andalusian cadence) — strip trailing 'm' from the minor v chord
   var vMaj = chosenKey.v.replace(/m$/, '');
-  // ii chord — the note a whole step above the root (relative major's 2nd degree)
-  // For minor keys: ii = same as bIII but a step down — use relParts[0] as bIII, ii is a 5th below bIII
-  // Simpler: just label it as the ii of the relative major
-  var iiChord = relParts[0] ? relParts[0].replace(/maj7|7/, '') + 'm7' : '';
+  // ii chord — use explicit field if present, otherwise derive from relNote
+  // relParts[0] is the bIII (relative major root). The ii is a whole step above the tonic.
+  // For major keys (jazzy): ii = supertonic minor. For minor keys: iiø (half-diminished).
+  // We store it explicitly on jazzy/dilla keys via the 'ii' field; fall back to bIII + 'm7' stripped cleanly.
+  var iiChord = chosenKey.ii || (relParts[0] ? relParts[0].replace(/maj7|m7|7|m$/, '') + 'm7' : '');
 
   lines.push('<b>Alternate progressions for this style:</b>');
 
@@ -258,7 +258,7 @@ function analyzeBeat() {
     lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVII + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor. Think Biggie "Juicy," a lot of Bad Boy era production.');
   } else if (songFeel === 'dilla' || songFeel === 'jazzy') {
     lines.push('• <b>ii7 → V7 → IM7</b> (' + iiChord + ' → ' + vMaj + '7 → ' + root + ') — ii-V-I. The foundation of jazz harmony. Sophisticated and warm. Guru\'s Jazzmatazz, Pete Rock.');
-    lines.push('• <b>ii7 → bII7 → IM7</b> (' + iiChord + ' → ' + bVI + '7 → ' + root + ') — Tritone Substitution. Replace the V7 with a chord a tritone away. More sophisticated than the standard ii-V-I. The sound of advanced jazz-rap.');
+    lines.push('• <b>ii7 → bII7 → IM7</b> (' + iiChord + ' → ' + bVII + '7 → ' + root + ') — Tritone Substitution. Replace the V7 with a chord a tritone away (bII7). More sophisticated than the standard ii-V-I. The sound of advanced jazz-rap.');
     lines.push('• <b>IM7 → iii7 → vi7 → ii7</b> (' + root + ' → ' + bIII + 'm7 → ' + bVI + 'm7 → ' + iiChord + ') — Neo-Soul Turnaround. All diatonic 7th chords, descending. Tribe/D\'Angelo/Erykah Badu sound. Sophisticated but not jazz-complex.');
     lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
   } else if (songFeel === 'gfunk' || songFeel === 'bounce') {
