@@ -306,12 +306,13 @@ function buildMpcPattern(sectionList, bpm) {
  * Export the full song and individual sections as MIDI files bundled in a ZIP.
  *
  * ZIP structure:
- *   hiphop_{bpm}bpm/
- *     00_full_song_{bpm}bpm.mid              — all sections concatenated
- *     01_{section}_{bars}bars_{bpm}bpm.mid   — one file per unique section
+ *   hiphop_{bpm}bpm_{key}/
+ *     00_full_song_{bpm}bpm.mid              — full song (root level)
+ *     beat_sheet_{bpm}bpm.pdf
+ *     MIDI Patterns/
+ *       01_{section}_{bars}bars_{bpm}bpm.mid — one file per unique section
  *     MPC/
  *       01_{section}_{bars}bars_{bpm}bpm.mpcpattern — Akai MPC pattern per section
- *     beat_sheet_{bpm}bpm.pdf
  *
  * MPC patterns use 960 PPQ and the .mpcpattern JSON format compatible with
  * Akai Force, MPC Live, MPC X, and other Akai devices.
@@ -328,6 +329,7 @@ function exportMIDI() {
   var folderName = 'hiphop_' + bpm + 'bpm' + (keyStr && keyStr !== '—' ? '_' + keyStr : '');
   var folder = zip.folder(folderName);
   var mpcFolder = folder.folder('MPC');
+  var midiFolder = folder.folder('MIDI Patterns');
 
   // Full song MIDI — all arrangement sections in order
   var fullSong = buildMidiBytes(arrangement, bpm);
@@ -344,7 +346,7 @@ function exportMIDI() {
     var secName = SL[sec] || sec;
     var barCount = Math.ceil((secSteps[sec] || 32) / 16);
     var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
-    folder.file(baseName + '.mid', secBytes);
+    midiFolder.file(baseName + '.mid', secBytes);
 
     // MPC pattern for this section
     var mpcStr = buildMpcPattern([sec], bpm);

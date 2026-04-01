@@ -142,7 +142,22 @@ Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggesti
 ## Export
 
 ### MIDI
-Standard MIDI Format 0, GM Channel 10. Full song + individual sections in a ZIP. Swing baked into timing. Velocity humanization embedded. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
+Standard MIDI Format 0, GM Channel 10. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
+
+ZIP structure:
+```
+hiphop_{bpm}bpm_{key}/
+  00_full_song_{bpm}bpm.mid     ← full arrangement, root level
+  beat_sheet_{bpm}bpm.pdf
+  MIDI Patterns/
+    01_intro_2bars_{bpm}bpm.mid
+    02_verse_8bars_{bpm}bpm.mid
+    ...
+  MPC/
+    01_intro_2bars_{bpm}bpm.mpcpattern
+    02_verse_8bars_{bpm}bpm.mpcpattern
+    ...
+```
 
 ### MPC Patterns
 Each section is also exported as a `.mpcpattern` file in the `MPC/` subfolder of the ZIP. Compatible with Akai Force, MPC Live, MPC X, MPC One, and other Akai devices running firmware 2.11+. Format: JSON with 960 PPQ resolution, type-2 note events (time, len, MIDI note, velocity as 0-1 float string), and 3 required static type-1 header events. Swing is applied identically to the MIDI export.
