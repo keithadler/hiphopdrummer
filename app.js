@@ -128,6 +128,8 @@ function showExportDialog() {
     if (typeof saved.sections === 'boolean') document.getElementById('expSections').checked = saved.sections;
     if (typeof saved.bakeSwing === 'boolean') document.getElementById('expSwing').checked = saved.bakeSwing;
     if (typeof saved.mpc === 'boolean') document.getElementById('expMpc').checked = saved.mpc;
+    if (typeof saved.bassMidi === 'boolean') document.getElementById('expBassMidi').checked = saved.bassMidi;
+    if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
@@ -169,6 +171,8 @@ document.getElementById('exportGo').onclick = function() {
     sections:    document.getElementById('expSections').checked,
     bakeSwing:   document.getElementById('expSwing').checked,
     mpc:         document.getElementById('expMpc').checked,
+    bassMidi:    document.getElementById('expBassMidi').checked,
+    bassMpc:     document.getElementById('expBassMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })

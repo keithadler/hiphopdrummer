@@ -82,7 +82,7 @@ global.initPlaybackTracking = function() {};
 var vm = require('vm');
 
 // === Load all source files into global scope ===
-var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'analysis.js',
+var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'analysis.js',
              'daw-help.js', 'midi-export.js'];
 
 test('All JS files parse without errors', function() {
@@ -242,6 +242,64 @@ test('buildMpcPattern produces valid JSON', function() {
       assert(e['1'] >= 36 && e['1'] <= 45, 'MPC note ' + e['1'] + ' should be in 36-45 range');
     });
   }
+});
+
+// === Test bass pattern generation ===
+test('Bass generator produces valid patterns for all feels', function() {
+  var allFeels = Object.keys(STYLE_DATA);
+  allFeels.forEach(function(feel) {
+    songFeel = feel;
+    songPalette = null;
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    arrangement = ['verse'];
+    secSteps = {};
+    secFeels = {};
+    patterns = {};
+    _lastChosenKey = { root: 'Cm', i: 'Cm', iv: 'Fm', v: 'Gm' };
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    genBasePatterns();
+    patterns['verse'] = generatePattern('verse');
+    var bassEvents = generateBassPattern('verse');
+    assert(Array.isArray(bassEvents), feel + ': bass should return array');
+    assert(bassEvents.length > 0, feel + ': bass should have events, got ' + bassEvents.length);
+    bassEvents.forEach(function(e, idx) {
+      assert(e.note >= 24 && e.note <= 60, feel + ' bass note ' + idx + ': MIDI note ' + e.note + ' out of bass range');
+      assert(e.vel >= 30 && e.vel <= 127, feel + ' bass note ' + idx + ': velocity ' + e.vel + ' out of range');
+    });
+  });
+});
+
+test('Bass MIDI and MPC export produce valid output', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['verse'];
+  secSteps = {};
+  secFeels = {};
+  genBasePatterns();
+  patterns = { verse: generatePattern('verse') };
+  _lastChosenKey = { root: 'Am', i: 'Am', iv: 'Dm', v: 'Em' };
+
+  var bassBytes = buildBassMidiBytes(['verse'], 90);
+  assert(bassBytes instanceof Uint8Array, 'bass MIDI should return Uint8Array');
+  assert(bassBytes.length > 50, 'bass MIDI should have data');
+  assert(bassBytes[0] === 0x4D && bassBytes[1] === 0x54, 'bass MIDI should start with MThd');
+
+  var bassMpc = buildBassMpcPattern(['verse'], 90);
+  assert(typeof bassMpc === 'string', 'bass MPC should return string');
+  var parsed = JSON.parse(bassMpc);
+  assert(parsed && parsed.pattern && parsed.pattern.events, 'bass MPC should have events');
+  var noteEvents = parsed.pattern.events.filter(function(e) { return e.type === 2; });
+  assert(noteEvents.length > 0, 'bass MPC should have note events');
+  noteEvents.forEach(function(e) {
+    assert(e['1'] >= 24 && e['1'] <= 60, 'bass MPC note ' + e['1'] + ' should be in bass range');
+  });
 });
 
 // === Test analyzeBeat doesn't crash ===
