@@ -20,6 +20,12 @@ The bass engine adds another layer. It doesn't just follow the root note — it 
 
 Every parameter is tuned to the style. Dilla's bass sits 3 ticks behind the beat with per-note timing jitter. Lo-fi bass gets velocity compression that squashes dynamics into a narrow band, simulating tape saturation. Breakdown sections thin the bass in parallel with the drums — full pattern in bar 1, sparse in bar 2, sustained root only by bar 3. Chorus entries slam a hard octave-drop root on beat 1. Turnaround figures at bar 7 of 8-bar phrases signal the cycle with root→5th→octave licks or chromatic walks.
 
+The swing system goes deeper than a single percentage. Each instrument swings by a different amount per style — the way real producers program. Dilla's hats swing 30% harder than the base while his kick stays 40% straighter. G-Funk bass swings slightly harder than the kick for that smooth bounce. Crunk and old school are nearly mechanical across all instruments. Crashes always land on the grid.
+
+The harmony is modal, not just minor. G-Funk, Dilla, and Nujabes use Dorian mode — the IV chord is major (C7, not Cm7), and that raised 6th degree is what makes these styles sound warm and funky. Dark, Griselda, Memphis, and Phonk use Phrygian bII — the sinister half-step drop (Db in the key of Cm) that defines their menacing character. Each style has 3-5 authentic chord progressions: jazzy uses ii-V turnarounds, Dilla sits on one chord for 8 bars, G-Funk moves through chromatic bass lines.
+
+Regional sub-styles capture the geography of hip hop. "Boom bap" from the Bronx (Premier's tight, minimal, fewer ghost notes, straighter timing) sounds different from Queens (Large Pro's jazzy approach with ride cymbal and wider dynamics) sounds different from Long Island (De La's playful, loose, more swing). G-Funk splits into Dre's polished control, DJ Quik's raw funk with busier kicks, and Battlecat's heavy-bounce deep pocket. Each variant modifies ghost density, swing bias, hat type, and dynamics while inheriting the parent style's full pattern generation logic.
+
 None of this is documented in a textbook. It comes from decades of listening, playing, programming, and studying what makes each style feel authentic.
 
 ## Every Beat Is a Lesson
@@ -46,10 +52,14 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 
 ## Highlights
 
-- **19 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse
+- **19 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx (Premier), Boom Bap Queens (Large Pro), Boom Bap Long Island (De La), G-Funk Dre, G-Funk DJ Quik, G-Funk Battlecat
 - **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), replacing Magenta/Tone.js. Custom play/pause/stop/seek controls.
 - **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra. Selectable in Preferences.
-- **Bass line generator** — 19 style-matched bass patterns that lock to the kick drum and follow the key. Boom bap gets punchy bass guitar, G-Funk gets Moog-style, crunk/memphis get 808 sub, jazz gets walking bass.
+- **Per-instrument swing** — hats, kick, ghost snares, backbeat, and bass each swing by different amounts per style. Dilla's hats swing 30% harder than the base while his kick stays 40% straighter. Crunk and old school are nearly mechanical across all instruments. Crashes always land on the grid.
+- **Style-specific chord progressions** — each style has 3-5 authentic progression patterns. Jazzy/nujabes use ii-V turnarounds. Dilla sits on one chord or loops a 2-bar pattern. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII movement.
+- **Modal harmony** — G-Funk, Dilla, and Nujabes use Dorian mode (major IV chord instead of minor). Dark, Griselda, Memphis, and Phonk use Phrygian bII (sinister half-step tension). Chord recommendations explain the mode and why it matters.
+- **Regional sub-styles** — Boom Bap Bronx (Premier's tight, minimal, fewer ghosts) vs Queens (Large Pro's jazzy, ride cymbal, wider dynamics) vs Long Island (De La's playful, loose, more swing). G-Funk Dre (polished, controlled) vs DJ Quik (raw funk, busier kick) vs Battlecat (heavy bounce, deep swing). Each variant modifies ghost density, swing bias, hat type, and dynamics.
+- **Bass line generator** — 19 style-matched bass patterns that lock to the kick drum and follow the key. Boom bap gets punchy bass guitar, G-Funk gets Moog-style slides, crunk/memphis get 808 sub with velocity compression, jazz gets walking bass with diatonic fills. Section-ending bass fills complement drum fills per style. Breakdown thinning, chorus re-entry hits, turnaround figures, and pre-chorus builds.
 - **6 GM bass sounds** — Electric Bass (Finger/Pick), Fretless, Slap, Synth Bass 1/2. Selectable in Preferences.
 - **WAV audio export** — render the beat (drums + bass) to a WAV file. Download button next to play controls, plus checkbox in the export dialog.
 - **Chord sheet** — visual piano keyboard diagrams for each section's chord progression. Feel-aware voicings (triads for boom bap, 9ths for Dilla, min7 for G-Funk). Collapsible section in About This Beat.
@@ -58,7 +68,7 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **10 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker
 - **Dedicated kick libraries** for every feel — all 19 styles have curated kick patterns matched to their aesthetic
 - **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
-- **Song palette system** — each generation picks one of 16 compatible feel families so all sections stay coherent (no crunk verse into G-Funk chorus)
+- **Song palette system** — each generation picks one of 22 compatible feel families (including regional variants) so all sections stay coherent
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
 - **Click any section** to jump to that point in the song player
 - **Playback cursor** — highlights the current step in the grid during playback
@@ -108,11 +118,11 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-4700+ assertions, zero dependencies. Covers all 19 feels × 10 instruments, bass pattern generation, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+7900+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
 
 ## How It Works
 
-The generator models real drumming principles across 19 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. A song-level palette system ensures all sections use compatible feels. Section-level adjustments vary by both feel and section type.
+The generator models real drumming principles across 19 hip hop styles with 6 regional variants. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. Per-instrument swing means hats, kicks, ghost snares, and bass each swing by different amounts — the way real producers program. A song-level palette system ensures all sections use compatible feels. Style-specific chord progressions use authentic modal harmony: Dorian for G-Funk/Dilla, Phrygian for dark/Memphis. Section-level adjustments vary by both feel and section type.
 
 See [DOCS.md](DOCS.md) for the full technical breakdown.
 
@@ -121,11 +131,11 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ```
 ├── index.html         — App shell, layout, script loading
 ├── styles.css         — Dark theme UI, responsive layout
-├── patterns.js        — Constants, state, section/row definitions, STYLE_DATA
+├── patterns.js        — Constants, state, section/row definitions, STYLE_DATA, per-instrument swing, regional variants
 ├── ai.js              — Generation pipeline, feel/swing pools, kick libraries, orchestration
 ├── writers.js         — Instrument-specific bar writers, intro/outro, fills
 ├── groove.js          — Accent curves, velocity humanization, post-processing
-├── bass.js            — Bass line generator, MIDI/MPC bass export
+├── bass.js            — Bass line generator, chord progressions, fills, MIDI/MPC bass export
 ├── analysis.js        — "About This Beat" educational text generator
 ├── ui.js              — Grid rendering, arrangement editor, chord sheet, tooltips, glossary
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, combined drums+bass MIDI
@@ -136,7 +146,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── synth.js           — Bundled synth engine (built from synth-bridge.mjs)
 ├── spessasynth_processor.min.js — AudioWorklet processor for SpessaSynth
 ├── GeneralUserGS.sf3  — GeneralUser GS SoundFont (10MB, all GM instruments + drum kits)
-├── tests.js           — Automated test suite (node tests.js — 5000+ assertions, zero deps)
+├── tests.js           — Automated test suite (node tests.js — 7900+ assertions, zero deps)
 ├── sw.js              — Service worker for PWA offline support
 ├── manifest.json      — PWA manifest for installable app
 ├── package.json       — npm config (SpessaSynth + esbuild)
