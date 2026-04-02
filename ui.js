@@ -571,14 +571,28 @@ function buildChordSheet() {
 
   function chordNotes(chord) {
     var root = chordRootSemi(chord);
-    var isMinor = /m($|7|aj)/.test(chord) && !/maj/.test(chord);
-    var isMaj7 = /maj7/.test(chord);
-    var isMin7 = /m7/.test(chord) && !/maj/.test(chord);
-    var notes = [root, root + (isMinor ? 3 : 4), root + 7];
-    if (isMaj7) notes.push(root + 11);
-    else if (isMin7) notes.push(root + 10);
-    else if (/7$/.test(chord)) notes.push(root + 10);
-    return notes.map(function(n) { return n % 12; });
+    // Strip root to get quality suffix: 'Cm7' → 'm7', 'Fmaj7' → 'maj7', 'Em7b5' → 'm7b5'
+    var quality = chord.replace(/^[A-G][#b]?/, '');
+    var third, fifth, seventh;
+    if (/^m7b5/.test(quality)) {
+      // Half-diminished: root, b3, b5, b7
+      third = 3; fifth = 6; seventh = 10;
+    } else if (/^maj7/.test(quality)) {
+      // Major 7th: root, 3, 5, 7
+      third = 4; fifth = 7; seventh = 11;
+    } else if (/^m7/.test(quality) || /^m$/.test(quality) || quality === 'min' || quality === 'min7') {
+      // Minor or minor 7th: root, b3, 5 (+ b7 if 7th)
+      third = 3; fifth = 7; seventh = /7/.test(quality) ? 10 : -1;
+    } else if (/^7$/.test(quality)) {
+      // Dominant 7th: root, 3, 5, b7
+      third = 4; fifth = 7; seventh = 10;
+    } else {
+      // Major triad (default): root, 3, 5
+      third = 4; fifth = 7; seventh = -1;
+    }
+    var notes = [root, root + third, root + fifth];
+    if (seventh >= 0) notes.push(root + seventh);
+    return notes.map(function(n) { return ((n % 12) + 12) % 12; });
   }
 
   // Render a full-octave piano keyboard with highlighted chord notes and labels
@@ -636,23 +650,31 @@ function buildChordSheet() {
       else chords.push({ name: key.i, fn: 'I', cls: 'chord-root' });
     }
 
-    // Deduplicate consecutive identical chords for cleaner display
-    var uniqueChords = [];
-    var lastChord = '';
-    for (var c = 0; c < chords.length; c++) {
-      if (chords[c].name !== lastChord) {
-        uniqueChords.push(chords[c]);
-        lastChord = chords[c].name;
+    // Group consecutive identical chords with bar counts
+    var allChords = [];
+    for (var b = 0; b < bars; b++) {
+      var barInPhrase = b % 4;
+      if (barInPhrase === 2) allChords.push({ name: key.iv, fn: 'IV', cls: 'chord-four' });
+      else if (barInPhrase === 3 && bars > 2) allChords.push({ name: key.v, fn: 'V', cls: 'chord-five' });
+      else allChords.push({ name: key.i, fn: 'I', cls: 'chord-root' });
+    }
+    var chordGroups = [];
+    for (var c = 0; c < allChords.length; c++) {
+      if (chordGroups.length > 0 && chordGroups[chordGroups.length - 1].name === allChords[c].name) {
+        chordGroups[chordGroups.length - 1].bars++;
+      } else {
+        chordGroups.push({ name: allChords[c].name, fn: allChords[c].fn, cls: allChords[c].cls, bars: 1 });
       }
     }
 
     html += '<div class="chord-sheet-row">';
     html += '<div class="chord-sheet-section">' + (SL[sec] || sec) + '</div>';
     html += '<div class="chord-sheet-bars">';
-    for (var c = 0; c < uniqueChords.length; c++) {
-      html += '<div class="chord-bar ' + uniqueChords[c].cls + '">';
-      html += '<div class="chord-bar-header"><span class="chord-bar-name">' + uniqueChords[c].name + '</span><span class="chord-bar-function">' + uniqueChords[c].fn + '</span></div>';
-      html += renderPiano(uniqueChords[c].name);
+    for (var c = 0; c < chordGroups.length; c++) {
+      var barLabel = chordGroups[c].bars > 1 ? chordGroups[c].bars + ' bars' : '1 bar';
+      html += '<div class="chord-bar ' + chordGroups[c].cls + '">';
+      html += '<div class="chord-bar-header"><span class="chord-bar-name">' + chordGroups[c].name + '</span><span class="chord-bar-function">' + chordGroups[c].fn + ' · ' + barLabel + '</span></div>';
+      html += renderPiano(chordGroups[c].name);
       html += '</div>';
     }
     html += '</div></div>';

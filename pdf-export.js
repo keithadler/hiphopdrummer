@@ -294,14 +294,22 @@ function exportChordSheetPDF(returnBlob) {
   function chordNotes(chord) {
     var m = chord.match(/^([A-G][#b]?)/);
     var root = m ? (SEMI[m[1]] !== undefined ? SEMI[m[1]] : 0) : 0;
-    var isMinor = /m($|7|aj)/.test(chord) && !/maj/.test(chord);
-    var isMaj7 = /maj7/.test(chord);
-    var isMin7 = /m7/.test(chord) && !/maj/.test(chord);
-    var notes = [root, root + (isMinor ? 3 : 4), root + 7];
-    if (isMaj7) notes.push(root + 11);
-    else if (isMin7) notes.push(root + 10);
-    else if (/7$/.test(chord)) notes.push(root + 10);
-    return notes.map(function(n) { return n % 12; });
+    var quality = chord.replace(/^[A-G][#b]?/, '');
+    var third, fifth, seventh;
+    if (/^m7b5/.test(quality)) {
+      third = 3; fifth = 6; seventh = 10;
+    } else if (/^maj7/.test(quality)) {
+      third = 4; fifth = 7; seventh = 11;
+    } else if (/^m7/.test(quality) || /^m$/.test(quality)) {
+      third = 3; fifth = 7; seventh = /7/.test(quality) ? 10 : -1;
+    } else if (/^7$/.test(quality)) {
+      third = 4; fifth = 7; seventh = 10;
+    } else {
+      third = 4; fifth = 7; seventh = -1;
+    }
+    var notes = [root, root + third, root + fifth];
+    if (seventh >= 0) notes.push(root + seventh);
+    return notes.map(function(n) { return ((n % 12) + 12) % 12; });
   }
 
   // Draw a piano keyboard at (x, y) with highlighted notes
