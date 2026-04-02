@@ -194,6 +194,10 @@ function showPrefsDialog() {
   var saved = '';
   try { saved = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
   document.getElementById('prefsDrumKit').value = saved;
+  // Restore bass playback preference (default: on)
+  var bassOn = true;
+  try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
+  document.getElementById('prefsBassPlayback').checked = bassOn;
   document.getElementById('prefsOverlay').style.display = 'flex';
 }
 
@@ -209,6 +213,8 @@ document.getElementById('prefsOverlay').onclick = function(e) {
 document.getElementById('prefsSave').onclick = function() {
   var kit = document.getElementById('prefsDrumKit').value;
   try { localStorage.setItem('hhd_drumkit', kit); } catch(e) {}
+  var bassOn = document.getElementById('prefsBassPlayback').checked;
+  try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
   applySoundFont(kit);
   hidePrefsDialog();
 };
