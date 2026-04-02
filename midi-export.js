@@ -371,15 +371,16 @@ function exportMIDI(opts) {
     } catch(e) { console.warn('PDF generation failed:', e); }
   }
 
-  // Bass line exports
+  // Bass line exports — MIDI bass goes in MIDI Patterns/Bass/, MPC bass goes in MPC/Bass/
   if (opts.bassMidi || opts.bassMpc) {
-    var bassFolder = folder.folder('Bass');
+    var bassMidiFolder = (opts.bassMidi && midiFolder) ? midiFolder.folder('Bass') : null;
+    var bassMpcFolder  = (opts.bassMpc && mpcFolder)   ? mpcFolder.folder('Bass')  : null;
     // Full song bass
-    if (opts.bassMidi) {
-      bassFolder.file('00_bass_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
+    if (bassMidiFolder) {
+      bassMidiFolder.file('00_bass_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
     }
-    if (opts.bassMpc) {
-      bassFolder.file('00_bass_full_song_' + bpm + 'bpm.mpcpattern', buildBassMpcPattern(arrangement, bpm));
+    if (bassMpcFolder) {
+      bassMpcFolder.file('00_bass_full_song_' + bpm + 'bpm.mpcpattern', buildBassMpcPattern(arrangement, bpm));
     }
     // Individual section bass
     var bassExported = {};
@@ -391,11 +392,11 @@ function exportMIDI(opts) {
       var secName = SL[sec] || sec;
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var bassBaseName = padIdx + '_bass_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
-      if (opts.bassMidi) {
-        bassFolder.file(bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
+      if (bassMidiFolder) {
+        bassMidiFolder.file(bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
       }
-      if (opts.bassMpc) {
-        bassFolder.file(bassBaseName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
+      if (bassMpcFolder) {
+        bassMpcFolder.file(bassBaseName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
       }
       bassIdx++;
     });
