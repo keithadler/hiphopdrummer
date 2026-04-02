@@ -568,7 +568,7 @@ function buildChordSheet() {
     for (var b = 0; b < blackPositions.length; b++) {
       var bp = blackPositions[b];
       var isActive = notes.indexOf(bp.s) >= 0;
-      var left = (bp.after + 1) * 16; // right edge of the white key before this black key
+      var left = (bp.after + 1) * 10; // right edge of the white key (10px wide)
       var label = isActive ? NOTE_NAMES[bp.s] : '';
       html += '<div class="chord-piano-black' + (isActive ? ' active' : '') + '" style="left:' + left + 'px">';
       if (label) html += '<span class="chord-piano-label" style="font-size:6px;position:absolute;bottom:2px;left:50%;transform:translateX(-50%)">' + label + '</span>';

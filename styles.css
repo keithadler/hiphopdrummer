@@ -65,31 +65,31 @@ midi-player::part(play-button){color:var(--accent-green)}
 .about-toggle:focus:not(:focus-visible){outline:none}
 
 /* ── Chord Sheet ── */
-.chord-sheet{font-family:var(--mono);font-size:13px;color:var(--text-secondary)}
-.chord-sheet-row{margin-bottom:12px}
-.chord-sheet-section{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:6px}
-.chord-sheet-bars{display:flex;gap:6px;flex-wrap:wrap}
-.chord-bar{background:var(--bg-deep);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;min-width:100px;flex:1;max-width:200px}
-.chord-bar-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-.chord-bar-name{font-size:18px;font-weight:700;color:var(--text-primary)}
-.chord-bar-function{font-size:10px;color:var(--text-dim);font-weight:600}
+.chord-sheet{font-family:var(--mono);font-size:12px;color:var(--text-secondary);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.chord-sheet-row{margin-bottom:6px}
+.chord-sheet-section{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:3px}
+.chord-sheet-bars{display:flex;gap:4px;flex-wrap:wrap}
+.chord-bar{background:var(--bg-deep);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;min-width:56px;flex:1;max-width:120px}
+.chord-bar-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.chord-bar-name{font-size:13px;font-weight:700;color:var(--text-primary)}
+.chord-bar-function{font-size:9px;color:var(--text-dim);font-weight:600}
 .chord-bar.chord-root .chord-bar-name{color:var(--accent-red)}
 .chord-bar.chord-four .chord-bar-name{color:var(--accent-blue)}
 .chord-bar.chord-five .chord-bar-name{color:var(--accent-green)}
-.chord-piano{display:flex;position:relative;height:48px;margin:0 auto}
-.chord-piano-white{width:16px;height:48px;background:#d0d0d0;border:1px solid #999;border-radius:0 0 2px 2px;position:relative;z-index:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px}
+.chord-piano{display:flex;position:relative;height:28px;margin:0 auto}
+.chord-piano-white{width:10px;height:28px;background:#d0d0d0;border:1px solid #999;border-radius:0 0 2px 2px;position:relative;z-index:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:1px}
 .chord-piano-white.active{background:var(--accent-red);border-color:var(--accent-red)}
-.chord-piano-black{width:10px;height:30px;background:#333;border:1px solid #222;border-radius:0 0 2px 2px;position:absolute;z-index:1;margin-left:-5px}
+.chord-piano-black{width:7px;height:18px;background:#333;border:1px solid #222;border-radius:0 0 2px 2px;position:absolute;z-index:1}
 .chord-piano-black.active{background:var(--accent-red);border-color:var(--accent-red)}
 .chord-bar.chord-four .chord-piano-white.active{background:var(--accent-blue);border-color:var(--accent-blue)}
 .chord-bar.chord-four .chord-piano-black.active{background:var(--accent-blue);border-color:var(--accent-blue)}
 .chord-bar.chord-five .chord-piano-white.active{background:var(--accent-green);border-color:var(--accent-green)}
 .chord-bar.chord-five .chord-piano-black.active{background:var(--accent-green);border-color:var(--accent-green)}
-.chord-piano-label{font-size:7px;color:#fff;font-weight:700;letter-spacing:0}
+.chord-piano-label{font-size:6px;color:#fff;font-weight:700;letter-spacing:0}
 .chord-piano-white .chord-piano-label{color:#333}
 .chord-piano-white.active .chord-piano-label{color:#fff}
-.chord-sheet-notes{font-size:10px;color:var(--text-dim);text-align:center;margin-top:4px}
-.chord-sheet-hint{font-size:11px;color:var(--text-dim);line-height:1.4;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.chord-sheet-notes{font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px}
+.chord-sheet-hint{font-size:10px;color:var(--text-dim);line-height:1.3;margin-top:4px}
 .arr-time{font-family:var(--mono);font-size:16px;color:var(--accent-blue);font-weight:600}
 .arr-hint{font-family:var(--mono);font-size:18px;color:var(--text-dim);margin-bottom:8px;line-height:1.5}
 .arr-flow{display:flex;flex-wrap:wrap;gap:5px;min-height:120px;padding:6px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-deep);margin-bottom:8px;align-items:flex-start}
@@ -302,14 +302,15 @@ midi-player::part(play-button){color:var(--accent-green)}
   .about-stat-value{font-size:12px}
   .about-stat-hint{font-size:9px}
   .about-toggle{font-size:10px;padding:4px 8px}
-  .chord-sheet-section{font-size:9px}
-  .chord-bar{padding:6px;min-width:80px}
-  .chord-bar-name{font-size:14px}
-  .chord-bar-function{font-size:8px}
-  .chord-piano{height:36px}
-  .chord-piano-white{width:12px;height:36px}
-  .chord-piano-black{width:8px;height:22px;margin-left:-4px}
-  .chord-sheet-hint{font-size:9px}
+  .chord-sheet-section{font-size:8px}
+  .chord-bar{padding:3px 4px;min-width:48px}
+  .chord-bar-name{font-size:11px}
+  .chord-bar-function{font-size:7px}
+  .chord-piano{height:22px}
+  .chord-piano-white{width:8px;height:22px}
+  .chord-piano-black{width:6px;height:14px}
+  .chord-sheet-notes{font-size:8px}
+  .chord-sheet-hint{font-size:8px}
   #aboutBeat{display:none}
   #aboutToggle{display:block}
   .about-arrow{font-size:14px}
