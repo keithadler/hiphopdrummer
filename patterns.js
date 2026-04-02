@@ -44,7 +44,7 @@ var STEPS = 128;
  *
  * @type {string[]}
  */
-var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash'];
+var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker'];
 
 /**
  * Ordered list of all possible song section identifiers.
@@ -66,7 +66,7 @@ var SL = { intro: 'Intro', verse: 'Verse', pre: 'Pre-Chorus', chorus: 'Chorus', 
  * Used in the grid renderer and PDF export.
  * @type {Object.<string, string>}
  */
-var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash' };
+var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash', shaker: 'Shaker' };
 
 /**
  * Master pattern store. Keys are section ids (e.g. "verse"), values are
@@ -222,5 +222,6 @@ var ROW_TIPS = {
   hat:       'Closed hi-hat — the ride hand timekeeper. Usually 8th or 16th notes with accent curves.',
   openhat:   'Open hi-hat — the B-Boy signature on the "and-of-4." Chokes the closed hat when it plays.',
   ride:      'Ride cymbal — alternate timekeeper used in jazz-influenced styles (Tribe, Pete Rock).',
-  crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.'
+  crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.',
+  shaker:    'Shaker / tambourine — high-frequency shimmer layered on top of the hat. Adds organic texture. Pete Rock, Large Professor, Buckwild territory.'
 };
