@@ -260,8 +260,8 @@ function analyzeBeat() {
   var keyEl = document.getElementById('songKey');
   if (keyEl) keyEl.textContent = chosenKey.root;
 
-  // Store chosen key globally for bass generator
-  _lastChosenKey = { root: chosenKey.root, i: chosenKey.i, iv: chosenKey.iv, v: chosenKey.v };
+  // Store chosen key globally for bass generator and chord sheet
+  _lastChosenKey = { root: chosenKey.root, i: chosenKey.i, iv: chosenKey.iv, v: chosenKey.v, type: chosenKey.type, rel: chosenKey.rel, relNote: chosenKey.relNote };
 
   lines.push('<b>Key: ' + chosenKey.root + '</b> — ' + chosenKey.context);
   lines.push('');

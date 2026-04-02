@@ -441,6 +441,7 @@ var _aboutObserver = new MutationObserver(function() {
     makeAboutCollapsible();
     applyGlossaryHighlights();
     buildAboutSummary();
+    buildChordSheet();
     _aboutObserver.observe(el, { childList: true });
   }
 });
@@ -511,6 +512,109 @@ function buildAboutSummary() {
     toggleEl.textContent = isHidden ? 'Show full analysis' : 'Hide full analysis';
     toggleEl.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
   }
+}
+
+/**
+ * Build the chord sheet visualization showing the progression
+ * for each song section with a mini piano keyboard per chord.
+ */
+function buildChordSheet() {
+  var el = document.getElementById('chordSheet');
+  if (!el) return;
+  var key = _lastChosenKey;
+  if (!key || !key.i) { el.innerHTML = ''; return; }
+
+  // Note-to-semitone for piano keyboard rendering
+  var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
+
+  function chordRootSemi(chord) {
+    var m = chord.match(/^([A-G][#b]?)/);
+    return m ? (SEMI[m[1]] !== undefined ? SEMI[m[1]] : 0) : 0;
+  }
+
+  // Get notes in a chord (root + minor 3rd + 5th for minor, root + major 3rd + 5th for major)
+  function chordNotes(chord) {
+    var root = chordRootSemi(chord);
+    var isMinor = /m($|7|aj)/.test(chord) && !/maj/.test(chord);
+    var isMaj7 = /maj7/.test(chord);
+    var isMin7 = /m7/.test(chord) && !/maj/.test(chord);
+    var notes = [root, root + (isMinor ? 3 : 4), root + 7]; // root, 3rd, 5th
+    if (isMaj7) notes.push(root + 11);
+    else if (isMin7) notes.push(root + 10);
+    else if (/7$/.test(chord)) notes.push(root + 10); // dom7
+    return notes.map(function(n) { return n % 12; });
+  }
+
+  // Render a mini piano keyboard (one octave) with active notes highlighted
+  function miniKeyboard(chordName) {
+    var notes = chordNotes(chordName);
+    // White keys: C D E F G A B = semitones 0 2 4 5 7 9 11
+    // Black keys: C# D# F# G# A# = semitones 1 3 6 8 10
+    var whites = [0, 2, 4, 5, 7, 9, 11];
+    var blacks = [1, 3, -1, 6, 8, 10]; // -1 = gap between E and F
+    var html = '<div class="chord-sheet-keys">';
+    for (var w = 0; w < whites.length; w++) {
+      var isActive = notes.indexOf(whites[w]) >= 0;
+      html += '<div class="chord-key chord-key-white' + (isActive ? ' chord-key-active' : '') + '"></div>';
+      if (w < blacks.length && blacks[w] >= 0) {
+        var bActive = notes.indexOf(blacks[w]) >= 0;
+        html += '<div class="chord-key chord-key-black' + (bActive ? ' chord-key-active' : '') + '"></div>';
+      }
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // Build section-by-section chord layout
+  var html = '';
+
+  // Determine chord per section based on arrangement position
+  var sectionChords = {};
+  for (var a = 0; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    if (sectionChords[sec]) continue;
+    var bars = Math.ceil((secSteps[sec] || 32) / 16);
+    var chords = [];
+    for (var b = 0; b < bars; b++) {
+      var barInPhrase = b % 4;
+      if (barInPhrase === 2) chords.push({ name: key.iv, fn: 'IV', cls: 'chord-four' });
+      else if (barInPhrase === 3 && bars > 2) chords.push({ name: key.v, fn: 'V', cls: 'chord-five' });
+      else chords.push({ name: key.i, fn: 'I', cls: 'chord-root' });
+    }
+    sectionChords[sec] = chords;
+  }
+
+  // Render each section
+  var rendered = {};
+  for (var a = 0; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    if (rendered[sec]) continue;
+    rendered[sec] = true;
+    var chords = sectionChords[sec];
+    if (!chords) continue;
+
+    html += '<div class="chord-sheet-row">';
+    html += '<div class="chord-sheet-label">' + (SL[sec] || sec) + '</div>';
+    html += '<div class="chord-sheet-bars">';
+    for (var c = 0; c < chords.length; c++) {
+      html += '<div class="chord-bar ' + chords[c].cls + '">';
+      html += '<div class="chord-bar-name">' + chords[c].name + '</div>';
+      html += '<div class="chord-bar-function">' + chords[c].fn + '</div>';
+      html += miniKeyboard(chords[c].name);
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+
+  // Legend
+  html += '<div class="chord-sheet-hint">';
+  html += '<span style="color:var(--accent-red)">■</span> I (home) &nbsp; ';
+  html += '<span style="color:var(--accent-blue)">■</span> IV (tension) &nbsp; ';
+  html += '<span style="color:var(--accent-green)">■</span> V (resolution) &nbsp; ';
+  html += '· Each bar = 1 box · Bass and chords follow this progression';
+  html += '</div>';
+
+  el.innerHTML = html;
 }
 
 // Wire the toggle button once on boot
