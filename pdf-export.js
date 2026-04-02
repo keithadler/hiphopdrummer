@@ -289,15 +289,26 @@ function exportChordSheetPDF(returnBlob) {
   var y = margin;
 
   var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
-  var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var NAMES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var NAMES_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  var keyRoot = key.root || '';
+  var useFlats = /b/.test(keyRoot) || /^[FCGA]$/.test(keyRoot.replace(/m.*/, '')) || /^(Gm|Cm|Fm|Dm|Bbm|Ebm|Abm)/.test(key.i || '');
+  var NOTE_NAMES = useFlats ? NAMES_FLAT : NAMES_SHARP;
 
   function chordNotes(chord) {
     var m = chord.match(/^([A-G][#b]?)/);
     var root = m ? (SEMI[m[1]] !== undefined ? SEMI[m[1]] : 0) : 0;
     var quality = chord.replace(/^[A-G][#b]?/, '');
-    var third, fifth, seventh;
+    var third, fifth, seventh, ninth;
+    ninth = -1;
     if (/^m7b5/.test(quality)) {
       third = 3; fifth = 6; seventh = 10;
+    } else if (/^maj9/.test(quality)) {
+      third = 4; fifth = 7; seventh = 11; ninth = 14;
+    } else if (/^m9/.test(quality)) {
+      third = 3; fifth = 7; seventh = 10; ninth = 14;
+    } else if (/^9$/.test(quality)) {
+      third = 4; fifth = 7; seventh = 10; ninth = 14;
     } else if (/^maj7/.test(quality)) {
       third = 4; fifth = 7; seventh = 11;
     } else if (/^m7/.test(quality) || /^m$/.test(quality)) {
@@ -309,6 +320,7 @@ function exportChordSheetPDF(returnBlob) {
     }
     var notes = [root, root + third, root + fifth];
     if (seventh >= 0) notes.push(root + seventh);
+    if (ninth >= 0) notes.push(root + ninth);
     return notes.map(function(n) { return ((n % 12) + 12) % 12; });
   }
 
@@ -353,6 +365,37 @@ function exportChordSheetPDF(returnBlob) {
     }
   }
 
+  // Feel-aware chord voicing (same logic as ui.js)
+  function pdfVoiceChord(rawChord, feel) {
+    var rootMatch = rawChord.match(/^([A-G][#b]?)/);
+    var root = rootMatch ? rootMatch[1] : rawChord;
+    var q = rawChord.replace(/^[A-G][#b]?/, '');
+    switch (feel) {
+      case 'normal': case 'hard': case 'dark': case 'oldschool': case 'crunk':
+      case 'memphis': case 'griselda': case 'phonk': case 'sparse': case 'driving':
+      case 'chopbreak': case 'big':
+        if (/maj7|m7b5|m7|7/.test(q)) return root + q.replace(/maj7/,'').replace(/m7b5/,'m').replace(/m7/,'m').replace(/7/,'');
+        return rawChord;
+      case 'jazzy': case 'dilla': case 'nujabes':
+        if (/9/.test(q)) return rawChord;
+        if (/7/.test(q)) { if (/^m7$/.test(q)) return root+'m9'; if (/^maj7$/.test(q)) return root+'maj9'; return rawChord; }
+        if (/^m$/.test(q)) return root+'m9';
+        if (q === '') return root+'maj9';
+        return rawChord;
+      case 'lofi':
+        if (/maj7/.test(q)) return root+'7';
+        if (/^m$/.test(q)) return root+'m7';
+        if (q === '') return root+'7';
+        return rawChord;
+      case 'gfunk':
+        if (/7/.test(q)) return rawChord;
+        if (/^m$/.test(q)) return root+'m7';
+        if (q === '') return root+'7';
+        return rawChord;
+      default: return rawChord;
+    }
+  }
+
   // Colors for I, IV, V
   var colors = { 'chord-root': [224, 72, 72], 'chord-four': [80, 160, 255], 'chord-five': [72, 204, 104] };
 
@@ -381,17 +424,29 @@ function exportChordSheetPDF(returnBlob) {
     if (rendered[sec]) return;
     rendered[sec] = true;
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
+    var feel = secFeels[sec] || songFeel || 'normal';
 
-    // Deduplicate consecutive chords
-    var chords = [];
-    var lastChord = '';
+    // Section-specific harmonic rhythm with voicing and bar counts
+    var allChords = [];
     for (var b = 0; b < bars; b++) {
       var barInPhrase = b % 4;
-      var chord, fn, cls;
-      if (barInPhrase === 2) { chord = key.iv; fn = 'IV'; cls = 'chord-four'; }
-      else if (barInPhrase === 3 && bars > 2) { chord = key.v; fn = 'V'; cls = 'chord-five'; }
-      else { chord = key.i; fn = 'I'; cls = 'chord-root'; }
-      if (chord !== lastChord) { chords.push({name: chord, fn: fn, cls: cls}); lastChord = chord; }
+      var isIntro = (sec === 'intro'), isOutro = (sec === 'outro'), isBd = (sec === 'breakdown');
+      if (isIntro || isOutro) {
+        allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      } else if (isBd) {
+        if (barInPhrase === 2 || barInPhrase === 3) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+        else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      } else {
+        if (barInPhrase === 2) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+        else if (barInPhrase === 3 && bars > 2) allChords.push({ name: pdfVoiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
+        else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      }
+    }
+    // Group consecutive identical chords
+    var chords = [];
+    for (var c = 0; c < allChords.length; c++) {
+      if (chords.length > 0 && chords[chords.length-1].name === allChords[c].name) { chords[chords.length-1].bars++; }
+      else { chords.push({ name: allChords[c].name, fn: allChords[c].fn, cls: allChords[c].cls, bars: 1 }); }
     }
 
     // Check page break
@@ -417,9 +472,10 @@ function exportChordSheetPDF(returnBlob) {
       doc.setTextColor(color[0], color[1], color[2]);
       doc.text(chords[c].name, x + 2, y + 5);
 
-      // Function label
-      doc.setFontSize(6); doc.setFont('helvetica', 'normal'); doc.setTextColor(160);
-      doc.text(chords[c].fn, x + boxW - 3, y + 5, { align: 'right' });
+      // Function label with bar count
+      var barLabel = chords[c].bars > 1 ? chords[c].fn + ' · ' + chords[c].bars + ' bars' : chords[c].fn + ' · 1 bar';
+      doc.setFontSize(5); doc.setFont('helvetica', 'normal'); doc.setTextColor(160);
+      doc.text(barLabel, x + boxW - 3, y + 5, { align: 'right' });
 
       // Piano keyboard
       drawPiano(x + 2, y + 8, chords[c].name, color);

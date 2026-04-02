@@ -562,7 +562,12 @@ function buildChordSheet() {
   aboutEl.appendChild(el);
 
   var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
-  var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var NAMES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var NAMES_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  // Use flats if the key root contains a flat, or is in a flat key (F, Bb, Eb, Ab, Db, Gb, Gm, Cm, Fm, Bbm, Ebm)
+  var keyRoot = key.root || '';
+  var useFlats = /b/.test(keyRoot) || /^[FCGA]$/.test(keyRoot.replace(/m.*/, '')) || /^(Gm|Cm|Fm|Dm|Bbm|Ebm|Abm)/.test(key.i || '');
+  var NOTE_NAMES = useFlats ? NAMES_FLAT : NAMES_SHARP;
 
   function chordRootSemi(chord) {
     var m = chord.match(/^([A-G][#b]?)/);
@@ -573,25 +578,28 @@ function buildChordSheet() {
     var root = chordRootSemi(chord);
     // Strip root to get quality suffix: 'Cm7' → 'm7', 'Fmaj7' → 'maj7', 'Em7b5' → 'm7b5'
     var quality = chord.replace(/^[A-G][#b]?/, '');
-    var third, fifth, seventh;
+    var third, fifth, seventh, ninth;
+    ninth = -1;
     if (/^m7b5/.test(quality)) {
-      // Half-diminished: root, b3, b5, b7
       third = 3; fifth = 6; seventh = 10;
+    } else if (/^maj9/.test(quality)) {
+      third = 4; fifth = 7; seventh = 11; ninth = 14;
+    } else if (/^m9/.test(quality)) {
+      third = 3; fifth = 7; seventh = 10; ninth = 14;
+    } else if (/^9$/.test(quality)) {
+      third = 4; fifth = 7; seventh = 10; ninth = 14;
     } else if (/^maj7/.test(quality)) {
-      // Major 7th: root, 3, 5, 7
       third = 4; fifth = 7; seventh = 11;
     } else if (/^m7/.test(quality) || /^m$/.test(quality) || quality === 'min' || quality === 'min7') {
-      // Minor or minor 7th: root, b3, 5 (+ b7 if 7th)
       third = 3; fifth = 7; seventh = /7/.test(quality) ? 10 : -1;
     } else if (/^7$/.test(quality)) {
-      // Dominant 7th: root, 3, 5, b7
       third = 4; fifth = 7; seventh = 10;
     } else {
-      // Major triad (default): root, 3, 5
       third = 4; fifth = 7; seventh = -1;
     }
     var notes = [root, root + third, root + fifth];
     if (seventh >= 0) notes.push(root + seventh);
+    if (ninth >= 0) notes.push(root + ninth);
     return notes.map(function(n) { return ((n % 12) + 12) % 12; });
   }
 
@@ -633,6 +641,31 @@ function buildChordSheet() {
     return html;
   }
 
+  // Voice leading: find the inversion of the next chord closest to the previous voicing
+  // Returns the same set of pitch classes but reordered for display
+  var _lastVoicing = null;
+  function voiceLead(notes) {
+    if (!_lastVoicing || _lastVoicing.length === 0) {
+      _lastVoicing = notes.slice();
+      return notes;
+    }
+    // Try all rotations and pick the one with minimum total movement
+    var bestRotation = notes;
+    var bestCost = 999;
+    for (var r = 0; r < notes.length; r++) {
+      var rotated = notes.slice(r).concat(notes.slice(0, r));
+      var cost = 0;
+      for (var i = 0; i < Math.min(rotated.length, _lastVoicing.length); i++) {
+        var diff = Math.abs(rotated[i] - _lastVoicing[i]);
+        if (diff > 6) diff = 12 - diff; // shortest path around the octave
+        cost += diff;
+      }
+      if (cost < bestCost) { bestCost = cost; bestRotation = rotated; }
+    }
+    _lastVoicing = bestRotation.slice();
+    return bestRotation;
+  }
+
   var html = '';
 
   // Feel-aware chord voicing — a hip hop keyboardist voices differently per genre
@@ -659,21 +692,25 @@ function buildChordSheet() {
         }
         return rawChord;
 
-      // 7th chords — jazz, dilla, nujabes, lofi want extensions
+      // 7th and 9th chords — jazz, dilla, nujabes want extensions
       case 'jazzy': case 'dilla': case 'nujabes':
-        // If it's already a 7th chord, keep it. If it's a simple triad, add 7th.
-        if (/7/.test(rawQuality)) return rawChord;
-        if (/^m$/.test(rawQuality) || rawQuality === '') {
-          // Cm → Cm7, F → Fmaj7
-          return rawQuality === '' ? root + 'maj7' : root + 'm7';
+        // If it's already extended, keep it. Otherwise add 9th (jazzy/dilla) or 7th.
+        if (/9/.test(rawQuality)) return rawChord;
+        if (/7/.test(rawQuality)) {
+          // Upgrade 7ths to 9ths for dilla/nujabes (50% of the time via feel)
+          if ((feel === 'dilla' || feel === 'nujabes') && /^m7$/.test(rawQuality)) return root + 'm9';
+          if ((feel === 'dilla' || feel === 'nujabes') && /^maj7$/.test(rawQuality)) return root + 'maj9';
+          return rawChord;
         }
+        if (/^m$/.test(rawQuality)) return root + 'm9';
+        if (rawQuality === '') return root + 'maj9';
         return rawChord;
 
       case 'lofi':
-        // Lo-fi: minor 7ths, no maj7 (too bright). Simple minor stays simple.
-        if (/maj7/.test(rawQuality)) return root + 'm7'; // darken it
+        // Lo-fi: add minor 7ths to minor chords, dominant 7ths to major. Keep quality intact.
+        if (/maj7/.test(rawQuality)) return root + '7'; // maj7 → dom7 (warmer, dustier)
         if (/^m$/.test(rawQuality)) return root + 'm7';
-        if (rawQuality === '') return root + '7'; // dominant 7 for dusty feel
+        if (rawQuality === '') return root + '7';
         return rawChord;
 
       // G-Funk: min7 voicings (already handled by keyData, but enforce)
@@ -699,6 +736,7 @@ function buildChordSheet() {
 
   // Build section-by-section chord layout
   var rendered = {};
+  _lastVoicing = null; // reset voice leading for each generation
   for (var a = 0; a < arrangement.length; a++) {
     var sec = arrangement[a];
     if (rendered[sec]) continue;
@@ -706,13 +744,26 @@ function buildChordSheet() {
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var feel = secFeel(sec);
 
-    // Group consecutive identical chords with bar counts
+    // Section-specific harmonic rhythm
     var allChords = [];
     for (var b = 0; b < bars; b++) {
       var barInPhrase = b % 4;
-      if (barInPhrase === 2) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
-      else if (barInPhrase === 3 && bars > 2) allChords.push({ name: voiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
-      else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      var isIntro = (sec === 'intro');
+      var isOutro = (sec === 'outro');
+      var isBreakdown = (sec === 'breakdown');
+      if (isIntro || isOutro) {
+        // Intro/outro: stay on I
+        allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      } else if (isBreakdown) {
+        // Breakdown: I and IV only, no V
+        if (barInPhrase === 2 || barInPhrase === 3) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+        else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      } else {
+        // Standard: I-I-IV-V
+        if (barInPhrase === 2) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+        else if (barInPhrase === 3 && bars > 2) allChords.push({ name: voiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
+        else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      }
     }
     var chordGroups = [];
     for (var c = 0; c < allChords.length; c++) {
@@ -739,9 +790,34 @@ function buildChordSheet() {
   html += '<div class="chord-sheet-hint">';
   html += '<span style="color:var(--accent-red)">■</span> I (home) &nbsp; ';
   html += '<span style="color:var(--accent-blue)">■</span> IV (tension) &nbsp; ';
-  html += '<span style="color:var(--accent-green)">■</span> V (resolution) &nbsp; ';
-  html += '· Bass and chords follow this progression · Highlighted keys show the notes to play';
+  html += '<span style="color:var(--accent-green)">■</span> V (resolution)';
   html += '</div>';
+
+  // Rhythm suggestion based on feel
+  var rhythmTips = {
+    normal: 'Stab on beats 2 & 4 with the snare, or sustained whole-note pads.',
+    hard: 'Short, aggressive stabs on beat 1. Let the drums dominate.',
+    jazzy: 'Comp on the "and" positions (upbeats). Rhodes or Wurlitzer.',
+    dark: 'Sustained pads, one chord per 2-4 bars. Sparse and atmospheric.',
+    bounce: 'Quarter-note stabs, rhythmic and danceable. Piano or clav.',
+    halftime: 'Slow whole-note pads. Let each chord breathe for 2 bars.',
+    dilla: 'Behind-the-beat Rhodes stabs. Loose, not quantized. Add 9ths.',
+    lofi: 'Detuned piano, whole notes. Muted and dusty. Less is more.',
+    gfunk: 'Sustained synth pads with slow filter sweeps. Smooth and hypnotic.',
+    chopbreak: 'Staccato stabs on the kick hits. Funky and tight.',
+    crunk: 'Simple synth stabs on beat 1. Big and aggressive.',
+    memphis: 'Dark sustained pads or eerie piano. Minimal movement.',
+    griselda: 'Sample chops or piano stabs on beat 1. Raw and direct.',
+    phonk: 'Dark pads, slow and hypnotic. Detuned synth.',
+    nujabes: 'Warm Rhodes, gentle comping. Let the ride cymbal lead.',
+    oldschool: 'Simple synth stabs on beats 1 and 3. Clean and mechanical.',
+    sparse: 'One sustained pad. Let the space do the work.',
+    driving: 'Rhythmic stabs following the kick. Forward momentum.',
+    big: 'Full chords, sustained. Layer pad + stab for maximum energy.'
+  };
+  var feel = songFeel || 'normal';
+  var tip = rhythmTips[feel] || rhythmTips.normal;
+  html += '<div class="chord-sheet-hint" style="border-top:none;margin-top:2px"><b>Playing tip:</b> ' + tip + ' <b>Octave 3-4</b> (middle C area) for Rhodes/piano, <b>octave 2-3</b> for synth pads.</div>';
 
   body.innerHTML = html;
 }
