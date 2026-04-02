@@ -496,15 +496,6 @@ function buildAboutSummary() {
   html += '</div>';
 
   summaryEl.innerHTML = html;
-
-  // Ensure the detail panel starts hidden and toggle is reset
-  var detailEl = document.getElementById('aboutBeat');
-  var toggleEl = document.getElementById('aboutToggle');
-  if (detailEl) detailEl.style.display = 'none';
-  if (toggleEl) {
-    toggleEl.textContent = 'Show full analysis';
-    toggleEl.setAttribute('aria-expanded', 'false');
-  }
 }
 
 // Wire the toggle button once on boot
