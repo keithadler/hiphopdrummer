@@ -297,6 +297,11 @@ function writeSnA(p, feel, off) {
     }
     return;
   }
+  if (feel === 'oldschool') {
+    // Old School: hard snare crack on 2 and 4, zero ghosts — drum machine precision
+    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
+    return;
+  }
   // Backbeat on 2 and 4 — beat 4 (step 12) slightly harder than beat 2 (step 4)
   // because it resolves the bar and pulls into the next downbeat
   p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
@@ -385,10 +390,6 @@ function writeSnA(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 12);
     }
   }
-  if (feel === 'oldschool') {
-    // Old School: hard snare crack on 2 and 4, zero ghosts — drum machine precision
-    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
-  }
 }
 
 /**
@@ -418,6 +419,11 @@ function writeSnB(p, feel, off) {
         p.snare[off + gPick[0]] = v(Math.max(45, gPick[1] - 15), 8);
       }
     }
+    return;
+  }
+  if (feel === 'oldschool') {
+    // Old School B: identical to A — drum machines don't vary
+    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
     return;
   }
   // Backbeat — beat 4 slightly harder than beat 2
@@ -492,10 +498,6 @@ function writeSnB(p, feel, off) {
       var ngp = nujabesGhostsB[ng];
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
     }
-  }
-  if (feel === 'oldschool') {
-    // Old School B: identical to A — drum machines don't vary
-    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
   }
 }
 
@@ -926,7 +928,7 @@ function writeHB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeOpenHat(p, feel, off) {
-  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
+  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi' || feel === 'oldschool') return;
   if (feel === 'memphis' || feel === 'phonk') {
     // Memphis: sparse open hat — 50/50 &2 vs &4, skips more bars than other feels
     if (maybe(.35)) {

@@ -161,8 +161,8 @@ var FEELS = {
   chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak', 'crunk', 'gfunk'],
   verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis', 'oldschool'],
   chorus2: ['big', 'driving', 'bounce', 'chopbreak', 'crunk'],
-  breakdown: ['sparse', 'halftime', 'dark', 'lofi', 'memphis'],
-  instrumental: ['halftime', 'normal', 'jazzy', 'dilla', 'lofi', 'gfunk'],
+  breakdown: ['sparse', 'halftime', 'dark', 'lofi', 'memphis', 'oldschool'],
+  instrumental: ['halftime', 'normal', 'jazzy', 'dilla', 'lofi', 'gfunk', 'oldschool'],
   lastchorus: ['big', 'driving', 'big', 'hard', 'bounce', 'chopbreak', 'crunk'],
   outro: ['outro_fade', 'outro_stop']
 };
@@ -1029,7 +1029,7 @@ function generatePattern(sec) {
           // Chopbreak: add ghost snare density
           var cg = pick([3, 5, 9, 13]);
           if (!p.snare[off+cg] && !p.kick[off+cg]) p.snare[off+cg] = v(60, 10);
-        } else {
+        } else if (feel !== 'oldschool' && feel !== 'crunk') {
           // Standard: tweak kick + add ghost snare
           var kp = pick([8, 10, 12, 14]);
           if (p.kick[off+kp] > 0) p.kick[off+kp] = 0;
@@ -1044,6 +1044,10 @@ function generatePattern(sec) {
           // Lo-fi: minimal pre-fill, just one soft snare
           for (var i = 12; i < 16; i++) p.hat[off+i] = 0;
           if (maybe(.4)) p.snare[off+14] = v(75, 6);
+        } else if (feel === 'oldschool') {
+          // Old School: simple fill — one hard hit, no buildup
+          for (var i = 12; i < 16; i++) p.hat[off+i] = 0;
+          if (maybe(.5)) { p.snare[off+15] = v(120, 4); p.clap[off+15] = v(115, 4); }
         } else {
           // Standard turnaround + pre-fill
           if (maybe(.5)) p.hat[off+14] = 0;
@@ -1072,13 +1076,13 @@ function generatePattern(sec) {
           var cg = pick([3, 5, 9, 13]);
           if (!p.snare[off+cg] && !p.kick[off+cg]) p.snare[off+cg] = v(60, 10);
           if (maybe(.4) && !p.snare[off+7] && !p.kick[off+7]) p.snare[off+7] = v(55, 10);
-        } else {
+        } else if (feel !== 'oldschool' && feel !== 'crunk') {
           var gs = pick([3, 5, 7, 11, 13, 15]);
           if (p.snare[off+gs] > 0 && p.snare[off+gs] < 80) p.snare[off+gs] = 0;
           else if (!p.snare[off+gs] && !p.kick[off+gs]) p.snare[off+gs] = v(68, 10);
         }
-        // Move open hat from &4 to &2 for variety (skip for lofi — no open hats)
-        if (feel !== 'lofi' && p.openhat[off+14] > 0 && maybe(.35)) {
+        // Move open hat from &4 to &2 for variety (skip for lofi/oldschool — no open hats)
+        if (feel !== 'lofi' && feel !== 'oldschool' && p.openhat[off+14] > 0 && maybe(.35)) {
           p.openhat[off+14] = 0; p.openhat[off+6] = v(80, 10); p.hat[off+6] = 0;
         }
         // Rimshot: add one on a new position
@@ -1122,7 +1126,7 @@ function generatePattern(sec) {
       }
       // Bar 6 (posIn=5): Open hat movement / hat dropout
       if (posIn === 5) {
-        if (feel !== 'lofi') {
+        if (feel !== 'lofi' && feel !== 'oldschool') {
           if (p.openhat[off+14] > 0) p.openhat[off+14] = 0;
           else if (maybe(.5)) { p.openhat[off+6] = v(80, 10); p.hat[off+6] = 0; }
         }
@@ -1134,7 +1138,7 @@ function generatePattern(sec) {
           // Crunk turnaround: add snare accent on beat 3 for energy
           if (maybe(.6)) p.snare[off+8] = v(115, 8);
           if (maybe(.4)) p.clap[off+8] = v(110, 8);
-        } else {
+        } else if (feel !== 'oldschool') {
           if (feel !== 'lofi') for (var i = 0; i < 16; i++) p.openhat[off+i] = 0;
           if (maybe(.5)) p.hat[off+14] = 0;
           if (maybe(.4) && !p.kick[off+15]) p.kick[off+15] = v(80, 15);
@@ -1154,6 +1158,9 @@ function generatePattern(sec) {
         if (feel === 'lofi' || feel === 'memphis') {
           // Lo-fi/Memphis: minimal pre-fill, just one soft snare
           if (maybe(.4)) p.snare[off+14] = v(feel === 'memphis' ? 80 : 75, 6);
+        } else if (feel === 'oldschool') {
+          // Old School: simple fill — one hard snare hit, no buildup
+          if (maybe(.5)) { p.snare[off+15] = v(120, 4); p.clap[off+15] = v(115, 4); }
         } else {
           if (maybe(.5)) p.snare[off+13] = v(80, 10);
           if (maybe(.4)) p.snare[off+14] = v(95, 10);
