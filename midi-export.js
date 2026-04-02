@@ -447,7 +447,7 @@ function updateMidiPlayer() {
       player.removeEventListener('load', onLoad);
       var arrTimeEl = document.getElementById('arrTime');
       if (arrTimeEl && typeof calcArrTime === 'function') {
-        arrTimeEl.textContent = calcArrTime();
+        arrTimeEl.textContent = calcArrTime(true);
       }
     });
   }

@@ -174,18 +174,11 @@ function renderGrid() {
  *
  * @returns {string} Formatted time string "M:SS"
  */
-function calcArrTime(useCalculation) {
-  // Use the MIDI player's actual duration if available and not forced to calculate
-  var player = document.getElementById('midiPlayer');
-  var totalSec = 0;
-  if (!useCalculation && player && player.duration && player.duration > 0) {
-    totalSec = player.duration;
-  } else {
-    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-    var totalSteps = 0;
-    arrangement.forEach(function(s) { totalSteps += secSteps[s] || 32; });
-    totalSec = totalSteps * (60 / bpm / 4);
-  }
+function calcArrTime() {
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var totalSteps = 0;
+  arrangement.forEach(function(s) { totalSteps += secSteps[s] || 32; });
+  var totalSec = totalSteps * (60 / bpm / 4);
   var min = Math.floor(totalSec / 60), sec = Math.floor(totalSec % 60);
   return min + ':' + (sec < 10 ? '0' : '') + sec;
 }
