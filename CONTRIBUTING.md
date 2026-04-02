@@ -27,7 +27,8 @@ The project is split into focused modules:
 - **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
 - **`analysis.js`** — `analyzeBeat()` educational text generator, `keyData` per feel
 - **`ui.js`** — Grid rendering, arrangement editor, tooltips, glossary
-- **`midi-export.js`** — MIDI file writer, ZIP export, MIDI player, DAW help file builders, export dialog logic
+- **`midi-export.js`** — MIDI file writer, MPC pattern builder, ZIP export, MIDI player, export dialog logic
+- **`daw-help.js`** — DAW-specific help file builders (11 functions, one per DAW/platform)
 - **`pdf-export.js`** — PDF beat sheet generator
 - **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor
 
