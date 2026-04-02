@@ -272,3 +272,177 @@ function exportPDF(returnBlob) {
 function generatePDFBlob() {
   try { return exportPDF(true); } catch(e) { return null; }
 }
+
+/**
+ * Generate a chord sheet PDF with visual chord boxes and piano diagrams.
+ *
+ * @param {boolean} [returnBlob=false] - If true, return as Blob
+ * @returns {Blob|undefined}
+ */
+function exportChordSheetPDF(returnBlob) {
+  if (!_lastChosenKey || !_lastChosenKey.i) return null;
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  var key = _lastChosenKey;
+  var bpm = document.getElementById('bpm').textContent || '90';
+  var pageW = 297, pageH = 210, margin = 12, contentW = pageW - margin * 2;
+  var y = margin;
+
+  var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
+  var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function chordNotes(chord) {
+    var m = chord.match(/^([A-G][#b]?)/);
+    var root = m ? (SEMI[m[1]] !== undefined ? SEMI[m[1]] : 0) : 0;
+    var isMinor = /m($|7|aj)/.test(chord) && !/maj/.test(chord);
+    var isMaj7 = /maj7/.test(chord);
+    var isMin7 = /m7/.test(chord) && !/maj/.test(chord);
+    var notes = [root, root + (isMinor ? 3 : 4), root + 7];
+    if (isMaj7) notes.push(root + 11);
+    else if (isMin7) notes.push(root + 10);
+    else if (/7$/.test(chord)) notes.push(root + 10);
+    return notes.map(function(n) { return n % 12; });
+  }
+
+  // Draw a piano keyboard at (x, y) with highlighted notes
+  function drawPiano(x, y, chordName, color) {
+    var notes = chordNotes(chordName);
+    var whites = [0, 2, 4, 5, 7, 9, 11];
+    var blacks = [{s:1,after:0},{s:3,after:1},{s:6,after:3},{s:8,after:4},{s:10,after:5}];
+    var kw = 4, kh = 16, bw = 2.8, bh = 10;
+
+    // White keys
+    for (var w = 0; w < whites.length; w++) {
+      var kx = x + w * kw;
+      var active = notes.indexOf(whites[w]) >= 0;
+      if (active) {
+        doc.setFillColor(color[0], color[1], color[2]);
+      } else {
+        doc.setFillColor(240, 240, 240);
+      }
+      doc.setDrawColor(160);
+      doc.rect(kx, y, kw - 0.3, kh, 'FD');
+      if (active) {
+        doc.setFontSize(4); doc.setTextColor(255, 255, 255);
+        doc.text(NOTE_NAMES[whites[w]], kx + kw / 2 - 0.15, y + kh - 1, { align: 'center' });
+      }
+    }
+    // Black keys
+    for (var b = 0; b < blacks.length; b++) {
+      var bx = x + (blacks[b].after + 1) * kw - bw / 2 - 0.15;
+      var active = notes.indexOf(blacks[b].s) >= 0;
+      if (active) {
+        doc.setFillColor(color[0], color[1], color[2]);
+      } else {
+        doc.setFillColor(50, 50, 50);
+      }
+      doc.setDrawColor(30);
+      doc.rect(bx, y, bw, bh, 'FD');
+      if (active) {
+        doc.setFontSize(3); doc.setTextColor(255, 255, 255);
+        doc.text(NOTE_NAMES[blacks[b].s], bx + bw / 2, y + bh - 1, { align: 'center' });
+      }
+    }
+  }
+
+  // Colors for I, IV, V
+  var colors = { 'chord-root': [224, 72, 72], 'chord-four': [80, 160, 255], 'chord-five': [72, 204, 104] };
+
+  // Title
+  doc.setFontSize(18); doc.setFont('helvetica', 'bold'); doc.setTextColor(0);
+  doc.text('CHORD SHEET', margin, y + 6);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100);
+  doc.text(bpm + ' BPM  |  Key: ' + key.root + '  |  I = ' + key.i + '  |  IV = ' + key.iv + '  |  V = ' + key.v, margin + 60, y + 6);
+  y += 14;
+
+  // Legend
+  doc.setFontSize(7); doc.setTextColor(150);
+  doc.setFillColor(224, 72, 72); doc.rect(margin, y, 3, 3, 'F');
+  doc.text('I (home)', margin + 4, y + 2.5);
+  doc.setFillColor(80, 160, 255); doc.rect(margin + 25, y, 3, 3, 'F');
+  doc.text('IV (tension)', margin + 29, y + 2.5);
+  doc.setFillColor(72, 204, 104); doc.rect(margin + 55, y, 3, 3, 'F');
+  doc.text('V (resolution)', margin + 59, y + 2.5);
+  y += 8;
+
+  // Render sections
+  var boxW = 32, boxH = 28, gap = 3, pianoW = 28;
+  var rendered = {};
+
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    var bars = Math.ceil((secSteps[sec] || 32) / 16);
+
+    // Deduplicate consecutive chords
+    var chords = [];
+    var lastChord = '';
+    for (var b = 0; b < bars; b++) {
+      var barInPhrase = b % 4;
+      var chord, fn, cls;
+      if (barInPhrase === 2) { chord = key.iv; fn = 'IV'; cls = 'chord-four'; }
+      else if (barInPhrase === 3 && bars > 2) { chord = key.v; fn = 'V'; cls = 'chord-five'; }
+      else { chord = key.i; fn = 'I'; cls = 'chord-root'; }
+      if (chord !== lastChord) { chords.push({name: chord, fn: fn, cls: cls}); lastChord = chord; }
+    }
+
+    // Check page break
+    if (y + boxH + 10 > pageH - margin) { doc.addPage(); y = margin; }
+
+    // Section label
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(120);
+    doc.text((SL[sec] || sec).toUpperCase(), margin, y + 3);
+    y += 6;
+
+    // Chord boxes
+    var x = margin;
+    for (var c = 0; c < chords.length; c++) {
+      if (x + boxW > pageW - margin) { x = margin; y += boxH + gap; }
+      var color = colors[chords[c].cls] || [100, 100, 100];
+
+      // Box background
+      doc.setFillColor(248, 248, 248); doc.setDrawColor(200);
+      doc.rect(x, y, boxW, boxH, 'FD');
+
+      // Chord name
+      doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(color[0], color[1], color[2]);
+      doc.text(chords[c].name, x + 2, y + 5);
+
+      // Function label
+      doc.setFontSize(6); doc.setFont('helvetica', 'normal'); doc.setTextColor(160);
+      doc.text(chords[c].fn, x + boxW - 3, y + 5, { align: 'right' });
+
+      // Piano keyboard
+      drawPiano(x + 2, y + 8, chords[c].name, color);
+
+      // Note names
+      var noteNames = chordNotes(chords[c].name).map(function(n) { return NOTE_NAMES[n]; });
+      doc.setFontSize(5); doc.setTextColor(140);
+      doc.text(noteNames.join(' · '), x + boxW / 2, y + boxH - 1.5, { align: 'center' });
+
+      x += boxW + gap;
+    }
+    y += boxH + gap + 2;
+  });
+
+  // Footer
+  var pageCount = doc.internal.getNumberOfPages();
+  for (var p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(170);
+    doc.text('Hip Hop Drummer  |  ' + bpm + ' BPM  |  Key: ' + key.root, margin, pageH - 5);
+    doc.text('Page ' + p + ' of ' + pageCount, pageW - margin, pageH - 5, { align: 'right' });
+  }
+
+  if (returnBlob) return doc.output('blob');
+  doc.save('chord_sheet_' + key.root.replace(/[#\/]/g, '') + '.pdf');
+}
+
+/**
+ * Convenience wrapper for ZIP bundling.
+ * @returns {Blob|null}
+ */
+function generateChordSheetPDFBlob() {
+  try { return exportChordSheetPDF(true); } catch(e) { return null; }
+}
