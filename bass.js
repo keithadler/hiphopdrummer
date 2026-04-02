@@ -189,6 +189,62 @@ var BASS_STYLES = {
 };
 
 /**
+ * Per-feel chord progression patterns.
+ *
+ * Each feel has multiple progression options. Each progression is an array
+ * of chord degree symbols for each bar in a 4-bar phrase:
+ *   'i'   = root (I chord)
+ *   'iv'  = fourth (IV chord)
+ *   'v'   = fifth (V chord)
+ *   'ii'  = second (supertonic — for jazz/nujabes ii-V movement)
+ *
+ * The bass generator picks one progression per section and follows it.
+ * This replaces the hardcoded i→iv→i→v pattern.
+ *
+ * @type {Object.<string, Array.<string[]>>}
+ */
+var CHORD_PROGRESSIONS = {
+  // Boom bap: mostly stays on root, occasional IV movement
+  normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv']],
+  // Hard: stays on root — aggression doesn't need harmonic movement
+  hard:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','v']],
+  // Jazzy: ii-V movement, more harmonic variety
+  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','iv','ii','v']],
+  // Dark: minimal movement, root-heavy with occasional IV for tension
+  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Bounce: danceable, simple but with movement
+  bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','v']],
+  // Halftime: slow, stays on root mostly
+  halftime:  [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Dilla: often sits on one chord for 8 bars, or uses a 2-bar loop
+  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Lo-fi: sample-based, often one chord or simple 2-bar loop
+  lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i']],
+  // G-Funk: chromatic movement, uses IV and V more freely
+  gfunk:     [['i','iv','v','iv'], ['i','iv','i','v'], ['i','i','iv','v'], ['i','v','iv','i'], ['i','iv','v','i']],
+  // Chopbreak: follows the sample, usually i-iv or i-v
+  chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i']],
+  // Crunk: stays on root — 808 sub doesn't move much
+  crunk:     [['i','i','i','i'], ['i','i','i','iv'], ['i','i','iv','i']],
+  // Memphis: root-heavy, dark, minimal movement
+  memphis:   [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Griselda: sample-based, usually i-iv with occasional V
+  griselda:  [['i','i','iv','i'], ['i','i','i','iv'], ['i','iv','i','v'], ['i','i','iv','v']],
+  // Phonk: root-heavy, 808 sub stays low
+  phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Nujabes: jazz-influenced, ii-V movement, more harmonic variety
+  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv']],
+  // Old school: simple, drum-machine era — root and IV
+  oldschool: [['i','i','iv','i'], ['i','i','i','i'], ['i','i','iv','iv']],
+  // Sparse: minimal, stays on root
+  sparse:    [['i','i','i','i'], ['i','i','iv','i']],
+  // Driving: forward momentum, uses V for push
+  driving:   [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','v','iv']],
+  // Big: anthem, uses IV and V for lift
+  big:       [['i','iv','i','v'], ['i','i','iv','v'], ['i','iv','v','i'], ['i','iv','iv','v']]
+};
+
+/**
  * Generate a bass pattern for one section.
  *
  * Round 1 features (1-10): chord anticipation, slides, ghost notes,
@@ -235,20 +291,38 @@ function generateBassPattern(sec) {
   var events = [];
   var isIntroOutro = /^intro|^outro/.test(feel);
 
-  // ── Fix #3: Motif stores intervals relative to chord root, not absolute MIDI ──
+  // ── Pick a chord progression for this section ──
+  var progPool = CHORD_PROGRESSIONS[bassFeel] || CHORD_PROGRESSIONS.normal;
+  var progression = pick(progPool); // e.g. ['i','iv','ii','v']
+
+  // Build a MIDI note lookup for each degree
+  // ii = root + 2 semitones (supertonic), clamped to bass range
+  var iiNote = rootNote + 2;
+  if (iiNote > 48) iiNote -= 12;
+
+  /**
+   * Get the MIDI root note for a chord degree symbol.
+   */
+  function degreeToNote(deg) {
+    if (deg === 'iv') return fourthNote;
+    if (deg === 'v') return vChordRoot;
+    if (deg === 'ii') return iiNote;
+    return rootNote; // 'i' or default
+  }
+
+  // ── Motif stores intervals relative to chord root, not absolute MIDI ──
   var motifIntervals = null; // [{relStep, interval, vel, dur, slide, dead}]
   var motifChordRoot = rootNote; // chord root the motif was recorded against
   var totalBars = Math.ceil(len / 16);
 
   /**
    * Get the chord root for a given bar position in the phrase.
-   * Deterministic version (no maybe()) for motif transposition.
+   * Uses the progression table. Deterministic (no maybe()).
    */
   function chordRootForBar(barInPhrase) {
     if (isIntroOutro) return rootNote;
-    if (barInPhrase === 2) return fourthNote;
-    if (barInPhrase === 3) return vChordRoot;
-    return rootNote;
+    var deg = progression[barInPhrase % progression.length];
+    return degreeToNote(deg);
   }
 
   for (var barIdx = 0; barIdx < totalBars; barIdx++) {
@@ -261,26 +335,19 @@ function generateBassPattern(sec) {
     for (var step = barStart; step < barEnd; step++) {
       var pos = step % 16;
 
-      // ── Determine current chord with anticipation ──
+      // ── Determine current chord from progression ──
       var currentRoot = rootNote;
       var currentRootLow = rootLow;
       if (!isIntroOutro) {
-        if (barInPhrase === 2) {
-          currentRoot = fourthNote;
-          currentRootLow = fourthNote - 12;
-        } else if (barInPhrase === 3 && maybe(0.4)) {
-          currentRoot = vChordRoot;
-          currentRootLow = vChordRoot - 12;
-        }
+        // Use the progression table for this bar's chord
+        var progDegree = progression[barInPhrase % progression.length];
+        currentRoot = degreeToNote(progDegree);
+        currentRootLow = currentRoot - 12;
+        // Chord anticipation: on the last beat of a bar, sometimes jump to next chord early
         if (pos >= 12 && maybe(style.chordAnticipation)) {
-          var nextBarInPhrase = (barInPhrase + 1) % 4;
-          if (nextBarInPhrase === 2) {
-            currentRoot = fourthNote; currentRootLow = fourthNote - 12;
-          } else if (nextBarInPhrase === 0 || nextBarInPhrase === 1) {
-            currentRoot = rootNote; currentRootLow = rootLow;
-          } else if (nextBarInPhrase === 3) {
-            currentRoot = vChordRoot; currentRootLow = vChordRoot - 12;
-          }
+          var nextDegree = progression[(barInPhrase + 1) % progression.length];
+          currentRoot = degreeToNote(nextDegree);
+          currentRootLow = currentRoot - 12;
         }
       }
 
@@ -417,7 +484,7 @@ function generateBassPattern(sec) {
       // ── Fix #7: Walk-up only if step doesn't have a strong kick-locked note ──
       if (pos >= 13 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
         var nextBar = Math.floor((step + (16 - pos)) / 16) % 4;
-        var nextRoot = (nextBar === 2) ? fourthNote : rootNote;
+        var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
           if (pos === 13) { midiNote = currentRoot + 3; }
@@ -918,16 +985,20 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
   var tickPos = 0;
 
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var bassEvents = generateBassPattern(sec);
     var len = secSteps[sec] || 32;
+    // Per-instrument swing for bass
+    var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
+    var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[secFeel]) ? INSTRUMENT_SWING[secFeel].bass : 0.9;
+    var bassSwing = noSwing ? 0 : Math.round(baseSwingAmount * bassSwingMult);
 
     for (var i = 0; i < bassEvents.length; i++) {
       var e = bassEvents[i];
       var stepInBar = e.step % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
+      var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
       var timeOff = e.timingOffset || 0;
       var stepTick = tickPos + (e.step * ticksPerStep) + swingOffset + timeOff;
       if (stepTick < 0) stepTick = 0;

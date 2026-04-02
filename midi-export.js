@@ -88,21 +88,25 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
 
   // Swing: read from UI and apply unless noSwing is true
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var pat = patterns[sec];
     if (!pat) return;
     var len = secSteps[sec] || 32;
+    var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
-      var stepTick = tickPos + swingOffset;
 
       ROWS.forEach(function(r) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
+          // Per-instrument swing
+          var instrSwingMult = (typeof getInstrumentSwing === 'function') ? getInstrumentSwing(r, vel, secFeel) : 1.0;
+          var instrSwing = Math.round(baseSwingAmount * instrSwingMult);
+          var swingOffset = (stepInBar % 2 === 1) ? instrSwing : 0;
+          var stepTick = tickPos + swingOffset;
           var key = stepTick + ':' + note;
           if (eventMap[key] !== undefined) {
             // Duplicate note at same tick — keep louder velocity
@@ -532,25 +536,34 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var tickPos = 0;
   var eventMap = {};
 
-  // Swing from UI
+  // Swing from UI — per-instrument swing multipliers applied below
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var baseSwingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+
+  // Determine the song feel for per-instrument swing lookup
+  var combinedFeel = songFeel || 'normal';
 
   sectionList.forEach(function(sec) {
     var pat = patterns[sec];
     if (!pat) return;
     var len = secSteps[sec] || 32;
+    var secFeel = secFeels[sec] || combinedFeel;
+    // Strip intro/outro prefixes for swing lookup
+    var swingFeel = secFeel.replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
 
     // Drum events (channel 10)
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
-      var stepTick = tickPos + swingOffset;
 
       ROWS.forEach(function(r) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
+          // Per-instrument swing: each instrument swings by a different amount
+          var instrSwingMult = (typeof getInstrumentSwing === 'function') ? getInstrumentSwing(r, vel, swingFeel) : 1.0;
+          var instrSwing = Math.round(baseSwingAmount * instrSwingMult);
+          var swingOffset = (stepInBar % 2 === 1) ? instrSwing : 0;
+          var stepTick = tickPos + swingOffset;
           var key = stepTick + ':' + note + ':d';
           if (eventMap[key] !== undefined) {
             if (vel > events[eventMap[key]].vel) events[eventMap[key]].vel = vel;
@@ -567,9 +580,12 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     // Bass events (channel 1) — generated per section
     var bassEvents = (typeof generateBassPattern === 'function') ? generateBassPattern(sec) : [];
     var secTickStart = tickPos - (len * ticksPerStep); // rewind to section start
+    // Per-instrument swing for bass
+    var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[swingFeel]) ? INSTRUMENT_SWING[swingFeel].bass : 0.9;
+    var bassSwing = Math.round(baseSwingAmount * bassSwingMult);
     bassEvents.forEach(function(e) {
       var stepInBar = e.step % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
+      var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
       var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset;
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
