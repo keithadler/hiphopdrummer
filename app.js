@@ -455,9 +455,10 @@ function initPlaybackTracking() {
       els[i].classList.add('playback-cursor');
       _cachedCursorEls.push(els[i]);
     }
-    // Follow playhead: scroll the cursor column into view
+    // Follow playhead: scroll the last (bottom) cursor element into view
+    // so the full column of cells is visible, not just the top row
     if (_followPlayhead && _cachedCursorEls.length > 0) {
-      _cachedCursorEls[0].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
   }
 
