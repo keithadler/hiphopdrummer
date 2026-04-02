@@ -174,30 +174,26 @@ midi-player::part(play-button){color:var(--accent-green)}
     gap:5px;
     order:2;
   }
-  /* Style and Key on row 1, BPM and Swing on row 2 */
-  .ctrl-group:first-child{
-    grid-column:auto;
-  }
-  .ctrl-input-wide{
-    max-width:none;
-    font-size:12px;
-    width:auto;
-    overflow:visible;
-    text-overflow:clip;
-  }
-  /* New Beat spans full width */
+  /* Buttons span full width */
   .btn-gen{
     grid-column:1 / -1;
     justify-content:center;
     font-size:13px;
     height:38px;
   }
-  /* Export spans full width */
   .btn-export{
     grid-column:1 / -1;
     justify-content:center;
     font-size:12px;
     height:36px;
+  }
+  /* Style text: no truncation */
+  .ctrl-input-wide{
+    max-width:none;
+    font-size:12px;
+    width:auto;
+    overflow:visible;
+    text-overflow:clip;
   }
   .ctrl-group{
     justify-content:center;
