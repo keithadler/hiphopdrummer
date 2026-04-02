@@ -11,6 +11,7 @@
 // =============================================
 
 import { WorkletSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
+import { SpessaSynthProcessor, SpessaSynthSequencer, BasicMIDI, BasicSoundBank } from "spessasynth_core";
 
 let synth = null;
 let sequencer = null;
@@ -152,58 +153,46 @@ function getSynthState() {
 async function renderToWav(midiBytes) {
   await initSynth();
 
-  // Load the MIDI into the existing sequencer for rendering
-  if (!sequencer) {
-    sequencer = new Sequencer(synth);
+  const sampleRate = 44100;
+  const BLOCK = 128;
+
+  // Parse MIDI and SoundFont using core classes
+  const midi = BasicMIDI.fromArrayBuffer(new Uint8Array(midiBytes).buffer, "beat.mid");
+  const sf = BasicSoundBank.fromArrayBuffer(soundFontBuffer.slice(0));
+
+  // Create offline processor
+  const processor = new SpessaSynthProcessor(sampleRate);
+  processor.soundBankManager.addSoundBank(sf, "gm");
+
+  // Create offline sequencer
+  const seq = new SpessaSynthSequencer(processor);
+  seq.loadNewSongList([midi]);
+  seq.play();
+
+  // Calculate total samples from MIDI duration
+  const duration = midi.duration + 2; // add 2s reverb tail
+  const totalSamples = Math.ceil(sampleRate * duration);
+  const totalBlocks = Math.ceil(totalSamples / BLOCK);
+
+  // Render blocks
+  const leftChannel = new Float32Array(totalBlocks * BLOCK);
+  const rightChannel = new Float32Array(totalBlocks * BLOCK);
+  const blockL = new Float32Array(BLOCK);
+  const blockR = new Float32Array(BLOCK);
+
+  for (let i = 0; i < totalBlocks; i++) {
+    processor.renderAudio([blockL, blockR]);
+    leftChannel.set(blockL, i * BLOCK);
+    rightChannel.set(blockR, i * BLOCK);
   }
-  try { sequencer.pause(); } catch(e) {}
-  const midiBuf = new Uint8Array(midiBytes).buffer;
-  sequencer.loadNewSongList([{ binary: midiBuf, fileName: "render.mid" }]);
 
-  // Use the synth's built-in renderAudio (available on WorkletSynthesizer too via the worker)
-  // Since WorkletSynthesizer doesn't have renderAudio, we render manually:
-  // Get duration from arrangement time
-  var timeEl = document.getElementById('playerTotal');
-  var timeText = timeEl ? timeEl.textContent : '3:00';
-  var parts = timeText.split(':');
-  var duration = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
-  if (duration < 10) duration = 180;
-  duration += 2;
+  // Create AudioBuffer and convert to WAV
+  const audioBuffer = new AudioBuffer({ sampleRate, numberOfChannels: 2, length: totalSamples });
+  audioBuffer.copyToChannel(leftChannel.subarray(0, totalSamples), 0);
+  audioBuffer.copyToChannel(rightChannel.subarray(0, totalSamples), 1);
 
-  // Use MediaStreamDestination + MediaRecorder to capture audio
-  const dest = audioContext.createMediaStreamDestination();
-  synth.connect(dest);
-
-  // Start playback
-  sequencer.currentTime = 0;
-  sequencer.play();
-
-  // Record using MediaRecorder
-  const chunks = [];
-  const recorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm' });
-  recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
-
-  return new Promise(function(resolve, reject) {
-    recorder.onstop = function() {
-      // Reconnect synth to speakers
-      synth.connect(audioContext.destination);
-      const webmBlob = new Blob(chunks, { type: 'audio/webm' });
-      // Convert webm to wav using AudioContext decoding
-      webmBlob.arrayBuffer().then(function(buf) {
-        return audioContext.decodeAudioData(buf);
-      }).then(function(audioBuffer) {
-        const wavData = audioBufferToWav(audioBuffer);
-        resolve(new Blob([wavData], { type: 'audio/wav' }));
-      }).catch(reject);
-    };
-
-    recorder.start();
-    // Stop recording after the song duration
-    setTimeout(function() {
-      try { sequencer.pause(); } catch(e) {}
-      recorder.stop();
-    }, duration * 1000);
-  });
+  const wavData = audioBufferToWav(audioBuffer);
+  return new Blob([wavData], { type: "audio/wav" });
 }
 
 /**
