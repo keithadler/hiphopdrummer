@@ -180,6 +180,23 @@
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/hiphopdrummer/sw.js')
+        .then(function(reg) {
+          // Check for updates every time the app loads
+          reg.addEventListener('updatefound', function() {
+            var newWorker = reg.installing;
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                // New version installed — show reload banner
+                var banner = document.createElement('div');
+                banner.id = 'updateBanner';
+                banner.innerHTML = 'Update available — <b>tap to reload</b>';
+                banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#50a0ff;color:#fff;text-align:center;padding:12px;font-family:var(--mono);font-size:14px;cursor:pointer;z-index:999;letter-spacing:.5px';
+                banner.onclick = function() { window.location.reload(); };
+                document.body.appendChild(banner);
+              }
+            });
+          });
+        })
         .catch(function(e) { console.warn('SW registration failed:', e); });
     }
   </script>

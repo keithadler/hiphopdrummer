@@ -2,7 +2,7 @@
 // Caches all app assets for offline use and fast repeat loads.
 // Cache-first strategy: serve from cache, update in background.
 
-var CACHE_NAME = 'hiphopdrummer-v1';
+var CACHE_NAME = 'hiphopdrummer-v2';
 
 var ASSETS = [
   '/hiphopdrummer/',
