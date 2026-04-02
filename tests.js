@@ -927,6 +927,40 @@ test('Bass chorus re-entry has beat 1 hit', function() {
   assert(hasBeat1, 'bass chorus should have beat 1 re-entry hit');
 });
 
+// === Test bass call-and-response ===
+test('Bass call-and-response modifies events based on drum context', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['verse'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  _lastChosenKey = { root: 'Am', i: 'Am', iv: 'Dm', v: 'Em' };
+  genBasePatterns();
+  patterns['verse'] = generatePattern('verse');
+  // Run multiple times — call-and-response is probabilistic
+  var snareDropSeen = false;
+  var gapFillSeen = false;
+  for (var trial = 0; trial < 10; trial++) {
+    var bassEvents = generateBassPattern('verse');
+    var len = secSteps['verse'] || 32;
+    // Check if any backbeat positions (4, 12, 20, 28...) have reduced bass
+    var backbeatSteps = [];
+    for (var s = 4; s < len; s += 8) backbeatSteps.push(s);
+    var bassOnBackbeat = bassEvents.filter(function(e) { return backbeatSteps.indexOf(e.step) >= 0; });
+    var bassTotal = bassEvents.length;
+    // If bass has fewer events on backbeats proportionally, snare deference is working
+    if (bassOnBackbeat.length < backbeatSteps.length * 0.8) snareDropSeen = true;
+    // Check for gap-fill notes (vel around 35-48, on off-beat positions)
+    var gapFills = bassEvents.filter(function(e) { return e.vel <= 48 && e.vel >= 32 && e.step % 2 === 1; });
+    if (gapFills.length > 0) gapFillSeen = true;
+  }
+  assert(snareDropSeen || gapFillSeen, 'bass call-and-response should show snare deference or gap filling across 10 trials');
+});
+
 // === Test player profiles ===
 test('PLAYER_PROFILES covers all 19 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',

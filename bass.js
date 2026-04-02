@@ -624,7 +624,149 @@ function generateBassPattern(sec) {
   // ── Section behavior: fills, breakdowns, transitions, density ──
   events = applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, rootLow, fourthNote, vChordRoot);
 
+  // ── Call-and-response: bass reacts to drum pattern context ──
+  events = applyBassCallResponse(events, drumPat, len, style, rootNote);
+
   return events;
+}
+
+/**
+ * Call-and-response: bass reacts to drum pattern context.
+ *
+ * A real bassist listens to the drummer and responds:
+ *   1. Gap filling — when the kick has a gap (2+ empty steps), add a
+ *      passing tone or ghost note to maintain momentum
+ *   2. Snare deference — on backbeat positions where the snare is loud,
+ *      sometimes drop the bass note or shorten it to give the snare room
+ *   3. Density mirroring — in bars where drums are busy, simplify the bass;
+ *      in sparse bars, the bass can be more melodic (add passing tones)
+ *   4. Hat awareness — when hats are playing 16ths (busy), bass stays on
+ *      roots; when hats are 8ths (sparse), bass has room for movement
+ *
+ * @param {Array} events - Bass events
+ * @param {Object} drumPat - Drum pattern object with kick, snare, hat arrays
+ * @param {number} len - Section length in steps
+ * @param {Object} style - BASS_STYLES entry
+ * @param {number} rootNote - Root MIDI note
+ * @returns {Array} Modified events array
+ */
+function applyBassCallResponse(events, drumPat, len, style, rootNote) {
+  if (!drumPat || !drumPat.kick) return events;
+
+  // ── 1. Analyze drum density per bar ──
+  var totalBars = Math.ceil(len / 16);
+  var barDensity = []; // hits per bar across all drum instruments
+  for (var bar = 0; bar < totalBars; bar++) {
+    var hits = 0;
+    var barStart = bar * 16;
+    for (var s = barStart; s < Math.min(barStart + 16, len); s++) {
+      if (drumPat.kick[s] > 0) hits++;
+      if (drumPat.snare[s] > 0) hits++;
+      if (drumPat.hat[s] > 0) hits++;
+      if (drumPat.ghostkick && drumPat.ghostkick[s] > 0) hits++;
+    }
+    barDensity.push(hits);
+  }
+  var avgDensity = barDensity.reduce(function(a, b) { return a + b; }, 0) / Math.max(1, totalBars);
+
+  // ── 2. Detect hat density (8th vs 16th) ──
+  var hatCount = 0;
+  for (var s = 0; s < Math.min(16, len); s++) {
+    if (drumPat.hat[s] > 0) hatCount++;
+  }
+  var hatsAreBusy = (hatCount > 10); // 16th note hats = 16 hits, 8th = 8
+
+  // ── 3. Build a step-level context map ──
+  // For each step: is there a kick gap? is there a loud snare? is the bar busy?
+  var stepCtx = [];
+  for (var s = 0; s < len; s++) {
+    var hasKick = drumPat.kick[s] > 0;
+    var hasSnare = drumPat.snare[s] > 0 && drumPat.snare[s] > 90;
+    var bar = Math.floor(s / 16);
+    var isBusyBar = barDensity[bar] > avgDensity * 1.2;
+    var isSparseBar = barDensity[bar] < avgDensity * 0.7;
+
+    // Detect kick gaps: count steps since last kick
+    var stepsSinceKick = 0;
+    for (var back = s - 1; back >= Math.max(0, s - 8); back--) {
+      if (drumPat.kick[back] > 0) break;
+      stepsSinceKick++;
+    }
+    var isInGap = (stepsSinceKick >= 3 && !hasKick);
+
+    stepCtx.push({
+      hasKick: hasKick, hasSnare: hasSnare,
+      isBusyBar: isBusyBar, isSparseBar: isSparseBar,
+      isInGap: isInGap
+    });
+  }
+
+  // ── 4. Apply call-and-response modifications ──
+  var modified = [];
+  var eventsByStep = {};
+  events.forEach(function(e) { eventsByStep[e.step] = e; });
+
+  for (var e = 0; e < events.length; e++) {
+    var evt = events[e];
+    var s = evt.step;
+    if (s >= len || !stepCtx[s]) { modified.push(evt); continue; }
+    var ctx = stepCtx[s];
+
+    // ── Snare deference: drop or soften bass on loud backbeats ──
+    if (ctx.hasSnare && !evt.dead && maybe(0.25)) {
+      // 25% chance to drop the note entirely — let the snare breathe
+      continue;
+    }
+    if (ctx.hasSnare && !evt.dead && maybe(0.3)) {
+      // 30% chance to soften — play quieter under the snare
+      evt.vel = Math.max(30, evt.vel - 15);
+      evt.dur = Math.min(evt.dur, 0.3); // shorten
+    }
+
+    // ── Density mirroring: simplify in busy bars ──
+    if (ctx.isBusyBar && !evt.dead && !ctx.hasKick) {
+      // In busy bars, drop non-kick-locked notes 20% of the time
+      if (maybe(0.2)) continue;
+    }
+
+    // ── Hat awareness: when hats are 16ths, drop ornamental notes ──
+    if (hatsAreBusy && !ctx.hasKick && !evt.dead && evt.vel < 60) {
+      // Drop quiet ornamental notes when hats are busy — too cluttered
+      if (maybe(0.35)) continue;
+    }
+
+    modified.push(evt);
+  }
+
+  // ── 5. Gap filling: add passing tones in kick gaps ──
+  // Only for styles that have melodic movement (not 808 sub styles)
+  if (style.ghostNoteDensity > 0 || style.useFifth > 0.1) {
+    for (var s = 0; s < len; s++) {
+      if (!stepCtx[s] || !stepCtx[s].isInGap) continue;
+      if (eventsByStep[s]) continue; // already have a note here
+      var pos = s % 16;
+      if (pos % 2 !== 1) continue; // only on off-beat 16ths
+
+      // In sparse bars, fill gaps more aggressively
+      var fillProb = stepCtx[s].isSparseBar ? 0.25 : 0.12;
+      if (maybe(fillProb)) {
+        // Play a passing tone — chromatic approach to root or 5th
+        var fillNote = maybe(0.6) ? rootNote - 1 : rootNote + 7;
+        if (fillNote > 48) fillNote -= 12;
+        if (fillNote < 24) fillNote += 12;
+        fillNote = Math.min(48, Math.max(24, fillNote));
+        modified.push({
+          step: s, note: fillNote, vel: v(40, 8), dur: 0.35,
+          slide: false, dead: false, timingOffset: style.timingOffset || 0,
+          hammerOn: false, subSwell: false
+        });
+      }
+    }
+  }
+
+  // Re-sort by step
+  modified.sort(function(a, b) { return a.step - b.step; });
+  return modified;
 }
 
 /**
