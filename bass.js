@@ -39,15 +39,15 @@ function bassChordRoot(chord) {
 }
 
 /**
- * Convert a note name to a MIDI note number in octave 2 (bass range).
- * C2 = 48, C#2 = 49, ... B2 = 59
+ * Convert a note name to a MIDI note number in octave 1 (bass range).
+ * C1 = 36, C#1 = 37, ... B1 = 47
  * @param {string} noteName - Note name (e.g. 'C', 'Bb', 'F#')
- * @returns {number} MIDI note number in octave 2
+ * @returns {number} MIDI note number in octave 1
  */
 function noteToMidi(noteName) {
   var semi = NOTE_TO_SEMI[noteName];
   if (semi === undefined) semi = 0;
-  return 48 + semi; // octave 2
+  return 36 + semi; // octave 1
 }
 
 /**
@@ -146,7 +146,7 @@ function generateBassPattern(sec) {
   var rootNote = noteToMidi(bassChordRoot(keyData.i));
   var fourthNote = noteToMidi(bassChordRoot(keyData.iv));
   var fifthNote = noteToMidi(bassChordRoot(keyData.v));
-  var rootLow = rootNote - 12; // octave 1 for drops
+  var rootLow = rootNote - 12; // octave 0 for drops
 
   // Get bass style for this feel (strip intro/outro prefixes)
   var bassFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
@@ -226,8 +226,8 @@ function generateBassPattern(sec) {
 
     // Clamp velocity
     noteVel = Math.min(127, Math.max(30, noteVel));
-    // Clamp MIDI note to valid bass range (24-60)
-    midiNote = Math.min(60, Math.max(24, midiNote));
+    // Clamp MIDI note to valid bass range (24-48)
+    midiNote = Math.min(48, Math.max(24, midiNote));
 
     events.push({ step: step, note: midiNote, vel: noteVel, dur: style.noteDur });
   }
