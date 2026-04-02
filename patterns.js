@@ -168,7 +168,10 @@ var STYLE_DATA = {
   chopbreak: { label: 'Chopped Break',     bpmRange: [88, 110], keys: ['Am','Dm','Em','Gm','Cm'],          artists: 'DJ Premier, Havoc, Alchemist, Large Professor, Pete Rock' },
   gfunk:     { label: 'G-Funk',            bpmRange: [80, 105], keys: ['Gm','Dm','Cm','Am','Fm'],          artists: 'Dr. Dre, DJ Quik, Warren G, Snoop Dogg, Nate Dogg' },
   crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
-  memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' }
+  memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' },
+  griselda:  { label: 'Griselda Revival',  bpmRange: [72, 95],  keys: ['Cm','Dm','Am','Fm','Gm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway' },
+  phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [60, 78],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp' },
+  nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 98],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto' }
 };
 
 /**

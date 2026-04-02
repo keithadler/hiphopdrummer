@@ -49,7 +49,8 @@ function analyzeBeat() {
     jazzy: 'JAZZ-INFLUENCED', dark: 'DARK MINIMAL', bounce: 'BOUNCE',
     big: 'BIG/ANTHEM', driving: 'DRIVING', sparse: 'SPARSE',
     dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
-    gfunk: 'G-FUNK', crunk: 'CRUNK', memphis: 'MEMPHIS'
+    gfunk: 'G-FUNK', crunk: 'CRUNK', memphis: 'MEMPHIS',
+    griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. DJ Premier, Pete Rock, Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, ghost notes for groove.',
@@ -66,7 +67,10 @@ function analyzeBeat() {
     chopbreak: 'DJ Premier "Mass Appeal," Havoc, Alchemist, Large Professor. Kick and snare placements mirror real funk/soul break phrasing (Funky Drummer, Impeach the President, Apache). Dense ghost snares, busy kick, hard-riding hat.',
     gfunk: 'Dr. Dre "The Chronic," DJ Quik, Warren G "Regulate," Snoop Dogg "Gin and Juice." 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare. Smooth and hypnotic.',
     crunk: 'Lil Jon "Get Low," Ying Yang Twins, Three 6 Mafia "Tear Da Club Up." Fast, nearly straight, maximum velocity on everything. No subtlety, no ghost notes — just raw energy.',
-    memphis: 'Three 6 Mafia, DJ Paul, Juicy J, early Gangsta Boo. Slow, minimal swing, sparse kick, dark and sinister. Skeletal drums. The sound that influenced trap before trap existed.'
+    memphis: 'Three 6 Mafia, DJ Paul, Juicy J, early Gangsta Boo. Slow, minimal swing, sparse kick, dark and sinister. Skeletal drums. The sound that influenced trap before trap existed.',
+    griselda: 'Modern boom bap revival — Daringer, Beat Butcha, Conductor Williams. Sparse kick patterns with wide dynamics, hard snare crack with modern compression, minimal ghost notes. Sample-heavy with vinyl texture. The drums are punchy and direct — every hit is a statement. Westside Gunn, Conway the Machine, Benny the Butcher.',
+    phonk: 'Cloud rap / Memphis revival — SpaceGhostPurrp, DJ Smokey, Soudiere. Slow tempo (60-78 BPM), triplet-influenced hat patterns, sparse distorted kick, dark and hypnotic. The cowbell and lo-fi aesthetic of Memphis rap filtered through SoundCloud. Sinister, repetitive, and trance-like.',
+    nujabes: 'Jazz hop — Nujabes, Fat Jon, DJ Okawari, Marcus D. Clean kick patterns, soft brush-like snare ghosts, ride cymbal as the primary timekeeper, warm swing. The groove breathes like a live jazz trio. Melodic, meditative, and deeply musical. The sound of late-night study sessions and rainy Tokyo streets.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeel] || styleDescs.normal);
@@ -98,6 +102,9 @@ function analyzeBeat() {
   if (songFeel === 'sparse') lines.push('Sparse beats give you maximum space. Dense or minimal — the beat won\'t crowd you. Think RZA\'s Wu-Tang instrumentals: the space IS the vibe.');
   if (songFeel === 'big') lines.push('Big/anthem energy calls for big delivery. Hook territory — catchy, memorable, singable. Think Nas on "The World Is Yours" or Biggie on "Ready to Die."');
   if (songFeel === 'driving') lines.push('Driving beats push forward relentlessly. Keep the cadence tight and consistent. Think EPMD\'s locked-in delivery or Gangstarr\'s precision. No wasted syllables.');
+  if (songFeel === 'griselda') lines.push('Griselda beats are raw and punchy. Short, aggressive bars with hard consonants. Think Westside Gunn\'s ad-libs and Conway\'s precise delivery. The drums hit hard — your words should match.');
+  if (songFeel === 'phonk') lines.push('Phonk is slow and hypnotic. Let your delivery drift with the triplet feel. Think Memphis rap cadence — deliberate, menacing, repetitive. The space between words is as important as the words.');
+  if (songFeel === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
   lines.push('<b>Producer note:</b> At ' + bpm + ' BPM with ' + swing + '% swing, your melodic parts should ' + (swing >= 62 ? 'lean into the groove — don\'t quantize samples too tightly, let them breathe with the swing.' : 'sit cleanly on the grid — tight quantization works well at this swing level.'));
 
 
@@ -206,10 +213,29 @@ function analyzeBeat() {
       { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest Memphis key. Gangsta Boo, early Three 6 Mafia. The lowest, most sinister register.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Eerie and atmospheric. Memphis beats in Gm feel like a horror movie. Good for minor key synth pads.' },
       { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Slightly brighter Memphis. Am gives the sinister drums a more accessible backdrop. Early Three 6 Mafia.' }
+    ]},
+    griselda: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The Griselda key. Dark, punchy, and cinematic. Daringer\'s signature sound. Sample-heavy production lives here.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Good for aggressive piano loops and string samples. Conway the Machine energy.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw and direct. The most common key in modern boom bap revival. Benny the Butcher territory.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Cold and cinematic. The flat minor key gives Griselda beats a film-score quality.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but warm. Good for soul sample chops with a modern edge. Conductor Williams territory.' }
+    ]},
+    phonk: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'The phonk key. Dark, hypnotic, and sinister. SpaceGhostPurrp territory. Cowbell and distorted 808 live here.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Deep and haunting. DJ Smokey territory. The flat key adds weight to the distorted low end.' },
+      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest phonk key. Maximum menace. The lowest register for the most sinister vibes.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Eerie and atmospheric. Good for detuned synth pads and horror-movie samples.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Slightly brighter phonk. Am gives the dark drums a more accessible backdrop.' }
+    ]},
+    nujabes: { keys: [
+      { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', ii: 'Gm7', rel: 'Dm', relNote: 'Dm7, Am7, Em7', context: 'The Nujabes key. Warm, melodic, and deeply musical. Rhodes piano and acoustic guitar live here. "Feather" energy.' },
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Soulful and melancholy. The minor 7th adds warmth. "Aruarian Dance" territory.' },
+      { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Introspective and warm. The most common jazz hop key. Fat Jon, Marcus D.' },
+      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy jazz hop grooves. DJ Okawari territory.' },
+      { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', ii: 'Cm7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Uyama Hiroto territory. The major 7th floats above the groove.' }
     ]}
   };
-
-  var feelKeys = keyData[songFeel] || keyData.normal;
   var chosenKey = feelKeys.keys[0];
   if (typeof _forcedKey !== 'undefined' && _forcedKey) {
     for (var fki = 0; fki < feelKeys.keys.length; fki++) {
@@ -363,7 +389,10 @@ function analyzeBeat() {
     sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"', 'RZA — "Tearz" (Wu-Tang Clan)', 'Daringer — "Shawn vs. Ironman" (Westside Gunn)'],
     gfunk: ['Dr. Dre — "Nuthin\' But a G Thang" (Snoop Dogg)', 'Warren G — "Regulate"', 'DJ Quik — "Tonite"', 'Dr. Dre — "Let Me Ride"'],
     crunk: ['Lil Jon & The East Side Boyz — "Get Low"', 'Ying Yang Twins — "Whistle While You Twurk"', 'Three 6 Mafia — "Tear Da Club Up \'97"', 'Trillville — "Some Cut"'],
-    memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"']
+    memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"'],
+    griselda: ['Daringer — "George Bondo" (Westside Gunn)', 'Beat Butcha — "Shawn vs. Ironman" (Westside Gunn)', 'Conductor Williams — "Pray for Paris" (Westside Gunn)', 'Daringer — "Tito\'s Back" (Conway the Machine)'],
+    phonk: ['SpaceGhostPurrp — "Bringing the Phonk"', 'DJ Smokey — "Evil Wayz"', 'Soudiere — "Midnight Ride"', 'DJ Yung Vamp — "Phonk Anthem"'],
+    nujabes: ['Nujabes — "Feather" (feat. Cise Starr)', 'Nujabes — "Aruarian Dance"', 'Fat Jon — "Samurai Champloo OST"', 'DJ Okawari — "Luv Letter"']
   };
   var refs = refMap[songFeel] || refMap.normal;
   lines.push('Study these to hear the ' + (styleNames[songFeel] || 'boom bap').toLowerCase() + ' feel in action:');
@@ -402,8 +431,8 @@ function analyzeBeat() {
   // Score the hardest feel across all sections in the arrangement
   // (not just the verse — a beginner-rated verse with a chopbreak chorus is intermediate overall)
   var feelDiffMap = {
-    dilla: 3, jazzy: 2, chopbreak: 2, hard: 1, lofi: 1, gfunk: 1,
-    memphis: 1, halftime: 1, bounce: 1, driving: 1, big: 1,
+    dilla: 3, jazzy: 2, chopbreak: 2, nujabes: 2, hard: 1, lofi: 1, gfunk: 1,
+    memphis: 1, halftime: 1, bounce: 1, driving: 1, big: 1, griselda: 1, phonk: 1,
     crunk: 0, sparse: 0, normal: 0, dark: 0
   };
   var hardestFeel = songFeel;
@@ -431,7 +460,10 @@ function analyzeBeat() {
     driving: 'relentless syncopated kicks require tight programming',
     big: 'maximum energy — every element at full intensity',
     crunk: 'maximum velocity throughout — straightforward but intense',
-    sparse: 'minimal pattern — simplicity is the challenge'
+    sparse: 'minimal pattern — simplicity is the challenge',
+    griselda: 'wide dynamics and sparse ghosts require precise velocity control',
+    phonk: 'triplet hat patterns and sparse kick require restraint',
+    nujabes: 'jazz-influenced dynamics with dense brush ghosts and ride cymbal'
   };
   if (feelDescMap[hardestFeel]) diffReasons.push(feelDescMap[hardestFeel]);
 
