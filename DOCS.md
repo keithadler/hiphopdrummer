@@ -4,7 +4,7 @@ Full technical breakdown of every feature, technique, and design decision in the
 
 ## Hip Hop Styles
 
-Fifteen feel types covering the full range of hip hop (listed alphabetically):
+Eighteen feel types covering the full range of hip hop (listed alphabetically):
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
@@ -15,11 +15,14 @@ Fifteen feel types covering the full range of hip hop (listed alphabetically):
 - **Dilla/Neo-Soul** — J Dilla, Slum Village, Madvillainy; behind-the-beat, loose ghosts
 - **Driving** — Gangstarr, EPMD; forward momentum with syncopated kicks
 - **G-Funk** — Dr. Dre, DJ Quik, Warren G, Snoop Dogg; 16th note hats, West Coast pocket
+- **Griselda Revival** — Daringer, Beat Butcha, Conductor Williams; modern boom bap, sparse and punchy
 - **Halftime** — Havoc, RZA; snare on beat 3, slower feel at same tempo
 - **Hard/Aggressive** — Mobb Deep, Onyx, M.O.P.; max velocity, minimal ghosts
 - **Jazz-Influenced** — A Tribe Called Quest, Pete Rock & CL Smooth, De La Soul; dense ghosts, soft dynamics
 - **Lo-Fi/Dusty** — Madlib, Knxwledge, MF DOOM, Roc Marciano; compressed narrow velocity band
 - **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo; slow, sinister, skeletal
+- **Nujabes/Jazz Hop** — Nujabes, Fat Jon, DJ Okawari; ride cymbal timekeeper, brush ghosts, warm swing
+- **Phonk/Cloud Rap** — SpaceGhostPurrp, DJ Smokey, Soudiere; slow, triplet hats, Memphis revival
 - **Sparse** — Minimal drums, space dominates; RZA, Alchemist
 
 ## New Beat Dialog
@@ -52,7 +55,7 @@ This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 12 pa
 
 ## Tempo & Swing
 
-68–130 BPM covering slow Griselda/Memphis territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
+60–130 BPM covering slow phonk/Griselda territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
 
 ## Feel-Specific Behaviors
 
@@ -73,6 +76,15 @@ Flat maximum velocity throughout — no velocity arc, no ghost notes, no dynamic
 
 ### Memphis Feel
 Slow tempo (68–88 BPM), minimal swing, sparse sinister kick library. Hat skips on beats 2 and 4 occasionally (unsettling, incomplete feel). Open hat 50/50 between &2 and &4. Minimal crash probability. Ghost density capped at 0.6. Ghost clustering at 12%. Pre-fill is a single soft snare hit.
+
+### Griselda Revival Feel
+Modern boom bap (72–95 BPM). Sparse kick patterns with wide dynamics (120-125 velocity), hard snare crack. Minimal ghost notes (density capped at 0.7), very rare ghost clustering (10%). Tight 8th note hats, no rimshot, no ride, no shaker. Nearly straight swing (50-58). Tight humanization (0.7×). Daringer, Beat Butcha, Conductor Williams.
+
+### Phonk / Cloud Rap Feel
+Memphis revival (60–78 BPM). Sparse kick, snappy snare (115-120), no ghost kicks. Triplet-influenced hat patterns (forced). Dark-style clap (beat 4 only). No rimshot, no ride, no shaker. Memphis-style rare open hat. Very sparse ghost density (capped at 0.5). Ghost clustering disabled. Moderate swing (54-62). SpaceGhostPurrp, DJ Smokey.
+
+### Nujabes / Jazz Hop Feel
+Jazz hop (78–98 BPM). Clean jazz kick patterns, soft backbeat (105-110), dense brush-like ghost snares on every odd step (35-38%). Ride cymbal forced active as primary timekeeper. Jazzy shaker present, rimshot present. Ghost density floored at 0.9. Velocity arc skipped (flat/meditative). Loose humanization (1.2×). Ghost clustering at 40%. Jazz swing (60-70). Nujabes, Fat Jon, DJ Okawari.
 
 ## Drumming Techniques
 
