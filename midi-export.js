@@ -371,6 +371,36 @@ function exportMIDI(opts) {
     } catch(e) { console.warn('PDF generation failed:', e); }
   }
 
+  // Bass line exports
+  if (opts.bassMidi || opts.bassMpc) {
+    var bassFolder = folder.folder('Bass');
+    // Full song bass
+    if (opts.bassMidi) {
+      bassFolder.file('00_bass_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
+    }
+    if (opts.bassMpc) {
+      bassFolder.file('00_bass_full_song_' + bpm + 'bpm.mpcpattern', buildBassMpcPattern(arrangement, bpm));
+    }
+    // Individual section bass
+    var bassExported = {};
+    var bassIdx = 1;
+    arrangement.forEach(function(sec) {
+      if (bassExported[sec]) return;
+      bassExported[sec] = true;
+      var padIdx = bassIdx < 10 ? '0' + bassIdx : '' + bassIdx;
+      var secName = SL[sec] || sec;
+      var barCount = Math.ceil((secSteps[sec] || 32) / 16);
+      var bassBaseName = padIdx + '_bass_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
+      if (opts.bassMidi) {
+        bassFolder.file(bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
+      }
+      if (opts.bassMpc) {
+        bassFolder.file(bassBaseName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
+      }
+      bassIdx++;
+    });
+  }
+
   // DAW help files — only include selected DAWs
   var dawMap = {
     ableton:   function() { return midiFolder && midiFolder.file('HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },

@@ -5,7 +5,7 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-20260402';
+var CACHE_NAME = 'hiphopdrummer-20260402b';
 
 var ASSETS = [
   './',
@@ -15,6 +15,7 @@ var ASSETS = [
   './ai.js',
   './writers.js',
   './groove.js',
+  './bass.js',
   './analysis.js',
   './ui.js',
   './daw-help.js',

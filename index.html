@@ -148,6 +148,14 @@
         </div>
 
         <div class="regen-field">
+          <label class="regen-label">Bass Line</label>
+          <div class="export-checks">
+            <label class="export-check"><input type="checkbox" id="expBassMidi" checked> Bass .mid files <span class="export-note">(MIDI ch 1, locks to kick pattern)</span></label>
+            <label class="export-check"><input type="checkbox" id="expBassMpc" checked> Bass .mpcpattern files <span class="export-note">(for Keygroup/Plugin track)</span></label>
+          </div>
+        </div>
+
+        <div class="regen-field">
           <label class="regen-label">DAW Help Files</label>
           <div class="export-checks export-daws">
             <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
@@ -203,6 +211,7 @@
   <script src="ai.js"></script>
   <script src="writers.js"></script>
   <script src="groove.js"></script>
+  <script src="bass.js"></script>
   <script src="analysis.js"></script>
   <script src="ui.js"></script>
   <script src="daw-help.js"></script>
