@@ -927,6 +927,34 @@ test('Bass chorus re-entry has beat 1 hit', function() {
   assert(hasBeat1, 'bass chorus should have beat 1 re-entry hit');
 });
 
+// === Test player profiles ===
+test('PLAYER_PROFILES covers all 19 base feels', function() {
+  var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+  baseFeels.forEach(function(f) {
+    assert(PLAYER_PROFILES[f], 'PLAYER_PROFILES missing: ' + f);
+    assert(PLAYER_PROFILES[f].length >= 1, f + ' should have at least 1 profile');
+    PLAYER_PROFILES[f].forEach(function(prof, idx) {
+      assert(prof.name, f + ' profile ' + idx + ' missing name');
+      assert(prof.kick && typeof prof.kick.center === 'number', f + '/' + prof.name + ' missing kick.center');
+      assert(prof.kick && typeof prof.kick.jitter === 'number', f + '/' + prof.name + ' missing kick.jitter');
+      assert(prof.snare && typeof prof.snare.center === 'number', f + '/' + prof.name + ' missing snare.center');
+      assert(prof.hat && typeof prof.hat.center === 'number', f + '/' + prof.name + ' missing hat.center');
+      assert(prof.ghost && typeof prof.ghost.center === 'number', f + '/' + prof.name + ' missing ghost.center');
+      assert(prof.ride && typeof prof.ride.center === 'number', f + '/' + prof.name + ' missing ride.center');
+      assert(Array.isArray(prof.kick.tight), f + '/' + prof.name + ' kick.tight should be array');
+    });
+  });
+});
+
+test('Player profile is selected during generateAll', function() {
+  activePlayerProfile = null;
+  generateAll();
+  assert(activePlayerProfile !== null, 'activePlayerProfile should be set after generateAll');
+  assert(activePlayerProfile.name, 'activePlayerProfile should have a name');
+  assert(activePlayerProfile.kick, 'activePlayerProfile should have kick profile');
+});
+
 // === Test combined MIDI builder ===
 test('buildCombinedMidiBytes produces valid combined drums+bass MIDI', function() {
   songFeel = 'normal';

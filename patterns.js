@@ -331,3 +331,171 @@ function resolveBaseFeel(feel) {
   if (REGIONAL_VARIANTS[feel]) return REGIONAL_VARIANTS[feel].parent;
   return feel;
 }
+
+/**
+ * Player touch profiles — models specific drummer characteristics.
+ *
+ * Real drummers have consistent patterns in their inconsistency.
+ * Questlove's ghost notes cluster around velocity 45-55. Premier's
+ * kicks are almost mechanical. Each profile defines per-instrument
+ * velocity biases and jitter ranges that shape the humanization pass.
+ *
+ * Fields per instrument (kick, snare, hat, ghost, ride):
+ *   center: velocity bias (added to the written velocity)
+ *   jitter: randomization range multiplier (1.0 = default)
+ *   tight:  positions where this player is most consistent (jitter * 0.3)
+ *
+ * Each feel maps to 2-4 profiles. One is picked per song generation.
+ *
+ * @type {Object.<string, Array.<{name: string, kick: Object, snare: Object, hat: Object, ghost: Object, ride: Object}>>}
+ */
+var PLAYER_PROFILES = {
+  normal: [
+    { name: 'Premier',
+      kick:  { center: 3, jitter: 0.5, tight: [0, 8] },       // mechanical, punchy
+      snare: { center: 0, jitter: 0.7, tight: [4, 12] },      // tight backbeat
+      hat:   { center: -2, jitter: 0.6, tight: [0, 4, 8, 12] }, // controlled ride hand
+      ghost: { center: -5, jitter: 0.8, tight: [] },           // sparse, deliberate ghosts
+      ride:  { center: 0, jitter: 0.5, tight: [0, 8] } },
+    { name: 'Pete Rock',
+      kick:  { center: 0, jitter: 0.9, tight: [0] },          // natural, less mechanical
+      snare: { center: 2, jitter: 0.8, tight: [4, 12] },      // slightly louder backbeat
+      hat:   { center: 0, jitter: 1.0, tight: [] },            // loose ride hand
+      ghost: { center: 3, jitter: 1.2, tight: [] },            // more present ghosts
+      ride:  { center: 2, jitter: 0.8, tight: [0, 4, 8, 12] } },
+    { name: 'Buckwild',
+      kick:  { center: 2, jitter: 0.7, tight: [0, 8] },       // solid, consistent
+      snare: { center: 0, jitter: 0.6, tight: [4, 12] },      // tight
+      hat:   { center: -3, jitter: 0.7, tight: [0, 8] },      // pulled back hats
+      ghost: { center: 0, jitter: 1.0, tight: [] },            // standard
+      ride:  { center: 0, jitter: 0.7, tight: [] } }
+  ],
+  dilla: [
+    { name: 'Dilla MPC3000',
+      kick:  { center: -3, jitter: 1.6, tight: [] },           // loose, behind the beat
+      snare: { center: -2, jitter: 1.4, tight: [] },           // everything floats
+      hat:   { center: -4, jitter: 1.3, tight: [] },           // pulled back
+      ghost: { center: 5, jitter: 1.8, tight: [] },            // ghosts are LOUD for Dilla
+      ride:  { center: 0, jitter: 1.2, tight: [] } },
+    { name: 'Madlib',
+      kick:  { center: 0, jitter: 1.2, tight: [0] },          // beat 1 anchored, rest loose
+      snare: { center: -3, jitter: 1.0, tight: [4, 12] },     // softer backbeat
+      hat:   { center: -5, jitter: 0.8, tight: [] },           // very quiet hats
+      ghost: { center: 3, jitter: 1.5, tight: [] },            // present ghosts
+      ride:  { center: 0, jitter: 1.0, tight: [] } }
+  ],
+  jazzy: [
+    { name: 'Questlove',
+      kick:  { center: -2, jitter: 1.1, tight: [0] },         // dynamic, beat 1 anchored
+      snare: { center: 0, jitter: 0.9, tight: [4, 12] },      // solid backbeat
+      hat:   { center: -3, jitter: 1.2, tight: [] },           // loose, expressive
+      ghost: { center: -8, jitter: 0.6, tight: [] },           // very soft ghosts (45-55 range)
+      ride:  { center: 2, jitter: 1.0, tight: [0, 4, 8, 12] } },
+    { name: 'Karriem Riggins',
+      kick:  { center: 0, jitter: 1.3, tight: [] },            // loose, jazz-influenced
+      snare: { center: 2, jitter: 1.1, tight: [4, 12] },      // slightly pushed
+      hat:   { center: 0, jitter: 1.4, tight: [] },            // very loose
+      ghost: { center: -3, jitter: 1.3, tight: [] },           // soft but present
+      ride:  { center: 3, jitter: 0.8, tight: [0, 8] } }
+  ],
+  gfunk: [
+    { name: 'Dre / Daz',
+      kick:  { center: 2, jitter: 0.6, tight: [0, 8] },       // tight, controlled
+      snare: { center: 0, jitter: 0.5, tight: [4, 12] },      // precise backbeat
+      hat:   { center: 0, jitter: 0.9, tight: [0, 4, 8, 12] }, // 3-level dynamic, controlled
+      ghost: { center: -3, jitter: 0.7, tight: [] },           // subtle
+      ride:  { center: 0, jitter: 0.6, tight: [] } },
+    { name: 'DJ Quik',
+      kick:  { center: 0, jitter: 1.1, tight: [0] },          // funkier, less mechanical
+      snare: { center: 3, jitter: 0.9, tight: [4, 12] },      // harder snare
+      hat:   { center: 2, jitter: 1.2, tight: [] },            // louder, busier hats
+      ghost: { center: 2, jitter: 1.3, tight: [] },            // more present ghosts
+      ride:  { center: 0, jitter: 0.8, tight: [] } }
+  ],
+  hard: [
+    { name: 'Havoc',
+      kick:  { center: 5, jitter: 0.4, tight: [0, 8] },       // hard, mechanical
+      snare: { center: 3, jitter: 0.5, tight: [4, 12] },      // loud, punchy
+      hat:   { center: -2, jitter: 0.5, tight: [0, 8] },      // controlled
+      ghost: { center: -5, jitter: 0.6, tight: [] },           // minimal
+      ride:  { center: 0, jitter: 0.4, tight: [] } }
+  ],
+  dark: [
+    { name: 'RZA',
+      kick:  { center: 3, jitter: 0.8, tight: [0] },          // heavy beat 1
+      snare: { center: -2, jitter: 0.9, tight: [4, 12] },     // slightly pulled back
+      hat:   { center: -5, jitter: 0.7, tight: [] },           // quiet, atmospheric
+      ghost: { center: -8, jitter: 0.5, tight: [] },           // barely there
+      ride:  { center: 0, jitter: 0.6, tight: [] } }
+  ],
+  lofi: [
+    { name: 'SP-404 Touch',
+      kick:  { center: -3, jitter: 0.4, tight: [] },           // compressed, narrow band
+      snare: { center: -5, jitter: 0.3, tight: [] },           // muted
+      hat:   { center: -8, jitter: 0.3, tight: [] },           // very quiet
+      ghost: { center: -5, jitter: 0.4, tight: [] },           // compressed
+      ride:  { center: -3, jitter: 0.3, tight: [] } }
+  ],
+  crunk: [
+    { name: 'Lil Jon',
+      kick:  { center: 5, jitter: 0.2, tight: [0, 4, 8, 12] }, // maximum, mechanical
+      snare: { center: 5, jitter: 0.2, tight: [4, 12] },       // maximum
+      hat:   { center: 3, jitter: 0.3, tight: [] },             // loud, flat
+      ghost: { center: 0, jitter: 0.2, tight: [] },             // barely exists
+      ride:  { center: 0, jitter: 0.2, tight: [] } }
+  ],
+  memphis: [
+    { name: 'DJ Paul',
+      kick:  { center: 3, jitter: 0.5, tight: [0] },           // heavy beat 1
+      snare: { center: 0, jitter: 0.6, tight: [4, 12] },       // standard
+      hat:   { center: -5, jitter: 0.5, tight: [] },            // sparse, quiet
+      ghost: { center: -8, jitter: 0.3, tight: [] },            // almost nothing
+      ride:  { center: 0, jitter: 0.4, tight: [] } }
+  ],
+  griselda: [
+    { name: 'Daringer',
+      kick:  { center: 4, jitter: 0.5, tight: [0, 8] },        // punchy, controlled
+      snare: { center: 3, jitter: 0.4, tight: [4, 12] },       // hard, precise
+      hat:   { center: -2, jitter: 0.6, tight: [0, 8] },       // tight
+      ghost: { center: -5, jitter: 0.5, tight: [] },            // minimal
+      ride:  { center: 0, jitter: 0.5, tight: [] } },
+    { name: 'Conductor Williams',
+      kick:  { center: 2, jitter: 0.7, tight: [0] },            // slightly looser
+      snare: { center: 2, jitter: 0.6, tight: [4, 12] },        // solid
+      hat:   { center: 0, jitter: 0.8, tight: [] },              // more dynamic
+      ghost: { center: -2, jitter: 0.8, tight: [] },             // more present
+      ride:  { center: 0, jitter: 0.6, tight: [] } }
+  ],
+  nujabes: [
+    { name: 'Nujabes / Fat Jon',
+      kick:  { center: -2, jitter: 1.2, tight: [0] },           // loose, jazz feel
+      snare: { center: 0, jitter: 1.0, tight: [4, 12] },        // natural
+      hat:   { center: -3, jitter: 1.3, tight: [] },             // very loose
+      ghost: { center: -5, jitter: 1.1, tight: [] },             // soft, present
+      ride:  { center: 3, jitter: 0.9, tight: [0, 4, 8, 12] } } // ride-forward
+  ],
+  oldschool: [
+    { name: 'DMX / LinnDrum',
+      kick:  { center: 3, jitter: 0.15, tight: [0, 4, 8, 12] }, // drum machine precision
+      snare: { center: 3, jitter: 0.15, tight: [4, 12] },       // mechanical
+      hat:   { center: 0, jitter: 0.15, tight: [] },             // flat
+      ghost: { center: 0, jitter: 0.1, tight: [] },              // doesn't exist
+      ride:  { center: 0, jitter: 0.1, tight: [] } }
+  ]
+};
+
+// Styles that share profiles with a parent
+PLAYER_PROFILES.chopbreak = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.bounce = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.big = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.driving = PLAYER_PROFILES.hard;
+PLAYER_PROFILES.sparse = PLAYER_PROFILES.dark;
+PLAYER_PROFILES.halftime = PLAYER_PROFILES.dark;
+PLAYER_PROFILES.phonk = PLAYER_PROFILES.memphis;
+
+/**
+ * Currently active player profile for this song generation.
+ * Set by generateAll(), read by humanizeVelocities().
+ * @type {Object|null}
+ */
+var activePlayerProfile = null;
