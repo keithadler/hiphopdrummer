@@ -10,7 +10,7 @@
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-import { WorkletSynthesizer, WorkerSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
+import { WorkletSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
 
 let synth = null;
 let sequencer = null;
@@ -150,29 +150,60 @@ function getSynthState() {
  * @returns {Promise<Blob>} WAV file as a Blob
  */
 async function renderToWav(midiBytes) {
-  // Ensure synth is initialized (for the SoundFont buffer)
   await initSynth();
 
-  // Use WorkerSynthesizer for offline rendering (has renderAudio method)
-  const workerSynth = new WorkerSynthesizer();
-  await workerSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
+  // Load the MIDI into the existing sequencer for rendering
+  if (!sequencer) {
+    sequencer = new Sequencer(synth);
+  }
+  try { sequencer.pause(); } catch(e) {}
+  const midiBuf = new Uint8Array(midiBytes).buffer;
+  sequencer.loadNewSongList([{ binary: midiBuf, fileName: "render.mid" }]);
 
-  // Create a sequencer and load the MIDI
-  const renderSeq = new Sequencer(workerSynth);
-  renderSeq.loadNewSongList([{ binary: new Uint8Array(midiBytes).buffer, fileName: "beat.mid" }]);
+  // Use the synth's built-in renderAudio (available on WorkletSynthesizer too via the worker)
+  // Since WorkletSynthesizer doesn't have renderAudio, we render manually:
+  // Get duration from arrangement time
+  var timeEl = document.getElementById('playerTotal');
+  var timeText = timeEl ? timeEl.textContent : '3:00';
+  var parts = timeText.split(':');
+  var duration = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+  if (duration < 10) duration = 180;
+  duration += 2;
 
-  // Render to audio buffer
-  const audioBuffers = await workerSynth.renderAudio(44100, {
-    extraTime: 2,
-    separateChannels: false,
-    loopCount: 0,
-    enableEffects: true
+  // Use MediaStreamDestination + MediaRecorder to capture audio
+  const dest = audioContext.createMediaStreamDestination();
+  synth.connect(dest);
+
+  // Start playback
+  sequencer.currentTime = 0;
+  sequencer.play();
+
+  // Record using MediaRecorder
+  const chunks = [];
+  const recorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm' });
+  recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+
+  return new Promise(function(resolve, reject) {
+    recorder.onstop = function() {
+      // Reconnect synth to speakers
+      synth.connect(audioContext.destination);
+      const webmBlob = new Blob(chunks, { type: 'audio/webm' });
+      // Convert webm to wav using AudioContext decoding
+      webmBlob.arrayBuffer().then(function(buf) {
+        return audioContext.decodeAudioData(buf);
+      }).then(function(audioBuffer) {
+        const wavData = audioBufferToWav(audioBuffer);
+        resolve(new Blob([wavData], { type: 'audio/wav' }));
+      }).catch(reject);
+    };
+
+    recorder.start();
+    // Stop recording after the song duration
+    setTimeout(function() {
+      try { sequencer.pause(); } catch(e) {}
+      recorder.stop();
+    }, duration * 1000);
   });
-
-  // audioBuffers is a single AudioBuffer when separateChannels is false
-  const audioBuffer = Array.isArray(audioBuffers) ? audioBuffers[0] : audioBuffers;
-  const wavData = audioBufferToWav(audioBuffer);
-  return new Blob([wavData], { type: "audio/wav" });
 }
 
 /**
