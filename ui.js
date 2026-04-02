@@ -486,6 +486,19 @@ function buildAboutSummary() {
   html += '<div class="about-stat"><span class="about-stat-label">Ghost Notes</span><span class="about-stat-value">' + gdDesc + '</span><span class="about-stat-hint">' + ghostDensity.toFixed(1) + 'x</span></div>';
   html += '<div class="about-stat"><span class="about-stat-label">Hi-Hats</span><span class="about-stat-value">' + hatDesc + '</span></div>';
   html += '<div class="about-stat"><span class="about-stat-label">Ride</span><span class="about-stat-value"><span class="accent-green">' + (useRide ? 'Active' : 'Off') + '</span></span></div>';
+
+  // Bass style description
+  var bassStyleDesc = 'Locks to kick';
+  var bsFeel = songFeel || 'normal';
+  if (bsFeel === 'jazzy' || bsFeel === 'nujabes') bassStyleDesc = 'Walking bass';
+  else if (bsFeel === 'crunk' || bsFeel === 'memphis' || bsFeel === 'phonk') bassStyleDesc = '808 sub';
+  else if (bsFeel === 'gfunk') bassStyleDesc = 'Moog-style';
+  else if (bsFeel === 'dilla') bassStyleDesc = 'Behind the beat';
+  else if (bsFeel === 'lofi') bassStyleDesc = 'Muted, compressed';
+  else if (bsFeel === 'dark' || bsFeel === 'sparse') bassStyleDesc = 'Sparse sub';
+  else if (bsFeel === 'oldschool') bassStyleDesc = '808 boom';
+  html += '<div class="about-stat"><span class="about-stat-label">Bass</span><span class="about-stat-value">' + bassStyleDesc + '</span></div>';
+
   html += '</div>';
 
   summaryEl.innerHTML = html;

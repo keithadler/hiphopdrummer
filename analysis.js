@@ -339,8 +339,33 @@ function analyzeBeat() {
   lines.push('');
   lines.push('<b>Bass tip:</b> Program your bassline on the root note (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) first. Lock it to the kick — when the kick hits, the bass hits. For boom bap, G-Funk, and Memphis: use a <b>sub bass or bass guitar sample</b>, not a sliding 808. Tight and punchy — it hits with the kick and stops. (Crunk and trap use 808s differently.)');
 
-  // === MELODIC ARRANGEMENT ===
+  // === BASS LINE ===
   lines.push('');
+  lines.push('🎸 <b>BASS LINE</b>');
+  lines.push('A bass line is included in the preview player and export. It locks to the kick drum pattern and follows the key.');
+  var bassStyleNames = {
+    normal: 'Punchy bass guitar', hard: 'Aggressive, tight to kick', jazzy: 'Walking bass, passing tones',
+    dark: 'Sparse sub bass', bounce: 'Danceable, follows kick', halftime: 'Slow, heavy, sustained',
+    dilla: 'Behind the beat, loose', lofi: 'Muted, compressed', gfunk: 'Moog-style, long sustain',
+    chopbreak: 'Funky, short and punchy', crunk: '808 sub, sustained', memphis: '808 boom, sparse',
+    griselda: 'Punchy, short, modern', phonk: '808 sub, sustained', nujabes: 'Warm upright bass',
+    oldschool: '808 boom, simple', sparse: 'Minimal, root on beat 1', driving: 'Forward momentum',
+    big: 'Full and sustained'
+  };
+  var bassDesc = bassStyleNames[songFeel] || 'Locks to kick pattern';
+  lines.push('<b>Bass style:</b> ' + bassDesc + ' — matched to the ' + (styleNames[songFeel] || 'Classic Boom Bap') + ' drum feel.');
+  lines.push('<b>Notes:</b> Root (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) on kick hits, <b>' + chosenKey.iv.replace(/maj7|m7|7|m/g, '') + '</b> (IV) on bars 3-4, occasional <b>' + chosenKey.v.replace(/maj7|m7|7|m/g, '') + '</b> (V) passing tones.');
+  lines.push('<b>Octave:</b> C1 range (MIDI 36-47) with sub drops to C0 (MIDI 24-35) on beat 1.');
+  lines.push('<b>Export:</b> Bass .mid files in MIDI Patterns/Bass/, bass .mpcpattern files in MPC/Bass/. Load into a Keygroup or plugin track alongside the drum patterns.');
+  if (songFeel === 'crunk' || songFeel === 'memphis' || songFeel === 'phonk') {
+    lines.push('<b>808 note:</b> This style uses sustained 808 sub bass. On your MPC or DAW, use a long-decay 808 sample or synth bass with a slow release. The note length in the MIDI is already set long.');
+  } else if (songFeel === 'gfunk') {
+    lines.push('<b>G-Funk note:</b> Use a Moog-style synth bass or Minimoog sample. The longer note durations create that smooth, sliding West Coast feel. Add a touch of portamento/glide in your synth for authenticity.');
+  } else if (songFeel === 'jazzy' || songFeel === 'nujabes') {
+    lines.push('<b>Jazz bass note:</b> Use an upright bass or electric bass (finger) sample. The walking pattern uses 5ths and passing tones between chord roots — it breathes like a live player.');
+  }
+
+  // === MELODIC ARRANGEMENT ===  lines.push('');
   lines.push('🎼 <b>MELODIC ARRANGEMENT</b>');
   lines.push('How to use these chords across your song. This is about <b>melodic parts, samples, and chops</b> — not the bass. Think Rhodes piano, synth pads, horn stabs, vocal chops, guitar loops.');
   lines.push('');
