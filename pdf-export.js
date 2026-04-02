@@ -156,6 +156,30 @@ function exportPDF(returnBlob) {
     addText((i + 1) + '.  ' + SL[s] + '  (' + bars + ' bar' + (bars > 1 ? 's' : '') + ')', 9, false, '#444444');
   });
 
+  // === CHORD SHEET ===
+  if (_lastChosenKey && _lastChosenKey.i) {
+    y += 4; addLine();
+    addText('CHORD SHEET', 12, true);
+    addText('Key: ' + _lastChosenKey.root + '  |  I = ' + _lastChosenKey.i + '  |  IV = ' + _lastChosenKey.iv + '  |  V = ' + _lastChosenKey.v, 9, false, '#666666');
+    y += 2;
+    var chordExported = {};
+    arrangement.forEach(function(sec) {
+      if (chordExported[sec]) return;
+      chordExported[sec] = true;
+      var bars = Math.ceil((secSteps[sec] || 32) / 16);
+      var chordLine = (SL[sec] || sec) + ':  ';
+      for (var b = 0; b < bars; b++) {
+        var barInPhrase = b % 4;
+        if (barInPhrase === 2) chordLine += '| ' + _lastChosenKey.iv + ' ';
+        else if (barInPhrase === 3 && bars > 2) chordLine += '| ' + _lastChosenKey.v + ' ';
+        else chordLine += '| ' + _lastChosenKey.i + ' ';
+      }
+      chordLine += '|';
+      addText(chordLine, 9, false, '#444444');
+    });
+    addText('I (home)  IV (tension)  V (resolution)  -- Bass and chords follow this progression', 7, false, '#999999');
+  }
+
   // === PATTERN GRIDS ===
   // Each unique section is rendered as a series of bar grids.
   // Each bar is a 16-column (steps) × 8-row (instruments) table.
