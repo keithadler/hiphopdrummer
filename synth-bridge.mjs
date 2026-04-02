@@ -55,9 +55,9 @@ async function playSynthMidi(midiBytes) {
   if (!sequencer) {
     sequencer = new Sequencer(synth);
   }
-  // Load the MIDI as a song list — create a clean ArrayBuffer from the Uint8Array
+  // Load the MIDI — SpessaSynth expects {binary: ArrayBuffer, fileName: string}
   const midiBuf = new Uint8Array(midiBytes).buffer;
-  sequencer.loadNewSongList([midiBuf]);
+  sequencer.loadNewSongList([{ binary: midiBuf, fileName: "beat.mid" }]);
   sequencer.play();
   isPlaying = true;
   if (onPlayStateChange) onPlayStateChange(true);
@@ -168,7 +168,7 @@ async function renderToWav(midiBytes) {
   await offlineSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
 
   const offlineSeq = new Sequencer(offlineSynth);
-  offlineSeq.loadNewSongList([new Uint8Array(midiBytes).buffer]);
+  offlineSeq.loadNewSongList([{ binary: new Uint8Array(midiBytes).buffer, fileName: "beat.mid" }]);
   offlineSeq.play();
 
   const audioBuffer = await offlineCtx.startRendering();
