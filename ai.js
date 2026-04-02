@@ -312,13 +312,13 @@ var FEEL_PALETTES = [
   // Chopped break
   ['chopbreak', 'big', 'dark', 'driving'],
   // G-Funk
-  ['gfunk', 'big', 'bounce', 'driving'],
+  ['gfunk', 'big', 'sparse', 'driving'],
   // G-Funk — Dre
-  ['gfunk_dre', 'big', 'bounce', 'driving'],
+  ['gfunk_dre', 'big', 'sparse', 'driving'],
   // G-Funk — DJ Quik
-  ['gfunk_quik', 'big', 'bounce', 'driving'],
+  ['gfunk_quik', 'big', 'sparse', 'driving'],
   // G-Funk — Battlecat
-  ['gfunk_battlecat', 'big', 'bounce', 'driving'],
+  ['gfunk_battlecat', 'big', 'sparse', 'driving'],
   // Crunk
   ['crunk', 'big', 'hard', 'driving'],
   // Memphis
@@ -1775,22 +1775,27 @@ function generateAll(opts) {
   SECTIONS.forEach(function(s) { secSteps[s] = bestSteps[s]; });
 
   // Guarantee minimum 2:45 (165 seconds) — if the best attempt is still
-  // too short, pad the arrangement by duplicating verse/chorus sections
+  // too short, pad the arrangement by duplicating verse/chorus sections.
+  // Insert before the breakdown (the natural extension point in a hip hop song)
+  // rather than at the end, so the song arc stays intact.
   var finalSteps = 0;
   arrangement.forEach(function(s) { finalSteps += secSteps[s] || 32; });
   var finalSec = finalSteps * (60 / bpm / 4);
-  while (finalSec < 165) {
-    // Insert an extra verse or chorus before the outro to extend the song
-    var insertIdx = arrangement.length - 1; // before outro
-    if (insertIdx < 1) insertIdx = arrangement.length;
-    var padSec = maybe(.5) ? 'verse' : 'chorus';
-    // Generate a fresh pattern for the padding section if needed
+  var padCount = 0;
+  while (finalSec < 165 && padCount < 4) {
+    // Find the breakdown position — insert before it
+    var insertIdx = arrangement.indexOf('breakdown');
+    if (insertIdx < 0) insertIdx = arrangement.indexOf('lastchorus');
+    if (insertIdx < 0) insertIdx = arrangement.length - 1;
+    // Alternate between verse and chorus for natural feel
+    var padSec = (padCount % 2 === 0) ? 'verse' : 'chorus';
     if (!patterns[padSec]) {
       patterns[padSec] = generatePattern(padSec);
     }
     arrangement.splice(insertIdx, 0, padSec);
     finalSteps += secSteps[padSec] || 32;
     finalSec = finalSteps * (60 / bpm / 4);
+    padCount++;
   }
 
   // Apply section transition continuity — ensure sections connect musically
