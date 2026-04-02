@@ -519,10 +519,47 @@ function buildAboutSummary() {
  * for each song section with a visual piano keyboard per chord.
  */
 function buildChordSheet() {
-  var el = document.getElementById('chordSheet');
-  if (!el) return;
+  // Remove any existing chord sheet from aboutBeat
+  var existing = document.getElementById('chordSheet');
+  if (existing) existing.remove();
+
+  var aboutEl = document.getElementById('aboutBeat');
+  if (!aboutEl) return;
   var key = _lastChosenKey;
-  if (!key || !key.i) { el.innerHTML = ''; return; }
+  if (!key || !key.i) return;
+
+  // Create the chord sheet container
+  var el = document.createElement('div');
+  el.id = 'chordSheet';
+
+  // Collapsible wrapper
+  var section = document.createElement('div');
+  section.className = 'about-section';
+  var header = document.createElement('div');
+  header.className = 'about-header';
+  header.setAttribute('tabindex', '0');
+  header.setAttribute('role', 'button');
+  header.setAttribute('aria-expanded', 'false');
+  header.innerHTML = 'Chord Sheet <span class="about-arrow">▸</span>';
+  var body = document.createElement('div');
+  body.className = 'chord-sheet about-body';
+  body.style.display = 'none';
+
+  function toggleChords() {
+    var isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    header.querySelector('.about-arrow').textContent = isHidden ? '▾' : '▸';
+    header.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  }
+  header.onclick = toggleChords;
+  header.onkeydown = function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChords(); }
+  };
+
+  section.appendChild(header);
+  section.appendChild(body);
+  el.appendChild(section);
+  aboutEl.appendChild(el);
 
   var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
   var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -628,7 +665,7 @@ function buildChordSheet() {
   html += '· Bass and chords follow this progression · Highlighted keys show the notes to play';
   html += '</div>';
 
-  el.innerHTML = html;
+  body.innerHTML = html;
 }
 
 // Wire the toggle button once on boot
@@ -642,25 +679,6 @@ function buildChordSheet() {
     detailEl.style.display = isHidden ? 'block' : 'none';
     toggleEl.textContent = isHidden ? 'Hide full analysis' : 'Show full analysis';
     toggleEl.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-  };
-})();
-
-// Wire chord sheet toggle
-(function() {
-  var toggle = document.getElementById('chordSheetToggle');
-  if (!toggle) return;
-  function toggleChords() {
-    var sheet = document.getElementById('chordSheet');
-    if (!sheet) return;
-    var isHidden = sheet.style.display === 'none';
-    sheet.style.display = isHidden ? '' : 'none';
-    var arrow = toggle.querySelector('.about-arrow');
-    if (arrow) arrow.textContent = isHidden ? '▾' : '▸';
-    toggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-  }
-  toggle.onclick = toggleChords;
-  toggle.onkeydown = function(e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChords(); }
   };
 })();
 
