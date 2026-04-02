@@ -467,18 +467,18 @@ function genBasePatterns() {
   // These are deliberately simpler than the boom bap library: mostly on-beat,
   // minimal syncopation, 2-3 hits per bar maximum.
   var oldschoolKickLib = [
-    // 1 and 3 — the most basic drum machine pattern (Run-DMC "It's Like That")
-    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-    // 1, 3, and-of-4 — pickup into next bar (LL Cool J "Rock the Bells")
-    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],
-    // 1, and-of-2, 3 — the one syncopation old school allows (BDP "South Bronx")
-    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
-    // 1 and 3 with beat 4 — four-on-the-floor adjacent (Salt-N-Pepa "Push It")
-    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
-    // 1, 2, 3 — heavy downbeats (Whodini "Freaks Come Out at Night")
-    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],
-    // Just beat 1 and and-of-2 — minimal (UTFO "Roxanne Roxanne")
-    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — Run-DMC "It's Like That"
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — LL Cool J "Rock the Bells"
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — BDP "South Bronx"
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4 — Salt-N-Pepa "Push It"
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, 2, 3 — Whodini "Freaks Come Out"
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 — UTFO "Roxanne Roxanne"
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4 — Kurtis Blow feel
+    [1,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],  // 1, 2, 4 — Beastie Boys early
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 (duplicate weight — most common)
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — Mantronix
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // four-on-the-floor — Afrika Bambaataa
+    [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // 1, 3, and-of-3 — Doug E. Fresh
   ];
 
   // Select from old school library if the palette calls for it
@@ -816,22 +816,6 @@ function generatePattern(sec) {
     kickB[nmPos] = kickB[nmPos] ? 0 : 1;
   }
 
-  // Jazzy: 1-and-3 patterns with occasional syncopation — Tribe, Pete Rock
-  if (feel === 'jazzy' && !isCh) {
-    var jazzyKicks = [
-      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // pure 1 and 3 — clean jazz pocket
-      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic
-      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
-      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
-      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal jazz
-      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
-    ];
-    kick = pick(jazzyKicks);
-    kickB = kick.slice();
-    var jzPos = pick([8, 10, 14]);
-    kickB[jzPos] = kickB[jzPos] ? 0 : 1;
-  }
-
   // Dark: use minimal/sparse patterns from the kick library
   if (feel === 'dark' && !isCh) {
     var darkKicks = [
@@ -841,6 +825,11 @@ function generatePattern(sec) {
       [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3
       [0,1,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // ghost entry: e-of-1, and-of-3
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
+      [0,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // no beat 1: and-of-2, 3 — disorienting
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4 — creeping
+      [1,0,0,1, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // 1, ah-of-1 — RZA stutter
+      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // beat 3 only — maximum displacement
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — Alchemist
     ];
     kick = pick(darkKicks);
     kickB = kick.slice();
@@ -858,6 +847,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 1,1,0,0, 0,0,1,0],  // Impeach the President nod
       [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // break pattern
       [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling
+      [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // Apache nod — front-heavy
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],  // Amen break nod — rolling ands
+      [1,1,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // double kick start + break
+      [1,0,1,0, 0,0,0,0, 0,0,1,0, 1,0,0,0],  // syncopated break — stutter into 4
+      [1,0,0,0, 0,1,0,0, 1,0,1,0, 0,0,0,0],  // e-of-2 syncopation — Skull Snaps nod
+      [1,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // relentless ands — chopped Funky Drummer
     ];
     kick = pick(breakKicks);
     kickB = kick.slice();
@@ -874,6 +869,11 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — Havoc syncopation
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
       [1,0,0,1, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, ah-of-1, and-of-3 — RZA feel
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — wide spacing
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark halftime
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1],  // 1, 3, ah-of-4 — pickup
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4 — late push
+      [0,0,1,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // displaced: and-of-1, and-of-3
     ];
     kick = pick(halftimeKicks);
     kickB = kick.slice();
@@ -889,6 +889,11 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3
       [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // beat 3 only — maximum displacement
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — wide
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3
+      [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // and-of-2 only — displaced
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4 — wide spacing
     ];
     kick = pick(sparseKicks);
     kickB = kick.slice();
@@ -904,6 +909,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // break pattern with momentum
       [1,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // relentless ands
       [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard with and-of-2
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // and-of-2, and-of-4 — EPMD push
+      [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // and-of-1, and-of-4 — Gangstarr
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 1,0,0,0],  // and-of-2, 3, 4 — Redman energy
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,1,0],  // e-of-2, and-of-4 — Erick Sermon
+      [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // front-loaded momentum
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],  // triple and — maximum drive
     ];
     kick = pick(drivingKicks);
     kickB = kick.slice();
@@ -920,6 +931,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // 1, and-of-2, 3, and-of-4 — rolling
       [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // 1, 3, and-of-3 — syncopated
       [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-1, 3 — Warren G feel
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4 — Battlecat bounce
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-2, and-of-4 — Snoop bounce
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4 — late push
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3 — Dre "Let Me Ride"
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1],  // 1, 3, ah-of-4 — pickup into next bar
     ];
     kick = pick(gfunkKicks);
     kickB = kick.slice();
@@ -935,6 +952,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — sparse
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0],  // 1, ah-of-2 — DJ Paul
+      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // beat 3 only — displaced
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — sparse with pickup
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — Juicy J
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4 — wide spacing
+      [1,0,0,1, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // 1, ah-of-1 — stutter
     ];
     kick = pick(memphisKicks);
     kickB = kick.slice();
@@ -950,6 +973,11 @@ function generatePattern(sec) {
       [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0],  // 4-on-floor + and-of-4
       [1,0,1,0, 1,0,0,0, 1,0,1,0, 1,0,0,0],  // busy with and-of-1 and and-of-3
       [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,1,0],  // syncopated crunk
+      [1,0,0,0, 1,0,0,0, 1,0,1,0, 1,0,0,0],  // and-of-3 accent
+      [1,0,1,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // and-of-1 accent
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,1],  // ah-of-4 pickup
+      [1,0,0,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],  // double syncopation
+      [1,1,0,0, 1,0,0,0, 1,1,0,0, 1,0,0,0],  // double kick on 1 and 3
     ];
     kick = pick(crunkKicks);
     kickB = kick.slice();
@@ -966,6 +994,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — Beat Butcha
       [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — Conductor Williams
       [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3 — off-kilter
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — subtle syncopation
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 only — sparse
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4 — creeping
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1],  // 1, 3, ah-of-4 — pickup
+      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // no beat 1: 3, and-of-4 — displaced
+      [1,0,0,1, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, ah-of-1, 3 — stutter
     ];
     kick = pick(griseldaKicks);
     kickB = kick.slice();
@@ -981,6 +1015,12 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
       [1,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0],  // 1, ah-of-2 — SpaceGhostPurrp
+      [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // beat 3 only — displaced
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — sparse with pickup
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — eerie
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4 — wide
+      [1,0,0,1, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // 1, ah-of-1 — stutter
+      [0,0,1,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // and-of-1 only — maximum displacement
     ];
     kick = pick(phonkKicks);
     kickB = kick.slice();
@@ -997,11 +1037,99 @@ function generatePattern(sec) {
       [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
       [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal jazz
       [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — wide spacing
+      [1,0,0,0, 0,0,0,1, 1,0,0,0, 0,0,0,0],  // 1, ah-of-2, 3 — behind the beat
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3 — Fat Jon
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — DJ Okawari
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1],  // 1, 3, ah-of-4 — pickup
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 — Marcus D
     ];
     kick = pick(nujabesKicks);
     kickB = kick.slice();
     var njPos = pick([8, 10, 14]);
     kickB[njPos] = kickB[njPos] ? 0 : 1;
+  }
+
+  // Dilla: dedicated kick library — loose, unexpected placements, full-bar variation
+  if (feel === 'dilla' && !isCh) {
+    var dillaKicks = [
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard but loose
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-2, and-of-4 — bouncy
+      [1,0,0,0, 0,0,0,1, 1,0,0,0, 0,0,0,0],  // 1, ah-of-2, 3 — unexpected
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — off-grid
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,1],  // 1, 3, ah-of-4 — pickup
+      [1,0,0,1, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, ah-of-1, and-of-3 — stutter
+      [0,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // no beat 1: and-of-2, 3
+      [1,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,1,0],  // 1, e-of-2, and-of-4 — scattered
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1],  // 1, ah-of-4 only — maximum space
+    ];
+    kick = pick(dillaKicks);
+    kickB = kick.slice();
+    var dlPos = pick([2, 3, 6, 7, 10, 11, 14, 15]);
+    kickB[dlPos] = kickB[dlPos] ? 0 : 1;
+  }
+
+  // Lo-fi: dedicated kick library — muted, compressed, sample-based feel
+  if (feel === 'lofi' && !isCh) {
+    var lofiKicks = [
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // standard boom bap — muted
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — simple
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 — minimal
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — Madlib
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3 — Knxwledge
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dusty
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3 — MF DOOM
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — sparse
+      [1,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0],  // 1, ah-of-2 — off-grid
+    ];
+    kick = pick(lofiKicks);
+    kickB = kick.slice();
+    var lfPos = pick([8, 10, 11, 14]);
+    kickB[lfPos] = kickB[lfPos] ? 0 : 1;
+  }
+
+  // Bounce: dedicated kick library — danceable, Bad Boy era
+  if (feel === 'bounce' && !isCh) {
+    var bounceKicks = [
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling — constant motion
+      [1,0,1,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // bounce: and-of-1, 3, 4
+      [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // four-on-the-floor nod
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — pickup
+      [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // breakbeat bounce
+      [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],  // 1, and-of-2, 4 — Craig Mack
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],  // triple and — maximum bounce
+      [1,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],  // 1, 2, 4 — Puff Daddy
+      [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // front-loaded energy
+    ];
+    kick = pick(bounceKicks);
+    kickB = kick.slice();
+    var bnPos = pick([6, 8, 10, 14]);
+    kickB[bnPos] = kickB[bnPos] ? 0 : 1;
+  }
+
+  // Jazzy: dedicated kick library — musical, responsive, live-drummer feel
+  if (feel === 'jazzy' && !isCh) {
+    var jazzyKicks = [
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — clean jazz pocket
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal jazz
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3 — Q-Tip
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — wide spacing
+      [1,0,0,0, 0,0,0,1, 1,0,0,0, 0,0,0,0],  // 1, ah-of-2, 3 — behind the beat
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3 — Pete Rock
+      [1,0,0,0, 0,0,0,0, 0,1,0,0, 0,0,0,0],  // 1, e-of-3 — Guru Jazzmatazz
+    ];
+    kick = pick(jazzyKicks);
+    kickB = kick.slice();
+    var jzPos = pick([8, 10, 14]);
+    kickB[jzPos] = kickB[jzPos] ? 0 : 1;
   }
 
   // Dilla: B variant can toggle in the first half too (Dilla's variations weren't limited to second half)
