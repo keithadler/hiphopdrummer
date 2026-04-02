@@ -732,6 +732,229 @@ test('analyzeBeat contains all expected sections', function() {
 });
 
 // === Results ===
+// (new tests inserted above)
+
+// === Test regional variants ===
+test('Regional variants generate valid patterns and bass', function() {
+  var variants = ['normal_bronx', 'normal_queens', 'normal_li', 'gfunk_dre', 'gfunk_quik', 'gfunk_battlecat'];
+  variants.forEach(function(variant) {
+    songFeel = variant;
+    songPalette = null;
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    arrangement = ['verse'];
+    secSteps = {};
+    secFeels = {};
+    patterns = {};
+    _lastChosenKey = { root: 'Cm', i: 'Cm', iv: 'Fm', v: 'Gm' };
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === variant) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    genBasePatterns();
+    var pat = generatePattern('verse');
+    assert(pat && pat.kick, variant + ': should generate pattern with kick');
+    var len = secSteps['verse'] || 32;
+    // secFeels should store the variant name
+    assert(secFeels['verse'] === variant, variant + ': secFeels should store variant name, got ' + secFeels['verse']);
+    patterns['verse'] = pat;
+    // Bass should work with variant
+    var bassEvents = generateBassPattern('verse');
+    assert(Array.isArray(bassEvents) && bassEvents.length > 0, variant + ': bass should produce events');
+    bassEvents.forEach(function(e, idx) {
+      assert(e.note >= 24 && e.note <= 48, variant + ' bass note ' + idx + ': out of range ' + e.note);
+    });
+  });
+});
+
+// === Test resolveBaseFeel ===
+test('resolveBaseFeel maps variants to parents correctly', function() {
+  assert(resolveBaseFeel('normal_bronx') === 'normal', 'normal_bronx should resolve to normal');
+  assert(resolveBaseFeel('normal_queens') === 'normal', 'normal_queens should resolve to normal');
+  assert(resolveBaseFeel('normal_li') === 'normal', 'normal_li should resolve to normal');
+  assert(resolveBaseFeel('gfunk_dre') === 'gfunk', 'gfunk_dre should resolve to gfunk');
+  assert(resolveBaseFeel('gfunk_quik') === 'gfunk', 'gfunk_quik should resolve to gfunk');
+  assert(resolveBaseFeel('gfunk_battlecat') === 'gfunk', 'gfunk_battlecat should resolve to gfunk');
+  assert(resolveBaseFeel('normal') === 'normal', 'normal should resolve to itself');
+  assert(resolveBaseFeel('dilla') === 'dilla', 'dilla should resolve to itself');
+});
+
+// === Test REGIONAL_VARIANTS table ===
+test('REGIONAL_VARIANTS has required fields', function() {
+  Object.keys(REGIONAL_VARIANTS).forEach(function(v) {
+    var mod = REGIONAL_VARIANTS[v];
+    assert(mod.parent, v + ' should have parent');
+    assert(typeof mod.ghostDensityMult === 'number', v + ' should have ghostDensityMult');
+    assert(typeof mod.swingBias === 'number', v + ' should have swingBias');
+    assert(STYLE_DATA[v], v + ' should have STYLE_DATA entry');
+    assert(SWING_POOLS[v], v + ' should have SWING_POOLS entry');
+  });
+});
+
+// === Test per-instrument swing ===
+test('INSTRUMENT_SWING covers all 19 base feels', function() {
+  var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+  baseFeels.forEach(function(f) {
+    assert(INSTRUMENT_SWING[f], 'INSTRUMENT_SWING missing: ' + f);
+    assert(typeof INSTRUMENT_SWING[f].hat === 'number', f + ' missing hat swing');
+    assert(typeof INSTRUMENT_SWING[f].kick === 'number', f + ' missing kick swing');
+    assert(typeof INSTRUMENT_SWING[f].ghostSnare === 'number', f + ' missing ghostSnare swing');
+    assert(typeof INSTRUMENT_SWING[f].backbeat === 'number', f + ' missing backbeat swing');
+    assert(typeof INSTRUMENT_SWING[f].bass === 'number', f + ' missing bass swing');
+  });
+});
+
+test('getInstrumentSwing returns correct categories', function() {
+  assert(getInstrumentSwing('hat', 80, 'dilla') === 1.3, 'dilla hat should be 1.3');
+  assert(getInstrumentSwing('kick', 100, 'dilla') === 0.6, 'dilla kick should be 0.6');
+  assert(getInstrumentSwing('snare', 40, 'dilla') === 1.5, 'dilla ghost snare should be 1.5');
+  assert(getInstrumentSwing('snare', 110, 'dilla') === 0.8, 'dilla backbeat snare should be 0.8');
+  assert(getInstrumentSwing('crash', 100, 'dilla') === 0, 'crash should always be 0');
+  assert(getInstrumentSwing('openhat', 80, 'gfunk') === 1.2, 'gfunk openhat should use hat value 1.2');
+  assert(getInstrumentSwing('rimshot', 60, 'normal') === 1.0, 'normal rimshot should use ghostSnare value');
+  // Regional variant resolution
+  assert(getInstrumentSwing('hat', 80, 'normal_bronx') === INSTRUMENT_SWING.normal.hat, 'variant should resolve to parent');
+});
+
+// === Test CHORD_PROGRESSIONS ===
+test('CHORD_PROGRESSIONS covers all 19 base feels', function() {
+  var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+  var validDegrees = ['i', 'iv', 'v', 'ii', 'bII'];
+  baseFeels.forEach(function(f) {
+    assert(CHORD_PROGRESSIONS[f], 'CHORD_PROGRESSIONS missing: ' + f);
+    assert(CHORD_PROGRESSIONS[f].length >= 2, f + ' should have at least 2 progressions');
+    CHORD_PROGRESSIONS[f].forEach(function(prog, idx) {
+      assert(prog.length === 4, f + ' progression ' + idx + ' should have 4 bars');
+      prog.forEach(function(deg) {
+        assert(validDegrees.indexOf(deg) >= 0, f + ' progression ' + idx + ' has invalid degree: ' + deg);
+      });
+    });
+  });
+});
+
+// === Test Dorian IV and Phrygian bII in key data ===
+test('G-Funk/Dilla/Nujabes keys use Dorian IV (dominant 7th)', function() {
+  // G-Funk
+  songFeel = 'gfunk';
+  songPalette = null;
+  _forcedKey = 'Gm7';
+  arrangement = ['verse'];
+  secFeels = { verse: 'gfunk' };
+  for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+    if (FEEL_PALETTES[pi][0] === 'gfunk') { songPalette = FEEL_PALETTES[pi]; break; }
+  }
+  genBasePatterns();
+  patterns = { verse: generatePattern('verse') };
+  analyzeBeat();
+  assert(_lastChosenKey, 'gfunk key data should be set');
+  assert(_lastChosenKey.iv === 'C7', 'G-Funk Gm7 IV should be C7 (Dorian), got ' + _lastChosenKey.iv);
+  // Dilla
+  songFeel = 'dilla';
+  _forcedKey = 'Dm7';
+  secFeels = { verse: 'dilla' };
+  for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+    if (FEEL_PALETTES[pi][0] === 'dilla') { songPalette = FEEL_PALETTES[pi]; break; }
+  }
+  analyzeBeat();
+  assert(_lastChosenKey.iv === 'G7', 'Dilla Dm7 IV should be G7 (Dorian), got ' + _lastChosenKey.iv);
+  _forcedKey = null;
+});
+
+test('Dark/Griselda/Memphis/Phonk keys have Phrygian bII', function() {
+  ['dark', 'griselda', 'memphis', 'phonk'].forEach(function(feel) {
+    songFeel = feel;
+    _forcedKey = 'Cm';
+    arrangement = ['verse'];
+    secFeels = { verse: feel };
+    songPalette = null;
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    genBasePatterns();
+    patterns = { verse: generatePattern('verse') };
+    analyzeBeat();
+    assert(_lastChosenKey, feel + ': key data should be set');
+    assert(_lastChosenKey.bII === 'Db', feel + ' Cm bII should be Db, got ' + _lastChosenKey.bII);
+  });
+  _forcedKey = null;
+});
+
+// === Test bass section behavior ===
+test('Bass breakdown thinning produces fewer events in later bars', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  arrangement = ['breakdown'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  _lastChosenKey = { root: 'Cm', i: 'Cm', iv: 'Fm', v: 'Gm' };
+  genBasePatterns();
+  patterns['breakdown'] = generatePattern('breakdown');
+  // Run multiple times since breakdown thinning is probabilistic
+  var thinned = false;
+  for (var trial = 0; trial < 5; trial++) {
+    var bassEvents = generateBassPattern('breakdown');
+    var len = secSteps['breakdown'] || 32;
+    if (len >= 64 && bassEvents.length > 0) {
+      var bar1 = bassEvents.filter(function(e) { return e.step < 16; }).length;
+      var bar3 = bassEvents.filter(function(e) { return e.step >= 32 && e.step < 48; }).length;
+      if (bar1 > 0 && bar3 <= bar1) { thinned = true; break; }
+    }
+  }
+  assert(thinned, 'bass breakdown should thin in later bars across 5 trials');
+});
+
+test('Bass chorus re-entry has beat 1 hit', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  arrangement = ['chorus'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  _lastChosenKey = { root: 'Am', i: 'Am', iv: 'Dm', v: 'Em' };
+  genBasePatterns();
+  patterns['chorus'] = generatePattern('chorus');
+  // Run multiple times since fills are probabilistic
+  var hasBeat1 = false;
+  for (var trial = 0; trial < 5; trial++) {
+    var bassEvents = generateBassPattern('chorus');
+    if (bassEvents.some(function(e) { return e.step === 0; })) { hasBeat1 = true; break; }
+  }
+  assert(hasBeat1, 'bass chorus should have beat 1 re-entry hit');
+});
+
+// === Test combined MIDI builder ===
+test('buildCombinedMidiBytes produces valid combined drums+bass MIDI', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['verse'];
+  secSteps = {};
+  secFeels = {};
+  genBasePatterns();
+  patterns = { verse: generatePattern('verse') };
+  _lastChosenKey = { root: 'Am', i: 'Am', iv: 'Dm', v: 'Em' };
+  var bytes = buildCombinedMidiBytes(['verse'], 90);
+  assert(bytes instanceof Uint8Array, 'combined MIDI should return Uint8Array');
+  assert(bytes.length > 100, 'combined MIDI should have data');
+  assert(bytes[0] === 0x4D && bytes[1] === 0x54, 'combined MIDI should start with MThd');
+  // Should contain both channel 10 (drums: 0x99) and channel 1 (bass: 0x90) events
+  var hasDrums = false, hasBass = false;
+  for (var i = 0; i < bytes.length - 2; i++) {
+    if (bytes[i] === 0x99) hasDrums = true;
+    if (bytes[i] === 0x90) hasBass = true;
+  }
+  assert(hasDrums, 'combined MIDI should have drum events (channel 10)');
+  assert(hasBass, 'combined MIDI should have bass events (channel 1)');
+});
+
+// === Results ===
 console.log('');
 console.log('='.repeat(60));
 console.log('Hip Hop Drummer Tests');
