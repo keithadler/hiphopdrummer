@@ -210,8 +210,8 @@ var CHORD_PROGRESSIONS = {
   hard:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','v']],
   // Jazzy: ii-V movement, more harmonic variety
   jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','iv','ii','v']],
-  // Dark: minimal movement, root-heavy with occasional IV for tension
-  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Dark: Phrygian bII movement, root-heavy with sinister half-step tension
+  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i']],
   // Bounce: danceable, simple but with movement
   bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','v']],
   // Halftime: slow, stays on root mostly
@@ -226,12 +226,12 @@ var CHORD_PROGRESSIONS = {
   chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i']],
   // Crunk: stays on root — 808 sub doesn't move much
   crunk:     [['i','i','i','i'], ['i','i','i','iv'], ['i','i','iv','i']],
-  // Memphis: root-heavy, dark, minimal movement
-  memphis:   [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
-  // Griselda: sample-based, usually i-iv with occasional V
-  griselda:  [['i','i','iv','i'], ['i','i','i','iv'], ['i','iv','i','v'], ['i','i','iv','v']],
-  // Phonk: root-heavy, 808 sub stays low
-  phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
+  // Memphis: Phrygian bII, root-heavy, dark, minimal movement
+  memphis:   [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv']],
+  // Griselda: Phrygian bII for sinister tension, sample-based i-iv with occasional V
+  griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v']],
+  // Phonk: Phrygian bII, root-heavy, 808 sub stays low
+  phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv']],
   // Nujabes: jazz-influenced, ii-V movement, more harmonic variety
   nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv']],
   // Old school: simple, drum-machine era — root and IV
@@ -299,6 +299,9 @@ function generateBassPattern(sec) {
   // ii = root + 2 semitones (supertonic), clamped to bass range
   var iiNote = rootNote + 2;
   if (iiNote > 48) iiNote -= 12;
+  // bII = root + 1 semitone (Phrygian flat second) — sinister half-step
+  var bIINote = keyData.bII ? noteToMidi(bassChordRoot(keyData.bII)) : (rootNote + 1);
+  if (bIINote > 48) bIINote -= 12;
 
   /**
    * Get the MIDI root note for a chord degree symbol.
@@ -307,6 +310,7 @@ function generateBassPattern(sec) {
     if (deg === 'iv') return fourthNote;
     if (deg === 'v') return vChordRoot;
     if (deg === 'ii') return iiNote;
+    if (deg === 'bII') return bIINote;
     return rootNote; // 'i' or default
   }
 
