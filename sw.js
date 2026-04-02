@@ -1,8 +1,11 @@
 // Hip Hop Drummer — Service Worker
 // Caches all app assets for offline use and fast repeat loads.
 // Cache-first strategy: serve from cache, update in background.
-
-var CACHE_NAME = 'hiphopdrummer-v5';
+//
+// ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
+//     The browser only re-installs the SW when this file changes.
+//     Format: hiphopdrummer-YYYYMMDD or increment the number.
+var CACHE_NAME = 'hiphopdrummer-20260402';
 
 var ASSETS = [
   './',
