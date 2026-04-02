@@ -447,11 +447,79 @@ var _aboutObserver = new MutationObserver(function() {
     _aboutObserver.disconnect();
     makeAboutCollapsible();
     applyGlossaryHighlights();
+    buildAboutSummary();
     _aboutObserver.observe(el, { childList: true });
   }
 });
 var _aboutEl = document.getElementById('aboutBeat');
 if (_aboutEl) _aboutObserver.observe(_aboutEl, { childList: true });
+
+/**
+ * Build the compact summary card for the About panel.
+ * Shows key stats at a glance: style, BPM, swing, key, arrangement,
+ * ghost density. The full analysis is hidden behind a toggle.
+ */
+function buildAboutSummary() {
+  var summaryEl = document.getElementById('aboutSummary');
+  if (!summaryEl) return;
+
+  var bpm = document.getElementById('bpm').textContent || '90';
+  var swing = document.getElementById('swing').textContent || '62';
+  var key = document.getElementById('songKey').textContent || '';
+  var style = document.getElementById('songStyle').textContent || '';
+  var sectionCount = arrangement.length;
+  var totalTime = typeof calcArrTime === 'function' ? calcArrTime(true) : '';
+
+  // Ghost density description
+  var gdDesc = 'Normal';
+  if (ghostDensity <= 0.6) gdDesc = 'Sparse';
+  else if (ghostDensity <= 0.8) gdDesc = 'Light';
+  else if (ghostDensity >= 1.4) gdDesc = 'Dense';
+  else if (ghostDensity >= 1.2) gdDesc = 'Busy';
+
+  // Swing description
+  var swVal = parseInt(swing) || 62;
+  var swDesc = swVal >= 64 ? 'Heavy' : swVal >= 58 ? 'Natural' : swVal >= 54 ? 'Light' : 'Straight';
+
+  // Hat pattern description
+  var hatDesc = hatPatternType === '16th' ? '16th notes' : hatPatternType === '16th_sparse' ? '16th (sparse)' : hatPatternType === 'triplet' ? 'Triplet' : '8th notes';
+
+  var html = '<div class="about-summary-grid">';
+  html += '<div class="about-stat"><span class="about-stat-label">Style</span><span class="about-stat-value"><span class="accent-red">' + style + '</span></span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Key</span><span class="about-stat-value"><span class="accent-blue">' + (key && key !== '\u2014' ? key : 'Any') + '</span></span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Tempo</span><span class="about-stat-value">' + bpm + ' BPM</span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Swing</span><span class="about-stat-value">' + swing + '%</span><span class="about-stat-hint">' + swDesc + '</span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Arrangement</span><span class="about-stat-value">' + sectionCount + ' sections</span><span class="about-stat-hint">' + totalTime + '</span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Ghost Notes</span><span class="about-stat-value">' + gdDesc + '</span><span class="about-stat-hint">' + ghostDensity.toFixed(1) + 'x</span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Hi-Hats</span><span class="about-stat-value">' + hatDesc + '</span></div>';
+  html += '<div class="about-stat"><span class="about-stat-label">Ride</span><span class="about-stat-value"><span class="accent-green">' + (useRide ? 'Active' : 'Off') + '</span></span></div>';
+  html += '</div>';
+
+  summaryEl.innerHTML = html;
+
+  // Ensure the detail panel starts hidden and toggle is reset
+  var detailEl = document.getElementById('aboutBeat');
+  var toggleEl = document.getElementById('aboutToggle');
+  if (detailEl) detailEl.style.display = 'none';
+  if (toggleEl) {
+    toggleEl.textContent = 'Show full analysis';
+    toggleEl.setAttribute('aria-expanded', 'false');
+  }
+}
+
+// Wire the toggle button once on boot
+(function() {
+  var toggleEl = document.getElementById('aboutToggle');
+  if (!toggleEl) return;
+  toggleEl.onclick = function() {
+    var detailEl = document.getElementById('aboutBeat');
+    if (!detailEl) return;
+    var isHidden = detailEl.style.display === 'none';
+    detailEl.style.display = isHidden ? '' : 'none';
+    toggleEl.textContent = isHidden ? 'Hide full analysis' : 'Show full analysis';
+    toggleEl.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  };
+})();
 
 // =============================================
 // Glossary — Hover definitions for drum programming terms
