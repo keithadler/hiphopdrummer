@@ -273,8 +273,8 @@ document.addEventListener('keydown', function(e) {
   updateMidiPlayer();
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
-  initPlaybackTracking();
   initPlayerControls();
+  initPlaybackTracking();
 })();
 
 // ── Player Controls ──
@@ -344,12 +344,17 @@ function initPlayerControls() {
     };
   }
 
-  // Poll for synthBridge availability and connect callbacks
+  // Poll for synthBridge availability and connect callbacks.
+  // These are basic player-only callbacks. initPlaybackTracking()
+  // will override them with versions that also do grid tracking.
   function connectCallbacks() {
     if (!window.synthBridge) {
       setTimeout(connectCallbacks, 200);
       return;
     }
+    // Only set if tracking hasn't already connected (tracking includes
+    // player controls + grid cursor, so it supersedes these)
+    if (window._playbackTrackingConnected) return;
     window.synthBridge.onTimeUpdate = function(current, duration) {
       if (currentEl) {
         var min = Math.floor(current / 60), sec = Math.floor(current % 60);
@@ -438,11 +443,16 @@ function initPlaybackTracking() {
   }
 
   // Use synthBridge time updates for tracking — poll until available
+  // Must run AFTER initPlayerControls so we override its simpler callbacks
+  // with our version that includes grid tracking.
+  var _trackingConnected = false;
   function connectTracking() {
     if (!window.synthBridge) {
       setTimeout(connectTracking, 200);
       return;
     }
+    _trackingConnected = true;
+    window._playbackTrackingConnected = true;
     // Override the callbacks set by initPlayerControls to add tracking
     var origTimeUpdate = window.synthBridge.onTimeUpdate;
     var origPlayState = window.synthBridge.onPlayStateChange;
