@@ -57,8 +57,13 @@ function showRegenDialog() {
         keyEl.innerHTML += '<option value="' + k + '">' + k + '</option>';
       });
     }
-    // Restore previous selection if still valid
-    if (prevKey && keyEl.querySelector('option[value="' + prevKey + '"]')) keyEl.value = prevKey;
+    // When a style is selected, reset key to Auto so the generator picks
+    // a style-appropriate key. Only restore previous selection if style is Auto.
+    if (style) {
+      keyEl.value = '';
+    } else if (prevKey && keyEl.querySelector('option[value="' + prevKey + '"]')) {
+      keyEl.value = prevKey;
+    }
 
     // Update key mood for the current selection
     updateKeyMood();
@@ -73,7 +78,13 @@ function showRegenDialog() {
     bpms.forEach(function(b) {
       bpmEl.innerHTML += '<option value="' + b + '">' + b + '</option>';
     });
-    if (prevBpm && bpmEl.querySelector('option[value="' + prevBpm + '"]')) bpmEl.value = prevBpm;
+    // When a style is selected, reset BPM to Auto so the generator picks
+    // a style-appropriate tempo. Only restore previous selection if style is Auto.
+    if (style) {
+      bpmEl.value = '';
+    } else if (prevBpm && bpmEl.querySelector('option[value="' + prevBpm + '"]')) {
+      bpmEl.value = prevBpm;
+    }
   }
 
   function updateKeyMood() {
