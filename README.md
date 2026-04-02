@@ -17,6 +17,13 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 ## Highlights
 
 - **19 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse
+- **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), replacing Magenta/Tone.js. Custom play/pause/stop/seek controls.
+- **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra. Selectable in Preferences.
+- **Bass line generator** — 19 style-matched bass patterns that lock to the kick drum and follow the key. Boom bap gets punchy bass guitar, G-Funk gets Moog-style, crunk/memphis get 808 sub, jazz gets walking bass.
+- **6 GM bass sounds** — Electric Bass (Finger/Pick), Fretless, Slap, Synth Bass 1/2. Selectable in Preferences.
+- **WAV audio export** — render the beat (drums + bass) to a WAV file. Download button next to play controls, plus checkbox in the export dialog.
+- **Chord sheet** — visual piano keyboard diagrams for each section's chord progression. Feel-aware voicings (triads for boom bap, 9ths for Dilla, min7 for G-Funk). Collapsible section in About This Beat.
+- **Chord sheet PDF** — landscape A4 with color-coded chord boxes and piano diagrams. Included in the export ZIP.
 - **New Beat dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options. Selecting a style shows the key producers; selecting a key shows its rap mood.
 - **10 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker
 - **Dedicated kick libraries** for every feel — all 19 styles have curated kick patterns matched to their aesthetic
@@ -27,16 +34,18 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **Playback cursor** — highlights the current step in the grid during playback
 - **Per-section feel tags** — each arrangement card shows its feel
 - **Song key** displayed in header — updates with each generation
-- **MIDI export** (GM Channel 10) — full song at root of ZIP, individual sections in `MIDI Patterns/` subfolder, swing baked in
-- **MPC pattern export** — each section also exported as `.mpcpattern` for Akai Force, MPC Live, MPC X, and other Akai devices (in `MPC/` subfolder). Uses Chromatic C1 note layout — assign samples to pads A01–A09: Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash. MPC patterns are straight grid — set swing on the device
+- **MIDI export** (GM Channel 10) — full song at root of ZIP, individual sections in `MIDI Patterns/` subfolder. Swing bake toggle. Drum kit program change embedded.
+- **Bass MIDI export** — full song + individual sections in `MIDI Patterns/Bass/`. Bass program change embedded. Channel 1.
+- **MPC pattern export** — drum `.mpcpattern` in `MPC/`, bass `.mpcpattern` in `MPC/Bass/`. Chromatic C1 layout for drums, standard MIDI notes for bass (Keygroup/Plugin track).
 - **PDF beat sheet** — color-coded pattern grids with full analysis text
-- **Export dialog** — click EXPORT to choose exactly what to download: full song MIDI, individual section MIDIs, MPC patterns, PDF, and DAW help files for Ableton, Logic Pro, FL Studio, GarageBand, Pro Tools, Reason, Reaper, Studio One, and Maschine
-- **"About This Beat" panel** — collapsed by default, Key/Scale open:
-  - Suggested Key / Scale — I/IV/V chords, 3-chord combos, style-matched alternate progressions (Minor Plagal, Andalusian Cadence, Soul Loop, Tritone Substitution, Neo-Soul Turnaround, ii-V-I, Trap Minor, Dark Trap, Boom Bap, West Coast, Emo Rap, Lo-Fi descending — all with actual chord names for the chosen key), relative companions, section-by-section melodic guide
+- **Export dialog** — MIDI files, MPC patterns, bass MIDI/MPC, DAW help files (9 DAWs), PDF beat sheet, chord sheet PDF, WAV audio. All individually toggleable.
+- **"About This Beat" panel** with compact summary card:
+  - Summary stats: style, key, BPM, swing, arrangement, ghost density, hi-hats, ride, bass style
+  - Suggested Key / Scale — I/IV/V chords, 3-chord combos, style-matched alternate progressions, relative companions, section-by-section melodic guide
+  - Bass Line section — style description, notes used, octave range, export paths, instrument tips
+  - Chord Sheet — visual piano keyboards with feel-aware voicings, bar counts, rhythm suggestions
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
-  - Song Elements — section descriptions
-  - Reference Tracks — 3 specific songs per feel to study
-  - Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
+  - Song Elements, Reference Tracks, Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
 - **Click any grid cell** for an explanation of why that hit is at that velocity
 - **Glossary tooltips** — hover over drum terms in the About panel for instant definitions
 - **Keyboard shortcuts** — R to open the New Beat dialog, Escape to cancel, Enter to confirm
@@ -44,12 +53,24 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 
 ## Quick Start
 
-No install needed. Just open `index.html` in any browser.
+No install needed for users. Just open `index.html` in any browser.
 
 ```bash
-# Or serve locally:
+# Serve locally:
 python3 -m http.server 8080
 ```
+
+### Developer Setup
+
+The synth engine (SpessaSynth) requires a one-time build step:
+
+```bash
+npm install          # install SpessaSynth + esbuild
+npm run build        # bundle synth-bridge.mjs → synth.js
+npm test             # run test suite
+```
+
+After `npm run build`, all other files (patterns.js, ai.js, etc.) still work with edit-and-refresh — no rebuild needed for them. Only rebuild when editing `synth-bridge.mjs`.
 
 ## Testing
 
@@ -74,15 +95,21 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── ai.js              — Generation pipeline, feel/swing pools, kick libraries, orchestration
 ├── writers.js         — Instrument-specific bar writers, intro/outro, fills
 ├── groove.js          — Accent curves, velocity humanization, post-processing
+├── bass.js            — Bass line generator, MIDI/MPC bass export
 ├── analysis.js        — "About This Beat" educational text generator
-├── ui.js              — Grid rendering, arrangement editor, tooltips, glossary
-├── midi-export.js     — MIDI file writer with swing, ZIP export, MIDI player
+├── ui.js              — Grid rendering, arrangement editor, chord sheet, tooltips, glossary
+├── midi-export.js     — MIDI file writer with swing, ZIP export, combined drums+bass MIDI
 ├── daw-help.js        — DAW-specific help file builders (Ableton, Logic, FL, etc.)
-├── pdf-export.js      — PDF beat sheet generator
-├── app.js             — Main controller, New Beat dialog, Export dialog, event wiring
-├── tests.js           — Automated test suite (node tests.js — 4622 assertions, zero deps)
+├── pdf-export.js      — PDF beat sheet + chord sheet PDF generator
+├── app.js             — Main controller, dialogs, player controls, event wiring
+├── synth-bridge.mjs   — SpessaSynth integration (ES module, bundled by esbuild)
+├── synth.js           — Bundled synth engine (built from synth-bridge.mjs)
+├── spessasynth_processor.min.js — AudioWorklet processor for SpessaSynth
+├── GeneralUserGS.sf3  — GeneralUser GS SoundFont (10MB, all GM instruments + drum kits)
+├── tests.js           — Automated test suite (node tests.js — 5000+ assertions, zero deps)
 ├── sw.js              — Service worker for PWA offline support
 ├── manifest.json      — PWA manifest for installable app
+├── package.json       — npm config (SpessaSynth + esbuild)
 ├── DOCS.md            — Full technical documentation
 ├── CONTRIBUTING.md    — Contribution guidelines
 └── LICENSE            — MIT
