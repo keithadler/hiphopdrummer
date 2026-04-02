@@ -408,6 +408,7 @@ function initPlaybackTracking() {
   var _playerCurrentEl = null;
   var _playerSeekEl = null;
   var _playerPlayBtn = null;
+  var _followPlayhead = false;
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -450,6 +451,10 @@ function initPlaybackTracking() {
       els[i].classList.add('playback-cursor');
       _cachedCursorEls.push(els[i]);
     }
+    // Follow playhead: scroll the cursor column into view
+    if (_followPlayhead && _cachedCursorEls.length > 0) {
+      _cachedCursorEls[0].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
   }
 
   function updateCurrentSection(currentTime) {
@@ -471,13 +476,9 @@ function initPlaybackTracking() {
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
       // Follow playhead: scroll the current section into view
-      var followOn = false;
-      try { followOn = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
-      if (followOn) {
+      if (_followPlayhead) {
         var activeCard = document.querySelector('.arr-item.playing');
         if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        var grid = document.getElementById('patternPanel');
-        if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
     if (foundIdx >= 0) {
@@ -521,6 +522,8 @@ function initPlaybackTracking() {
         lastTrackedSection = -1;
         lastHighlightedStep = -1;
         buildSectionTimeMap();
+        // Cache follow-playhead preference for this playback session
+        try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
       }
     };
   }
