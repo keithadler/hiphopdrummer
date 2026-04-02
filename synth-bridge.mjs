@@ -11,7 +11,6 @@
 // =============================================
 
 import { WorkletSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
-import { BasicMIDI } from "spessasynth_core";
 
 let synth = null;
 let sequencer = null;
@@ -50,12 +49,13 @@ async function playSynthMidi(midiBytes) {
   // Stop any existing playback
   if (sequencer) {
     sequencer.stop();
-    sequencer = null;
   }
-  // Parse the MIDI
-  const midi = new BasicMIDI(midiBytes);
-  // Create a new sequencer
-  sequencer = new Sequencer(synth, midi);
+  // Create sequencer if needed
+  if (!sequencer) {
+    sequencer = new Sequencer(synth);
+  }
+  // Load the MIDI as a song list (expects array of ArrayBuffers)
+  sequencer.loadNewSongList([midiBytes.buffer]);
   sequencer.play();
   isPlaying = true;
   if (onPlayStateChange) onPlayStateChange(true);
@@ -147,22 +147,14 @@ function getSynthState() {
  * @returns {Promise<Blob>} WAV file as a Blob
  */
 async function renderToWav(midiBytes) {
-  // Parse MIDI to get duration
-  const midi = new BasicMIDI(midiBytes);
-  // Calculate duration from MIDI (add 2 seconds for reverb tail)
-  let duration = 0;
-  if (midi.tracks) {
-    for (const track of midi.tracks) {
-      for (const event of track) {
-        if (event.ticks !== undefined) {
-          const time = event.ticks / (midi.timeDivision || 96) * (60 / 90); // approximate
-          if (time > duration) duration = time;
-        }
-      }
-    }
-  }
-  // Fallback: use sequencer duration if available
-  if (duration < 1) duration = 180; // 3 minutes default
+  // Ensure synth is initialized (for the SoundFont buffer)
+  await initSynth();
+  // Use the arrangement time from the DOM as duration estimate
+  var timeEl = document.getElementById('playerTotal');
+  var timeText = timeEl ? timeEl.textContent : '3:00';
+  var parts = timeText.split(':');
+  var duration = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+  if (duration < 10) duration = 180; // fallback 3 minutes
   duration += 2; // reverb tail
 
   const sampleRate = 44100;
@@ -173,7 +165,8 @@ async function renderToWav(midiBytes) {
   offlineSynth.connect(offlineCtx.destination);
   await offlineSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
 
-  const offlineSeq = new Sequencer(offlineSynth, midi);
+  const offlineSeq = new Sequencer(offlineSynth);
+  offlineSeq.loadNewSongList([midiBytes.buffer.slice(0)]);
   offlineSeq.play();
 
   const audioBuffer = await offlineCtx.startRendering();
