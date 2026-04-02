@@ -72,15 +72,11 @@
         <div class="panel" id="aboutBeatPanel">
           <div class="panel-title">About This Beat</div>
           <div id="aboutSummary" class="about-summary"></div>
+          <div id="chordSheet" class="chord-sheet"></div>
           <button id="aboutToggle" class="about-toggle" aria-expanded="true">Hide full analysis</button>
           <div id="aboutBeat"></div>
         </div>
         </div>
-      </div>
-
-      <div class="panel" id="chordSheetPanel">
-        <div class="panel-title">Chord Sheet</div>
-        <div id="chordSheet" class="chord-sheet"></div>
       </div>
 
       <div class="panel" id="patternPanel">
@@ -180,6 +176,7 @@
           <label class="regen-label">Other</label>
           <div class="export-checks">
             <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
+            <label class="export-check"><input type="checkbox" id="expChordSheet" checked> Chord sheet .txt <span class="export-note">(progression for keys/bass players)</span></label>
           </div>
         </div>
 

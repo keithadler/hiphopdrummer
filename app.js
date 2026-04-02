@@ -131,6 +131,7 @@ function showExportDialog() {
     if (typeof saved.bassMidi === 'boolean') document.getElementById('expBassMidi').checked = saved.bassMidi;
     if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
+    if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
         c.checked = saved.daws.indexOf(c.value) >= 0;
@@ -174,6 +175,7 @@ document.getElementById('exportGo').onclick = function() {
     bassMidi:    document.getElementById('expBassMidi').checked,
     bassMpc:     document.getElementById('expBassMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
+    chordSheet:  document.getElementById('expChordSheet').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
                .map(function(c) { return c.value; })
