@@ -145,7 +145,7 @@ function generateBassPattern(sec) {
   // Convert chord roots to MIDI notes
   var rootNote = noteToMidi(bassChordRoot(keyData.i));
   var fourthNote = noteToMidi(bassChordRoot(keyData.iv));
-  var fifthNote = noteToMidi(bassChordRoot(keyData.v));
+  var vChordRoot = noteToMidi(bassChordRoot(keyData.v)); // root of V chord (also the 5th interval of I)
   var rootLow = rootNote - 12; // octave 0 for drops
 
   // Get bass style for this feel (strip intro/outro prefixes)
@@ -170,7 +170,7 @@ function generateBassPattern(sec) {
     if (!isIntroOutro) {
       // Simple i→iv→i→v pattern across 4-bar phrases
       if (barInPhrase === 2) { currentRoot = fourthNote; currentRootLow = fourthNote - 12; }
-      else if (barInPhrase === 3 && maybe(0.4)) { currentRoot = fifthNote; currentRootLow = fifthNote - 12; }
+      else if (barInPhrase === 3 && maybe(0.4)) { currentRoot = vChordRoot; currentRootLow = vChordRoot - 12; }
     }
 
     var shouldPlay = false;
@@ -186,7 +186,7 @@ function generateBassPattern(sec) {
       // Ghost kick positions: occasional 5th
       else if (drumPat.ghostkick[step] > 0 && maybe(style.useFifth)) {
         shouldPlay = true;
-        midiNote = fifthNote;
+        midiNote = vChordRoot;
         noteVel = v(style.velBase - 20, style.velRange);
       }
     } else if (style.rhythm === 'eighth') {
@@ -196,7 +196,7 @@ function generateBassPattern(sec) {
         noteVel = v(style.velBase, style.velRange);
         // On non-kick 8th notes, use passing tones
         if (drumPat.kick[step] === 0 && maybe(style.useFifth)) {
-          midiNote = maybe(0.5) ? fifthNote : fourthNote;
+          midiNote = maybe(0.5) ? vChordRoot : fourthNote;
           noteVel = v(style.velBase - 15, style.velRange);
         }
       }
@@ -219,8 +219,11 @@ function generateBassPattern(sec) {
     if (pos === 15 && maybe(style.walkUp) && step + 1 < len) {
       var nextBar = Math.floor((step + 1) / 16) % 4;
       var nextRoot = (nextBar === 2) ? fourthNote : rootNote;
-      // Chromatic approach from below
-      midiNote = nextRoot - 1;
+      // Chromatic approach from below — but stay in bass range
+      var approachNote = nextRoot - 1;
+      if (approachNote >= 24) {
+        midiNote = approachNote;
+      }
       noteVel = v(style.velBase - 10, style.velRange);
     }
 
