@@ -5,6 +5,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5">
+  <meta name="theme-color" content="#15151c">
+  <meta name="description" content="Generate authentic hip hop drum patterns. Learn the art of hip hop drum programming.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HH Drummer">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Hip Hop Drummer</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -170,5 +177,11 @@
   <script src="midi-export.js"></script>
   <script src="pdf-export.js"></script>
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/hiphopdrummer/sw.js')
+        .catch(function(e) { console.warn('SW registration failed:', e); });
+    }
+  </script>
 </body>
 </html>
