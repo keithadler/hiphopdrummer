@@ -160,37 +160,37 @@ async function renderToWav(midiBytes) {
   const midi = BasicMIDI.fromArrayBuffer(new Uint8Array(midiBytes).buffer, "beat.mid");
   const sf = SoundBankLoader.fromArrayBuffer(soundFontBuffer.slice(0));
 
-  // Create offline processor
-  const processor = new SpessaSynthProcessor(sampleRate);
-  processor.soundBankManager.addSoundBank(sf, "gm");
+  // Create offline processor (same approach as SpessaSynth's internal renderAudioWorker)
+  const renderer = new SpessaSynthProcessor(sampleRate, { enableEventSystem: false });
+  renderer.soundBankManager.addSoundBank(sf, "gm");
 
-  // Create offline sequencer
-  const seq = new SpessaSynthSequencer(processor);
+  // Create offline sequencer and load the parsed MIDI
+  const seq = new SpessaSynthSequencer(renderer);
   seq.loadNewSongList([midi]);
   seq.play();
 
-  // Calculate total samples from MIDI duration
-  const duration = midi.duration + 2; // add 2s reverb tail
+  // Calculate total samples
+  const duration = midi.duration + 2;
   const totalSamples = Math.ceil(sampleRate * duration);
-  const totalBlocks = Math.ceil(totalSamples / BLOCK);
 
-  // Render blocks
-  const leftChannel = new Float32Array(totalBlocks * BLOCK);
-  const rightChannel = new Float32Array(totalBlocks * BLOCK);
-  const blockL = new Float32Array(BLOCK);
-  const blockR = new Float32Array(BLOCK);
+  // Allocate output buffers (single large arrays, rendered in blocks at offset)
+  const dryL = new Float32Array(totalSamples);
+  const dryR = new Float32Array(totalSamples);
 
-  for (let i = 0; i < totalBlocks; i++) {
+  // Render in blocks — same pattern as SpessaSynth's renderAudioWorker
+  let index = 0;
+  while (index < totalSamples) {
     seq.processTick();
-    processor.renderAudio([blockL, blockR]);
-    leftChannel.set(blockL, i * BLOCK);
-    rightChannel.set(blockR, i * BLOCK);
+    const blockSize = Math.min(BLOCK, totalSamples - index);
+    renderer.process(dryL, dryR, index, blockSize);
+    index += blockSize;
   }
 
-  // Create AudioBuffer and convert to WAV
+  // Mix dry + effects into final buffer
+  // (SpessaSynth also renders wet/effects but we skip that for simplicity)
   const audioBuffer = new AudioBuffer({ sampleRate, numberOfChannels: 2, length: totalSamples });
-  audioBuffer.copyToChannel(leftChannel.subarray(0, totalSamples), 0);
-  audioBuffer.copyToChannel(rightChannel.subarray(0, totalSamples), 1);
+  audioBuffer.copyToChannel(dryL, 0);
+  audioBuffer.copyToChannel(dryR, 1);
 
   const wavData = audioBufferToWav(audioBuffer);
   return new Blob([wavData], { type: "audio/wav" });
