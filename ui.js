@@ -400,16 +400,13 @@ function makeAboutCollapsible() {
   }
   el.innerHTML = result;
 
-  // Collapse all sections by default, except Key/Scale which opens immediately
+  // Collapse all sections by default
   el.querySelectorAll('.about-header').forEach(function(hdr) {
     var body = document.getElementById('aboutBody' + hdr.dataset.idx);
     var arrow = hdr.querySelector('.about-arrow');
-    var headerText = hdr.textContent || '';
-    var isKeySection = /SUGGESTED KEY/i.test(headerText);
-
-    if (body) body.style.display = isKeySection ? '' : 'none';
-    if (arrow) arrow.textContent = isKeySection ? '▾' : '▸';
-    hdr.setAttribute('aria-expanded', isKeySection ? 'true' : 'false');
+    if (body) body.style.display = 'none';
+    if (arrow) arrow.textContent = '▸';
+    hdr.setAttribute('aria-expanded', 'false');
 
     function toggleSection() {
       var isCollapsed = body.style.display === 'none';

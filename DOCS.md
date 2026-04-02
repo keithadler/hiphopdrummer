@@ -207,7 +207,7 @@ Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit.
 
 ## "About This Beat" Panel
 
-Organized into collapsible accordion sections. Key/Scale is expanded by default; all others collapsed.
+Organized into collapsible accordion sections. All sections collapsed by default.
 
 Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Song Elements (with fill and strip-down notes per section), Start Here (beginner orientation).
 
