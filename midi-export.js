@@ -488,6 +488,10 @@ function vl(val) {
  * Uses SpessaSynth via the synthBridge global.
  */
 function updateMidiPlayer() {
+  // Stop any existing playback when generating a new beat
+  if (window.synthBridge && window.synthBridge.isPlaying) {
+    window.synthBridge.stop();
+  }
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   // Check bass playback preference
   var bassOn = true;
