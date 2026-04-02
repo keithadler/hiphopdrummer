@@ -1473,6 +1473,161 @@ function applySectionTransitions() {
   }
 }
 
+/**
+ * Song-level energy map — stores the energy multiplier for each section
+ * in the arrangement. Read by the bass generator for cross-section awareness.
+ * Values: 0.0 (silence) to 1.5 (maximum energy).
+ * @type {Object.<string, number>}
+ */
+var sectionEnergyMap = {};
+
+/**
+ * Apply arrangement-level energy arc across the full song.
+ *
+ * A real performance builds over time. Verse 2 is busier than verse 1.
+ * The last chorus hits harder than the first. The instrumental breathes
+ * after a dense chorus. This function walks the arrangement and applies
+ * progressive modifications so the song feels like one continuous
+ * performance, not isolated sections stitched together.
+ *
+ * Modifications:
+ *   1. Progressive velocity scaling — later sections of the same type
+ *      get a velocity boost (verse2 > verse, chorus2 > chorus)
+ *   2. Ghost note escalation — verse2 gets extra ghost snares/kicks
+ *   3. Hat density progression — later sections may step up hat pattern
+ *   4. Instrumental decompression — reduce density after dense sections
+ *   5. Last chorus maximum energy — velocity boost + extra open hats
+ *   6. Energy map for bass — stores per-section energy for bass awareness
+ *
+ * Side effects: modifies patterns in place, sets sectionEnergyMap global.
+ */
+function applyArrangementArc() {
+  sectionEnergyMap = {};
+
+  // Count how many times each section type appears
+  var typeCounts = {};
+  var typeOccurrence = {}; // which occurrence is this (1st, 2nd, etc.)
+  for (var a = 0; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    typeCounts[sec] = (typeCounts[sec] || 0) + 1;
+  }
+
+  // Assign energy levels based on position and section type
+  var songProgress = 0; // 0.0 to 1.0 across the arrangement
+  for (var a = 0; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    var pat = patterns[sec];
+    var len = secSteps[sec] || 32;
+    songProgress = a / Math.max(1, arrangement.length - 1);
+
+    // Track which occurrence of this section type
+    typeOccurrence[sec] = (typeOccurrence[sec] || 0) + 1;
+    var occurrence = typeOccurrence[sec];
+
+    // Base energy: section role determines starting energy
+    var energy = 1.0;
+    if (sec === 'intro') energy = 0.7;
+    else if (sec === 'verse') energy = 0.9;
+    else if (sec === 'pre') energy = 1.0;
+    else if (sec === 'chorus') energy = 1.1;
+    else if (sec === 'verse2') energy = 1.0;  // busier than verse 1
+    else if (sec === 'chorus2') energy = 1.15;
+    else if (sec === 'breakdown') energy = 0.6;
+    else if (sec === 'instrumental') energy = 0.8;
+    else if (sec === 'lastchorus') energy = 1.25;
+    else if (sec === 'outro') energy = 0.5;
+
+    // Progressive boost: later in the song = slightly more energy
+    energy += songProgress * 0.1;
+
+    // Store for bass generator
+    sectionEnergyMap[sec] = Math.min(1.5, energy);
+
+    if (!pat) continue;
+
+    // ── 1. Verse 2 busier than verse 1 ──
+    if (sec === 'verse2' && patterns['verse']) {
+      // Add 1-2 extra ghost snares per bar
+      for (var bar = 0; bar < Math.ceil(len / 16); bar++) {
+        var off = bar * 16;
+        if (maybe(0.5)) {
+          var gs = pick([3, 5, 7, 9, 11, 13]);
+          if (off + gs < len && pat.snare[off + gs] === 0 && pat.kick[off + gs] === 0) {
+            pat.snare[off + gs] = v(55, 12);
+          }
+        }
+        // Occasional extra ghost kick
+        if (maybe(0.3)) {
+          var gk = pick([3, 7, 11, 15]);
+          if (off + gk < len && pat.ghostkick[off + gk] === 0 && pat.kick[off + gk] === 0) {
+            pat.ghostkick[off + gk] = v(50, 10);
+          }
+        }
+      }
+    }
+
+    // ── 2. Chorus 2 slightly harder than chorus 1 ──
+    if (sec === 'chorus2') {
+      for (var i = 0; i < len; i++) {
+        ROWS.forEach(function(r) {
+          if (pat[r][i] > 0) {
+            pat[r][i] = Math.min(127, Math.max(30, Math.round(pat[r][i] * 1.03)));
+          }
+        });
+      }
+    }
+
+    // ── 3. Last chorus maximum energy ──
+    if (sec === 'lastchorus') {
+      // Velocity boost
+      for (var i = 0; i < len; i++) {
+        ROWS.forEach(function(r) {
+          if (pat[r][i] > 0) {
+            pat[r][i] = Math.min(127, Math.max(30, Math.round(pat[r][i] * 1.06)));
+          }
+        });
+      }
+      // Add open hats every other bar for extra energy
+      for (var bar = 0; bar < Math.ceil(len / 16); bar += 2) {
+        var ohPos = bar * 16 + 14;
+        if (ohPos < len && pat.openhat[ohPos] === 0 && maybe(0.5)) {
+          pat.openhat[ohPos] = v(85, 10);
+          pat.hat[ohPos] = 0;
+        }
+      }
+    }
+
+    // ── 4. Instrumental decompression ──
+    // If instrumental follows a chorus, reduce density
+    if (sec === 'instrumental' && a > 0) {
+      var prevSec = arrangement[a - 1];
+      if (prevSec === 'chorus' || prevSec === 'chorus2') {
+        // Drop ghost kicks and reduce ghost snare velocity
+        for (var i = 0; i < len; i++) {
+          if (pat.ghostkick[i] > 0 && maybe(0.4)) pat.ghostkick[i] = 0;
+          if (pat.snare[i] > 0 && pat.snare[i] < 80) {
+            pat.snare[i] = Math.max(30, pat.snare[i] - 8);
+          }
+        }
+      }
+    }
+
+    // ── 5. Progressive velocity scaling ──
+    // Apply a subtle velocity multiplier based on song progress
+    // Early sections slightly softer, late sections slightly louder
+    var progressMult = 0.97 + (songProgress * 0.06); // 0.97 to 1.03
+    if (sec !== 'breakdown' && sec !== 'outro' && sec !== 'intro') {
+      for (var i = 0; i < len; i++) {
+        ROWS.forEach(function(r) {
+          if (pat[r][i] > 0) {
+            pat[r][i] = Math.min(127, Math.max(30, Math.round(pat[r][i] * progressMult)));
+          }
+        });
+      }
+    }
+  }
+}
+
 // =============================================
 // BPM Pool
 // =============================================
@@ -1586,6 +1741,9 @@ function generateAll(opts) {
 
   // Apply section transition continuity — ensure sections connect musically
   applySectionTransitions();
+
+  // Apply arrangement-level energy arc — progressive intensity across the song
+  applyArrangementArc();
 
   // Now that songFeel is set, pick swing from the feel's pool
   var feelPool = SWING_POOLS[resolveBaseFeel(songFeel)] || SWING_POOLS.normal;
