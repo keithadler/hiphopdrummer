@@ -132,9 +132,21 @@ function applyGroove(p, len, feel) {
  * @param {number} len - Active step count for this section
  */
 function humanizeVelocities(p, len, feel) {
-  // Use passed feel, fall back to songFeel global for backward compatibility
   var hFeel = feel || songFeel;
+  // Player profile — shapes velocity bias and jitter per instrument
+  var prof = (typeof activePlayerProfile !== 'undefined') ? activePlayerProfile : null;
+
   ROWS.forEach(function(r) {
+    // Determine which profile category this instrument falls into
+    var profCat = null;
+    if (prof) {
+      if (r === 'kick' || r === 'ghostkick') profCat = prof.kick;
+      else if (r === 'snare' || r === 'clap') profCat = prof.snare;
+      else if (r === 'hat' || r === 'openhat' || r === 'shaker') profCat = prof.hat;
+      else if (r === 'ride') profCat = prof.ride;
+      else if (r === 'rimshot' || r === 'crash') profCat = prof.ghost;
+    }
+
     var instrJitter = (r === 'hat' || r === 'ride' || r === 'shaker') ? 0.5
       : (r === 'kick') ? 1.25
       : (r === 'ghostkick') ? 1.3
@@ -147,25 +159,40 @@ function humanizeVelocities(p, len, feel) {
     else if (hFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;
     else if (hFeel === 'crunk') instrJitter *= 0.4;
     else if (hFeel === 'memphis' && r === 'kick') instrJitter *= 0.6;
-    else if (hFeel === 'griselda') instrJitter *= 0.7;                                // Griselda: tight, punchy, controlled
-    else if (hFeel === 'phonk' && r === 'kick') instrJitter *= 0.5;                   // Phonk: heavy kick is very consistent
-    else if (hFeel === 'nujabes') instrJitter *= 1.2;                                 // Nujabes: loose, live-drummer feel
-    else if (hFeel === 'oldschool') instrJitter *= 0.3;                               // Old School: drum machine precision, minimal variation
+    else if (hFeel === 'griselda') instrJitter *= 0.7;
+    else if (hFeel === 'phonk' && r === 'kick') instrJitter *= 0.5;
+    else if (hFeel === 'nujabes') instrJitter *= 1.2;
+    else if (hFeel === 'oldschool') instrJitter *= 0.3;
+
+    // Apply player profile jitter multiplier
+    if (profCat) instrJitter *= profCat.jitter;
+
     for (var i = 0; i < len; i++) {
       if (p[r][i] > 0) {
         var pos = i % 16;
+
+        // Player profile: velocity center bias
+        if (profCat) {
+          // Ghost-level hits use the ghost profile instead
+          var useCat = (p[r][i] < 80 && prof.ghost) ? prof.ghost : profCat;
+          p[r][i] = Math.min(127, Math.max(30, p[r][i] + useCat.center));
+        }
+
+        // Player profile: tight positions get reduced jitter
+        var tightMult = 1.0;
+        if (profCat && profCat.tight && profCat.tight.indexOf(pos) >= 0) {
+          tightMult = 0.3; // this player is very consistent at these positions
+        }
+
         var jitter;
-        // Backbeat snare/clap — very tight (±2), a drummer's most consistent stroke
         if ((r === 'snare' || r === 'clap') && (pos === 4 || pos === 12) && p[r][i] > 100) {
-          jitter = Math.floor((rnd() - .5) * 5);
+          jitter = Math.floor((rnd() - .5) * 5 * tightMult);
         }
-        // Ghost-level hits: moderate (±5)
         else if (p[r][i] < 80) {
-          jitter = Math.floor((rnd() - .5) * 10 * instrJitter);
+          jitter = Math.floor((rnd() - .5) * 10 * instrJitter * tightMult);
         }
-        // Everything else: scaled by instrument consistency
         else {
-          jitter = Math.floor((rnd() - .5) * 16 * instrJitter);
+          jitter = Math.floor((rnd() - .5) * 16 * instrJitter * tightMult);
         }
         p[r][i] = Math.min(127, Math.max(30, p[r][i] + jitter));
       }

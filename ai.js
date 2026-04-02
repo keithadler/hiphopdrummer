@@ -1488,6 +1488,13 @@ function generateAll(opts) {
   if (dominantBase === 'phonk') ghostDensity = Math.min(0.5, ghostDensity);   // Phonk: very sparse, space dominates
   if (dominantBase === 'nujabes') ghostDensity = Math.max(0.9, ghostDensity); // Nujabes: moderate-to-dense, live feel
 
+  // Pick a player profile for this song — shapes humanization touch
+  if (typeof PLAYER_PROFILES !== 'undefined') {
+    var profileFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(dominantFeel) : dominantFeel;
+    var profiles = PLAYER_PROFILES[profileFeel] || PLAYER_PROFILES.normal;
+    activePlayerProfile = pick(profiles);
+  }
+
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
   var styleEl = document.getElementById('songStyle');
