@@ -456,15 +456,16 @@ function vl(val) {
 /**
  * Rebuild the embedded MIDI player element with the current beat.
  *
- * Generates a full-song MIDI blob from the current arrangement and
- * patterns, then sets it as the source of the <midi-player> element.
+ * Generates a combined drums+bass MIDI blob from the current arrangement
+ * and patterns, then sets it as the source of the <midi-player> element.
+ * Drums play on channel 10 (GM drums), bass on channel 1 (GM Electric Bass).
  * Revokes the previous blob URL to avoid memory leaks.
  *
  * Side effects: stops current playback, updates player.src
  */
 function updateMidiPlayer() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  var midiBytes = buildMidiBytes(arrangement, bpm);
+  var midiBytes = buildCombinedMidiBytes(arrangement, bpm);
   var blob = new Blob([midiBytes], { type: 'audio/midi' });
   var url = URL.createObjectURL(blob);
   var player = document.getElementById('midiPlayer');
@@ -473,7 +474,6 @@ function updateMidiPlayer() {
     if (player._blobUrl) URL.revokeObjectURL(player._blobUrl);
     player._blobUrl = url;
     player.src = url;
-    // Update arrangement time once the player reports its actual duration
     player.addEventListener('load', function onLoad() {
       player.removeEventListener('load', onLoad);
       var arrTimeEl = document.getElementById('arrTime');
@@ -482,4 +482,121 @@ function updateMidiPlayer() {
       }
     });
   }
+}
+
+/**
+ * Build a combined drums+bass MIDI file (SMF-0, single track).
+ *
+ * Interleaves drum events (channel 10) and bass events (channel 1)
+ * into one track. Includes a program change on channel 1 to select
+ * GM program 33 (Electric Bass Finger) so the SoundFont player
+ * uses a bass sound instead of piano.
+ *
+ * @param {string[]} sectionList - Ordered section ids
+ * @param {number} bpm - Tempo
+ * @returns {Uint8Array} Complete MIDI file bytes
+ */
+function buildCombinedMidiBytes(sectionList, bpm) {
+  var ppq = 96, drumCh = 9, bassCh = 0;
+  var ticksPerStep = ppq / 4;
+  var noteDurTicks = Math.floor(ticksPerStep * 0.75);
+  var events = [];
+  var tickPos = 0;
+  var eventMap = {};
+
+  // Swing from UI
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
+  var swingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+
+  sectionList.forEach(function(sec) {
+    var pat = patterns[sec];
+    if (!pat) return;
+    var len = secSteps[sec] || 32;
+
+    // Drum events (channel 10)
+    for (var s = 0; s < len; s++) {
+      var stepInBar = s % 16;
+      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
+      var stepTick = tickPos + swingOffset;
+
+      ROWS.forEach(function(r) {
+        if (pat[r][s] > 0) {
+          var note = MIDI_NOTE_MAP[r];
+          var vel = Math.min(127, Math.max(1, pat[r][s]));
+          var key = stepTick + ':' + note + ':d';
+          if (eventMap[key] !== undefined) {
+            if (vel > events[eventMap[key]].vel) events[eventMap[key]].vel = vel;
+          } else {
+            eventMap[key] = events.length;
+            events.push({ tick: stepTick, type: 'on', ch: drumCh, note: note, vel: vel });
+            events.push({ tick: stepTick + noteDurTicks, type: 'off', ch: drumCh, note: note });
+          }
+        }
+      });
+      tickPos += ticksPerStep;
+    }
+
+    // Bass events (channel 1) — generated per section
+    var bassEvents = (typeof generateBassPattern === 'function') ? generateBassPattern(sec) : [];
+    var secTickStart = tickPos - (len * ticksPerStep); // rewind to section start
+    bassEvents.forEach(function(e) {
+      var stepInBar = e.step % 16;
+      var swingOffset = (stepInBar % 2 === 1) ? swingAmount : 0;
+      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset;
+      var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
+      events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
+      events.push({ tick: stepTick + durTicks, type: 'off', ch: bassCh, note: e.note });
+    });
+  });
+
+  // Sort: by tick, note-offs before note-ons at same tick
+  events.sort(function(a, b) {
+    if (a.tick !== b.tick) return a.tick - b.tick;
+    if (a.type === 'off' && b.type === 'on') return -1;
+    if (a.type === 'on' && b.type === 'off') return 1;
+    return 0;
+  });
+
+  // Remove leading silence
+  if (events.length > 0) {
+    var firstTick = events[0].tick;
+    if (firstTick > 0) {
+      for (var i = 0; i < events.length; i++) events[i].tick -= firstTick;
+    }
+  }
+
+  // Build track data
+  var td = [];
+  // Time signature
+  td.push(0, 0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08);
+  // Track name
+  var trackName = [0x48,0x69,0x70,0x20,0x48,0x6F,0x70,0x20,0x44,0x72,0x75,0x6D,0x6D,0x65,0x72];
+  td.push(0, 0xFF, 0x03, trackName.length);
+  td.push.apply(td, trackName);
+  // Tempo
+  var us = Math.round(60000000 / bpm);
+  td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
+  // Program change on channel 1: GM program 33 = Electric Bass (Finger)
+  td.push(0, 0xC0 | bassCh, 33);
+
+  // Write events
+  var lastTick = 0;
+  for (var i = 0; i < events.length; i++) {
+    var e = events[i];
+    td.push.apply(td, vl(e.tick - lastTick));
+    if (e.type === 'on') td.push(0x90 | e.ch, e.note, e.vel);
+    else td.push(0x80 | e.ch, e.note, 64);
+    lastTick = e.tick;
+  }
+
+  // End of track
+  td.push.apply(td, vl(ppq / 4));
+  td.push(0xFF, 0x2F, 0x00);
+
+  // MThd + MTrk
+  var hdr = [0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF];
+  var trkHdr = [0x4D,0x54,0x72,0x6B];
+  var trkLen = td.length;
+  var fileData = [].concat(hdr, trkHdr, [(trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], td);
+  return new Uint8Array(fileData);
 }
