@@ -36,7 +36,7 @@ async function initSynth() {
   soundFontBuffer = await sfResponse.arrayBuffer();
   // Create the synthesizer
   synth = new WorkletSynthesizer(audioContext);
-  synth.connectOutput(audioContext.destination);
+  synth.connect(audioContext.destination);
   await synth.loadSoundFont(soundFontBuffer);
 }
 
@@ -170,7 +170,7 @@ async function renderToWav(midiBytes) {
   await offlineCtx.audioWorklet.addModule("spessasynth_processor.min.js");
 
   const offlineSynth = new WorkletSynthesizer(offlineCtx);
-  offlineSynth.connectOutput(offlineCtx.destination);
+  offlineSynth.connect(offlineCtx.destination);
   await offlineSynth.loadSoundFont(soundFontBuffer);
 
   const offlineSeq = new Sequencer(offlineSynth, midi);
