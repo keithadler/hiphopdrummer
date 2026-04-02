@@ -33,7 +33,7 @@ The project is split into focused modules:
 
 ## Key Concepts
 
-- **Feels** — 15 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
+- **Feels** — 18 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
 - **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 12 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent. Palette format: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`.
 - **New Beat Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style shows producers and filters key/BPM to only show authentic options. Key shows a rap mood description. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
 - **Export Dialog** — `showExportDialog()` in `app.js`. Three sections: MIDI files (full song, sections, MPC patterns), DAW help files (9 DAWs, individually toggleable), PDF. `exportMIDI(opts)` accepts `{fullSong, sections, mpc, pdf, daws[]}` and only builds the selected content.
@@ -43,7 +43,7 @@ The project is split into focused modules:
 - **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` (interlock, choke, clustering) → `applyGroove()` (per-instrument accents) → `humanizeVelocities()` (micro-velocity jitter). Each stage is a separate function.
 - **Bar Writers** — Each instrument has dedicated writer functions (`writeBarK`, `writeSnA/B`, `writeHA/B`, `writeOpenHat`, `writeClap`, `writeRimshot`, `writeRide`, `writeCR`). New feels must be handled in every relevant writer.
 - **Section-Level Overrides** — `generatePattern()` temporarily overrides `hatPatternType`, `baseSnareGhostA/B`, and `ghostDensity` per section before calling writers, then restores them.
-- **9 Instrument Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash. Adding a new row requires updates to `patterns.js` (ROWS, RN), `ai.js` (writer + generation calls), `midi-export.js` (MIDI_NOTE_MAP), `pdf-export.js` (rowColors), and `styles.css` (cell color).
+- **10 Instrument Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker. Adding a new row requires updates to `patterns.js` (ROWS, RN), `ai.js` (writer + generation calls), `midi-export.js` (MIDI_NOTE_MAP), `pdf-export.js` (rowColors), and `styles.css` (cell color).
 - **Educational Content** — `analyzeBeat()` generates dynamic learning content using `pick()` to randomly select from content pools. Each pool is an array of strings.
 
 ## Adding a New Feel
@@ -99,7 +99,7 @@ Each pool uses `pick()` to select one random entry per generation. Keep entries 
 - **Generation history** — Ring buffer of recent generations with Previous/Next navigation
 - **URL sharing** — Encode beat state into URL hash for sharing
 - **More educational content** — Add entries to any of the content pools in `analyzeBeat()`
-- **More style feels** — Reggaeton, Afrobeats, trap, drill
+- **More style feels** — Trap (requires 32-step grid), Drill, Afrobeats, Reggaeton
 - **Accessibility** — Keyboard navigation, screen reader support
 
 ## Reporting Issues
