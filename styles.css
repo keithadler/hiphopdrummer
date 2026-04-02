@@ -170,18 +170,17 @@ midi-player::part(play-button){color:var(--accent-green)}
   .controls-bar{
     width:100%;
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr;
     gap:5px;
     order:2;
   }
-  /* Style spans full width on its own row */
+  /* Style and Key on row 1, BPM and Swing on row 2 */
   .ctrl-group:first-child{
-    grid-column:1 / -1;
-    justify-content:center;
+    grid-column:auto;
   }
   .ctrl-input-wide{
     max-width:none;
-    font-size:13px;
+    font-size:12px;
   }
   /* New Beat spans full width */
   .btn-gen{
