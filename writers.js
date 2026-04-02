@@ -254,6 +254,12 @@ function writeBarK(p, feel, off, kickPat) {
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(122, 8);
     if (p.kick[off] > 0) p.kick[off] = v(125, 5);
   }
+  if (feel === 'oldschool') {
+    // Old School: clean, punchy drum machine kick — LinnDrum/808 style
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(115, 5);
+    // Beat 1 always hardest
+    if (p.kick[off] > 0) p.kick[off] = v(120, 4);
+  }
   if (feel === 'nujabes') {
     // Nujabes: softer kicks with wider dynamic range — live jazz drummer feel
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(98, 20);
@@ -379,6 +385,10 @@ function writeSnA(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 12);
     }
   }
+  if (feel === 'oldschool') {
+    // Old School: hard snare crack on 2 and 4, zero ghosts — drum machine precision
+    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
+  }
 }
 
 /**
@@ -483,6 +493,10 @@ function writeSnB(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
     }
   }
+  if (feel === 'oldschool') {
+    // Old School B: identical to A — drum machines don't vary
+    p.snare[off + 4] = v(120, 4); p.snare[off + 12] = v(120, 4);
+  }
 }
 
 /**
@@ -502,7 +516,7 @@ function writeSnB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKA(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
     var darkPos = pick([9, 11]);
@@ -551,7 +565,7 @@ function writeGKA(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKB(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
     var darkPos = pick([5, 13]);
@@ -711,6 +725,11 @@ function writeHA(p, feel, off) {
     if (maybe(.4)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(30,8); }
     return;
   }
+  if (feel === 'oldschool') {
+    // Old School: mechanical 8th note hats, flat dynamics — LinnDrum/808 style
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
+    return;
+  }
   // Phonk: falls through to triplet pattern via hatPatternType override
 
   // Pattern type determines the core ride hand approach
@@ -854,6 +873,11 @@ function writeHB(p, feel, off) {
     if (maybe(.4)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(28,8); }
     return;
   }
+  if (feel === 'oldschool') {
+    // Old School B: identical to A — drum machines don't vary
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
+    return;
+  }
 
   // Same core pattern as A — consistent ride hand
   if (hatPatternType === '16th') {
@@ -971,7 +995,7 @@ function writeOpenHat(p, feel, off) {
  */
 function writeRide(p, feel, off) {
   if (!useRide) return;
-  if (feel === 'hard' || feel === 'sparse' || feel === 'lofi' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk') return;
+  if (feel === 'hard' || feel === 'sparse' || feel === 'lofi' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'jazzy' || feel === 'dilla') {
     // Jazz ride: quarter notes accented + ghost taps on "ah" positions (steps 3, 7, 11, 15)
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(90, 12);
@@ -1035,7 +1059,7 @@ function writeClap(p, feel, off) {
     if (p.snare[off + 8] > 0 && maybe(.9)) p.clap[off + 8] = v(95, 10);
     return;
   }
-  var chance = (feel === 'big' || feel === 'driving' || feel === 'hard' || feel === 'bounce' || feel === 'chopbreak' || feel === 'crunk') ? 1.0 : (feel === 'lofi') ? 0.7 : (feel === 'memphis') ? 0.6 : 0.95;
+  var chance = (feel === 'big' || feel === 'driving' || feel === 'hard' || feel === 'bounce' || feel === 'chopbreak' || feel === 'crunk' || feel === 'oldschool') ? 1.0 : (feel === 'lofi') ? 0.7 : (feel === 'memphis') ? 0.6 : 0.95;
   // A/B clap variation: bar B (offset 16) is slightly softer — models hand fatigue on repeat
   var isBarB = (off === 16);
   var clapVelBase = isBarB ? 96 : 100;
@@ -1087,7 +1111,7 @@ function writeClap(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeRimshot(p, feel, off) {
-  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis' || feel === 'gfunk' || feel === 'griselda' || feel === 'phonk') return;
+  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis' || feel === 'gfunk' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'sparse') {
     // Sparse: one possible rimshot for character
     if (maybe(.2 * ghostDensity)) { var rp = pick([5, 9, 13]); if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(52, 10); }
@@ -1135,8 +1159,9 @@ function writeCR(p, sec, off, feel) {
   var memphisCut = (feel === 'memphis') ? -0.45 : 0;    // Memphis avoids bright cymbal hits
   var phonkCut = (feel === 'phonk') ? -0.4 : 0;         // Phonk: minimal crashes, dark aesthetic
   var nujabesCut = (feel === 'nujabes') ? -0.3 : 0;     // Nujabes: subtle, crashes are rare
+  var oldschoolCut = (feel === 'oldschool') ? -0.2 : 0; // Old School: crashes are less common
   var gfunkAdj = (feel === 'gfunk') ? -0.1 : 0;
-  var adj = chopBoost + crunkBoost + memphisCut + phonkCut + nujabesCut + gfunkAdj;
+  var adj = chopBoost + crunkBoost + memphisCut + phonkCut + nujabesCut + oldschoolCut + gfunkAdj;
   if (sec === 'verse') { if (maybe(Math.max(0.05, Math.min(0.95, .7 + adj)))) p.crash[0] = v(100, 10); }
   if (sec === 'verse2') { if (maybe(Math.max(0.05, Math.min(0.95, .3 + adj)))) p.crash[0] = v(90, 10); }
   if (sec === 'chorus' || sec === 'chorus2') { if (maybe(Math.max(0.1, Math.min(0.98, .8 + crunkBoost + memphisCut + phonkCut + nujabesCut)))) p.crash[0] = v(110, 10); }
@@ -1288,6 +1313,12 @@ function addFill(p, sec, len, feel) {
     }
     // No crash — Nujabes fills dissolve, they don't punctuate
   }
+  else if (feel === 'oldschool') {
+    // Old School fill: simple snare hit on the last step — drum machine precision
+    p.snare[len - 1] = v(120, 4);
+    p.clap[len - 1] = v(115, 4);
+    if (isBig) p.crash[len - 1] = v(105, 8);
+  }
   else {
     // Standard B-Boy fill — 3 types picked randomly
     var type = pick(['snare_build', 'kick_snare', 'snare_crash']);
@@ -1349,7 +1380,7 @@ function addFill(p, sec, len, feel) {
 function writeShaker(p, feel, off) {
   // Styles that don't use shaker
   if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
-      feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' ||
+      feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool' ||
       feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c' ||
       feel === 'outro_fade' || feel === 'outro_stop') return;
 

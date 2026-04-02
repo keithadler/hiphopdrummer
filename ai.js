@@ -156,10 +156,10 @@ var _forcedKey = null;
  */
 var FEELS = {
   intro: ['intro_a', 'intro_b', 'intro_c'],
-  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis', 'griselda', 'phonk', 'nujabes'],
+  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis', 'griselda', 'phonk', 'nujabes', 'oldschool'],
   pre: ['normal', 'driving', 'hard', 'chopbreak', 'crunk'],  // No dilla/lofi — pre must build energy
   chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak', 'crunk', 'gfunk'],
-  verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis'],
+  verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis', 'oldschool'],
   chorus2: ['big', 'driving', 'bounce', 'chopbreak', 'crunk'],
   breakdown: ['sparse', 'halftime', 'dark', 'lofi', 'memphis'],
   instrumental: ['halftime', 'normal', 'jazzy', 'dilla', 'lofi', 'gfunk'],
@@ -319,6 +319,8 @@ var FEEL_PALETTES = [
   ['phonk', 'dark', 'sparse', 'halftime'],
   // Nujabes / Jazz Hop
   ['nujabes', 'jazzy', 'lofi', 'normal'],
+  // Old School / Drum Machine
+  ['oldschool', 'big', 'hard', 'driving'],
 ];
 
 var SWING_POOLS = {
@@ -339,7 +341,8 @@ var SWING_POOLS = {
   memphis:   [50, 52, 52, 54, 54, 56, 56, 58],     // minimal swing — dark and cold
   griselda:  [50, 52, 52, 54, 54, 56, 58],          // nearly straight — modern boom bap, tight and punchy
   phonk:     [54, 56, 56, 58, 58, 60, 62],          // moderate swing — triplet-influenced but not heavy
-  nujabes:   [60, 62, 62, 64, 64, 66, 66, 68, 70]   // jazz swing — heavier than normal, lighter than Dilla
+  nujabes:   [60, 62, 62, 64, 64, 66, 66, 68, 70],   // jazz swing — heavier than normal, lighter than Dilla
+  oldschool: [50, 50, 50, 52, 52, 52, 54, 54]          // nearly straight — drum machine era, mechanical
 };
 
 /**
@@ -573,6 +576,7 @@ function genBasePatterns() {
   var paletteFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
   if (paletteFeel === 'gfunk') useRide = maybe(.5);
   if (paletteFeel === 'nujabes') useRide = true; // Nujabes: ride cymbal is the primary timekeeper
+  if (paletteFeel === 'oldschool') useRide = false; // Old School: no ride, drum machines only
 }
 
 // =============================================
@@ -638,7 +642,8 @@ function generatePattern(sec) {
         memphis: ['memphis', 'memphis', 'dark', 'lofi'],
         griselda: ['griselda', 'griselda', 'dark', 'hard'],
         phonk: ['phonk', 'phonk', 'memphis', 'dark'],
-        nujabes: ['nujabes', 'nujabes', 'jazzy', 'dilla']
+        nujabes: ['nujabes', 'nujabes', 'jazzy', 'dilla'],
+        oldschool: ['oldschool', 'oldschool', 'hard', 'driving']
       };
       if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
     }
@@ -688,6 +693,7 @@ function generatePattern(sec) {
   if (feel === 'griselda') sectionHatType = '8th';     // Griselda: tight 8ths, modern boom bap
   if (feel === 'phonk') sectionHatType = 'triplet';    // Phonk: triplet-influenced hat patterns
   if (feel === 'nujabes') sectionHatType = '8th';      // Nujabes: swung 8ths, ride cymbal carries the time
+  if (feel === 'oldschool') sectionHatType = '8th';    // Old School: straight 8th note hats, drum machine style
   // Normal: bias toward 8th notes (classic boom bap) — 70% chance regardless of song-level selection
   if (feel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
   // Chorus/lastchorus: step up hat density if currently on 8ths (more energy)
