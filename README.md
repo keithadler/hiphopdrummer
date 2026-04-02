@@ -4,18 +4,24 @@ Generate authentic hip hop drum patterns in your browser. Learn the art of hip h
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
+## Why I Built This
+
+I grew up on KRS-One and LL Cool J. I'm a musician, and one thing that's always slowed my creation process is drum programming. I'd have an idea for a track — a sample chopped up, a bassline ready to go — but I'd spend hours tweaking kick placement and ghost note velocity before I even got to the music.
+
+So I built Hip Hop Drummer as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop beats. Every beat it generates comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs.
+
 ## What It Does
 
 Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
 
 ## Highlights
 
-- **18 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Phonk/Cloud Rap, Sparse
+- **19 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse
 - **New Beat dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options. Selecting a style shows the key producers; selecting a key shows its rap mood.
 - **10 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker
 - **Dedicated kick libraries** for every feel — all 15 styles have curated kick patterns matched to their aesthetic
 - **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
-- **Song palette system** — each generation picks one of 12 compatible feel families so all sections stay coherent (no crunk verse into G-Funk chorus)
+- **Song palette system** — each generation picks one of 16 compatible feel families so all sections stay coherent (no crunk verse into G-Funk chorus)
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
 - **Click any section** to jump to that point in the song player
 - **Playback cursor** — highlights the current step in the grid during playback
@@ -51,11 +57,11 @@ python3 -m http.server 8080
 node tests.js
 ```
 
-4622 assertions, zero dependencies. Covers all 18 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+4622 assertions, zero dependencies. Covers all 19 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
 
 ## How It Works
 
-The generator models real drumming principles across 18 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. A song-level palette system ensures all sections use compatible feels. Section-level adjustments vary by both feel and section type.
+The generator models real drumming principles across 19 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. A song-level palette system ensures all sections use compatible feels. Section-level adjustments vary by both feel and section type.
 
 See [DOCS.md](DOCS.md) for the full technical breakdown.
 
