@@ -635,6 +635,68 @@ function buildChordSheet() {
 
   var html = '';
 
+  // Feel-aware chord voicing — a hip hop keyboardist voices differently per genre
+  // Takes the raw chord name from keyData and returns the genre-appropriate version
+  function voiceChord(rawChord, feel) {
+    // Strip to root note
+    var rootMatch = rawChord.match(/^([A-G][#b]?)/);
+    var root = rootMatch ? rootMatch[1] : rawChord;
+    var rawQuality = rawChord.replace(/^[A-G][#b]?/, '');
+
+    // Already has the right voicing from keyData (e.g. G-Funk already uses Gm7)
+    // Only override when the feel demands a different voicing than what keyData provides
+
+    switch (feel) {
+      // Simple triads — boom bap, hard, dark, old school, crunk, memphis don't use extensions
+      case 'normal': case 'hard': case 'dark': case 'oldschool': case 'crunk':
+      case 'memphis': case 'griselda': case 'phonk': case 'sparse': case 'driving':
+      case 'chopbreak': case 'big':
+        // Strip any 7th/9th extensions — keep it simple
+        if (/maj7|m7b5|m7|7/.test(rawQuality)) {
+          // Cm7 → Cm, Fmaj7 → F, Gm7 → Gm, Dm7 → Dm
+          var simpleQ = rawQuality.replace(/maj7/, '').replace(/m7b5/, 'm').replace(/m7/, 'm').replace(/7/, '');
+          return root + simpleQ;
+        }
+        return rawChord;
+
+      // 7th chords — jazz, dilla, nujabes, lofi want extensions
+      case 'jazzy': case 'dilla': case 'nujabes':
+        // If it's already a 7th chord, keep it. If it's a simple triad, add 7th.
+        if (/7/.test(rawQuality)) return rawChord;
+        if (/^m$/.test(rawQuality) || rawQuality === '') {
+          // Cm → Cm7, F → Fmaj7
+          return rawQuality === '' ? root + 'maj7' : root + 'm7';
+        }
+        return rawChord;
+
+      case 'lofi':
+        // Lo-fi: minor 7ths, no maj7 (too bright). Simple minor stays simple.
+        if (/maj7/.test(rawQuality)) return root + 'm7'; // darken it
+        if (/^m$/.test(rawQuality)) return root + 'm7';
+        if (rawQuality === '') return root + '7'; // dominant 7 for dusty feel
+        return rawChord;
+
+      // G-Funk: min7 voicings (already handled by keyData, but enforce)
+      case 'gfunk':
+        if (/7/.test(rawQuality)) return rawChord;
+        if (/^m$/.test(rawQuality)) return root + 'm7';
+        if (rawQuality === '') return root + '7';
+        return rawChord;
+
+      // Bounce: mix of simple and 7ths — keep what keyData gives
+      case 'bounce': case 'halftime':
+        return rawChord;
+
+      default:
+        return rawChord;
+    }
+  }
+
+  // Get the section feel for voicing
+  function secFeel(sec) {
+    return secFeels[sec] || songFeel || 'normal';
+  }
+
   // Build section-by-section chord layout
   var rendered = {};
   for (var a = 0; a < arrangement.length; a++) {
@@ -642,21 +704,15 @@ function buildChordSheet() {
     if (rendered[sec]) continue;
     rendered[sec] = true;
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
-    var chords = [];
-    for (var b = 0; b < bars; b++) {
-      var barInPhrase = b % 4;
-      if (barInPhrase === 2) chords.push({ name: key.iv, fn: 'IV', cls: 'chord-four' });
-      else if (barInPhrase === 3 && bars > 2) chords.push({ name: key.v, fn: 'V', cls: 'chord-five' });
-      else chords.push({ name: key.i, fn: 'I', cls: 'chord-root' });
-    }
+    var feel = secFeel(sec);
 
     // Group consecutive identical chords with bar counts
     var allChords = [];
     for (var b = 0; b < bars; b++) {
       var barInPhrase = b % 4;
-      if (barInPhrase === 2) allChords.push({ name: key.iv, fn: 'IV', cls: 'chord-four' });
-      else if (barInPhrase === 3 && bars > 2) allChords.push({ name: key.v, fn: 'V', cls: 'chord-five' });
-      else allChords.push({ name: key.i, fn: 'I', cls: 'chord-root' });
+      if (barInPhrase === 2) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+      else if (barInPhrase === 3 && bars > 2) allChords.push({ name: voiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
+      else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
     }
     var chordGroups = [];
     for (var c = 0; c < allChords.length; c++) {
