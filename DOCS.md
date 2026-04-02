@@ -39,7 +39,7 @@ When a style is forced, `generateAll()` finds the matching `FEEL_PALETTES` entry
 
 ## Song Palette System
 
-Each generation picks one of 12 compatible feel palettes from `FEEL_PALETTES`. A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
+Each generation picks one of 16 compatible feel palettes from `FEEL_PALETTES`. A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
 
 - verse / verse2 / instrumental → `palette[0]`
 - chorus / chorus2 / lastchorus → `palette[1]`
@@ -47,7 +47,7 @@ Each generation picks one of 12 compatible feel palettes from `FEEL_PALETTES`. A
 - pre → `palette[3]`
 - intro / outro → their own dedicated pools
 
-This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 12 palettes cover: classic boom bap, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, crunk, Memphis, halftime/slow.
+This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 16 palettes cover: classic boom bap, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, crunk, Memphis, halftime/slow, Griselda revival, phonk/cloud rap, Nujabes/jazz hop, old school.
 
 ## Beat Generation
 

@@ -19,7 +19,7 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **19 hip hop styles** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse
 - **New Beat dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options. Selecting a style shows the key producers; selecting a key shows its rap mood.
 - **10 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker
-- **Dedicated kick libraries** for every feel — all 15 styles have curated kick patterns matched to their aesthetic
+- **Dedicated kick libraries** for every feel — all 19 styles have curated kick patterns matched to their aesthetic
 - **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
 - **Song palette system** — each generation picks one of 16 compatible feel families so all sections stay coherent (no crunk verse into G-Funk chorus)
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor

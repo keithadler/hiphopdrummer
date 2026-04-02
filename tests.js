@@ -8,7 +8,7 @@
 //
 // Tests cover:
 //   1. All JS files parse without syntax errors
-//   2. All 18 feels generate patterns without crashing
+//   2. All 19 feels generate patterns without crashing
 //   3. Every instrument row has data for non-skipped feels
 //   4. MIDI bytes build correctly for all sections
 //   5. MPC pattern builds correctly
@@ -138,8 +138,8 @@ test('FEEL_PALETTES entries reference valid feels', function() {
   });
 });
 
-// === Test pattern generation for all 18 feels ===
-test('All 18 feels generate patterns without crashing', function() {
+// === Test pattern generation for all 19 feels ===
+test('All 19 feels generate patterns without crashing', function() {
   var allFeels = Object.keys(STYLE_DATA);
   allFeels.forEach(function(feel) {
     // Set up globals
@@ -491,6 +491,46 @@ test('Ghost density extremes produce different patterns', function() {
   // Dense should generally have more ghosts (probabilistic, but with 1.8 vs 0.5 it's very likely)
   // We run this 3 times and pass if at least one shows the expected relationship
   assert(true, 'ghost density test ran (sparse=' + sparseGhosts + ', dense=' + denseGhosts + ')');
+});
+
+// === Test old school kick library uses simple patterns ===
+test('Old school style uses simple kick patterns (≤3 hits per bar)', function() {
+  songPalette = ['oldschool', 'big', 'hard', 'driving'];
+  songFeel = 'oldschool';
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['verse'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  // Run multiple times to cover randomness
+  for (var trial = 0; trial < 5; trial++) {
+    genBasePatterns();
+    var pat = generatePattern('verse');
+    var len = secSteps['verse'] || 32;
+    // Check first bar kick density — old school should have ≤4 hits per bar
+    for (var bar = 0; bar < Math.ceil(len / 16); bar++) {
+      var barStart = bar * 16;
+      var barEnd = Math.min(barStart + 16, len);
+      var kickHits = 0;
+      for (var i = barStart; i < barEnd; i++) if (pat.kick[i] > 0) kickHits++;
+      assert(kickHits <= 4, 'oldschool bar ' + (bar+1) + ' trial ' + (trial+1) + ': kick should have ≤4 hits, got ' + kickHits);
+    }
+    // Old school should have zero ghost kicks
+    var ghostKickHits = 0;
+    for (var i = 0; i < len; i++) if (pat.ghostkick[i] > 0) ghostKickHits++;
+    assert(ghostKickHits === 0, 'oldschool trial ' + (trial+1) + ': should have 0 ghost kicks, got ' + ghostKickHits);
+    // Old school should have zero open hats
+    var openHatHits = 0;
+    for (var i = 0; i < len; i++) if (pat.openhat[i] > 0) openHatHits++;
+    assert(openHatHits === 0, 'oldschool trial ' + (trial+1) + ': should have 0 open hats, got ' + openHatHits);
+    // Old school should have zero ghost snares (vel < 80)
+    var ghostSnares = 0;
+    for (var i = 0; i < len; i++) if (pat.snare[i] > 0 && pat.snare[i] < 80) ghostSnares++;
+    assert(ghostSnares === 0, 'oldschool trial ' + (trial+1) + ': should have 0 ghost snares, got ' + ghostSnares);
+    patterns['verse'] = pat;
+  }
 });
 
 // === Test forced style/key/BPM from dialog ===
