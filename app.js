@@ -217,6 +217,10 @@ function showPrefsDialog() {
   var bassSound = '33';
   try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
   document.getElementById('prefsBassSound').value = bassSound;
+  // Restore follow playhead preference (default: off)
+  var followOn = false;
+  try { var fp = localStorage.getItem('hhd_follow_playhead'); if (fp !== null) followOn = (fp === 'true'); } catch(e) {}
+  document.getElementById('prefsFollowPlayhead').checked = followOn;
   document.getElementById('prefsOverlay').style.display = 'flex';
 }
 
@@ -236,6 +240,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
+  var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
+  try { localStorage.setItem('hhd_follow_playhead', followPlayhead ? 'true' : 'false'); } catch(e) {}
   // Apply drum kit and bass via synth bridge
   if (window.synthBridge) {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
@@ -464,6 +470,15 @@ function initPlaybackTracking() {
       renderGrid();
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
+      // Follow playhead: scroll the current section into view
+      var followOn = false;
+      try { followOn = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
+      if (followOn) {
+        var activeCard = document.querySelector('.arr-item.playing');
+        if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        var grid = document.getElementById('patternPanel');
+        if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
     if (foundIdx >= 0) {
       // Use cached BPM/secPerStep instead of reading DOM every frame
