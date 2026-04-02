@@ -119,12 +119,12 @@ function writeOutro(p, feel, len) {
   if (feel === 'outro_fade') {
     // Fade: last bar strips to just hat + kick on beat 1
     var lastBar = len - 16;
-    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; }
+    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; }
     for (var i = lastBar; i < len; i++) p.kick[i] = 0;
-    p.kick[lastBar] = v(100, 10); // single kick on beat 1 of last bar
+    p.kick[lastBar] = v(100, 10);
   } else {
     // Stop: clear last bar entirely, then place one big unison hit
-    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; }
+    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; }
     p.kick[len - 16] = v(120, 10); p.snare[len - 16] = v(120, 10); p.clap[len - 16] = v(110, 10); p.crash[len - 16] = v(110, 10);
   }
 }
@@ -1262,29 +1262,29 @@ function addFill(p, sec, len, feel) {
 function writeShaker(p, feel, off) {
   // Styles that don't use shaker
   if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
-      feel === 'crunk' || feel === 'memphis') return;
+      feel === 'crunk' || feel === 'memphis' ||
+      feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c' ||
+      feel === 'outro_fade' || feel === 'outro_stop') return;
 
   if (feel === 'normal' || feel === 'chopbreak' || feel === 'driving') {
     // 8th note upbeats (steps 2, 6, 10, 14) — the classic boom bap shaker
-    // Not every upbeat — skip some for variation
     var upbeats = [2, 6, 10, 14];
     upbeats.forEach(function(s) {
       if (maybe(0.65 * ghostDensity)) p.shaker[off + s] = v(52, 12);
     });
   }
   else if (feel === 'jazzy') {
-    // Very sparse, very soft — just a hint of shimmer
-    if (maybe(0.4)) p.shaker[off + 6]  = v(38, 10);
-    if (maybe(0.3)) p.shaker[off + 14] = v(35, 10);
-    if (maybe(0.2)) p.shaker[off + 2]  = v(32, 8);
+    // Sparse but consistent — a hint of shimmer on the "and" positions
+    if (maybe(0.6)) p.shaker[off + 6]  = v(40, 10);
+    if (maybe(0.5)) p.shaker[off + 14] = v(38, 10);
+    if (maybe(0.35)) p.shaker[off + 2]  = v(34, 8);
+    if (maybe(0.25)) p.shaker[off + 10] = v(32, 8);
   }
   else if (feel === 'bounce' || feel === 'big') {
-    // Busier — 16th note upbeats on beats 2 and 4 (tambourine feel)
-    // Bad Boy era: tambourine on every upbeat of the backbeat
+    // Busier — 16th note upbeats (tambourine feel, Bad Boy era)
     [1, 3, 5, 7, 9, 11, 13, 15].forEach(function(s) {
       if (maybe(0.55)) p.shaker[off + s] = v(58, 14);
     });
-    // Accent on the "and" positions
     [2, 6, 10, 14].forEach(function(s) {
       if (maybe(0.7)) p.shaker[off + s] = v(65, 12);
     });
@@ -1297,9 +1297,11 @@ function writeShaker(p, feel, off) {
     });
   }
   else if (feel === 'lofi') {
-    // Barely there — one or two hits, very quiet
-    if (maybe(0.45)) p.shaker[off + 6]  = v(38, 8);
-    if (maybe(0.35)) p.shaker[off + 14] = v(35, 8);
+    // Present but quiet — consistent on the "and-of-2" and "and-of-4"
+    if (maybe(0.7)) p.shaker[off + 6]  = v(40, 8);
+    if (maybe(0.65)) p.shaker[off + 14] = v(38, 8);
+    if (maybe(0.4)) p.shaker[off + 2]  = v(34, 6);
+    if (maybe(0.3)) p.shaker[off + 10] = v(32, 6);
   }
   else if (feel === 'gfunk') {
     // 16th note upbeats — West Coast shimmer

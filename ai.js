@@ -1022,6 +1022,7 @@ function generatePattern(sec) {
         } else {
           for (var i = 0; i < 16; i++) p.ghostkick[off+i] = 0;
           if (maybe(.4)) for (var i = 0; i < 16; i++) p.openhat[off+i] = 0;
+          if (maybe(.5)) for (var i = 0; i < 16; i++) p.shaker[off+i] = 0; // shaker drops for breathing room
           if (feel !== 'dilla' && maybe(.3)) { for (var i = 1; i < 16; i++) p.kick[off+i] = 0; p.kick[off] = v(110, 10); }
         }
       }
@@ -1104,12 +1105,12 @@ function generatePattern(sec) {
     for (var bk = 0; bk < bkBars; bk++) {
       var bkOff = bk * 16;
       if (bk === 0) {
-        // Bar 1: drop ghost kicks, rimshots, and ride (simplify)
-        for (var i = 0; i < 16; i++) { p.ghostkick[bkOff+i] = 0; p.rimshot[bkOff+i] = 0; p.ride[bkOff+i] = 0; }
+        // Bar 1: drop ghost kicks, rimshots, ride, and shaker (simplify)
+        for (var i = 0; i < 16; i++) { p.ghostkick[bkOff+i] = 0; p.rimshot[bkOff+i] = 0; p.ride[bkOff+i] = 0; p.shaker[bkOff+i] = 0; }
       }
       if (bk === 1) {
-        // Bar 2: also drop clap, ride, reduce ghost snares
-        for (var i = 0; i < 16; i++) { p.ghostkick[bkOff+i] = 0; p.rimshot[bkOff+i] = 0; p.clap[bkOff+i] = 0; p.ride[bkOff+i] = 0; }
+        // Bar 2: also drop clap, ride, shaker, reduce ghost snares
+        for (var i = 0; i < 16; i++) { p.ghostkick[bkOff+i] = 0; p.rimshot[bkOff+i] = 0; p.clap[bkOff+i] = 0; p.ride[bkOff+i] = 0; p.shaker[bkOff+i] = 0; }
         for (var i = 0; i < 16; i++) if (p.snare[bkOff+i] > 0 && p.snare[bkOff+i] < 85) p.snare[bkOff+i] = 0;
       }
       if (bk >= 2) {
@@ -1117,7 +1118,7 @@ function generatePattern(sec) {
         for (var i = 0; i < 16; i++) {
           p.snare[bkOff+i] = 0; p.clap[bkOff+i] = 0; p.ghostkick[bkOff+i] = 0;
           p.rimshot[bkOff+i] = 0; p.crash[bkOff+i] = 0; p.openhat[bkOff+i] = 0;
-          p.kick[bkOff+i] = 0; p.ride[bkOff+i] = 0;
+          p.kick[bkOff+i] = 0; p.ride[bkOff+i] = 0; p.shaker[bkOff+i] = 0;
         }
         p.kick[bkOff] = v(90, 15);
         for (var i = 0; i < 16; i += 2) p.hat[bkOff+i] = i % 4 === 0 ? v(85, 10) : v(65, 15);

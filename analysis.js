@@ -714,6 +714,32 @@ function analyzeBeat() {
   lines.push('Rimshots appear on off-beat ghost positions — never on the backbeat. They add tonal variety with a thinner, clickier sound. Assign to MIDI note 37. Probability scales with ghost density.');
   lines.push('<b>Per-bar variation:</b> Bar 3 may add a rimshot on a new position, bar 5 removes one for breathing room, bar 7 clears all rimshots and places one on a fresh position. The rimshot is the most "optional" percussion element — a real drummer varies it constantly.');
 
+  // === SHAKER / TAMBOURINE ===
+  lines.push('');
+  lines.push('🎵 <b>SHAKER / TAMBOURINE</b>');
+  if (songFeel === 'hard' || songFeel === 'dark' || songFeel === 'sparse' || songFeel === 'crunk' || songFeel === 'memphis') {
+    lines.push('<b>Not used in this style.</b> ' + (styleNames[songFeel] || songFeel).toUpperCase() + ' is too raw/minimal for a shaker. The groove comes from the kick, snare, and hat alone.');
+  } else {
+    lines.push('The shaker adds high-frequency organic shimmer above the hi-hat — a layer of texture that makes the groove feel more alive and less programmed. Sampled from soul records by producers like Pete Rock, Large Professor, and Buckwild, the shaker/tambourine is the "secret ingredient" in a lot of golden era boom bap.');
+    if (songFeel === 'normal' || songFeel === 'chopbreak' || songFeel === 'driving') {
+      lines.push('<b>In this beat:</b> 8th note upbeats (steps 3, 7, 11, 15) at ~40-52% velocity. Not every upbeat — some are skipped for variation. The shaker sits underneath the hat, adding shimmer without competing.');
+    } else if (songFeel === 'bounce' || songFeel === 'big') {
+      lines.push('<b>In this beat:</b> Busier 16th note upbeats — the Bad Boy era tambourine. Louder than other styles (~50-65%) because the bounce feel wants energy and movement from every element.');
+    } else if (songFeel === 'dilla') {
+      lines.push('<b>In this beat:</b> Scattered and loose — random upbeats at varying velocities. Dilla\'s shakers feel improvised, not programmed. The velocity variation is wide (35-60%) because the shaker responds to the groove in real time.');
+    } else if (songFeel === 'lofi') {
+      lines.push('<b>In this beat:</b> Barely there — 1-2 hits per bar at 32-40%. The shaker adds texture without presence, like it\'s playing through the same dusty sampler as everything else.');
+    } else if (songFeel === 'gfunk') {
+      lines.push('<b>In this beat:</b> 16th note upbeats at ~50% — the West Coast shimmer. Sits above the 16th note hats and adds a second layer of high-frequency movement.');
+    } else if (songFeel === 'jazzy') {
+      lines.push('<b>In this beat:</b> Very sparse, very soft — just 2-3 hits per bar at 32-40%. The shaker is a whisper of shimmer that adds organic texture without competing with the dense ghost notes.');
+    } else if (songFeel === 'halftime') {
+      lines.push('<b>In this beat:</b> 8th note upbeats at ~48%. Adds forward momentum to the slow halftime feel — the shaker keeps the groove moving even when the snare only hits once every two beats.');
+    }
+    lines.push('<b>Programming tip:</b> Assign a shaker or tambourine sample to MIDI note 54 (GM Tambourine). On the MPC, use pad A10. Keep the velocity low (35-55%) — the shaker should be felt, not heard. If you can clearly hear the shaker as a separate element, it\'s too loud.');
+    lines.push('<b>Bar 5 breathing room:</b> The shaker may drop out entirely on bar 5 of an 8-bar phrase, just like ghost kicks and open hats. This creates a moment of space before the turnaround on bars 7-8.');
+  }
+
   // === ADVANCED TECHNIQUES TIER ===
   lines.push('');
   lines.push('🔧 <b>— ADVANCED TECHNIQUES —</b>');
