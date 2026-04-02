@@ -135,7 +135,7 @@ function renderGrid() {
         var stepInBar = i - barStart;
         // 'beat-start' class adds a left border at beat boundaries (steps 5, 9, 13)
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
-        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '" data-step="' + i + '">' + velText + '</div>';
+        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '" data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (pct > 0 ? ', ' + pct + ' percent' : ', empty') + '">' + velText + '</div>';
       }
       row.innerHTML = html;
       rows.appendChild(row);
@@ -198,6 +198,32 @@ function calcArrTime(useCalculation) {
 var dragIdx = null;
 
 /**
+ * Select an arrangement item by index — shared by click and keyboard handlers.
+ * @param {number} idx - Index into the arrangement array
+ */
+function _selectArrItem(idx) {
+  arrIdx = idx;
+  curSec = arrangement[arrIdx];
+  renderGrid();
+  renderArr(true);
+  var pp = document.getElementById('patternPanel');
+  if (pp) pp.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var player = document.getElementById('midiPlayer');
+  if (player) {
+    try { player.stop(); } catch(err) {}
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    var secPerStep = 60 / bpm / 4;
+    var t = 0;
+    for (var si = 0; si < arrIdx; si++) {
+      t += (secSteps[arrangement[si]] || 32) * secPerStep;
+    }
+    try { player.seek(t); } catch(err) {
+      try { player.currentTime = t; } catch(err2) {}
+    }
+  }
+}
+
+/**
  * Render the arrangement editor strip and wire up all interactions.
  *
  * Builds a horizontal list of draggable section cards from the
@@ -228,9 +254,9 @@ function renderArr(skipMidiUpdate) {
     var secMin = Math.floor(secTime / 60);
     var timeStr = secMin > 0 ? secMin + ':' + (secSec < 10 ? '0' : '') + secSec : secSec + 's';
     var feelTag = secFeels[s] ? '<span class="feel-tag">' + (STYLE_DATA[secFeels[s]] ? STYLE_DATA[secFeels[s]].label : secFeels[s]) + '</span>' : '';
-    return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + '" draggable="true" data-i="' + i + '">'
+    return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + '" draggable="true" data-i="' + i + '" tabindex="0" role="button" aria-label="' + SL[s] + ', ' + bars + ' bars. Arrow keys to reorder, Enter to select, Delete to remove.">'
       + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>'
-      + '<span class="rm" data-i="' + i + '" title="Remove">&times;</span></div>';
+      + '<span class="rm" data-i="' + i + '" title="Remove" role="button" tabindex="0" aria-label="Remove ' + SL[s] + '">&times;</span></div>';
   }).join('');
 
   // Wire drag-and-drop and click handlers on each arrangement card
@@ -271,28 +297,58 @@ function renderArr(skipMidiUpdate) {
         renderArr();
         return;
       }
-      arrIdx = parseInt(el.dataset.i);
-      curSec = arrangement[arrIdx];
-      renderGrid();
-      renderArr(true); // skip MIDI update — arrangement didn't change
-      var pp = document.getElementById('patternPanel');
-      if (pp) pp.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      // Stop playback, then seek the full song MIDI player to the start of this section
-      var player = document.getElementById('midiPlayer');
-      if (player) {
-        try { player.stop(); } catch(err) {}
-        var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-        var secPerStep = 60 / bpm / 4;
-        var t = 0;
-        for (var si = 0; si < arrIdx; si++) {
-          t += (secSteps[arrangement[si]] || 32) * secPerStep;
+      _selectArrItem(parseInt(el.dataset.i));
+    };
+    /** Keyboard: Enter/Space to select, Delete to remove, Arrows to reorder */
+    el.onkeydown = function(e) {
+      var idx = parseInt(el.dataset.i);
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        _selectArrItem(idx);
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        arrangement.splice(idx, 1);
+        renderArr();
+        // Focus the item that took this position, or the last item
+        var items = f.querySelectorAll('.arr-item');
+        var focusIdx = Math.min(idx, items.length - 1);
+        if (items[focusIdx]) items[focusIdx].focus();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (idx > 0) {
+          var item = arrangement.splice(idx, 1)[0];
+          arrangement.splice(idx - 1, 0, item);
+          if (arrIdx === idx) arrIdx = idx - 1;
+          else if (arrIdx === idx - 1) arrIdx = idx;
+          renderArr(true);
+          var moved = f.querySelector('[data-i="' + (idx - 1) + '"]');
+          if (moved) moved.focus();
         }
-        try { player.seek(t); } catch(err) {
-          try { player.currentTime = t; } catch(err2) {}
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (idx < arrangement.length - 1) {
+          var item = arrangement.splice(idx, 1)[0];
+          arrangement.splice(idx + 1, 0, item);
+          if (arrIdx === idx) arrIdx = idx + 1;
+          else if (arrIdx === idx + 1) arrIdx = idx;
+          renderArr(true);
+          var moved = f.querySelector('[data-i="' + (idx + 1) + '"]');
+          if (moved) moved.focus();
         }
       }
     };
+    /** Keyboard on remove button: Enter/Space to remove */
+    var rmBtn = el.querySelector('.rm');
+    if (rmBtn) {
+      rmBtn.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          arrangement.splice(parseInt(rmBtn.dataset.i), 1);
+          renderArr();
+        }
+      };
+    }
   });
 
   // Build "add section" buttons below the arrangement strip
@@ -339,7 +395,7 @@ function makeAboutCollapsible() {
       var header = lines[0];
       var body = lines.slice(1).join('<br>');
       result += '<div class="about-section">';
-      result += '<div class="about-header" data-idx="' + sectionIdx + '">' + header + ' <span class="about-arrow">▾</span></div>';
+      result += '<div class="about-header" data-idx="' + sectionIdx + '" tabindex="0" role="button" aria-expanded="true">' + header + ' <span class="about-arrow">▾</span></div>';
       result += '<div class="about-body" id="aboutBody' + sectionIdx + '">' + body + '</div>';
       result += '</div>';
       sectionIdx++;
@@ -360,11 +416,20 @@ function makeAboutCollapsible() {
 
     if (body) body.style.display = isKeySection ? '' : 'none';
     if (arrow) arrow.textContent = isKeySection ? '▾' : '▸';
+    hdr.setAttribute('aria-expanded', isKeySection ? 'true' : 'false');
 
-    hdr.onclick = function() {
+    function toggleSection() {
       var isCollapsed = body.style.display === 'none';
       body.style.display = isCollapsed ? '' : 'none';
       arrow.textContent = isCollapsed ? '▾' : '▸';
+      hdr.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+    }
+    hdr.onclick = toggleSection;
+    hdr.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleSection();
+      }
     };
   });
 }
@@ -527,6 +592,28 @@ function explainCell(instrument, step, velocity) {
   return lines;
 }
 
+/**
+ * Show tooltip for a grid cell (shared by click and keyboard handlers).
+ * @param {HTMLElement} cell - The .cell element
+ */
+function _showCellTooltip(cell) {
+  var step = parseInt(cell.dataset.step);
+  if (isNaN(step)) return;
+  var row = cell.parentElement;
+  var label = row.querySelector('.row-label');
+  if (!label) return;
+  var labelText = label.textContent.trim();
+  var instrument = null;
+  for (var key in RN) { if (RN[key] === labelText) { instrument = key; break; } }
+  if (!instrument) return;
+  var pat = patterns[curSec];
+  if (!pat) return;
+  var vel = pat[instrument][step] || 0;
+  showTooltip(cell, explainCell(instrument, step, vel));
+  if (_tooltipTimeout) clearTimeout(_tooltipTimeout);
+  _tooltipTimeout = setTimeout(hideTooltip, 6000);
+}
+
 // Wire grid tooltips once on boot using stable parent delegation
 (function() {
   var gridR = document.getElementById('gridR');
@@ -534,21 +621,14 @@ function explainCell(instrument, step, velocity) {
   gridR.addEventListener('click', function(e) {
     var cell = e.target.closest('.cell');
     if (!cell) { hideTooltip(); return; }
-    var step = parseInt(cell.dataset.step);
-    if (isNaN(step)) return;
-    var row = cell.parentElement;
-    var label = row.querySelector('.row-label');
-    if (!label) return;
-    var labelText = label.textContent.trim();
-    var instrument = null;
-    for (var key in RN) { if (RN[key] === labelText) { instrument = key; break; } }
-    if (!instrument) return;
-    var pat = patterns[curSec];
-    if (!pat) return;
-    var vel = pat[instrument][step] || 0;
-    showTooltip(cell, explainCell(instrument, step, vel));
-    if (_tooltipTimeout) clearTimeout(_tooltipTimeout);
-    _tooltipTimeout = setTimeout(hideTooltip, 6000);
+    _showCellTooltip(cell);
+  });
+  gridR.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var cell = e.target.closest('.cell');
+    if (!cell) return;
+    e.preventDefault();
+    _showCellTooltip(cell);
   });
 })();
 
@@ -608,14 +688,24 @@ function applyGlossaryHighlights() {
     });
   });
 
-  // Wire hover tooltips on glossary terms
+  // Wire hover and keyboard tooltips on glossary terms
   el.querySelectorAll('.glossary-term').forEach(function(span) {
+    span.setAttribute('tabindex', '0');
+    span.setAttribute('role', 'term');
     span.addEventListener('mouseenter', function() {
       var term = span.dataset.term;
       var def = GLOSSARY[term];
       if (def) showTooltip(span, '<span class="tip-label">Glossary</span><b>' + term + '</b> — ' + def);
     });
     span.addEventListener('mouseleave', function() {
+      hideTooltip();
+    });
+    span.addEventListener('focus', function() {
+      var term = span.dataset.term;
+      var def = GLOSSARY[term];
+      if (def) showTooltip(span, '<span class="tip-label">Glossary</span><b>' + term + '</b> — ' + def);
+    });
+    span.addEventListener('blur', function() {
       hideTooltip();
     });
   });

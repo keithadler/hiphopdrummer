@@ -2,7 +2,7 @@
 // Caches all app assets for offline use and fast repeat loads.
 // Cache-first strategy: serve from cache, update in background.
 
-var CACHE_NAME = 'hiphopdrummer-v3';
+var CACHE_NAME = 'hiphopdrummer-v4';
 
 var ASSETS = [
   './',
@@ -22,11 +22,30 @@ var ASSETS = [
   './icon-512.png'
 ];
 
-// Install: cache all local assets
+// CDN dependencies — cached separately so the app works offline.
+// Versioned URLs: safe to cache long-term.
+var CDN_ASSETS = [
+  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  'https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.min.js',
+  'https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1/es6/core.js',
+  'https://cdn.jsdelivr.net/npm/html-midi-player@1.5.0/dist/midi-player.min.js'
+];
+
+// Install: cache all local + CDN assets
 self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
+      // Cache local assets first (must succeed), then CDN (best-effort)
+      return cache.addAll(ASSETS).then(function() {
+        return Promise.all(
+          CDN_ASSETS.map(function(url) {
+            return cache.add(url).catch(function(err) {
+              console.warn('SW: failed to cache CDN asset:', url, err);
+            });
+          })
+        );
+      });
     }).then(function() {
       return self.skipWaiting();
     })
@@ -47,28 +66,26 @@ self.addEventListener('activate', function(e) {
   );
 });
 
-// Fetch: cache-first for local assets, network-only for CDN resources
+// Fetch: cache-first for all requests (local and CDN).
+// Background refresh keeps local assets fresh; CDN assets are versioned
+// so the cached copy is always correct.
 self.addEventListener('fetch', function(e) {
-  var url = new URL(e.request.url);
-
-  // Let CDN requests (JSZip, jsPDF, Tone, midi-player) go straight to network
-  // They're large and versioned — no benefit caching them in SW
-  if (url.hostname !== self.location.hostname) {
-    return; // fall through to browser default (network)
-  }
-
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       if (cached) {
-        // Serve from cache, refresh in background
-        var refresh = fetch(e.request).then(function(response) {
-          if (response && response.status === 200) {
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(e.request, response.clone());
-            });
-          }
-          return response;
-        }).catch(function() {});
+        // Serve from cache immediately.
+        // For same-origin assets, refresh the cache in the background
+        // so the next load picks up any changes.
+        var url = new URL(e.request.url);
+        if (url.hostname === self.location.hostname) {
+          fetch(e.request).then(function(response) {
+            if (response && response.status === 200) {
+              caches.open(CACHE_NAME).then(function(cache) {
+                cache.put(e.request, response);
+              });
+            }
+          }).catch(function() {});
+        }
         return cached;
       }
       // Not in cache — fetch from network and cache it

@@ -14,14 +14,16 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>Hip Hop Drummer</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/html-midi-player@1.5.0"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.min.js" integrity="sha384-YE9GkFb5+GTUGddBcgnuZZaEpqpeuXI/jqx/Ek7A0F2/85Zcwq//mIPWTbYbbVc+" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1/es6/core.js" integrity="sha384-otD5TiNArob+EvRjS8GXLOL0oYEwwrbZ2h6n9VkRDA8rn9sxoMTE9SPb9kwkQVjB" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-midi-player@1.5.0/dist/midi-player.min.js" integrity="sha384-hfmk/3f8wFC+Yu0OSI4+aNtVc0KWed5c6fCB1XZAGkPZHKnS3ejhrxR1NDQx9/fk" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="app-wrap">
 
-    <div class="header-bar">
+    <div class="header-bar" role="banner">
       <div class="brand">HipHop<span>Drummer</span></div>
       <div class="credit">
         <a href="https://keithadler.github.io/hiphopdrummer/" target="_blank" rel="noopener" class="credit-link">keithadler.github.io/hiphopdrummer</a>
@@ -51,7 +53,7 @@
 
     <div id="loadMsg" class="loading">Loading...</div>
 
-    <div class="scroll-area" id="app" style="display:none">
+    <div class="scroll-area" id="app" style="display:none" role="main">
 
       <div class="top-row">
         <div class="top-left">
@@ -62,7 +64,7 @@
           <div class="panel">
             <div class="panel-title">Arrangement <span class="arr-time" id="arrTime"></span></div>
             <div class="arr-hint">Click a section to view its pattern. Drag to reorder. Use + buttons to add.</div>
-            <div class="arr-flow" id="arrFlow"></div>
+            <div class="arr-flow" id="arrFlow" role="list" aria-label="Song arrangement"></div>
             <div class="arr-controls" id="arrCtrl"></div>
           </div>
         </div>

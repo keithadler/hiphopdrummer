@@ -109,6 +109,18 @@ midi-player::part(play-button){color:var(--accent-green)}
 .glossary-term{border-bottom:1px dotted var(--accent-blue);cursor:help}
 .loading{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:19px;color:var(--text-dim);letter-spacing:1px}
 
+/* ── Focus styles for keyboard accessibility ── */
+.arr-item:focus{outline:2px solid var(--accent-blue);outline-offset:1px}
+.arr-item:focus:not(:focus-visible){outline:none}
+.about-header:focus{outline:2px solid var(--accent-blue);outline-offset:1px;border-radius:3px}
+.about-header:focus:not(:focus-visible){outline:none}
+.cell:focus{outline:2px solid var(--accent-green);outline-offset:-1px;z-index:1;position:relative}
+.cell:focus:not(:focus-visible){outline:none}
+.glossary-term:focus{outline:2px solid var(--accent-blue);outline-offset:1px;border-radius:2px}
+.glossary-term:focus:not(:focus-visible){outline:none}
+.arr-item .rm:focus{outline:2px solid var(--accent-red);outline-offset:1px;border-radius:2px}
+.arr-item .rm:focus:not(:focus-visible){outline:none}
+
 /* ── New Beat Dialog ── */
 .regen-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .regen-dialog{background:var(--bg-surface);border:1px solid var(--border-light);border-radius:10px;padding:28px 32px;width:420px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.6)}
