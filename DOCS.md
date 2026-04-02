@@ -232,7 +232,28 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 - **Audio** — html-midi-player with SoundFont for GM drum playback
 - **Rendering** — Vanilla DOM, CSS flexbox, responsive layout
 - **Export** — JSZip for MIDI bundles, jsPDF for beat sheets
+- **PWA** — Service worker for offline support, installable on desktop/mobile
+- **Testing** — Node.js test suite (4622 assertions, zero dependencies)
 - **Dependencies** — JSZip, jsPDF, html-midi-player (all via CDN)
+
+## Testing
+
+Run `node tests.js` — zero dependencies, runs in Node.js.
+
+Covers:
+- All JS files parse without syntax errors
+- All 18 feels generate valid patterns for all 10 section types
+- Velocity ranges (1-127), kick-snare interlock, hat choke enforcement
+- MIDI bytes: MThd header, tempo meta-event, note-on events, end-of-track
+- MPC patterns: valid JSON, chronological order, straight grid timing, velocity floats
+- Full `generateAll()` pipeline end-to-end
+- Section transitions (crashes, breakdown re-entries)
+- 8-bar variation system (breathing room on bar 5)
+- Ghost density extremes (0.5 sparse, 1.8 dense)
+- Forced style/key/BPM from dialog
+- All 35 About This Beat sections present
+- All 11 DAW help builders produce content
+- STYLE_DATA, FEEL_PALETTES, note maps completeness
 
 ## Disclaimer
 

@@ -45,6 +45,14 @@ No install needed. Just open `index.html` in any browser.
 python3 -m http.server 8080
 ```
 
+## Testing
+
+```bash
+node tests.js
+```
+
+4622 assertions, zero dependencies. Covers all 18 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+
 ## How It Works
 
 The generator models real drumming principles across 18 hip hop styles. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. A song-level palette system ensures all sections use compatible feels. Section-level adjustments vary by both feel and section type.
@@ -65,7 +73,10 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, MIDI player
 ├── daw-help.js        — DAW-specific help file builders (Ableton, Logic, FL, etc.)
 ├── pdf-export.js      — PDF beat sheet generator
-├── app.js             — Main controller, New Beat dialog, event wiring, playback cursor
+├── app.js             — Main controller, New Beat dialog, Export dialog, event wiring
+├── tests.js           — Automated test suite (node tests.js — 4622 assertions, zero deps)
+├── sw.js              — Service worker for PWA offline support
+├── manifest.json      — PWA manifest for installable app
 ├── DOCS.md            — Full technical documentation
 ├── CONTRIBUTING.md    — Contribution guidelines
 └── LICENSE            — MIT
