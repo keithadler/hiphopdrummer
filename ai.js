@@ -1411,6 +1411,8 @@ function generateAll(opts) {
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
+  var styleEl = document.getElementById('songStyle');
+  if (styleEl) styleEl.textContent = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;
   renderGrid(); renderArr();
   var aboutEl = document.getElementById('aboutBeat');
   if (aboutEl) {
