@@ -129,7 +129,13 @@ All product names, logos, and brands mentioned in this project are property of t
 
 ## Credits
 
-MPC pattern export format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev, which is a restructured version of the original implementation by Catnip / Jamie Faye Fenton (Fentonia). The `.mpcpattern` JSON format and static header event structure are derived from that work. No license was specified in the original project; credit is given here in accordance with open source attribution best practices.
+- [SpessaSynth](https://github.com/spessasus/SpessaSynth) by Spessasus — SoundFont2/SF3 MIDI synthesizer engine used for playback and WAV rendering. Apache-2.0 license.
+- [GeneralUser GS](https://github.com/mrbumpy409/GeneralUser-GS) by S. Christian Collins — GM/GS SoundFont bundled for high-quality instrument sounds. Licensed under the GeneralUser GS license (free for any use with attribution).
+- [AkaiMPC Chord Progression Generator](https://github.com/liotier/AkaiMPC/tree/main/AkaiMPCChordProgressionGenerator) by Jean-Marc Liotier — inspiration for the chord sheet visualization, piano keyboard diagrams, and genre-specific chord voicing approach. Unlicense (public domain).
+- [medianmpc](https://github.com/miathedev/medianmpc) by miathedev — MPC `.mpcpattern` JSON format and static header event structure adapted from this project, which is a restructured version of the original implementation by Catnip / Jamie Faye Fenton (Fentonia).
+- [JSZip](https://stuk.github.io/jszip/) — ZIP file generation for the export bundle. MIT license.
+- [jsPDF](https://github.com/parallax/jsPDF) — PDF generation for beat sheets and chord sheets. MIT license.
+- [esbuild](https://esbuild.github.io/) — JavaScript bundler used to compile the SpessaSynth integration module. MIT license.
 
 ---
 
