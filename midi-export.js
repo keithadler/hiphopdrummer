@@ -153,6 +153,11 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
 
+  // Drum kit program change on channel 10
+  var drumKitProgram = 0;
+  try { var dkPref = localStorage.getItem('hhd_drumkit'); if (dkPref) drumKitProgram = parseInt(dkPref) || 0; } catch(e) {}
+  td.push(0, 0xC0 | ch, drumKitProgram);
+
   // Write note-on (0x9n) and note-off (0x80) events with delta-time encoding
   var lastTick = 0;
   for (var i = 0; i < events.length; i++) {
@@ -596,13 +601,14 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
   // Program change on channel 1: bass sound from preferences
-  // Jazz Kit SoundFont only has percussion — force program 0 (piano, which it maps to bass)
   var bassProgram = 33;
   try { var bsPref = localStorage.getItem('hhd_bass_sound'); if (bsPref) bassProgram = parseInt(bsPref) || 33; } catch(e) {}
-  var drumKit = '';
-  try { drumKit = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
-  if (drumKit.indexOf('jazz_kit') >= 0) bassProgram = 0;
   td.push(0, 0xC0 | bassCh, bassProgram);
+
+  // Drum kit program change on channel 10 (GM drum kits: 0=Standard, 8=Room, 16=Power, etc.)
+  var drumKitProgram = 0;
+  try { var dkPref = localStorage.getItem('hhd_drumkit'); if (dkPref) drumKitProgram = parseInt(dkPref) || 0; } catch(e) {}
+  td.push(0, 0xC0 | drumCh, drumKitProgram);
 
   // Write events
   var lastTick = 0;
