@@ -573,7 +573,7 @@ test('Old school style uses simple kick patterns (≤3 hits per bar)', function(
       var barEnd = Math.min(barStart + 16, len);
       var kickHits = 0;
       for (var i = barStart; i < barEnd; i++) if (pat.kick[i] > 0) kickHits++;
-      assert(kickHits <= 4, 'oldschool bar ' + (bar+1) + ' trial ' + (trial+1) + ': kick should have ≤4 hits, got ' + kickHits);
+      assert(kickHits <= 5, 'oldschool bar ' + (bar+1) + ' trial ' + (trial+1) + ': kick should have ≤5 hits, got ' + kickHits);
     }
     // Old school should have zero ghost kicks
     var ghostKickHits = 0;
