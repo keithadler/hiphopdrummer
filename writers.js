@@ -457,7 +457,7 @@ function writeSnB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKA(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
     var darkPos = pick([9, 11]);
@@ -504,7 +504,7 @@ function writeGKA(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKB(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
     var darkPos = pick([5, 13]);
