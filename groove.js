@@ -66,6 +66,13 @@ function applyGroove(p, len, feel) {
       if (pos % 4 === 0) p.ride[i] = Math.min(127, p.ride[i] + 5);
       else p.ride[i] = Math.max(35, p.ride[i] - 3);
     }
+    // Shaker: upbeat accent — "and" positions slightly louder, downbeats softer
+    // Stays in a narrow band (35-70%) — it's texture, not a lead voice
+    if (p.shaker[i] > 0) {
+      if (pos % 4 === 2) p.shaker[i] = Math.min(70, p.shaker[i] + 4);  // "and" positions: slight boost
+      else if (pos % 2 === 0) p.shaker[i] = Math.max(35, p.shaker[i] - 3); // downbeats: pull back
+      else p.shaker[i] = Math.max(30, p.shaker[i] - 5); // 16th positions: softest
+    }
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
   // Crunk: flat kick — all four beats equal, no accent curve
@@ -128,7 +135,7 @@ function humanizeVelocities(p, len, feel) {
   // Use passed feel, fall back to songFeel global for backward compatibility
   var hFeel = feel || songFeel;
   ROWS.forEach(function(r) {
-    var instrJitter = (r === 'hat' || r === 'ride') ? 0.5
+    var instrJitter = (r === 'hat' || r === 'ride' || r === 'shaker') ? 0.5
       : (r === 'kick') ? 1.25
       : (r === 'ghostkick') ? 1.3
       : 1.0;

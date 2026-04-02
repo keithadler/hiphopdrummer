@@ -84,6 +84,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.openhat.on{background:#50c0e0}
 .cell.ride.on{background:#5090b0}
 .cell.crash.on{background:#c0b030}
+.cell.shaker.on{background:#70b870}
 .cell.beat-start{margin-left:3px}
 .cell.playback-cursor{box-shadow:inset 0 0 0 2px var(--accent-green);border-color:var(--accent-green)}
 .beat-num.playback-cursor{color:var(--accent-green);font-weight:700}

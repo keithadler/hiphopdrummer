@@ -31,7 +31,7 @@
  * Used by buildMidiBytes() only — MIDI export stays on GM standard.
  * @type {Object.<string, number>}
  */
-var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 35, hat: 42, openhat: 46, ride: 51, crash: 49 };
+var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 35, hat: 42, openhat: 46, ride: 51, crash: 49, shaker: 54 };
 
 /**
  * MPC Chromatic C1 note map — the default drum program layout on Akai MPC
@@ -58,7 +58,8 @@ var MPC_NOTE_MAP = {
   hat:       41,  // A06 — F1  — Closed Hi-Hat
   openhat:   42,  // A07 — F#1 — Open Hi-Hat
   ride:      43,  // A08 — G1  — Ride
-  crash:     44   // A09 — G#1 — Crash
+  crash:     44,  // A09 — G#1 — Crash
+  shaker:    45   // A10 — A1  — Shaker / Tambourine
 };
 
 /**
@@ -365,6 +366,7 @@ function buildHelpGeneral(bpm, swing) {
     '  Open Hat   = note 46 (A#1)',
     '  Ride       = note 51 (D#2)',
     '  Crash      = note 49 (C#2)',
+    '  Shaker     = note 54 (F#2)',
     '',
     'MPC DRUM NOTE MAP (MPC folder)',
     '------------------------------',

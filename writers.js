@@ -1229,3 +1229,94 @@ function addFill(p, sec, len, feel) {
   }
 }
 
+
+/**
+ * Write shaker / tambourine pattern for one bar.
+ *
+ * The shaker adds high-frequency organic shimmer above the hat.
+ * It's not present in every style — dark, sparse, crunk, and memphis
+ * skip it entirely. When present, it typically plays on upbeats (the
+ * "and" positions) at low-to-medium velocity, creating a layered
+ * texture that makes the groove feel more alive.
+ *
+ * Style behaviors:
+ *   normal/chopbreak: 8th note upbeats at moderate velocity — Pete Rock,
+ *     Large Professor, Buckwild. The shaker is the "secret ingredient"
+ *     in a lot of golden era boom bap.
+ *   jazzy: sparse, soft — just a few upbeats, very quiet. Adds shimmer
+ *     without competing with the ghost notes.
+ *   bounce/big: busier, louder — 16th note upbeats on beats 2 and 4.
+ *     Bad Boy era production used tambourine aggressively.
+ *   dilla: scattered, loose — random upbeats at varying velocities.
+ *     Dilla's shakers feel improvised, not programmed.
+ *   lofi: very sparse, very quiet — one or two hits per bar at 35-45%.
+ *     The shaker is barely there, adding texture without presence.
+ *   gfunk: 16th note upbeats, moderate velocity — the West Coast shimmer.
+ *   halftime/driving: 8th note upbeats, moderate — adds forward momentum.
+ *   hard/dark/sparse/crunk/memphis: no shaker.
+ *
+ * @param {Object.<string, number[]>} p - Pattern to write into
+ * @param {string} feel - Current section feel
+ * @param {number} off - Step offset (start of bar)
+ */
+function writeShaker(p, feel, off) {
+  // Styles that don't use shaker
+  if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
+      feel === 'crunk' || feel === 'memphis') return;
+
+  if (feel === 'normal' || feel === 'chopbreak' || feel === 'driving') {
+    // 8th note upbeats (steps 2, 6, 10, 14) — the classic boom bap shaker
+    // Not every upbeat — skip some for variation
+    var upbeats = [2, 6, 10, 14];
+    upbeats.forEach(function(s) {
+      if (maybe(0.65 * ghostDensity)) p.shaker[off + s] = v(52, 12);
+    });
+  }
+  else if (feel === 'jazzy') {
+    // Very sparse, very soft — just a hint of shimmer
+    if (maybe(0.4)) p.shaker[off + 6]  = v(38, 10);
+    if (maybe(0.3)) p.shaker[off + 14] = v(35, 10);
+    if (maybe(0.2)) p.shaker[off + 2]  = v(32, 8);
+  }
+  else if (feel === 'bounce' || feel === 'big') {
+    // Busier — 16th note upbeats on beats 2 and 4 (tambourine feel)
+    // Bad Boy era: tambourine on every upbeat of the backbeat
+    [1, 3, 5, 7, 9, 11, 13, 15].forEach(function(s) {
+      if (maybe(0.55)) p.shaker[off + s] = v(58, 14);
+    });
+    // Accent on the "and" positions
+    [2, 6, 10, 14].forEach(function(s) {
+      if (maybe(0.7)) p.shaker[off + s] = v(65, 12);
+    });
+  }
+  else if (feel === 'dilla') {
+    // Loose and scattered — feels improvised
+    var allUpbeats = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15];
+    allUpbeats.forEach(function(s) {
+      if (maybe(0.25 * ghostDensity)) p.shaker[off + s] = v(42 + Math.floor(rnd() * 20), 15);
+    });
+  }
+  else if (feel === 'lofi') {
+    // Barely there — one or two hits, very quiet
+    if (maybe(0.45)) p.shaker[off + 6]  = v(38, 8);
+    if (maybe(0.35)) p.shaker[off + 14] = v(35, 8);
+  }
+  else if (feel === 'gfunk') {
+    // 16th note upbeats — West Coast shimmer
+    [1, 3, 5, 7, 9, 11, 13, 15].forEach(function(s) {
+      if (maybe(0.6)) p.shaker[off + s] = v(50, 12);
+    });
+  }
+  else if (feel === 'halftime') {
+    // 8th note upbeats, moderate — adds forward momentum to the slow feel
+    [2, 6, 10, 14].forEach(function(s) {
+      if (maybe(0.55 * ghostDensity)) p.shaker[off + s] = v(48, 12);
+    });
+  }
+  else {
+    // Default: sparse 8th note upbeats
+    [2, 6, 10, 14].forEach(function(s) {
+      if (maybe(0.45 * ghostDensity)) p.shaker[off + s] = v(48, 12);
+    });
+  }
+}
