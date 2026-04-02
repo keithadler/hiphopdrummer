@@ -4,7 +4,7 @@ Full technical breakdown of every feature, technique, and design decision in the
 
 ## Hip Hop Styles
 
-Eighteen feel types covering the full range of hip hop (listed alphabetically):
+Eighteen feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
@@ -25,6 +25,16 @@ Eighteen feel types covering the full range of hip hop (listed alphabetically):
 - **Phonk/Cloud Rap** — SpaceGhostPurrp, DJ Smokey, Soudiere; slow, triplet hats, Memphis revival
 - **Sparse** — Minimal drums, space dominates; RZA, Alchemist
 
+### Regional Sub-Styles
+- **Boom Bap — Bronx** (Premier) — tight, minimal, 60% ghost density, -2 swing bias
+- **Boom Bap — Queens** (Large Pro) — jazzy, ride cymbal, 140% ghost density, +2 swing
+- **Boom Bap — Long Island** (De La) — playful, loose, 110% ghosts, +4 swing bias
+- **G-Funk — Dre** — polished, controlled, 70% ghost density, tight kick
+- **G-Funk — DJ Quik** — raw funk, 150% ghosts, +2 swing, busier kick
+- **G-Funk — Battlecat** — heavy bounce, +4 swing bias, deep pocket
+
+Regional variants inherit the parent style's full pattern generation logic (kick libraries, hat writers, fill types, bass styles) but modify ghost density, swing bias, hat type, and dynamics through the `REGIONAL_VARIANTS` override table. The `resolveBaseFeel()` function maps variant names to parents for all existing pattern logic.
+
 ## New Beat Dialog
 
 Clicking NEW BEAT (or pressing R) opens a modal dialog with three optional fields:
@@ -39,7 +49,7 @@ When a style is forced, `generateAll()` finds the matching `FEEL_PALETTES` entry
 
 ## Song Palette System
 
-Each generation picks one of 16 compatible feel palettes from `FEEL_PALETTES`. A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
+Each generation picks one of 22 compatible feel palettes from `FEEL_PALETTES` (16 base + 6 regional variants). A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
 
 - verse / verse2 / instrumental → `palette[0]`
 - chorus / chorus2 / lastchorus → `palette[1]`
@@ -47,15 +57,65 @@ Each generation picks one of 16 compatible feel palettes from `FEEL_PALETTES`. A
 - pre → `palette[3]`
 - intro / outro → their own dedicated pools
 
-This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 16 palettes cover: classic boom bap, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, crunk, Memphis, halftime/slow, Griselda revival, phonk/cloud rap, Nujabes/jazz hop, old school.
+This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 22 palettes cover: classic boom bap, boom bap Bronx/Queens/Long Island, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, G-Funk Dre/Quik/Battlecat, crunk, Memphis, halftime/slow, Griselda revival, phonk/cloud rap, Nujabes/jazz hop, old school.
 
 ## Beat Generation
 
 30 verse kick patterns, 13 chorus kick patterns, 10 snare ghost pattern pairs, 4 hi-hat pattern types (8th notes, 16th notes, sparse 16ths, triplet feel), 2-bar A/B phrases, ghost notes, flams, velocity grooves, fills, tension drops, ride cymbal.
 
+### Kick Pattern Libraries (218 total)
+Every style has a dedicated curated kick library with 10-13 patterns:
+- **Main kickLib**: 31 patterns (classic boom bap, breakbeat, syncopated, heavy, minimal, bounce)
+- **Old school**: 12 (Run-DMC, LL Cool J, BDP, Salt-N-Pepa, Kurtis Blow, Bambaataa)
+- **Chorus**: 13 (high energy, driving, heavy, bounce)
+- **Dark**: 11 (displaced, RZA stutter, Alchemist, no-beat-1)
+- **Chopbreak**: 13 (Apache, Amen break, Skull Snaps, Funky Drummer)
+- **Halftime**: 11 (Havoc, RZA, displaced)
+- **Sparse**: 10 (maximum displacement, wide spacing)
+- **Driving**: 11 (EPMD, Gangstarr, Redman, triple-and)
+- **G-Funk**: 12 (Dre, Quik, Battlecat, Warren G, Snoop)
+- **Memphis**: 11 (DJ Paul, Juicy J, displaced, stutter)
+- **Crunk**: 10 (four-on-floor variants, double kick)
+- **Griselda**: 12 (Daringer, Beat Butcha, Conductor Williams)
+- **Phonk**: 11 (SpaceGhostPurrp, maximum displacement)
+- **Nujabes**: 12 (Fat Jon, DJ Okawari, Marcus D)
+- **Dilla**: 12 (loose, unexpected placements, no-beat-1, scattered)
+- **Lo-fi**: 10 (Madlib, Knxwledge, MF DOOM, dusty)
+- **Bounce**: 10 (Craig Mack, Puff Daddy, four-on-floor nod)
+- **Jazzy**: 10 (Q-Tip, Pete Rock, Guru Jazzmatazz)
+
 ## Tempo & Swing
 
 60–130 BPM covering slow phonk/Griselda territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
+
+### Per-Instrument Swing
+Each instrument swings by a different amount per style via the `INSTRUMENT_SWING` table. Categories: hat (closed/open/ride/shaker), kick (kick/ghost kick), ghostSnare (ghost snares/rimshot), backbeat (loud snare/clap), bass. Crashes always on grid (0x).
+
+Key values:
+- **Dilla**: hat 1.3×, kick 0.6×, ghost snare 1.5×, backbeat 0.8×, bass 0.7×
+- **G-Funk**: hat 1.2×, kick 0.7×, bass 1.1×
+- **Crunk/Old School**: everything 0.5× (nearly mechanical)
+- **Jazzy/Nujabes**: hat 1.2×, ghost snare 1.3×
+
+## Player Touch Profiles
+
+Named drummer profiles shape the humanization pass. Each profile defines per-instrument velocity center bias, jitter multiplier, and "tight positions" where the player is most consistent (jitter drops to 30%).
+
+Profiles per style (one picked randomly per song):
+- **normal**: Premier (mechanical kick, tight backbeat), Pete Rock (natural, present ghosts), Buckwild (solid, pulled-back hats)
+- **dilla**: Dilla MPC3000 (everything floats, loud ghosts), Madlib (beat 1 anchored, quiet hats)
+- **jazzy**: Questlove (ghost notes cluster 45-55, loose hats), Karriem Riggins (jazz-loose, ride-forward)
+- **gfunk**: Dre/Daz (tight, controlled 3-level hats), DJ Quik (funkier, harder snare)
+- **hard**: Havoc (mechanical, punchy, minimal ghosts)
+- **dark**: RZA (heavy beat 1, atmospheric hats, barely-there ghosts)
+- **lofi**: SP-404 Touch (compressed, narrow band across all instruments)
+- **crunk**: Lil Jon (maximum velocity, mechanical across everything)
+- **memphis**: DJ Paul (heavy beat 1, sparse, quiet hats)
+- **griselda**: Daringer (punchy, precise), Conductor Williams (slightly looser)
+- **nujabes**: Nujabes/Fat Jon (loose jazz feel, ride-forward)
+- **oldschool**: DMX/LinnDrum (drum machine precision, 0.15 jitter)
+
+Shared: chopbreak/bounce/big use normal profiles, driving uses hard, sparse/halftime use dark, phonk uses memphis.
 
 ## Feel-Specific Behaviors
 
@@ -98,7 +158,7 @@ Each limb has its own dynamics with feel-scaled spread:
 - **Ghost kick**: Velocity curve — softer before snare, firmer after rebound. Scaled relative to nearby main kicks.
 
 ### Humanization
-Per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6× across all, dilla 1.4× on kicks, chopbreak 0.7× on ghost snares, gfunk wider hat / tighter kick, crunk 0.4× everything.
+Per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6× across all, dilla 1.4× on kicks, chopbreak 0.7× on ghost snares, gfunk wider hat / tighter kick, crunk 0.4× everything. Player touch profiles stack on top: velocity center bias shifts each instrument, tight positions reduce jitter to 0.3×, profile jitter multiplier scales the base range.
 
 ### Ghost Note System
 Density randomized per song (0.5–1.8), clamped per feel (chopbreak floors at 1.0, lofi caps at 1.0, dilla floors at 0.8, gfunk caps at 0.8, crunk caps at 0.4, memphis caps at 0.6). Ghost kicks use distinct A/B positions with velocity curve. Ghost snare clustering: chopbreak 50%, lofi 15%, dilla 30% with 3-step spacing, memphis 12%, crunk 0%, standard 35% with 2-step spacing.
@@ -168,6 +228,40 @@ The key section shows style-matched alternate progressions with actual chord nam
 - **Neo-Soul Turnaround** (IM7→iii7→vi7→ii7) — Tribe/D'Angelo/Erykah Badu
 - **Sad Trap** (vi→IV→I) — emotional, melancholy quality
 
+## Bass Line Generator
+
+19 style-matched bass patterns with 24 parameters per style. The bass locks to the kick drum pattern and follows the key with style-specific chord progressions.
+
+### Bass Articulation
+Slides/portamento (G-Funk, phonk, memphis), ghost notes (chromatic approach on off-beat 16ths), dead notes (percussive muted hits), hammer-on grace notes (gfunk, bounce, chopbreak), octave drops on beat 1, octave pops on beats 2/3/4, sub swell (808 reinforcement note for sub bloom).
+
+### Chord Progressions
+`CHORD_PROGRESSIONS` table with 3-5 progressions per feel using degree symbols (i, iv, v, ii, bII). Jazzy/nujabes use ii-V turnarounds. Dilla sits on one chord. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII.
+
+### Modal Harmony
+Dorian (G-Funk, Dilla, Nujabes): IV chord is dominant 7th. Phrygian (Dark, Griselda, Memphis, Phonk): bII chord for sinister half-step tension.
+
+### Section Behavior
+Breakdown thinning (mirrors drums), chorus re-entry hits, turnaround figures at bar 7, pre-chorus chromatic builds. Bass reads `sectionEnergyMap` for cross-section density awareness.
+
+### Bass Fills (17 explicit + 2 default)
+Jazzy: diatonic walk. Dilla: chromatic dissolve. G-Funk: Moog slide. Dark/Memphis/Phonk: dropout. Crunk: sustained root. Hard/Griselda: punchy hit. Chopbreak: octave pedal. Driving: chromatic push. Big: root→5th→octave.
+
+### Call-and-Response
+Bass reacts to drum context: snare deference (drops/softens on loud backbeats), density mirroring (simplifies in busy bars), hat awareness (drops ornaments when hats are 16ths), gap filling (passing tones in kick gaps).
+
+### Motif System
+2-bar motif stored as intervals relative to chord root, repeated with mutations (10% drop, 15% swap, 8% velocity variation). Transposes correctly over chord changes.
+
+## Dynamic Arrangement Arc
+
+`applyArrangementArc()` builds energy across the full song like a real performance:
+- Verse 2 gets extra ghost snares/kicks. Chorus 2 hits 3% harder. Last chorus gets 6% boost + open hats.
+- Instrumental decompression after dense choruses. Progressive 0.97→1.03 velocity curve across arrangement.
+- `sectionEnergyMap` stores per-section energy (0.5-1.5) for bass cross-section awareness.
+
+Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.15, breakdown 0.6, instrumental 0.8, lastchorus 1.25, outro 0.5.
+
 ## Export
 
 ### MIDI
@@ -233,27 +327,37 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 - **Rendering** — Vanilla DOM, CSS flexbox, responsive layout
 - **Export** — JSZip for MIDI bundles, jsPDF for beat sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
-- **Testing** — Node.js test suite (4622 assertions, zero dependencies)
+- **Testing** — Node.js test suite (9500+ assertions, zero dependencies)
 - **Dependencies** — JSZip, jsPDF, html-midi-player (all via CDN)
 
 ## Testing
 
-Run `node tests.js` — zero dependencies, runs in Node.js.
+Run `node tests.js` — zero dependencies, runs in Node.js. 9500+ assertions.
 
 Covers:
 - All JS files parse without syntax errors
-- All 19 feels generate valid patterns for all 10 section types
+- All 25 feels (19 base + 6 regional) generate valid patterns for all 10 section types
 - Velocity ranges (1-127), kick-snare interlock, hat choke enforcement
 - MIDI bytes: MThd header, tempo meta-event, note-on events, end-of-track
+- Combined drums+bass MIDI: both channel 10 and channel 1 events present
 - MPC patterns: valid JSON, chronological order, straight grid timing, velocity floats
 - Full `generateAll()` pipeline end-to-end
 - Section transitions (crashes, breakdown re-entries)
+- Arrangement arc (energy ordering, verse2 ghost density >= verse1)
 - 8-bar variation system (breathing room on bar 5)
 - Ghost density extremes (0.5 sparse, 1.8 dense)
 - Forced style/key/BPM from dialog
 - All 35 About This Beat sections present
 - All 11 DAW help builders produce content
 - STYLE_DATA, FEEL_PALETTES, note maps completeness
+- Regional variants: pattern generation, bass events, secFeels storage, resolveBaseFeel
+- REGIONAL_VARIANTS table: required fields, STYLE_DATA/SWING_POOLS entries
+- Per-instrument swing: INSTRUMENT_SWING covers all 19 feels, getInstrumentSwing categories
+- CHORD_PROGRESSIONS: all 19 feels, valid degree symbols
+- Modal harmony: Dorian IV for G-Funk/Dilla, Phrygian bII for dark styles
+- Player profiles: PLAYER_PROFILES covers all feels, selected during generateAll
+- Bass call-and-response: snare deference and gap filling verified
+- Bass breakdown thinning, chorus re-entry hits
 
 ## Disclaimer
 

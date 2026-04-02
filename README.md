@@ -66,7 +66,11 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **Chord sheet PDF** — landscape A4 with color-coded chord boxes and piano diagrams. Included in the export ZIP.
 - **New Beat dialog** — pick style, key, and BPM before generating; all fields optional (Auto = random). Style filters the key and BPM lists to only show musically authentic options. Selecting a style shows the key producers; selecting a key shows its rap mood.
 - **10 instrument rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker
+- **218 curated kick patterns** across 18 dedicated libraries — every style has 10-13 patterns with authentic syncopation. Dilla, lo-fi, bounce, and jazzy each have their own dedicated libraries instead of sharing the generic boom bap pool.
 - **Dedicated kick libraries** for every feel — all 19 styles have curated kick patterns matched to their aesthetic
+- **Player touch profiles** — named drummer profiles shape humanization per song. Premier (mechanical kick, tight backbeat), Questlove (ghost notes cluster 45-55), Dilla MPC3000 (everything floats), Lil Jon (maximum velocity, flat), DJ Paul (heavy beat 1, sparse), Daringer (punchy, precise), DMX/LinnDrum (drum machine precision 0.15 jitter). 2-4 profiles per style, one picked per generation.
+- **Bass call-and-response** — the bass reacts to what the drums are doing. Drops notes on loud snare backbeats (gives the snare room), simplifies in busy drum bars, drops ornamental notes when hats are playing 16ths, fills gaps when the kick has 3+ empty steps with passing tones.
+- **Dynamic arrangement arc** — the song builds like a real performance. Verse 2 gets extra ghost notes. Chorus 2 hits 3% harder. Last chorus gets 6% velocity boost plus extra open hats. Instrumentals decompress after dense choruses. A progressive velocity curve (0.97→1.03) runs across the full arrangement. Bass reads a cross-section energy map for density awareness.
 - **Feel-aware everything** — fills, bar variations, ghost clustering, accent curves, swing pools, hat density, snare dynamics, crash probabilities, and humanization all adapt to the style
 - **Song palette system** — each generation picks one of 22 compatible feel families (including regional variants) so all sections stay coherent
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
@@ -118,11 +122,11 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-7900+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+9500+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, per-instrument swing, chord progressions, modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined drums+bass MIDI, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
 
 ## How It Works
 
-The generator models real drumming principles across 19 hip hop styles with 6 regional variants. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile. Per-instrument swing means hats, kicks, ghost snares, and bass each swing by different amounts — the way real producers program. A song-level palette system ensures all sections use compatible feels. Style-specific chord progressions use authentic modal harmony: Dorian for G-Funk/Dilla, Phrygian for dark/Memphis. Section-level adjustments vary by both feel and section type.
+The generator models real drumming principles across 19 hip hop styles with 6 regional variants and 218 curated kick patterns. Each feel has its own dedicated kick library (10-13 patterns), hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile shaped by named player touch profiles (Premier, Questlove, Dilla, Lil Jon, and more). Per-instrument swing means hats, kicks, ghost snares, and bass each swing by different amounts — the way real producers program. A song-level palette system ensures all sections use compatible feels. Style-specific chord progressions use authentic modal harmony: Dorian for G-Funk/Dilla, Phrygian for dark/Memphis. A dynamic arrangement arc builds energy across the song — verse 2 busier than verse 1, last chorus at maximum intensity, instrumentals decompress after dense choruses. The bass reacts to drum context with call-and-response awareness. Section-level adjustments vary by both feel and section type.
 
 See [DOCS.md](DOCS.md) for the full technical breakdown.
 
@@ -131,11 +135,11 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ```
 ├── index.html         — App shell, layout, script loading
 ├── styles.css         — Dark theme UI, responsive layout
-├── patterns.js        — Constants, state, section/row definitions, STYLE_DATA, per-instrument swing, regional variants
-├── ai.js              — Generation pipeline, feel/swing pools, kick libraries, orchestration
+├── patterns.js        — Constants, state, STYLE_DATA, per-instrument swing, regional variants, player profiles
+├── ai.js              — Generation pipeline, 218 kick patterns, feel/swing pools, arrangement arc, orchestration
 ├── writers.js         — Instrument-specific bar writers, intro/outro, fills
-├── groove.js          — Accent curves, velocity humanization, post-processing
-├── bass.js            — Bass line generator, chord progressions, fills, MIDI/MPC bass export
+├── groove.js          — Accent curves, player-profile humanization, post-processing
+├── bass.js            — Bass line generator, chord progressions, call-and-response, fills, MIDI/MPC export
 ├── analysis.js        — "About This Beat" educational text generator
 ├── ui.js              — Grid rendering, arrangement editor, chord sheet, tooltips, glossary
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, combined drums+bass MIDI
@@ -146,7 +150,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── synth.js           — Bundled synth engine (built from synth-bridge.mjs)
 ├── spessasynth_processor.min.js — AudioWorklet processor for SpessaSynth
 ├── GeneralUserGS.sf3  — GeneralUser GS SoundFont (10MB, all GM instruments + drum kits)
-├── tests.js           — Automated test suite (node tests.js — 7900+ assertions, zero deps)
+├── tests.js           — Automated test suite (node tests.js — 9500+ assertions, zero deps)
 ├── sw.js              — Service worker for PWA offline support
 ├── manifest.json      — PWA manifest for installable app
 ├── package.json       — npm config (SpessaSynth + esbuild)
