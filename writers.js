@@ -625,7 +625,7 @@ function writeHA(p, feel, off) {
     // Bounce: consistent 8ths with occasional 16th flurries — Bad Boy energy
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(92,8):v(78,10);
     // Occasional 16th note flurry on beat 2 or 4 — the danceable bounce signature
-    if (maybe(.45)) { var bp=pick([4,12]); p.hat[off+bp+1]=v(62,10); }
+    if (maybe(.45)) { var bp=pick([4,12]); p.hat[off+bp+1]=v(50,10); }
     return;
   }
   if (feel === 'gfunk') {
@@ -639,13 +639,13 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'crunk') {
-    // Crunk: loud driving 8ths, minimal dynamics — Lil Jon mechanical energy
-    for (var i=0;i<16;i+=2) p.hat[off+i]=v(105,5);
+    // Crunk: loud 16th note hats, minimal dynamics — Lil Jon mechanical energy
+    for (var i=0;i<16;i++) p.hat[off+i]=i%4===0?v(108,4):i%2===0?v(102,5):v(95,6);
     return;
   }
   if (feel === 'memphis') {
-    // Memphis: sparse, dark 8ths — slightly louder than lofi, skip on backbeat positions
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,8):v(58,10);
+    // Memphis: sparse, dark 8ths — quieter than standard, skip on backbeat positions
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(62,8):v(50,10);
     // Skip on beat 2 or 4 occasionally — creates unsettling, incomplete feel
     if (maybe(.3)) p.hat[off+4]=0;
     if (maybe(.25)) p.hat[off+12]=0;
@@ -774,11 +774,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'crunk') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=v(105,5);
+    for (var i=0;i<16;i++) p.hat[off+i]=i%4===0?v(108,4):i%2===0?v(102,5):v(95,6);
     return;
   }
   if (feel === 'memphis') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,8):v(58,10);
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(62,8):v(50,10);
     // Bar B: skip on different backbeat position than A
     if (maybe(.3)) p.hat[off+12]=0;
     if (maybe(.25)) p.hat[off+4]=0;

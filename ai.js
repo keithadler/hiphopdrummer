@@ -670,7 +670,7 @@ function generatePattern(sec) {
   if (feel === 'lofi') sectionHatType = '8th';          // Lo-fi: always sparse 8ths
   if (feel === 'chopbreak' && sectionHatType === 'triplet') sectionHatType = '16th'; // Chopbreak: bias toward 16ths, never triplets
   if (feel === 'gfunk') sectionHatType = '16th';        // G-Funk: 16th note hats are the signature sound
-  if (feel === 'crunk') sectionHatType = '8th';         // Crunk: driving 8ths, loud and mechanical
+  if (feel === 'crunk') sectionHatType = '16th';        // Crunk: 16th note hats, loud and mechanical
   if (feel === 'memphis') sectionHatType = '8th';       // Memphis: sparse 8ths, dark and minimal
   // Normal: bias toward 8th notes (classic boom bap) — 70% chance regardless of song-level selection
   if (feel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
