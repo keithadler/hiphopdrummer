@@ -321,9 +321,12 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
   // Tempo
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
-  // Program change: bass sound from preferences (default: 33 = Electric Bass Finger)
+  // Program change: bass sound from preferences
   var bassProgram = 33;
-  try { var bp = localStorage.getItem('hhd_bass_sound'); if (bp) bassProgram = parseInt(bp) || 33; } catch(e) {}
+  try { var bsPref = localStorage.getItem('hhd_bass_sound'); if (bsPref) bassProgram = parseInt(bsPref) || 33; } catch(e) {}
+  var drumKit = '';
+  try { drumKit = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
+  if (drumKit.indexOf('jazz_kit') >= 0) bassProgram = 0;
   td.push(0, 0xC0 | ch, bassProgram);
 
   var lastTick = 0;
