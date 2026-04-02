@@ -235,6 +235,27 @@ function generateBassPattern(sec) {
     events.push({ step: step, note: midiNote, vel: noteVel, dur: style.noteDur });
   }
 
+  // Humanize bass velocities — feel-aware micro-variation
+  // Bass is tighter than drums (less jitter) but not robotic
+  var bassJitter = 1.0;
+  if (bassFeel === 'lofi') bassJitter = 0.5;          // lo-fi: compressed, minimal variation
+  else if (bassFeel === 'crunk' || bassFeel === 'oldschool') bassJitter = 0.3; // mechanical
+  else if (bassFeel === 'dilla') bassJitter = 1.4;     // Dilla: loose, behind the beat
+  else if (bassFeel === 'jazzy' || bassFeel === 'nujabes') bassJitter = 1.3; // live feel
+  else if (bassFeel === 'gfunk') bassJitter = 0.7;     // smooth, controlled
+
+  for (var e = 0; e < events.length; e++) {
+    var pos = events[e].step % 16;
+    var jitter;
+    // Beat 1 and 3: tightest (bass anchors the groove here)
+    if (pos === 0 || pos === 8) jitter = Math.floor((rnd() - 0.5) * 6 * bassJitter);
+    // Syncopated positions: looser
+    else if (pos % 2 === 1) jitter = Math.floor((rnd() - 0.5) * 12 * bassJitter);
+    // Everything else: moderate
+    else jitter = Math.floor((rnd() - 0.5) * 8 * bassJitter);
+    events[e].vel = Math.min(127, Math.max(30, events[e].vel + jitter));
+  }
+
   return events;
 }
 
