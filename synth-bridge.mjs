@@ -49,7 +49,7 @@ async function playSynthMidi(midiBytes) {
   if (audioContext.state === "suspended") await audioContext.resume();
   // Stop any existing playback
   if (sequencer) {
-    sequencer.stop();
+    try { sequencer.pause(); } catch(e) {}
   }
   // Create sequencer if needed
   if (!sequencer) {
