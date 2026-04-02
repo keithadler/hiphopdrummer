@@ -572,7 +572,8 @@ function writeGKB(p, feel, off) {
   if (feel === 'gfunk') ch *= 0.6;
   if (feel === 'crunk') ch *= 0.1;
   if (feel === 'memphis') ch *= 0.4;
-  // Same velocity curve principle: softer before snare, firmer after
+  if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
+  if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
   var gkVel = {1:68, 5:75, 7:60, 13:75, 15:62};
   if (feel === 'lofi') gkVel = {1:62, 5:66, 7:58, 13:66, 15:58};
   pos.forEach(function(i) {
@@ -698,6 +699,19 @@ function writeHA(p, feel, off) {
     if (maybe(.25)) p.hat[off+12]=0;
     return;
   }
+  if (feel === 'griselda') {
+    // Griselda: tight 8ths, punchy — slightly louder than normal, less dynamic range
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(98,6):v(82,8);
+    return;
+  }
+  if (feel === 'nujabes') {
+    // Nujabes: soft 8ths — ride cymbal carries the time, hats are texture
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,12):v(48,15);
+    // Occasional ghost 16th for organic feel
+    if (maybe(.4)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(30,8); }
+    return;
+  }
+  // Phonk: falls through to triplet pattern via hatPatternType override
 
   // Pattern type determines the core ride hand approach
   if (hatPatternType === '16th') {
@@ -829,6 +843,15 @@ function writeHB(p, feel, off) {
     // Bar B: skip on different backbeat position than A
     if (maybe(.3)) p.hat[off+12]=0;
     if (maybe(.25)) p.hat[off+4]=0;
+    return;
+  }
+  if (feel === 'griselda') {
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(98,6):v(82,8);
+    return;
+  }
+  if (feel === 'nujabes') {
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,12):v(48,15);
+    if (maybe(.4)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(28,8); }
     return;
   }
 
@@ -1110,11 +1133,13 @@ function writeCR(p, sec, off, feel) {
   var chopBoost = (feel === 'chopbreak') ? 0.2 : 0;
   var crunkBoost = (feel === 'crunk') ? 0.25 : 0;       // Crunk always announces itself
   var memphisCut = (feel === 'memphis') ? -0.45 : 0;    // Memphis avoids bright cymbal hits
-  var gfunkAdj = (feel === 'gfunk') ? -0.1 : 0;         // G-Funk: moderate crash
-  var adj = chopBoost + crunkBoost + memphisCut + gfunkAdj;
+  var phonkCut = (feel === 'phonk') ? -0.4 : 0;         // Phonk: minimal crashes, dark aesthetic
+  var nujabesCut = (feel === 'nujabes') ? -0.3 : 0;     // Nujabes: subtle, crashes are rare
+  var gfunkAdj = (feel === 'gfunk') ? -0.1 : 0;
+  var adj = chopBoost + crunkBoost + memphisCut + phonkCut + nujabesCut + gfunkAdj;
   if (sec === 'verse') { if (maybe(Math.max(0.05, Math.min(0.95, .7 + adj)))) p.crash[0] = v(100, 10); }
   if (sec === 'verse2') { if (maybe(Math.max(0.05, Math.min(0.95, .3 + adj)))) p.crash[0] = v(90, 10); }
-  if (sec === 'chorus' || sec === 'chorus2') { if (maybe(Math.max(0.1, Math.min(0.98, .8 + crunkBoost + memphisCut)))) p.crash[0] = v(110, 10); }
+  if (sec === 'chorus' || sec === 'chorus2') { if (maybe(Math.max(0.1, Math.min(0.98, .8 + crunkBoost + memphisCut + phonkCut + nujabesCut)))) p.crash[0] = v(110, 10); }
   if (sec === 'lastchorus') { p.crash[0] = v(115, 10); }
   if ((sec === 'instrumental' || sec === 'pre') && maybe(Math.max(0.05, .4 + adj))) { p.crash[0] = v(90, 10); }
 }
@@ -1242,11 +1267,26 @@ function addFill(p, sec, len, feel) {
     // Optional setup hit one step before
     if (maybe(.6)) { p.snare[len - 2] = v(120, 5); p.clap[len - 2] = v(118, 5); }
   }
-  else if (feel === 'memphis') {
-    // Memphis fill: single heavy snare hit — Three 6 Mafia minimal
+  else if (feel === 'memphis' || feel === 'phonk') {
+    // Memphis/Phonk fill: single heavy snare hit — minimal
     if (maybe(.6)) p.snare[len - 2] = v(100, 8);
     p.snare[len - 1] = v(118, 8);
     p.clap[len - 1] = v(108, 10);
+  }
+  else if (feel === 'griselda') {
+    // Griselda fill: hard kick+snare, punchy — Daringer style
+    p.kick[len - 2] = v(120, 5);
+    p.snare[len - 1] = v(125, 4);
+    p.clap[len - 1] = v(118, 5);
+    if (isBig) p.crash[len - 1] = v(110, 8);
+  }
+  else if (feel === 'nujabes') {
+    // Nujabes fill: soft ghost-level snare roll — jazzy, gentle
+    for (var i = start; i < len; i++) {
+      var vel = 40 + Math.floor(((i - start) / fillLen) * 30);
+      p.snare[i] = v(vel, 12);
+    }
+    // No crash — Nujabes fills dissolve, they don't punctuate
   }
   else {
     // Standard B-Boy fill — 3 types picked randomly
