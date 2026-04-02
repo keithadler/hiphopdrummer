@@ -85,10 +85,23 @@ function analyzeBeat() {
   lines.push('');
   lines.push('🎤 <b>FLOW GUIDE</b>');
   var kickHitsForFlow = 0; for (var i = 0; i < 16; i++) if (baseKick[i]) kickHitsForFlow++;
+
+  // Calculate syllable density suggestion based on kick pattern and BPM
+  // More kick hits = less space for complex rhyme schemes
+  // Slower BPM = more time per bar = more syllables fit
+  var beatsPerBar = 4;
+  var secPerBar = (60 / bpm) * beatsPerBar;
+  var syllablesPerSec = (bpm <= 82) ? 5.5 : (bpm <= 95) ? 4.5 : (bpm <= 108) ? 4.0 : 3.5;
+  var rawSyllables = Math.round(secPerBar * syllablesPerSec);
+  // Busy kick = simpler flow (fewer syllables), sparse kick = room for complexity
+  var kickDensityAdj = (kickHitsForFlow >= 5) ? -3 : (kickHitsForFlow >= 3) ? 0 : 3;
+  var suggestedSyllables = Math.max(6, Math.min(20, rawSyllables + kickDensityAdj));
+  var suggestedSyllablesDouble = Math.min(28, Math.round(suggestedSyllables * 1.6));
+
   if (bpm <= 82) {
     lines.push('At ' + bpm + ' BPM you have room for dense, multi-syllable rhyme schemes. Think Prodigy or Ghostface — every syllable has space to land.');
-    if (kickHitsForFlow >= 4) lines.push('The busy kick gives you anchor points — try landing key syllables on the kick hits.');
-    else lines.push('The sparse kick leaves open space. Fill it with your flow or let the words breathe — density is a choice.');
+    if (kickHitsForFlow >= 4) lines.push('The busy kick (' + kickHitsForFlow + ' hits/bar) gives you anchor points — try landing key syllables on the kick hits.');
+    else lines.push('The sparse kick (' + kickHitsForFlow + ' hits/bar) leaves open space. Fill it with your flow or let the words breathe — density is a choice.');
   } else if (bpm <= 95) {
     lines.push('The sweet spot for hip hop flow. Ride the pocket with a relaxed cadence or push into double-time on the hook. Lock your bars to the snare on 2 and 4.');
     lines.push(swing >= 62 ? 'Heavy swing — lean back with your delivery, don\'t fight the bounce.' : 'Relatively straight — you can be precise with syllable placement.');
@@ -97,6 +110,25 @@ function analyzeBeat() {
   } else {
     lines.push('Uptempo at ' + bpm + ' BPM — battle rap and cypher territory. Short, punchy bars. The hat is driving hard; use it as your guide.');
   }
+
+  // Syllable count suggestions
+  lines.push('');
+  lines.push('<b>Syllable guide for this beat:</b>');
+  lines.push('• <b>Standard flow:</b> ~' + suggestedSyllables + ' syllables per bar — ' + (suggestedSyllables <= 10 ? 'punchy and direct, room for emphasis on key words' : suggestedSyllables <= 14 ? 'balanced density, natural conversational cadence' : 'dense and complex, multi-syllable rhyme schemes') + '.');
+  lines.push('• <b>Double-time:</b> ~' + suggestedSyllablesDouble + ' syllables per bar — ' + (bpm >= 100 ? 'very fast, requires precise breath control' : 'rapid-fire but the tempo gives you room') + '.');
+  if (kickHitsForFlow >= 4) {
+    lines.push('• <b>Kick-locked:</b> Place your hardest-hitting words on the ' + kickHitsForFlow + ' kick positions. The kick is your anchor — when it hits, your strongest syllable should land with it.');
+  } else {
+    lines.push('• <b>Sparse kick (' + kickHitsForFlow + ' hits):</b> You have space between kicks to build complex internal rhyme. The gaps are yours — fill them with wordplay or let them breathe for emphasis.');
+  }
+  // Bar-specific suggestions based on kick pattern
+  var kickPositionNames = { 0: 'beat 1', 2: 'and-of-1', 4: 'beat 2', 6: 'and-of-2', 8: 'beat 3', 10: 'and-of-3', 12: 'beat 4', 14: 'and-of-4' };
+  var kickLandingPoints = [];
+  for (var i = 0; i < 16; i++) if (baseKick[i] && kickPositionNames[i]) kickLandingPoints.push(kickPositionNames[i]);
+  if (kickLandingPoints.length > 0 && kickLandingPoints.length <= 5) {
+    lines.push('• <b>Landing points:</b> Kick hits on ' + kickLandingPoints.join(', ') + '. These are your rhythmic anchors — the strongest syllables in each bar should align here.');
+  }
+
   if (songFeelBase === 'dilla' || songFeelBase === 'lofi') lines.push('The ' + (songFeelBase === 'dilla' ? 'Dilla' : 'lo-fi') + ' feel is loose and behind the beat. Let your delivery drift with the groove — the best flows on these beats sound half-asleep but every word lands.');
   if (songFeelBase === 'hard') lines.push('Hard beats demand hard delivery. Punch your consonants, stay aggressive. The drums are a weapon — your voice should match.');
   if (songFeelBase === 'bounce') lines.push('The bounce feel wants movement. Rhythmic, catchy, hook-friendly. Think Biggie\'s conversational cadence on "Juicy."');
