@@ -384,36 +384,55 @@ function initPlaybackTracking() {
   var lastTrackedSection = -1;
   var lastHighlightedStep = -1;
   var sectionTimeMap = [];
+  // Cache DOM references and previous cursor elements for fast updates
+  var _cachedCursorEls = [];
+  var _cachedBpm = 90;
+  var _cachedSecPerStep = 60 / 90 / 4;
+  var _playerCurrentEl = null;
+  var _playerSeekEl = null;
+  var _playerPlayBtn = null;
 
   function buildSectionTimeMap() {
-    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-    var secPerStep = 60 / bpm / 4;
+    _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    _cachedSecPerStep = 60 / _cachedBpm / 4;
+    _playerCurrentEl = document.getElementById('playerCurrent');
+    _playerSeekEl = document.getElementById('playerSeek');
+    _playerPlayBtn = document.getElementById('playerPlayBtn');
     sectionTimeMap = [];
     var t = 0;
     for (var i = 0; i < arrangement.length; i++) {
       var sec = arrangement[i];
       var steps = secSteps[sec] || 32;
-      var dur = steps * secPerStep;
+      var dur = steps * _cachedSecPerStep;
       sectionTimeMap.push({ start: t, end: t + dur, idx: i, sec: sec, steps: steps });
       t += dur;
     }
   }
 
   function clearCursor() {
-    document.querySelectorAll('.playback-cursor').forEach(function(el) {
-      el.classList.remove('playback-cursor');
-    });
+    // Remove class from cached elements instead of scanning the DOM
+    for (var i = 0; i < _cachedCursorEls.length; i++) {
+      _cachedCursorEls[i].classList.remove('playback-cursor');
+    }
+    _cachedCursorEls = [];
     lastHighlightedStep = -1;
   }
 
   function highlightStep(stepIdx) {
     if (stepIdx === lastHighlightedStep) return;
-    clearCursor();
+    // Clear previous cursor from cached elements (no DOM scan)
+    for (var i = 0; i < _cachedCursorEls.length; i++) {
+      _cachedCursorEls[i].classList.remove('playback-cursor');
+    }
+    _cachedCursorEls = [];
     lastHighlightedStep = stepIdx;
     if (stepIdx < 0) return;
-    document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]').forEach(function(el) {
-      el.classList.add('playback-cursor');
-    });
+    // Query once and cache the result
+    var els = document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.add('playback-cursor');
+      _cachedCursorEls.push(els[i]);
+    }
   }
 
   function updateCurrentSection(currentTime) {
@@ -433,11 +452,11 @@ function initPlaybackTracking() {
       curSec = arrangement[foundIdx];
       renderGrid();
       renderArr(true);
+      _cachedCursorEls = []; // grid re-rendered, old refs are stale
     }
     if (foundIdx >= 0) {
-      var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-      var secPerStep = 60 / bpm / 4;
-      var currentStep = Math.floor((currentTime - sectionStartTime) / secPerStep);
+      // Use cached BPM/secPerStep instead of reading DOM every frame
+      var currentStep = Math.floor((currentTime - sectionStartTime) / _cachedSecPerStep);
       if (currentStep >= 0 && currentStep < sectionSteps) highlightStep(currentStep);
     }
   }
@@ -458,22 +477,19 @@ function initPlaybackTracking() {
     var origPlayState = window.synthBridge.onPlayStateChange;
 
     window.synthBridge.onTimeUpdate = function(current, duration) {
-      // Call the player controls time update
-      var currentEl = document.getElementById('playerCurrent');
-      var seekBar = document.getElementById('playerSeek');
-      if (currentEl) {
+      // Use cached DOM refs instead of getElementById every frame
+      if (_playerCurrentEl) {
         var min = Math.floor(current / 60), sec = Math.floor(current % 60);
-        currentEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+        _playerCurrentEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
       }
-      if (seekBar && duration > 0) {
-        seekBar.value = (current / duration) * 100;
+      if (_playerSeekEl && duration > 0) {
+        _playerSeekEl.value = (current / duration) * 100;
       }
       // Call the section tracking
       updateCurrentSection(current);
     };
     window.synthBridge.onPlayStateChange = function(playing) {
-      var playBtn = document.getElementById('playerPlayBtn');
-      if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
+      if (_playerPlayBtn) _playerPlayBtn.textContent = playing ? '⏸' : '▶';
       if (!playing) clearCursor();
       if (playing) {
         lastTrackedSection = -1;
