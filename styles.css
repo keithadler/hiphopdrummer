@@ -199,6 +199,7 @@ midi-player::part(play-button){color:var(--accent-green)}
     justify-content:center;
     padding:4px 6px;
     height:34px;
+    text-align:center;
   }
   .ctrl-label{font-size:11px}
   .ctrl-input{font-size:14px;width:32px}
