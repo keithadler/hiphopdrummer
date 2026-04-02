@@ -1,0 +1,28 @@
+{
+  "name": "ai-drums",
+  "version": "1.0.0",
+  "description": "Learn hip hop drum programming by generating and studying authentic patterns — from old school 808s to modern boom bap, G-Funk, and beyond.",
+  "main": "ai.js",
+  "scripts": {
+    "build": "esbuild synth-bridge.mjs --bundle --minify --format=esm --platform=browser --outfile=synth.js && cp node_modules/spessasynth_lib/dist/spessasynth_processor.min.js spessasynth_processor.min.js",
+    "test": "node tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keithadler/hiphopdrummer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/keithadler/hiphopdrummer/issues"
+  },
+  "homepage": "https://github.com/keithadler/hiphopdrummer#readme",
+  "dependencies": {
+    "spessasynth_core": "^4.2.7",
+    "spessasynth_lib": "^4.2.9"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

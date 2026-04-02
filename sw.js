@@ -5,7 +5,7 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-20260402b';
+var CACHE_NAME = 'hiphopdrummer-20260402c';
 
 var ASSETS = [
   './',
@@ -22,18 +22,17 @@ var ASSETS = [
   './midi-export.js',
   './pdf-export.js',
   './app.js',
+  './synth.js',
+  './spessasynth_processor.min.js',
+  './GeneralUserGS.sf3',
   './icon-192.png',
   './icon-512.png'
 ];
 
 // CDN dependencies — cached separately so the app works offline.
-// Versioned URLs: safe to cache long-term.
 var CDN_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.min.js',
-  'https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1/es6/core.js',
-  'https://cdn.jsdelivr.net/npm/html-midi-player@1.5.0/dist/midi-player.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
 // Install: cache all local + CDN assets

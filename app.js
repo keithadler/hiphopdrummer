@@ -132,6 +132,7 @@ function showExportDialog() {
     if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
+    if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
         c.checked = saved.daws.indexOf(c.value) >= 0;
@@ -176,6 +177,7 @@ document.getElementById('exportGo').onclick = function() {
     bassMpc:     document.getElementById('expBassMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
+    wav:         document.getElementById('expWav').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
                .map(function(c) { return c.value; })
@@ -192,9 +194,9 @@ document.getElementById('exportGo').onclick = function() {
 document.getElementById('btnPrefs').onclick = showPrefsDialog;
 
 function showPrefsDialog() {
-  // Restore saved drumkit preference
-  var saved = '';
-  try { saved = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
+  // Restore saved drumkit preference (now a GM program number)
+  var saved = '0';
+  try { saved = localStorage.getItem('hhd_drumkit') || '0'; } catch(e) {}
   document.getElementById('prefsDrumKit').value = saved;
   // Restore bass playback preference (default: on)
   var bassOn = true;
@@ -223,24 +225,15 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
-  applySoundFont(kit);
+  // Apply drum kit and bass via synth bridge
+  if (window.synthBridge) {
+    window.synthBridge.setDrumKit(parseInt(kit) || 0);
+    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
+  }
+  // Rebuild the MIDI player
+  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   hidePrefsDialog();
 };
-
-/**
- * Apply a soundfont URL to the MIDI player.
- * Empty string = default (sgm_plus).
- */
-function applySoundFont(url) {
-  var player = document.getElementById('midiPlayer');
-  if (!player) return;
-  if (url) {
-    player.setAttribute('sound-font', url);
-  } else {
-    player.setAttribute('sound-font', '');
-  }
-  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
-}
 
 /**
  * Keyboard shortcuts:
@@ -276,20 +269,102 @@ document.addEventListener('keydown', function(e) {
  *   4. Start playback tracking
  */
 (function() {
-  // Apply saved drumkit preference before first MIDI build
-  try {
-    var savedKit = localStorage.getItem('hhd_drumkit') || '';
-    var player = document.getElementById('midiPlayer');
-    if (player && savedKit) {
-      player.setAttribute('sound-font', savedKit);
-    }
-  } catch(e) {}
   generateAll();
   updateMidiPlayer();
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
   initPlaybackTracking();
+  initPlayerControls();
 })();
+
+// ── Player Controls ──
+
+/**
+ * Wire the custom player UI buttons to the synthBridge.
+ */
+function initPlayerControls() {
+  var playBtn = document.getElementById('playerPlayBtn');
+  var stopBtn = document.getElementById('playerStopBtn');
+  var seekBar = document.getElementById('playerSeek');
+  var wavBtn = document.getElementById('playerWavBtn');
+  var currentEl = document.getElementById('playerCurrent');
+  var isSeeking = false;
+
+  if (!playBtn) return;
+
+  playBtn.onclick = function() {
+    if (!window.synthBridge) return;
+    if (window.synthBridge.isPlaying) {
+      window.synthBridge.pause();
+    } else if (window._currentMidiBytes) {
+      var state = window.synthBridge.state();
+      if (state.currentTime > 0 && state.currentTime < state.duration) {
+        window.synthBridge.resume();
+      } else {
+        window.synthBridge.play(window._currentMidiBytes);
+      }
+    }
+  };
+
+  stopBtn.onclick = function() {
+    if (window.synthBridge) window.synthBridge.stop();
+    if (currentEl) currentEl.textContent = '0:00';
+    if (seekBar) seekBar.value = 0;
+  };
+
+  // Seek bar
+  if (seekBar) {
+    seekBar.oninput = function() { isSeeking = true; };
+    seekBar.onchange = function() {
+      isSeeking = false;
+      if (window.synthBridge) {
+        var state = window.synthBridge.state();
+        var time = (parseFloat(seekBar.value) / 100) * state.duration;
+        window.synthBridge.seek(time);
+      }
+    };
+  }
+
+  // WAV download button
+  if (wavBtn) {
+    wavBtn.onclick = function() {
+      if (!window.synthBridge || !window._currentMidiBytes) return;
+      wavBtn.textContent = '⏳';
+      wavBtn.disabled = true;
+      window.synthBridge.renderToWav(window._currentMidiBytes).then(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var bpm = document.getElementById('bpm').textContent || '90';
+        a.download = 'hiphop_beat_' + bpm + 'bpm.wav';
+        a.click();
+        URL.revokeObjectURL(url);
+        wavBtn.textContent = '⬇';
+        wavBtn.disabled = false;
+      }).catch(function(err) {
+        console.error('WAV render failed:', err);
+        wavBtn.textContent = '⬇';
+        wavBtn.disabled = false;
+      });
+    };
+  }
+
+  // Time update callback
+  if (window.synthBridge) {
+    window.synthBridge.onTimeUpdate = function(current, duration) {
+      if (currentEl) {
+        var min = Math.floor(current / 60), sec = Math.floor(current % 60);
+        currentEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+      }
+      if (seekBar && !isSeeking && duration > 0) {
+        seekBar.value = (current / duration) * 100;
+      }
+    };
+    window.synthBridge.onPlayStateChange = function(playing) {
+      if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
+    };
+  }
+}
 
 // ── Playback Tracking ──
 
@@ -301,13 +376,8 @@ document.addEventListener('keydown', function(e) {
  * then polls the player's currentTime to detect section changes.
  */
 function initPlaybackTracking() {
-  var player = document.getElementById('midiPlayer');
-  if (!player) return;
-
-  var trackingInterval = null;
   var lastTrackedSection = -1;
   var lastHighlightedStep = -1;
-  // Cached section time map — rebuilt when playback starts, not every tick
   var sectionTimeMap = [];
 
   function buildSectionTimeMap() {
@@ -339,33 +409,18 @@ function initPlaybackTracking() {
     document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]').forEach(function(el) {
       el.classList.add('playback-cursor');
     });
-    var barIdx = Math.floor(stepIdx / 16);
-    var barLabel = document.getElementById('grid-page-' + barIdx);
-    if (barLabel) {
-      var gridR = document.getElementById('gridR');
-      var labelTop = barLabel.offsetTop - gridR.offsetTop;
-      var scrollTop = gridR.parentElement.scrollTop || 0;
-      var viewHeight = gridR.parentElement.clientHeight || 400;
-      if (labelTop < scrollTop || labelTop > scrollTop + viewHeight - 100) {
-        barLabel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
   }
 
   function updateCurrentSection(currentTime) {
     var map = sectionTimeMap;
-    var foundIdx = -1;
-    var sectionStartTime = 0;
-    var sectionSteps = 32;
+    var foundIdx = -1, sectionStartTime = 0, sectionSteps = 32;
     for (var i = 0; i < map.length; i++) {
       if (currentTime >= map[i].start && currentTime < map[i].end) {
         foundIdx = i; sectionStartTime = map[i].start; sectionSteps = map[i].steps; break;
       }
     }
     if (foundIdx === -1 && map.length > 0 && currentTime >= map[map.length - 1].start) {
-      foundIdx = map.length - 1;
-      sectionStartTime = map[foundIdx].start;
-      sectionSteps = map[foundIdx].steps;
+      foundIdx = map.length - 1; sectionStartTime = map[foundIdx].start; sectionSteps = map[foundIdx].steps;
     }
     if (foundIdx >= 0 && foundIdx !== lastTrackedSection) {
       lastTrackedSection = foundIdx;
@@ -382,20 +437,23 @@ function initPlaybackTracking() {
     }
   }
 
-  // Use only the interval for tracking — timeupdate fires at inconsistent rates
-  // and combining both causes double-updates on every tick
-  player.addEventListener('start', function() {
-    lastTrackedSection = -1;
-    lastHighlightedStep = -1;
-    buildSectionTimeMap(); // cache once at playback start
-    if (trackingInterval) clearInterval(trackingInterval);
-    trackingInterval = setInterval(function() {
-      if (player.currentTime !== undefined) updateCurrentSection(player.currentTime);
-    }, 100);
-  });
-
-  player.addEventListener('stop', function() {
-    if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
-    clearCursor();
-  });
+  // Use synthBridge time updates for tracking
+  if (window.synthBridge) {
+    var origTimeUpdate = window.synthBridge.onTimeUpdate;
+    window.synthBridge.onTimeUpdate = function(current, duration) {
+      if (origTimeUpdate) origTimeUpdate(current, duration);
+      updateCurrentSection(current);
+    };
+    window.synthBridge.onPlayStateChange = function(playing) {
+      if (!playing) clearCursor();
+      // Update play button
+      var playBtn = document.getElementById('playerPlayBtn');
+      if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
+      if (playing) {
+        lastTrackedSection = -1;
+        lastHighlightedStep = -1;
+        buildSectionTimeMap();
+      }
+    };
+  }
 }

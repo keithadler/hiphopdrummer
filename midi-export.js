@@ -431,15 +431,31 @@ function exportMIDI(opts) {
     mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swingVal));
   }
 
-  // Generate and trigger download
-  zip.generateAsync({ type: 'blob' }).then(function(blob) {
-    var u = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = u;
-    a.download = folderName + '.zip';
-    a.click();
-    URL.revokeObjectURL(u);
-  });
+  // WAV audio export (async — render before generating ZIP)
+  var wavPromise = null;
+  if (opts.wav && window.synthBridge && window._currentMidiBytes) {
+    wavPromise = window.synthBridge.renderToWav(window._currentMidiBytes).then(function(wavBlob) {
+      return wavBlob.arrayBuffer();
+    }).then(function(wavBuffer) {
+      folder.file('hiphop_beat_' + bpm + 'bpm.wav', new Uint8Array(wavBuffer));
+    }).catch(function(err) {
+      console.warn('WAV render failed:', err);
+    });
+  }
+
+  // Generate and trigger download (wait for WAV if needed)
+  var generateZip = function() {
+    zip.generateAsync({ type: 'blob' }).then(function(blob) {
+      var u = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = u;
+      a.download = folderName + '.zip';
+      a.click();
+      URL.revokeObjectURL(u);
+    });
+  };
+  if (wavPromise) { wavPromise.then(generateZip); }
+  else { generateZip(); }
 }
 
 /**
@@ -463,14 +479,8 @@ function vl(val) {
 }
 
 /**
- * Rebuild the embedded MIDI player element with the current beat.
- *
- * Generates a combined drums+bass MIDI blob from the current arrangement
- * and patterns, then sets it as the source of the <midi-player> element.
- * Drums play on channel 10 (GM drums), bass on channel 1 (GM Electric Bass).
- * Revokes the previous blob URL to avoid memory leaks.
- *
- * Side effects: stops current playback, updates player.src
+ * Rebuild the MIDI player with the current beat.
+ * Uses SpessaSynth via the synthBridge global.
  */
 function updateMidiPlayer() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -478,21 +488,18 @@ function updateMidiPlayer() {
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
   var midiBytes = bassOn ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
-  var blob = new Blob([midiBytes], { type: 'audio/midi' });
-  var url = URL.createObjectURL(blob);
-  var player = document.getElementById('midiPlayer');
-  if (player) {
-    try { player.stop(); } catch(e) {}
-    if (player._blobUrl) URL.revokeObjectURL(player._blobUrl);
-    player._blobUrl = url;
-    player.src = url;
-    player.addEventListener('load', function onLoad() {
-      player.removeEventListener('load', onLoad);
-      var arrTimeEl = document.getElementById('arrTime');
-      if (arrTimeEl && typeof calcArrTime === 'function') {
-        arrTimeEl.textContent = calcArrTime(true);
-      }
-    });
+
+  // Store the current MIDI bytes globally for WAV export and playback
+  window._currentMidiBytes = midiBytes;
+
+  // Update time display
+  var arrTimeEl = document.getElementById('arrTime');
+  if (arrTimeEl && typeof calcArrTime === 'function') {
+    arrTimeEl.textContent = calcArrTime(true);
+  }
+  var totalEl = document.getElementById('playerTotal');
+  if (totalEl && typeof calcArrTime === 'function') {
+    totalEl.textContent = calcArrTime(true);
   }
 }
 
