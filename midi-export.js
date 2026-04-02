@@ -331,11 +331,12 @@ function exportMIDI(opts) {
   var swingVal = parseInt(document.getElementById('swing').textContent) || 62;
 
   var noSwing = (opts.bakeSwing === false);
+  var swingTag = noSwing ? '_swing0' : '_swing' + swingVal;
 
   // Full song MIDI
   if (opts.fullSong) {
     var fullSong = buildMidiBytes(arrangement, bpm, noSwing);
-    folder.file('00_full_song_' + bpm + 'bpm.mid', fullSong);
+    folder.file('00_full_song_' + bpm + 'bpm' + swingTag + '.mid', fullSong);
   }
 
   // Individual section MIDIs + MPC patterns
@@ -353,7 +354,7 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       if (opts.sections) {
-        midiFolder.file(baseName + '.mid', buildMidiBytes([sec], bpm, noSwing));
+        midiFolder.file(baseName + swingTag + '.mid', buildMidiBytes([sec], bpm, noSwing));
       }
       if (opts.mpc) {
         mpcFolder.file(baseName + '.mpcpattern', buildMpcPattern([sec], bpm));
@@ -372,19 +373,19 @@ function exportMIDI(opts) {
 
   // DAW help files — only include selected DAWs
   var dawMap = {
-    ableton:   function() { return midiFolder && midiFolder.file('HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal)); },
-    logic:     function() { return midiFolder && midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal)); },
-    fl:        function() { return midiFolder && midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal)); },
-    garageband:function() { return midiFolder && midiFolder.file('HOW_TO_USE_GARAGEBAND.txt',buildHelpGarageBand(bpm, swingVal)); },
-    protools:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal)); },
-    reason:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal)); },
-    reaper:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal)); },
-    studioone: function() { return midiFolder && midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal)); },
-    maschine:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal)); }
+    ableton:   function() { return midiFolder && midiFolder.file('HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },
+    logic:     function() { return midiFolder && midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal, noSwing)); },
+    fl:        function() { return midiFolder && midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal, noSwing)); },
+    garageband:function() { return midiFolder && midiFolder.file('HOW_TO_USE_GARAGEBAND.txt',buildHelpGarageBand(bpm, swingVal, noSwing)); },
+    protools:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal, noSwing)); },
+    reason:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal, noSwing)); },
+    reaper:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal, noSwing)); },
+    studioone: function() { return midiFolder && midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal, noSwing)); },
+    maschine:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); }
   };
   // Always include the general overview and MPC guide if those folders exist
   if (opts.daws && opts.daws.length > 0) {
-    folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal));
+    folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal, noSwing));
     opts.daws.forEach(function(daw) { if (dawMap[daw]) dawMap[daw](); });
   }
   if (opts.mpc) {
