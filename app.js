@@ -48,8 +48,23 @@ function showRegenDialog() {
     var artistsEl = document.getElementById('regenArtists');
     if (artistsEl) artistsEl.textContent = data ? data.artists : '';
 
+    // When style is Auto, lock key and BPM to Auto (system picks everything)
+    if (!style) {
+      keyEl.innerHTML = '<option value="">Auto</option>';
+      keyEl.value = '';
+      keyEl.disabled = true;
+      bpmEl.innerHTML = '<option value="">Auto</option>';
+      bpmEl.value = '';
+      bpmEl.disabled = true;
+      updateKeyMood();
+      return;
+    }
+
+    // Style is selected — enable key and BPM dropdowns
+    keyEl.disabled = false;
+    bpmEl.disabled = false;
+
     // Keys — only show keys for the selected style, sorted alphabetically
-    var prevKey = keyEl.value;
     keyEl.innerHTML = '<option value="">Auto</option>';
     if (data) {
       var sortedKeys = data.keys.slice().sort(function(a, b) { return a.localeCompare(b); });
@@ -57,19 +72,13 @@ function showRegenDialog() {
         keyEl.innerHTML += '<option value="' + k + '">' + k + '</option>';
       });
     }
-    // When a style is selected, reset key to Auto so the generator picks
-    // a style-appropriate key. Only restore previous selection if style is Auto.
-    if (style) {
-      keyEl.value = '';
-    } else if (prevKey && keyEl.querySelector('option[value="' + prevKey + '"]')) {
-      keyEl.value = prevKey;
-    }
+    // Reset key to Auto so the generator picks a style-appropriate key
+    keyEl.value = '';
 
     // Update key mood for the current selection
     updateKeyMood();
 
     // BPM — only show BPMs in the style's range
-    var prevBpm = bpmEl.value;
     bpmEl.innerHTML = '<option value="">Auto</option>';
     var allBpms = [68,72,75,78,80,83,85,88,90,92,95,98,100,105,108,110,115,118,120,125,128,130];
     var bpms = data
@@ -78,13 +87,8 @@ function showRegenDialog() {
     bpms.forEach(function(b) {
       bpmEl.innerHTML += '<option value="' + b + '">' + b + '</option>';
     });
-    // When a style is selected, reset BPM to Auto so the generator picks
-    // a style-appropriate tempo. Only restore previous selection if style is Auto.
-    if (style) {
-      bpmEl.value = '';
-    } else if (prevBpm && bpmEl.querySelector('option[value="' + prevBpm + '"]')) {
-      bpmEl.value = prevBpm;
-    }
+    // Reset BPM to Auto so the generator picks a style-appropriate tempo
+    bpmEl.value = '';
   }
 
   function updateKeyMood() {
