@@ -1286,7 +1286,7 @@ function applySectionTransitions() {
  *   120–130: Crunk/high energy (Lil Jon, Ying Yang Twins)
  * @type {number[]}
  */
-var BPMS = [68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118, 120, 125, 128, 130];
+var BPMS = [60, 63, 65, 68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118, 120, 125, 128, 130];
 
 /**
  * Master generation function — creates an entire song from scratch.

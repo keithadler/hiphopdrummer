@@ -2,24 +2,24 @@
 // Caches all app assets for offline use and fast repeat loads.
 // Cache-first strategy: serve from cache, update in background.
 
-var CACHE_NAME = 'hiphopdrummer-v2';
+var CACHE_NAME = 'hiphopdrummer-v3';
 
 var ASSETS = [
-  '/hiphopdrummer/',
-  '/hiphopdrummer/index.html',
-  '/hiphopdrummer/styles.css',
-  '/hiphopdrummer/patterns.js',
-  '/hiphopdrummer/ai.js',
-  '/hiphopdrummer/writers.js',
-  '/hiphopdrummer/groove.js',
-  '/hiphopdrummer/analysis.js',
-  '/hiphopdrummer/ui.js',
-  '/hiphopdrummer/midi-export.js',
-  '/hiphopdrummer/daw-help.js',
-  '/hiphopdrummer/pdf-export.js',
-  '/hiphopdrummer/app.js',
-  '/hiphopdrummer/icon-192.png',
-  '/hiphopdrummer/icon-512.png'
+  './',
+  './index.html',
+  './styles.css',
+  './patterns.js',
+  './ai.js',
+  './writers.js',
+  './groove.js',
+  './analysis.js',
+  './ui.js',
+  './daw-help.js',
+  './midi-export.js',
+  './pdf-export.js',
+  './app.js',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install: cache all local assets
