@@ -30,13 +30,14 @@ async function initSynth() {
   audioContext = new AudioContext();
   // Load the worklet processor
   await audioContext.audioWorklet.addModule("spessasynth_processor.min.js");
-  // Load the SoundFont
+  // Load the SoundFont (keep a copy since addSoundBank transfers the buffer)
   const sfResponse = await fetch("GeneralUserGS.sf3");
-  soundFontBuffer = await sfResponse.arrayBuffer();
+  const sfOriginal = await sfResponse.arrayBuffer();
+  soundFontBuffer = sfOriginal;
   // Create the synthesizer
   synth = new WorkletSynthesizer(audioContext);
   synth.connect(audioContext.destination);
-  await synth.soundBankManager.addSoundBank(soundFontBuffer, "gm");
+  await synth.soundBankManager.addSoundBank(sfOriginal.slice(0), "gm");
 }
 
 /**
@@ -54,8 +55,9 @@ async function playSynthMidi(midiBytes) {
   if (!sequencer) {
     sequencer = new Sequencer(synth);
   }
-  // Load the MIDI as a song list (expects array of ArrayBuffers)
-  sequencer.loadNewSongList([midiBytes.buffer]);
+  // Load the MIDI as a song list (copy buffer since it gets transferred)
+  const midiBuf = midiBytes.buffer.slice(0);
+  sequencer.loadNewSongList([midiBuf]);
   sequencer.play();
   isPlaying = true;
   if (onPlayStateChange) onPlayStateChange(true);
