@@ -864,6 +864,22 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
     // Simple: one root hit on the last step
     events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase, 4), dur: 0.7, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false });
   }
+  else if (bassFeel === 'driving') {
+    // Forward momentum: chromatic push into next section
+    for (var i = 0; i < fillLen; i++) {
+      var dn = rootNote - fillLen + i;
+      dn = Math.min(48, Math.max(24, dn));
+      events.push({ step: fillStart + i, note: dn, vel: v(style.velBase + i * 4, 6), dur: 0.4, slide: i > 0, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    }
+  }
+  else if (bassFeel === 'big') {
+    // Anthem energy: root → 5th → octave drop, big and sustained
+    events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootNote)), vel: v(style.velBase + 5, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    if (fillLen >= 3) {
+      events.push({ step: fillStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: v(style.velBase + 8, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    }
+    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: Math.min(127, style.velBase + 12), dur: 0.8, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+  }
   else {
     // Standard boom bap fill: chromatic walk-up to root
     var fillType = pick(['chromatic_up', 'sustained_root', 'dropout']);
