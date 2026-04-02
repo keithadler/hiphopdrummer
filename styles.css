@@ -235,6 +235,7 @@ midi-player::part(play-button){color:var(--accent-green)}
     width:auto;
     overflow:visible;
     text-overflow:clip;
+    text-align:center;
   }
   .ctrl-group{
     justify-content:center;
