@@ -229,3 +229,61 @@ var ROW_TIPS = {
   crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.',
   shaker:    'Shaker / tambourine — high-frequency shimmer layered on top of the hat. Adds organic texture. Pete Rock, Large Professor, Buckwild territory.'
 };
+
+/**
+ * Per-instrument swing multipliers by feel.
+ *
+ * Real producers swing different instruments by different amounts.
+ * Dilla swung his hats harder than his kick. Premier kept kicks straighter
+ * than ghost snares. Crunk and old school are nearly mechanical across
+ * all instruments.
+ *
+ * Categories:
+ *   hat:       closed hat, open hat, ride, shaker (ride hand — swings hardest)
+ *   kick:      kick, ghost kick (kick foot — stays closer to grid)
+ *   ghostSnare: snare ghosts vel < 85, rimshot (loose, behind the beat)
+ *   backbeat:  snare/clap backbeat vel >= 85 (tight, anchors the groove)
+ *   bass:      bass line (between kick and hat feel)
+ *
+ * 1.0 = full swing amount. < 1.0 = straighter. > 1.0 = swings harder.
+ *
+ * @type {Object.<string, {hat: number, kick: number, ghostSnare: number, backbeat: number, bass: number}>}
+ */
+var INSTRUMENT_SWING = {
+  normal:    { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
+  hard:      { hat: 0.9,  kick: 0.7,  ghostSnare: 0.8,  backbeat: 0.8,  bass: 0.7 },
+  jazzy:     { hat: 1.2,  kick: 0.8,  ghostSnare: 1.3,  backbeat: 0.9,  bass: 1.0 },
+  dark:      { hat: 0.9,  kick: 0.7,  ghostSnare: 0.8,  backbeat: 0.8,  bass: 0.7 },
+  bounce:    { hat: 1.1,  kick: 0.85, ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.95 },
+  halftime:  { hat: 1.0,  kick: 0.75, ghostSnare: 0.9,  backbeat: 0.85, bass: 0.8 },
+  dilla:     { hat: 1.3,  kick: 0.6,  ghostSnare: 1.5,  backbeat: 0.8,  bass: 0.7 },
+  lofi:      { hat: 1.0,  kick: 0.7,  ghostSnare: 1.1,  backbeat: 0.8,  bass: 0.8 },
+  gfunk:     { hat: 1.2,  kick: 0.7,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 1.1 },
+  chopbreak: { hat: 1.1,  kick: 0.85, ghostSnare: 1.1,  backbeat: 0.9,  bass: 0.9 },
+  crunk:     { hat: 0.8,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
+  memphis:   { hat: 0.9,  kick: 0.6,  ghostSnare: 0.7,  backbeat: 0.7,  bass: 0.6 },
+  griselda:  { hat: 0.9,  kick: 0.7,  ghostSnare: 0.8,  backbeat: 0.8,  bass: 0.7 },
+  phonk:     { hat: 0.95, kick: 0.65, ghostSnare: 0.8,  backbeat: 0.75, bass: 0.65 },
+  nujabes:   { hat: 1.2,  kick: 0.8,  ghostSnare: 1.3,  backbeat: 0.9,  bass: 1.0 },
+  oldschool: { hat: 0.7,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
+  sparse:    { hat: 1.0,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
+  driving:   { hat: 1.0,  kick: 0.8,  ghostSnare: 0.9,  backbeat: 0.85, bass: 0.85 },
+  big:       { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 }
+};
+
+/**
+ * Get the swing multiplier for a given instrument row and feel.
+ * @param {string} row - Instrument row name (kick, snare, hat, etc.)
+ * @param {number} vel - Velocity of the hit (used to distinguish ghost vs backbeat snare)
+ * @param {string} feel - Current feel name
+ * @returns {number} Swing multiplier (1.0 = normal)
+ */
+function getInstrumentSwing(row, vel, feel) {
+  var s = INSTRUMENT_SWING[feel] || INSTRUMENT_SWING.normal;
+  if (row === 'hat' || row === 'openhat' || row === 'ride' || row === 'shaker') return s.hat;
+  if (row === 'kick' || row === 'ghostkick') return s.kick;
+  if (row === 'crash') return 0; // crashes on grid — no swing
+  if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;
+  if (row === 'rimshot') return s.ghostSnare;
+  return 1.0;
+}
