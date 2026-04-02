@@ -4,13 +4,13 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans);font-size:23px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
 #app-wrap{display:flex;flex-direction:column;height:100vh}
-.header-bar{display:flex;align-items:center;gap:16px;padding:0 20px;height:56px;background:var(--bg-surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.header-bar{display:flex;align-items:center;gap:10px;padding:6px 20px;background:var(--bg-surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
 .brand{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text-muted);letter-spacing:1.5px;white-space:nowrap;text-transform:uppercase}
 .brand span{color:#fff}
 .credit{font-family:var(--mono);font-size:13px;color:var(--text-dim);white-space:nowrap;margin-left:auto;letter-spacing:.5px}
 .credit-link{color:var(--text-dim);text-decoration:none;transition:color .15s}
 .credit-link:hover{color:var(--accent-blue)}
-.controls-bar{display:flex;align-items:center;gap:12px;margin-left:8px}
+.controls-bar{display:flex;align-items:center;gap:10px;width:100%}
 .ctrl-group{display:flex;align-items:center;gap:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;height:36px}
 .ctrl-label{font-family:var(--mono);font-size:18px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:500}
 .ctrl-input{background:transparent;color:var(--accent-blue);border:none;font-family:var(--mono);font-size:19px;font-weight:700;width:36px;text-align:center;outline:none}
