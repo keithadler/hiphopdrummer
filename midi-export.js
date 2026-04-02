@@ -466,7 +466,10 @@ function vl(val) {
  */
 function updateMidiPlayer() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  var midiBytes = buildCombinedMidiBytes(arrangement, bpm);
+  // Check bass playback preference
+  var bassOn = true;
+  try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
+  var midiBytes = bassOn ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
   var blob = new Blob([midiBytes], { type: 'audio/midi' });
   var url = URL.createObjectURL(blob);
   var player = document.getElementById('midiPlayer');
