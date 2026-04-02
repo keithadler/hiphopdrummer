@@ -240,11 +240,12 @@ midi-player::part(play-button){color:var(--accent-green)}
   .ctrl-group{
     justify-content:center;
     padding:4px 6px;
-    height:34px;
+    height:auto;
     text-align:center;
+    flex-wrap:wrap;
   }
-  .ctrl-label{font-size:11px}
-  .ctrl-input{font-size:14px;width:32px}
+  .ctrl-label{font-size:11px;width:100%;text-align:center}
+  .ctrl-input{font-size:14px;width:auto;text-align:center}
 
   /* Grid: tighter but readable */
   .cell{flex:1;min-width:0;height:24px;font-size:9px}
