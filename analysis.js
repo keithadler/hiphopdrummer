@@ -140,7 +140,7 @@ function analyzeBeat() {
     ]},
     dark: { keys: [
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Cold and minimal. Let the bass carry the weight, keep the melody sparse. Wu-Tang "C.R.E.A.M." energy.' },
-      { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'B major', relNote: 'B, F#, E', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
+      { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', rel: 'Cb/B major', relNote: 'Cb/B, Gb/F#, Fb/E', context: 'Deep and cinematic. Wu-Tang territory — dark strings and eerie samples. Griselda.' },
       { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Haunting and atmospheric. Good for minor key piano loops. RZA-style.' },
       { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and ominous. The flat minor key creates maximum darkness. Griselda, Westside Gunn.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but not oppressive. Good for eerie string samples and minor key piano. Early Mobb Deep.' }
@@ -148,9 +148,9 @@ function analyzeBeat() {
     bounce: { keys: [
       { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Bright and danceable. The major key lifts the energy and makes hooks catchy. Bad Boy era.' },
       { root: 'C', type: 'major', i: 'C', iv: 'F', v: 'G', rel: 'Am', relNote: 'Am, Em, Dm', context: 'Simple and effective. Bad Boy era production loved major keys for radio appeal. Biggie "Juicy."' },
-      { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs.' },
-      { root: 'F', type: 'major', i: 'F', iv: 'Bb', v: 'C', rel: 'Dm', relNote: 'Dm, Am, Gm', context: 'Bright and soulful. Craig Mack, early Bad Boy energy. Works great with vocal samples.' },
-      { root: 'D', type: 'major', i: 'D', iv: 'G', v: 'A', rel: 'Bm', relNote: 'Bm, F#m, Em', context: 'Upbeat and energetic. Less common in hip hop — makes your beat stand out. Danceable and fresh.' }
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark bounce. Biggie "Hypnotize" energy — danceable but with an edge. The minor key adds tension to the groove.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Heavy bounce. Biggie "Big Poppa" territory. Minor key bounce hits harder than major — the groove pulls you in.' },
+      { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs. Craig Mack, early Bad Boy energy.' }
     ]},
     dilla: { keys: [
       { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Warm, soulful, slightly melancholy. Rhodes and Wurlitzer live here. "Donuts" energy.' },
@@ -198,11 +198,11 @@ function analyzeBeat() {
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and spacious. Sparse beats in Cm feel cinematic. Wu-Tang instrumental energy.' }
     ]},
     gfunk: { keys: [
-      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'The G-Funk key. Warm, funky, and smooth. Dr. Dre "Nuthin\' But a G Thang" lives here. P-Funk samples love Gm.' },
-      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'West Coast smooth. Warren G "Regulate" energy. Synth bass and Rhodes piano territory.' },
-      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Deeper and darker G-Funk. DJ Quik territory. The minor key gives it that melancholy bounce.' },
-      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Lighter West Coast feel. Good for uptempo G-Funk. Snoop Dogg "Gin and Juice" energy.' },
-      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Bb', context: 'Dark G-Funk. The flat minor key gives West Coast beats a heavier, more menacing quality.' }
+      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'The G-Funk key. Warm, funky, and smooth. Dr. Dre "Nuthin\' But a G Thang" is Gm7 to Cm7. P-Funk samples love minor 7ths.' },
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'West Coast smooth. Warren G "Regulate" energy. Synth bass and Rhodes piano over minor 7th changes.' },
+      { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'Fm7', v: 'Gm7', ii: 'Dm7b5', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Deeper and darker G-Funk. DJ Quik territory. The minor 7th gives it that melancholy West Coast bounce.' },
+      { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Lighter West Coast feel. Good for uptempo G-Funk. Snoop Dogg "Gin and Juice" energy.' },
+      { root: 'Fm7', type: 'minor', i: 'Fm7', iv: 'Bbm7', v: 'Cm7', ii: 'Gm7b5', rel: 'Ab major', relNote: 'Abmaj7, Ebmaj7, Bbmaj7', context: 'Dark G-Funk. The flat minor 7th gives West Coast beats a heavier, more cinematic quality.' }
     ]},
     crunk: { keys: [
       { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Crunk energy in Am. Simple, aggressive, and effective. Lil Jon "Get Low" territory.' },
