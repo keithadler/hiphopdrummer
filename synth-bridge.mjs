@@ -55,8 +55,8 @@ async function playSynthMidi(midiBytes) {
   if (!sequencer) {
     sequencer = new Sequencer(synth);
   }
-  // Load the MIDI as a song list (copy buffer since it gets transferred)
-  const midiBuf = midiBytes.buffer.slice(0);
+  // Load the MIDI as a song list — create a clean ArrayBuffer from the Uint8Array
+  const midiBuf = new Uint8Array(midiBytes).buffer;
   sequencer.loadNewSongList([midiBuf]);
   sequencer.play();
   isPlaying = true;
@@ -168,7 +168,7 @@ async function renderToWav(midiBytes) {
   await offlineSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
 
   const offlineSeq = new Sequencer(offlineSynth);
-  offlineSeq.loadNewSongList([midiBytes.buffer.slice(0)]);
+  offlineSeq.loadNewSongList([new Uint8Array(midiBytes).buffer]);
   offlineSeq.play();
 
   const audioBuffer = await offlineCtx.startRendering();
