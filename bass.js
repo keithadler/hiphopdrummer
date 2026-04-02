@@ -286,6 +286,8 @@ function generateBassPattern(sec) {
   var rootLow = rootNote - 12;
 
   var bassFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
+  // Resolve regional variants to parent feel for bass style lookup
+  bassFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(bassFeel) : bassFeel;
   var style = BASS_STYLES[bassFeel] || BASS_STYLES.normal;
 
   var events = [];

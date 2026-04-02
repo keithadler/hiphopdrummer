@@ -95,6 +95,7 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
     if (!pat) return;
     var len = secSteps[sec] || 32;
     var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
+    secFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
 
@@ -548,8 +549,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     if (!pat) return;
     var len = secSteps[sec] || 32;
     var secFeel = secFeels[sec] || combinedFeel;
-    // Strip intro/outro prefixes for swing lookup
+    // Strip intro/outro prefixes and resolve regional variants for swing lookup
     var swingFeel = secFeel.replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
+    swingFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(swingFeel) : swingFeel;
 
     // Drum events (channel 10)
     for (var s = 0; s < len; s++) {

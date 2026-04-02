@@ -291,6 +291,12 @@ var useRide = false;
 var FEEL_PALETTES = [
   // Classic boom bap
   ['normal', 'big', 'sparse', 'driving'],
+  // Boom Bap — Bronx (Premier)
+  ['normal_bronx', 'big', 'sparse', 'driving'],
+  // Boom Bap — Queens (Large Pro)
+  ['normal_queens', 'big', 'halftime', 'driving'],
+  // Boom Bap — Long Island (De La)
+  ['normal_li', 'big', 'sparse', 'normal'],
   // Hard/aggressive
   ['hard', 'big', 'dark', 'driving'],
   // Jazz-influenced
@@ -307,6 +313,12 @@ var FEEL_PALETTES = [
   ['chopbreak', 'big', 'dark', 'driving'],
   // G-Funk
   ['gfunk', 'big', 'bounce', 'driving'],
+  // G-Funk — Dre
+  ['gfunk_dre', 'big', 'bounce', 'driving'],
+  // G-Funk — DJ Quik
+  ['gfunk_quik', 'big', 'bounce', 'driving'],
+  // G-Funk — Battlecat
+  ['gfunk_battlecat', 'big', 'bounce', 'driving'],
   // Crunk
   ['crunk', 'big', 'hard', 'driving'],
   // Memphis
@@ -344,6 +356,14 @@ var SWING_POOLS = {
   nujabes:   [60, 62, 62, 64, 64, 66, 66, 68, 70],   // jazz swing — heavier than normal, lighter than Dilla
   oldschool: [50, 50, 50, 52, 52, 52, 54, 54]          // nearly straight — drum machine era, mechanical
 };
+
+// Regional variant swing pools — inherit from parent with bias applied in generateAll
+SWING_POOLS.normal_bronx = SWING_POOLS.normal;
+SWING_POOLS.normal_queens = SWING_POOLS.normal;
+SWING_POOLS.normal_li = SWING_POOLS.normal;
+SWING_POOLS.gfunk_dre = SWING_POOLS.gfunk;
+SWING_POOLS.gfunk_quik = SWING_POOLS.gfunk;
+SWING_POOLS.gfunk_battlecat = SWING_POOLS.gfunk;
 
 /**
  * Generate all base kick patterns for the current song.
@@ -678,9 +698,19 @@ function generatePattern(sec) {
   }
   // Track the verse feel as the song's dominant style (for analysis display)
   if (sec === 'verse') songFeel = feel;
+
+  // ── Regional variant resolution ──
+  // If the feel is a regional variant (e.g. 'normal_bronx'), resolve to the
+  // base feel for all pattern generation logic, but apply regional modifiers
+  // to ghost density, swing, hat type, and dynamics.
+  var regionalMod = (typeof REGIONAL_VARIANTS !== 'undefined') ? REGIONAL_VARIANTS[feel] : null;
+  var baseFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(feel) : feel;
+
   var bars = secBarCount(sec), len = Math.min(bars * 16, STEPS);
   secSteps[sec] = len;
-  secFeels[sec] = feel;
+  secFeels[sec] = feel; // keep variant name for display
+  // From here on, use baseFeel for all pattern generation logic
+  feel = baseFeel;
   var p = emptyPat();
 
   // INTRO — 3 distinct types, handled by dedicated writer
@@ -709,20 +739,20 @@ function generatePattern(sec) {
   // Feel-aware hat pattern override: some feels require specific hat approaches
   // regardless of the song-level hatPatternType selection
   var sectionHatType = hatPatternType;
-  if (feel === 'dilla') sectionHatType = '8th';        // Dilla: always swung 8ths, never triplets or full 16ths
-  if (feel === 'lofi') sectionHatType = '8th';          // Lo-fi: always sparse 8ths
-  if (feel === 'chopbreak' && sectionHatType === 'triplet') sectionHatType = '16th'; // Chopbreak: bias toward 16ths, never triplets
-  if (feel === 'gfunk') sectionHatType = '16th';        // G-Funk: 16th note hats are the signature sound
-  if (feel === 'crunk') sectionHatType = '16th';        // Crunk: 16th note hats, loud and mechanical
-  if (feel === 'memphis') sectionHatType = '8th';       // Memphis: sparse 8ths, dark and minimal
-  if (feel === 'griselda') sectionHatType = '8th';     // Griselda: tight 8ths, modern boom bap
-  if (feel === 'phonk') sectionHatType = 'triplet';    // Phonk: triplet-influenced hat patterns
-  if (feel === 'nujabes') sectionHatType = '8th';      // Nujabes: swung 8ths, ride cymbal carries the time
-  if (feel === 'oldschool') sectionHatType = '8th';    // Old School: straight 8th note hats, drum machine style
-  // Normal: bias toward 8th notes (classic boom bap) — 70% chance regardless of song-level selection
-  if (feel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
-  // Chorus/lastchorus: step up hat density if currently on 8ths (more energy)
-  if (isCh && sectionHatType === '8th' && feel !== 'dilla' && feel !== 'lofi' && feel !== 'memphis') {
+  // Regional variant hat override
+  if (regionalMod && regionalMod.hatType) sectionHatType = regionalMod.hatType;
+  if (baseFeel === 'dilla') sectionHatType = '8th';
+  if (baseFeel === 'lofi') sectionHatType = '8th';
+  if (baseFeel === 'chopbreak' && sectionHatType === 'triplet') sectionHatType = '16th';
+  if (baseFeel === 'gfunk') sectionHatType = '16th';
+  if (baseFeel === 'crunk') sectionHatType = '16th';
+  if (baseFeel === 'memphis') sectionHatType = '8th';
+  if (baseFeel === 'griselda') sectionHatType = '8th';
+  if (baseFeel === 'phonk') sectionHatType = 'triplet';
+  if (baseFeel === 'nujabes') sectionHatType = '8th';
+  if (baseFeel === 'oldschool') sectionHatType = '8th';
+  if (baseFeel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
+  if (isCh && sectionHatType === '8th' && baseFeel !== 'dilla' && baseFeel !== 'lofi' && baseFeel !== 'memphis') {
     sectionHatType = pick(['8th', '8th', '16th_sparse', '16th']); // 50% chance of busier hats
   }
 
@@ -743,7 +773,11 @@ function generatePattern(sec) {
   if (sec === 'lastchorus') ghostDensity = Math.min(1.8, ghostDensity * 1.2);
   else if (sec === 'chorus' || sec === 'chorus2') ghostDensity = Math.min(1.8, ghostDensity * 1.1);
   else if (sec === 'breakdown') ghostDensity = Math.max(0.3, ghostDensity * 0.6);
-  else if (sec === 'instrumental') ghostDensity = Math.max(0.3, ghostDensity * 0.8); // instrumental breathes
+  else if (sec === 'instrumental') ghostDensity = Math.max(0.3, ghostDensity * 0.8);
+  // Regional variant ghost density modifier
+  if (regionalMod && regionalMod.ghostDensityMult) {
+    ghostDensity = Math.max(0.2, Math.min(2.0, ghostDensity * regionalMod.ghostDensityMult));
+  }
 
   // Chorus kick: 40% chance of deriving from verse kick (add 1-2 hits)
   // Boosted to 80% when previous section is pre-chorus (natural escalation)
@@ -985,6 +1019,7 @@ function generatePattern(sec) {
 
   // Write the 2-bar A/B phrase — bar A (offset 0) and bar B (offset 16)
   // Each instrument has its own writer that respects the current feel
+  // Regional variants resolved above: feel = baseFeel at this point
   writeBarK(p, feel, 0, kick); writeSnA(p, feel, 0); writeClap(p, feel, 0); writeGKA(p, feel, 0); writeHA(p, feel, 0);
   writeRimshot(p, feel, 0); writeRide(p, feel, 0); writeShaker(p, feel, 0);
   if (feel !== 'sparse' && feel !== 'dark') writeOpenHat(p, feel, 0);
@@ -993,7 +1028,7 @@ function generatePattern(sec) {
     writeBarK(p, feel, 16, kickB); writeSnB(p, feel, 16); writeClap(p, feel, 16); writeGKB(p, feel, 16); writeHB(p, feel, 16);
     writeRimshot(p, feel, 16); writeRide(p, feel, 16); writeShaker(p, feel, 16);
     if (feel !== 'sparse' && feel !== 'dark') writeOpenHat(p, feel, 16);
-    writeCR(p, sec, 16, feel);
+    writeCR(p, sec, 16, baseFeel);
   }
 
   // ── Bar Variations ──
@@ -1425,8 +1460,13 @@ function generateAll(opts) {
   applySectionTransitions();
 
   // Now that songFeel is set, pick swing from the feel's pool
-  var feelPool = SWING_POOLS[songFeel] || SWING_POOLS.normal;
+  var feelPool = SWING_POOLS[resolveBaseFeel(songFeel)] || SWING_POOLS.normal;
   swing = pick(feelPool);
+  // Regional variant swing bias
+  var songRegionalMod = (typeof REGIONAL_VARIANTS !== 'undefined') ? REGIONAL_VARIANTS[songFeel] : null;
+  if (songRegionalMod && songRegionalMod.swingBias) {
+    swing += songRegionalMod.swingBias;
+  }
   // Add small per-song jitter (±2) for uniqueness
   swing = Math.max(50, Math.min(72, swing + pick([-2, -1, 0, 0, 1, 2])));
   document.getElementById('swing').textContent = swing;
@@ -1437,15 +1477,16 @@ function generateAll(opts) {
   // Use songPalette[0] (the verse feel) as the primary reference — it defines the song's identity.
   // songFeel is also set to palette[0] via generatePattern('verse'), so they should match.
   var dominantFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
-  if (dominantFeel === 'chopbreak' && ghostDensity < 1.0) ghostDensity = 1.0;
-  if (dominantFeel === 'lofi' && ghostDensity > 1.0) ghostDensity = 1.0;
-  if (dominantFeel === 'dilla' && ghostDensity < 0.8) ghostDensity = 0.8;
-  if (dominantFeel === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
-  if (dominantFeel === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
-  if (dominantFeel === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
-  if (dominantFeel === 'griselda') ghostDensity = Math.min(0.7, ghostDensity); // Griselda: sparse ghosts, wide dynamics
-  if (dominantFeel === 'phonk') ghostDensity = Math.min(0.5, ghostDensity);   // Phonk: very sparse, space dominates
-  if (dominantFeel === 'nujabes') ghostDensity = Math.max(0.9, ghostDensity); // Nujabes: moderate-to-dense, live feel
+  var dominantBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(dominantFeel) : dominantFeel;
+  if (dominantBase === 'chopbreak' && ghostDensity < 1.0) ghostDensity = 1.0;
+  if (dominantBase === 'lofi' && ghostDensity > 1.0) ghostDensity = 1.0;
+  if (dominantBase === 'dilla' && ghostDensity < 0.8) ghostDensity = 0.8;
+  if (dominantBase === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
+  if (dominantBase === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
+  if (dominantBase === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
+  if (dominantBase === 'griselda') ghostDensity = Math.min(0.7, ghostDensity); // Griselda: sparse ghosts, wide dynamics
+  if (dominantBase === 'phonk') ghostDensity = Math.min(0.5, ghostDensity);   // Phonk: very sparse, space dominates
+  if (dominantBase === 'nujabes') ghostDensity = Math.max(0.9, ghostDensity); // Nujabes: moderate-to-dense, live feel
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;

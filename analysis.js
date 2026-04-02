@@ -16,6 +16,8 @@ function analyzeBeat() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
   var lines = [];
+  // Resolve regional variants for map lookups (styleDescs, refMap, etc.)
+  var songFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel;
 
   // === START HERE — quick orientation for new users ===
   lines.push('🚀 <b>START HERE</b>');
@@ -45,11 +47,13 @@ function analyzeBeat() {
   // === STYLE ===
   lines.push('');
   var styleNames = {
-    normal: 'CLASSIC BOOM BAP', halftime: 'HALFTIME', hard: 'HARD/AGGRESSIVE',
+    normal: 'CLASSIC BOOM BAP', normal_bronx: 'BOOM BAP — BRONX', normal_queens: 'BOOM BAP — QUEENS', normal_li: 'BOOM BAP — LONG ISLAND',
+    halftime: 'HALFTIME', hard: 'HARD/AGGRESSIVE',
     jazzy: 'JAZZ-INFLUENCED', dark: 'DARK MINIMAL', bounce: 'BOUNCE',
     big: 'BIG/ANTHEM', driving: 'DRIVING', sparse: 'SPARSE',
     dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
-    gfunk: 'G-FUNK', crunk: 'CRUNK', memphis: 'MEMPHIS',
+    gfunk: 'G-FUNK', gfunk_dre: 'G-FUNK — DRE', gfunk_quik: 'G-FUNK — DJ QUIK', gfunk_battlecat: 'G-FUNK — BATTLECAT',
+    crunk: 'CRUNK', memphis: 'MEMPHIS',
     griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP',
     oldschool: 'OLD SCHOOL'
   };
@@ -75,7 +79,7 @@ function analyzeBeat() {
     oldschool: 'Early hip hop drum machine era — Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO. Roland TR-808, LinnDrum, and Oberheim DMX patterns. Nearly straight timing, simple kick patterns, mechanical 8th-note hats with flat dynamics, hard clap on the backbeat, zero ghost notes. Clean, punchy, and precise — the sound of the block party and the boombox.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
-  lines.push(styleDescs[songFeel] || styleDescs.normal);
+  lines.push(styleDescs[songFeelBase] || styleDescs.normal);
 
   // === FLOW GUIDE ===
   lines.push('');
@@ -93,21 +97,21 @@ function analyzeBeat() {
   } else {
     lines.push('Uptempo at ' + bpm + ' BPM — battle rap and cypher territory. Short, punchy bars. The hat is driving hard; use it as your guide.');
   }
-  if (songFeel === 'dilla' || songFeel === 'lofi') lines.push('The ' + (songFeel === 'dilla' ? 'Dilla' : 'lo-fi') + ' feel is loose and behind the beat. Let your delivery drift with the groove — the best flows on these beats sound half-asleep but every word lands.');
-  if (songFeel === 'hard') lines.push('Hard beats demand hard delivery. Punch your consonants, stay aggressive. The drums are a weapon — your voice should match.');
-  if (songFeel === 'bounce') lines.push('The bounce feel wants movement. Rhythmic, catchy, hook-friendly. Think Biggie\'s conversational cadence on "Juicy."');
-  if (songFeel === 'gfunk') lines.push('G-Funk is smooth and laid back. Let your delivery float over the groove. Think Snoop Dogg\'s effortless cadence on "Gin and Juice."');
-  if (songFeel === 'crunk') lines.push('Crunk demands aggression. Short, punchy phrases, call-and-response hooks. Think Lil Jon\'s chants — simple, loud, impossible to ignore.');
-  if (songFeel === 'memphis') lines.push('Memphis rap is dark and deliberate. Slow your delivery down, let the words hang. Think Three 6 Mafia — every word feels like a threat. The space between lines matters as much as the lines.');
-  if (songFeel === 'halftime') lines.push('Halftime gives you double the space. You can flow at normal tempo or drop into half-time — both work. Think Prodigy\'s slow, deliberate cadence on Mobb Deep\'s darker cuts.');
-  if (songFeel === 'chopbreak') lines.push('Chopped break energy is raw and funky. The dense ghost snares and busy kick create a lot of rhythmic information — your flow needs to cut through it. Short, punchy bars. Think Premier\'s MC choices: Jeru, Nas, Biggie — all precise.');
-  if (songFeel === 'sparse') lines.push('Sparse beats give you maximum space. Dense or minimal — the beat won\'t crowd you. Think RZA\'s Wu-Tang instrumentals: the space IS the vibe.');
-  if (songFeel === 'big') lines.push('Big/anthem energy calls for big delivery. Hook territory — catchy, memorable, singable. Think Nas on "The World Is Yours" or Biggie on "Ready to Die."');
-  if (songFeel === 'driving') lines.push('Driving beats push forward relentlessly. Keep the cadence tight and consistent. Think EPMD\'s locked-in delivery or Gangstarr\'s precision. No wasted syllables.');
-  if (songFeel === 'griselda') lines.push('Griselda beats are raw and punchy. Short, aggressive bars with hard consonants. Think Westside Gunn\'s ad-libs and Conway\'s precise delivery. The drums hit hard — your words should match.');
-  if (songFeel === 'phonk') lines.push('Phonk is slow and hypnotic. Let your delivery drift with the triplet feel. Think Memphis rap cadence — deliberate, menacing, repetitive. The space between words is as important as the words.');
-  if (songFeel === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
-  if (songFeel === 'oldschool') lines.push('Old school beats are simple and direct. Short, punchy bars with clear enunciation. Think Run-DMC\'s call-and-response, LL Cool J\'s braggadocio, KRS-One\'s commanding delivery. The drums are a machine — your voice is the human element.');
+  if (songFeelBase === 'dilla' || songFeelBase === 'lofi') lines.push('The ' + (songFeelBase === 'dilla' ? 'Dilla' : 'lo-fi') + ' feel is loose and behind the beat. Let your delivery drift with the groove — the best flows on these beats sound half-asleep but every word lands.');
+  if (songFeelBase === 'hard') lines.push('Hard beats demand hard delivery. Punch your consonants, stay aggressive. The drums are a weapon — your voice should match.');
+  if (songFeelBase === 'bounce') lines.push('The bounce feel wants movement. Rhythmic, catchy, hook-friendly. Think Biggie\'s conversational cadence on "Juicy."');
+  if (songFeelBase === 'gfunk') lines.push('G-Funk is smooth and laid back. Let your delivery float over the groove. Think Snoop Dogg\'s effortless cadence on "Gin and Juice."');
+  if (songFeelBase === 'crunk') lines.push('Crunk demands aggression. Short, punchy phrases, call-and-response hooks. Think Lil Jon\'s chants — simple, loud, impossible to ignore.');
+  if (songFeelBase === 'memphis') lines.push('Memphis rap is dark and deliberate. Slow your delivery down, let the words hang. Think Three 6 Mafia — every word feels like a threat. The space between lines matters as much as the lines.');
+  if (songFeelBase === 'halftime') lines.push('Halftime gives you double the space. You can flow at normal tempo or drop into half-time — both work. Think Prodigy\'s slow, deliberate cadence on Mobb Deep\'s darker cuts.');
+  if (songFeelBase === 'chopbreak') lines.push('Chopped break energy is raw and funky. The dense ghost snares and busy kick create a lot of rhythmic information — your flow needs to cut through it. Short, punchy bars. Think Premier\'s MC choices: Jeru, Nas, Biggie — all precise.');
+  if (songFeelBase === 'sparse') lines.push('Sparse beats give you maximum space. Dense or minimal — the beat won\'t crowd you. Think RZA\'s Wu-Tang instrumentals: the space IS the vibe.');
+  if (songFeelBase === 'big') lines.push('Big/anthem energy calls for big delivery. Hook territory — catchy, memorable, singable. Think Nas on "The World Is Yours" or Biggie on "Ready to Die."');
+  if (songFeelBase === 'driving') lines.push('Driving beats push forward relentlessly. Keep the cadence tight and consistent. Think EPMD\'s locked-in delivery or Gangstarr\'s precision. No wasted syllables.');
+  if (songFeelBase === 'griselda') lines.push('Griselda beats are raw and punchy. Short, aggressive bars with hard consonants. Think Westside Gunn\'s ad-libs and Conway\'s precise delivery. The drums hit hard — your words should match.');
+  if (songFeelBase === 'phonk') lines.push('Phonk is slow and hypnotic. Let your delivery drift with the triplet feel. Think Memphis rap cadence — deliberate, menacing, repetitive. The space between words is as important as the words.');
+  if (songFeelBase === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
+  if (songFeelBase === 'oldschool') lines.push('Old school beats are simple and direct. Short, punchy bars with clear enunciation. Think Run-DMC\'s call-and-response, LL Cool J\'s braggadocio, KRS-One\'s commanding delivery. The drums are a machine — your voice is the human element.');
   lines.push('<b>Producer note:</b> At ' + bpm + ' BPM with ' + swing + '% swing, your melodic parts should ' + (swing >= 62 ? 'lean into the groove — don\'t quantize samples too tightly, let them breathe with the swing.' : 'sit cleanly on the grid — tight quantization works well at this swing level.'));
 
 
@@ -247,7 +251,7 @@ function analyzeBeat() {
     ]}
   };
 
-  var feelKeys = keyData[songFeel] || keyData.normal;
+  var feelKeys = keyData[songFeelBase] || keyData.normal;
   var chosenKey = feelKeys.keys[0];
   if (typeof _forcedKey !== 'undefined' && _forcedKey) {
     for (var fki = 0; fki < feelKeys.keys.length; fki++) {
@@ -296,32 +300,32 @@ function analyzeBeat() {
 
   lines.push('<b>Alternate progressions for this style:</b>');
 
-  if (songFeel === 'normal' || songFeel === 'chopbreak' || songFeel === 'hard') {
+  if (songFeelBase === 'normal' || songFeelBase === 'chopbreak' || songFeelBase === 'hard') {
     lines.push('• <b>i → iv → i → bVI</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + bVIroot + ') — Boom Bap. The bVI adds a surprise lift on bar 4 before looping back. Classic golden era move.');
     lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords, alternating every 2 bars. The backbone of a huge amount of boom bap. Simple and hypnotic — never gets old.');
     lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVIIroot + ' → ' + bVIroot + ' → ' + vMaj + ') — Andalusian Cadence. Descending through borrowed chords to the major V. The major V (not minor) creates a strong pull back to the root. Nas, some Premier beats.');
     lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVIIroot + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor. Think Biggie "Juicy," a lot of Bad Boy era production.');
-  } else if (songFeel === 'dilla' || songFeel === 'jazzy') {
+  } else if (songFeelBase === 'dilla' || songFeelBase === 'jazzy') {
     lines.push('• <b>ii7 → V7 → IM7</b> (' + iiChord + ' → ' + vMaj + '7 → ' + root + ') — ii-V-I. The foundation of jazz harmony. Sophisticated and warm. Guru\'s Jazzmatazz, Pete Rock.');
     lines.push('• <b>ii7 → bII7 → IM7</b> (' + iiChord + ' → ' + bVIIroot + '7 → ' + root + ') — Tritone Substitution. Replace the V7 with a chord a tritone away (bII7). More sophisticated than the standard ii-V-I. The sound of advanced jazz-rap.');
     lines.push('• <b>IM7 → iii7 → vi7 → ii7</b> (' + root + ' → ' + bIIIroot + 'm7 → ' + bVIroot + 'm7 → ' + iiChord + ') — Neo-Soul Turnaround. All diatonic 7th chords, descending. Tribe/D\'Angelo/Erykah Badu sound. Sophisticated but not jazz-complex.');
     lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
-  } else if (songFeel === 'gfunk' || songFeel === 'bounce') {
+  } else if (songFeelBase === 'gfunk' || songFeelBase === 'bounce') {
     lines.push('• <b>I → bIII → bVII → IV</b> (' + root + ' → ' + bIIIroot + ' → ' + bVIIroot + ' → ' + chosenKey.iv + ') — West Coast. The bIII and bVII give it that P-Funk borrowed-chord bounce.');
     lines.push('• <b>I → bVII → IV → I</b> (' + root + ' → ' + bVIIroot + ' → ' + chosenKey.iv + ' → ' + root + ') — Soul Loop. Circular and warm. The bVII borrowed from the parallel minor. Think Biggie "Juicy," Bad Boy era.');
     lines.push('• <b>I → IV → I → V</b> (' + root + ' → ' + chosenKey.iv + ' → ' + root + ' → ' + chosenKey.v + ') — Danceable. The V at the end creates a strong pull back into the loop.');
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVIroot + ' → ' + bVIIroot + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
-  } else if (songFeel === 'dark' || songFeel === 'halftime' || songFeel === 'sparse') {
+  } else if (songFeelBase === 'dark' || songFeelBase === 'halftime' || songFeelBase === 'sparse') {
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVIroot + ' → ' + bVIIroot + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
     lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIIIroot + ' → ' + bVIroot + ' → ' + bVIIroot + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
     lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVIIroot + ' → ' + bVIroot + ' → ' + vMaj + ') — Andalusian Cadence. Descending to the major V. The major V creates a strong pull back to the root. RZA, Alchemist.');
     lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords. The simplest dark progression — and one of the most effective.');
-  } else if (songFeel === 'lofi') {
+  } else if (songFeelBase === 'lofi') {
     lines.push('• <b>i → bVII → bVI</b> (' + root + ' → ' + bVIIroot + ' → ' + bVIroot + ') — Lo-Fi Hip-Hop descending. Melancholy and hypnotic. Loops beautifully.');
     lines.push('• <b>i → iv</b> (' + root + ' → ' + chosenKey.iv + ') — Minor Plagal. Just two chords, alternating every 2 bars. The simplest dark progression — and one of the most effective.');
     lines.push('• <b>IM7 → iii7 → vi7 → ii7</b> (' + root + ' → ' + bIIIroot + 'm7 → ' + bVIroot + 'm7 → ' + iiChord + ') — Neo-Soul Turnaround. All diatonic 7th chords, descending. Tribe/D\'Angelo sound. Sophisticated but not jazz-complex.');
     lines.push('• <b>i → bIII → iv → bVI</b> (' + root + ' → ' + bIIIroot + ' → ' + chosenKey.iv + ' → ' + bVIroot + ') — Emo Rap. The bIII gives it an emotional, cinematic quality.');
-  } else if (songFeel === 'memphis' || songFeel === 'crunk') {
+  } else if (songFeelBase === 'memphis' || songFeelBase === 'crunk') {
     lines.push('• <b>i → bVI → bVII</b> (' + root + ' → ' + bVIroot + ' → ' + bVIIroot + ') — Trap Minor. Dark but melodic. The bVI and bVII are borrowed from the parallel major.');
     lines.push('• <b>i → bIII → bVI → bVII</b> (' + root + ' → ' + bIIIroot + ' → ' + bVIroot + ' → ' + bVIIroot + ') — Dark Trap. Four chords, all borrowed. Cinematic and menacing.');
     lines.push('• <b>i → bVII → bVI → V</b> (' + root + ' → ' + bVIIroot + ' → ' + bVIroot + ' → ' + vMaj + ') — Andalusian Cadence. Descending to the major V. The major V creates a strong pull back to the root. Sinister and inevitable.');
@@ -352,16 +356,16 @@ function analyzeBeat() {
     oldschool: '808 boom, simple', sparse: 'Minimal, root on beat 1', driving: 'Forward momentum',
     big: 'Full and sustained'
   };
-  var bassDesc = bassStyleNames[songFeel] || 'Locks to kick pattern';
+  var bassDesc = bassStyleNames[songFeelBase] || 'Locks to kick pattern';
   lines.push('<b>Bass style:</b> ' + bassDesc + ' — matched to the ' + (styleNames[songFeel] || 'Classic Boom Bap') + ' drum feel.');
   lines.push('<b>Notes:</b> Root (<b>' + chosenKey.root.replace(/maj7|m7|7|m/g, '') + '</b>) on kick hits, <b>' + chosenKey.iv.replace(/maj7|m7|7|m/g, '') + '</b> (IV) on bars 3-4, occasional <b>' + chosenKey.v.replace(/maj7|m7|7|m/g, '') + '</b> (V) passing tones.');
   lines.push('<b>Octave:</b> C1 range (MIDI 36-47) with sub drops to C0 (MIDI 24-35) on beat 1.');
   lines.push('<b>Export:</b> Bass .mid files in MIDI Patterns/Bass/, bass .mpcpattern files in MPC/Bass/. Load into a Keygroup or plugin track alongside the drum patterns.');
-  if (songFeel === 'crunk' || songFeel === 'memphis' || songFeel === 'phonk') {
+  if (songFeelBase === 'crunk' || songFeelBase === 'memphis' || songFeelBase === 'phonk') {
     lines.push('<b>808 note:</b> This style uses sustained 808 sub bass. On your MPC or DAW, use a long-decay 808 sample or synth bass with a slow release. The note length in the MIDI is already set long.');
-  } else if (songFeel === 'gfunk') {
+  } else if (songFeelBase === 'gfunk') {
     lines.push('<b>G-Funk note:</b> Use a Moog-style synth bass or Minimoog sample. The longer note durations create that smooth, sliding West Coast feel. Add a touch of portamento/glide in your synth for authenticity.');
-  } else if (songFeel === 'jazzy' || songFeel === 'nujabes') {
+  } else if (songFeelBase === 'jazzy' || songFeelBase === 'nujabes') {
     lines.push('<b>Jazz bass note:</b> Use an upright bass or electric bass (finger) sample. The walking pattern uses 5ths and passing tones between chord roots — it breathes like a live player.');
   }
 
@@ -434,7 +438,7 @@ function analyzeBeat() {
     phonk: ['SpaceGhostPurrp — "Bringing the Phonk"', 'DJ Smokey — "Evil Wayz"', 'Soudiere — "Midnight Ride"', 'DJ Yung Vamp — "Phonk Anthem"'],
     nujabes: ['Nujabes — "Feather" (feat. Cise Starr)', 'Nujabes — "Aruarian Dance"', 'Fat Jon — "Samurai Champloo OST"', 'DJ Okawari — "Luv Letter"']
   };
-  var refs = refMap[songFeel] || refMap.normal;
+  var refs = refMap[songFeelBase] || refMap.normal;
   lines.push('Study these to hear the ' + (styleNames[songFeel] || 'boom bap').toLowerCase() + ' feel in action:');
   for (var ri = 0; ri < Math.min(refs.length, 3); ri++) lines.push('• ' + refs[ri]);
   lines.push('Listen to the drums specifically — mute the vocals in your head and focus on kick placement, ghost notes, and hat dynamics.');
@@ -443,7 +447,7 @@ function analyzeBeat() {
   // === WHAT MAKES THIS BEAT UNIQUE ===
   var uniqueParts = [];
   uniqueParts.push(bpm + ' BPM');
-  uniqueParts.push((songFeel === 'normal' ? 'classic boom bap' : styleNames[songFeel].toLowerCase()) + ' feel');
+  uniqueParts.push((songFeelBase === 'normal' ? 'classic boom bap' : styleNames[songFeel].toLowerCase()) + ' feel');
   uniqueParts.push(ghostDensity <= 0.7 ? 'sparse ghost notes' : ghostDensity <= 1.1 ? 'moderate ghost notes' : 'dense ghost notes');
   uniqueParts.push(swing >= 62 ? 'heavy swing' : swing >= 55 ? 'moderate swing' : 'straight/minimal swing');
   if (useRide) uniqueParts.push('ride cymbal timekeeping');
@@ -476,7 +480,7 @@ function analyzeBeat() {
     crunk: 0, sparse: 0, normal: 0, dark: 0
   };
   var hardestFeel = songFeel;
-  var hardestFellScore = feelDiffMap[songFeel] || 0;
+  var hardestFellScore = feelDiffMap[songFeelBase] || 0;
   var sectionFeelNotes = [];
   arrangement.forEach(function(s) {
     var f = secFeels[s];
@@ -533,23 +537,23 @@ function analyzeBeat() {
   if (!baseKick[0]) exercises.push('No kick on beat 1. Try adding one at 100% and hear how it anchors the groove. Then remove it — notice how the beat floats without it? That tension is intentional.');
   if (ghostDensity > 1.2) exercises.push('Dense ghost notes here. Mute all ghost kicks and ghost snares — just kick, snare, hat. Hear how much simpler it sounds? Now unmute them one at a time and notice how each ghost note adds movement.');
   if (ghostDensity < 0.8) exercises.push('Sparse ghost notes. Try adding a ghost snare at 40% on step 6 (the "e" of 2) in bar 1. That single hit adds a subtle push before the snare on beat 2 — the smallest change that makes the biggest difference.');
-  if (songFeel === 'hard') exercises.push('Lower all hat velocities to 60%. The beat feels less intense but more musical. Bring them back up. That contrast shows you how hat dynamics control the energy of a beat.');
-  if (songFeel === 'jazzy') exercises.push('Remove every other ghost snare and listen — the groove simplifies but still swings. Finding the right ghost note density is one of the most important skills in beat-making.');
-  if (songFeel === 'dilla') exercises.push('Quantize all kicks to the nearest beat (steps 1, 5, 9, 13). The groove snaps to the grid and loses all its looseness. Now undo it. That difference between grid-locked and behind-the-beat is the entire Dilla revolution.');
-  if (songFeel === 'lofi') exercises.push('Boost the snare to 100% and ghost notes to 60% — suddenly the beat sounds "normal" instead of dusty. Bring them back down. That narrow velocity band is the lo-fi aesthetic — it\'s not about the samples, it\'s about the dynamics.');
-  if (songFeel === 'chopbreak') exercises.push('Mute all ghost snares and listen — the groove thins out dramatically. Those ghost snares are what make it sound like a real drum break. The density of ghost activity is the difference between "beat" and "break."');
-  if (songFeel === 'gfunk') exercises.push('Replace the 16th note hats with 8th notes — the groove loses its West Coast bounce immediately. The wide dynamic range on the 16ths (loud on quarter notes, soft on "e" and "ah") is what creates the hypnotic feel.');
-  if (songFeel === 'crunk') exercises.push('Lower the snare and clap to 70% velocity. The beat suddenly feels like a different genre. Crunk lives at 100% — the aggression IS the style. Bring it back up.');
-  if (songFeel === 'memphis') exercises.push('Add ghost snares at 50% on every odd step — suddenly it sounds like a different style. Memphis is defined by what\'s NOT there. Restraint is the technique.');
+  if (songFeelBase === 'hard') exercises.push('Lower all hat velocities to 60%. The beat feels less intense but more musical. Bring them back up. That contrast shows you how hat dynamics control the energy of a beat.');
+  if (songFeelBase === 'jazzy') exercises.push('Remove every other ghost snare and listen — the groove simplifies but still swings. Finding the right ghost note density is one of the most important skills in beat-making.');
+  if (songFeelBase === 'dilla') exercises.push('Quantize all kicks to the nearest beat (steps 1, 5, 9, 13). The groove snaps to the grid and loses all its looseness. Now undo it. That difference between grid-locked and behind-the-beat is the entire Dilla revolution.');
+  if (songFeelBase === 'lofi') exercises.push('Boost the snare to 100% and ghost notes to 60% — suddenly the beat sounds "normal" instead of dusty. Bring them back down. That narrow velocity band is the lo-fi aesthetic — it\'s not about the samples, it\'s about the dynamics.');
+  if (songFeelBase === 'chopbreak') exercises.push('Mute all ghost snares and listen — the groove thins out dramatically. Those ghost snares are what make it sound like a real drum break. The density of ghost activity is the difference between "beat" and "break."');
+  if (songFeelBase === 'gfunk') exercises.push('Replace the 16th note hats with 8th notes — the groove loses its West Coast bounce immediately. The wide dynamic range on the 16ths (loud on quarter notes, soft on "e" and "ah") is what creates the hypnotic feel.');
+  if (songFeelBase === 'crunk') exercises.push('Lower the snare and clap to 70% velocity. The beat suddenly feels like a different genre. Crunk lives at 100% — the aggression IS the style. Bring it back up.');
+  if (songFeelBase === 'memphis') exercises.push('Add ghost snares at 50% on every odd step — suddenly it sounds like a different style. Memphis is defined by what\'s NOT there. Restraint is the technique.');
   if (swing >= 62) exercises.push('Set your DAW\'s swing to 50% (straight) and listen. Robotic and stiff. Now set it to ' + swing + '% and hear the bounce come back. Swing is the single most important setting in hip hop production.');
   if (swing <= 53) exercises.push('Minimal swing here — almost straight. Try bumping to 62% and listen to how the hats start to "lean back." Some beats want that looseness, others want precision.');
-  if (songFeel === 'normal') exercises.push('This is a classic boom bap beat. Try removing the kick on the "and" of 2 (step 7) and listen — the groove loses its forward lean and becomes more static. Now put it back. That single kick placement is the signature of the style.');
-  if (songFeel === 'halftime') exercises.push('This is a halftime beat — snare on beat 3. Try moving the snare to beats 2 and 4 (steps 5 and 13) and listen to how the groove suddenly feels twice as fast at the same tempo. Now move it back to beat 3. That single change is the entire halftime technique.');
-  if (songFeel === 'dark') exercises.push('This is a dark/minimal beat. Try adding a kick on every beat (steps 1, 5, 9, 13) — the beat immediately loses its menacing quality and starts to feel like a different style. Now remove those extra kicks. The space IS the darkness.');
-  if (songFeel === 'bounce') exercises.push('This is a bounce beat. Try removing the extra kicks on the "and" positions (steps 3, 7, 11, 15) and listen — the groove becomes more static and less danceable. Now put them back. Those extra kicks are what make bounce beats move.');
-  if (songFeel === 'big') exercises.push('This is a big/anthem beat. Try removing the crash cymbal on beat 1 of the chorus — the section change still happens but it feels less impactful. Now put it back. The crash is the announcement: "the hook is here." Without it, the chorus sneaks in instead of arriving.');
-  if (songFeel === 'driving') exercises.push('This is a driving beat. Try removing all the kicks except beat 1 and beat 3 — the groove becomes more static and loses its forward momentum. Now put the extra kicks back one at a time and notice how each one adds more push. The relentless kick pattern IS the driving feel.');
-  if (songFeel === 'sparse') exercises.push('This is a sparse beat. Try adding a kick on every beat (steps 1, 5, 9, 13) — the beat immediately loses its tension and starts to feel busy. Now remove those extra kicks. The space between hits is where the groove lives. Less is more — much more.');
+  if (songFeelBase === 'normal') exercises.push('This is a classic boom bap beat. Try removing the kick on the "and" of 2 (step 7) and listen — the groove loses its forward lean and becomes more static. Now put it back. That single kick placement is the signature of the style.');
+  if (songFeelBase === 'halftime') exercises.push('This is a halftime beat — snare on beat 3. Try moving the snare to beats 2 and 4 (steps 5 and 13) and listen to how the groove suddenly feels twice as fast at the same tempo. Now move it back to beat 3. That single change is the entire halftime technique.');
+  if (songFeelBase === 'dark') exercises.push('This is a dark/minimal beat. Try adding a kick on every beat (steps 1, 5, 9, 13) — the beat immediately loses its menacing quality and starts to feel like a different style. Now remove those extra kicks. The space IS the darkness.');
+  if (songFeelBase === 'bounce') exercises.push('This is a bounce beat. Try removing the extra kicks on the "and" positions (steps 3, 7, 11, 15) and listen — the groove becomes more static and less danceable. Now put them back. Those extra kicks are what make bounce beats move.');
+  if (songFeelBase === 'big') exercises.push('This is a big/anthem beat. Try removing the crash cymbal on beat 1 of the chorus — the section change still happens but it feels less impactful. Now put it back. The crash is the announcement: "the hook is here." Without it, the chorus sneaks in instead of arriving.');
+  if (songFeelBase === 'driving') exercises.push('This is a driving beat. Try removing all the kicks except beat 1 and beat 3 — the groove becomes more static and loses its forward momentum. Now put the extra kicks back one at a time and notice how each one adds more push. The relentless kick pattern IS the driving feel.');
+  if (songFeelBase === 'sparse') exercises.push('This is a sparse beat. Try adding a kick on every beat (steps 1, 5, 9, 13) — the beat immediately loses its tension and starts to feel busy. Now remove those extra kicks. The space between hits is where the groove lives. Less is more — much more.');
   if (exercises.length === 0) exercises.push('Copy the verse pattern and remove one kick hit. Listen to how the groove changes. Then add a kick in a different position. This is how producers create section variations — same skeleton, different kick.');
   lines.push(pick(exercises));
 
@@ -563,21 +567,21 @@ function analyzeBeat() {
   if (ghostDensity > 1.0) listenFor.push('Listen for ghost snare pairs — two quick soft hits close together. A drummer\'s hand naturally bounces after a soft stroke, creating these "diddle" patterns.');
   if (baseKick[6]) listenFor.push('Listen for the kick on the "and" of 2 (step 7). It\'s the hit right before the snare on beat 2. That kick-to-snare push is the fundamental head-nod motion of boom bap.');
   if (swing >= 60) listenFor.push('Listen to the space between hat hits — they\'re not evenly spaced. The even-numbered steps are delayed by the swing setting, creating an uneven "long-short" rhythm. That unevenness IS the bounce.');
-  if (songFeel === 'dilla') listenFor.push('Listen for ghost snares scattered across the bar — everywhere, not just the usual positions. That density of soft hits creates the Dilla "cloud" of rhythm. The backbeat is softer than usual too — the snare sits IN the groove instead of on top of it.');
-  if (songFeel === 'lofi') listenFor.push('Listen to how close the kick and snare are in volume — no dramatic contrast. Everything sits in a narrow band, like the beat is playing through a cheap speaker. That compressed dynamic range IS the lo-fi sound.');
-  if (songFeel === 'chopbreak') listenFor.push('Listen for the dense ghost snares between the main hits — they mimic the phrasing of a real drummer playing a funk break. Count the ghost snares in one bar — there are more than in any other style.');
-  if (songFeel === 'gfunk') listenFor.push('Listen to the 16th note hats — not all the same volume. Quarter notes loud, 8th upbeats medium, "e" and "ah" positions very soft. That three-level dynamic is the G-Funk hat signature.');
-  if (songFeel === 'crunk') listenFor.push('Listen to how everything is at maximum velocity — kick, snare, clap, hats all at full force. No dynamic variation, no ghost notes. That uniformity IS the crunk aesthetic.');
-  if (songFeel === 'memphis') listenFor.push('Listen to the space between hits — Memphis is defined by what\'s absent. The beat is a skeleton. Notice how the silence creates tension — your brain expects more hits, and when they don\'t come, the groove feels menacing.');
-  if (songFeel === 'normal') listenFor.push('Listen to how the kick on the "and" of 2 (step 7) pushes your head forward right before the snare on beat 2 pulls it back. That push-pull is the fundamental motion of boom bap. Every other element is built around that relationship.');
-  if (songFeel === 'halftime') listenFor.push('Listen to where the snare lands — beat 3 instead of 2 and 4. Your brain expects the backbeat on 2 and 4, so when it arrives on 3, the groove feels like it\'s moving at half speed. That displacement is the entire halftime technique.');
-  if (songFeel === 'hard') listenFor.push('Listen to the hat dynamics — or the lack of them. Hard beats drive the hat at near-uniform velocity, which creates a relentless, mechanical energy. The flatness IS the aggression.');
-  if (songFeel === 'jazzy') listenFor.push('Listen to the ghost snares — they\'re everywhere, at very low velocity. Count how many soft snare hits you can hear between the main backbeats. That density of quiet activity is what makes the groove feel like a live jazz drummer, not a programmed pattern.');
-  if (songFeel === 'dark') listenFor.push('Listen to the space between the kick and snare. In dark beats, the kick barely appears — sometimes just on beat 1. The snare hits hard when it comes, but the space before it is where the tension lives. The atmosphere and samples carry the weight the drums leave behind.');
-  if (songFeel === 'bounce') listenFor.push('Listen to the kick pattern — it\'s busier than standard boom bap. Extra kicks on the "and" positions keep the low end moving constantly. That continuous low-end motion is what makes bounce beats feel danceable rather than just head-noddable.');
-  if (songFeel === 'big') listenFor.push('Listen to the crash cymbal on beat 1 and the open hat activity. Big/anthem beats use crashes and open hats more aggressively than other styles — they mark every section change loudly. The cymbals are as important as the kick and snare.');
-  if (songFeel === 'driving') listenFor.push('Listen to the kick pattern — it never stops pushing. Driving beats have kicks on the "and" positions that create constant forward momentum. There\'s no breathing room in the kick pattern. That relentlessness is what makes the groove feel like it\'s pulling you forward.');
-  if (songFeel === 'sparse') listenFor.push('Listen to what\'s NOT there. Count the empty steps in the kick pattern — there are more empty steps than filled ones. The groove lives in the space between hits. Your brain fills in the missing elements, which makes the hits that do land feel heavier and more deliberate.');
+  if (songFeelBase === 'dilla') listenFor.push('Listen for ghost snares scattered across the bar — everywhere, not just the usual positions. That density of soft hits creates the Dilla "cloud" of rhythm. The backbeat is softer than usual too — the snare sits IN the groove instead of on top of it.');
+  if (songFeelBase === 'lofi') listenFor.push('Listen to how close the kick and snare are in volume — no dramatic contrast. Everything sits in a narrow band, like the beat is playing through a cheap speaker. That compressed dynamic range IS the lo-fi sound.');
+  if (songFeelBase === 'chopbreak') listenFor.push('Listen for the dense ghost snares between the main hits — they mimic the phrasing of a real drummer playing a funk break. Count the ghost snares in one bar — there are more than in any other style.');
+  if (songFeelBase === 'gfunk') listenFor.push('Listen to the 16th note hats — not all the same volume. Quarter notes loud, 8th upbeats medium, "e" and "ah" positions very soft. That three-level dynamic is the G-Funk hat signature.');
+  if (songFeelBase === 'crunk') listenFor.push('Listen to how everything is at maximum velocity — kick, snare, clap, hats all at full force. No dynamic variation, no ghost notes. That uniformity IS the crunk aesthetic.');
+  if (songFeelBase === 'memphis') listenFor.push('Listen to the space between hits — Memphis is defined by what\'s absent. The beat is a skeleton. Notice how the silence creates tension — your brain expects more hits, and when they don\'t come, the groove feels menacing.');
+  if (songFeelBase === 'normal') listenFor.push('Listen to how the kick on the "and" of 2 (step 7) pushes your head forward right before the snare on beat 2 pulls it back. That push-pull is the fundamental motion of boom bap. Every other element is built around that relationship.');
+  if (songFeelBase === 'halftime') listenFor.push('Listen to where the snare lands — beat 3 instead of 2 and 4. Your brain expects the backbeat on 2 and 4, so when it arrives on 3, the groove feels like it\'s moving at half speed. That displacement is the entire halftime technique.');
+  if (songFeelBase === 'hard') listenFor.push('Listen to the hat dynamics — or the lack of them. Hard beats drive the hat at near-uniform velocity, which creates a relentless, mechanical energy. The flatness IS the aggression.');
+  if (songFeelBase === 'jazzy') listenFor.push('Listen to the ghost snares — they\'re everywhere, at very low velocity. Count how many soft snare hits you can hear between the main backbeats. That density of quiet activity is what makes the groove feel like a live jazz drummer, not a programmed pattern.');
+  if (songFeelBase === 'dark') listenFor.push('Listen to the space between the kick and snare. In dark beats, the kick barely appears — sometimes just on beat 1. The snare hits hard when it comes, but the space before it is where the tension lives. The atmosphere and samples carry the weight the drums leave behind.');
+  if (songFeelBase === 'bounce') listenFor.push('Listen to the kick pattern — it\'s busier than standard boom bap. Extra kicks on the "and" positions keep the low end moving constantly. That continuous low-end motion is what makes bounce beats feel danceable rather than just head-noddable.');
+  if (songFeelBase === 'big') listenFor.push('Listen to the crash cymbal on beat 1 and the open hat activity. Big/anthem beats use crashes and open hats more aggressively than other styles — they mark every section change loudly. The cymbals are as important as the kick and snare.');
+  if (songFeelBase === 'driving') listenFor.push('Listen to the kick pattern — it never stops pushing. Driving beats have kicks on the "and" positions that create constant forward momentum. There\'s no breathing room in the kick pattern. That relentlessness is what makes the groove feel like it\'s pulling you forward.');
+  if (songFeelBase === 'sparse') listenFor.push('Listen to what\'s NOT there. Count the empty steps in the kick pattern — there are more empty steps than filled ones. The groove lives in the space between hits. Your brain fills in the missing elements, which makes the hits that do land feel heavier and more deliberate.');
   lines.push(pick(listenFor));
   lines.push('');
   lines.push('🔍 <b>COMPARE SECTIONS</b>');
@@ -793,23 +797,23 @@ function analyzeBeat() {
   // === SHAKER / TAMBOURINE ===
   lines.push('');
   lines.push('🎵 <b>SHAKER / TAMBOURINE</b>');
-  if (songFeel === 'hard' || songFeel === 'dark' || songFeel === 'sparse' || songFeel === 'crunk' || songFeel === 'memphis') {
+  if (songFeelBase === 'hard' || songFeelBase === 'dark' || songFeelBase === 'sparse' || songFeelBase === 'crunk' || songFeelBase === 'memphis') {
     lines.push('<b>Not used in this style.</b> ' + (styleNames[songFeel] || songFeel).toUpperCase() + ' is too raw/minimal for a shaker. The groove comes from the kick, snare, and hat alone.');
   } else {
     lines.push('The shaker adds high-frequency organic shimmer above the hi-hat — a layer of texture that makes the groove feel more alive and less programmed. Sampled from soul records by producers like Pete Rock, Large Professor, and Buckwild, the shaker/tambourine is the "secret ingredient" in a lot of golden era boom bap.');
-    if (songFeel === 'normal' || songFeel === 'chopbreak' || songFeel === 'driving') {
+    if (songFeelBase === 'normal' || songFeelBase === 'chopbreak' || songFeelBase === 'driving') {
       lines.push('<b>In this beat:</b> 8th note upbeats (steps 3, 7, 11, 15) at ~40-52% velocity. Not every upbeat — some are skipped for variation. The shaker sits underneath the hat, adding shimmer without competing.');
-    } else if (songFeel === 'bounce' || songFeel === 'big') {
+    } else if (songFeelBase === 'bounce' || songFeelBase === 'big') {
       lines.push('<b>In this beat:</b> Busier 16th note upbeats — the Bad Boy era tambourine. Louder than other styles (~50-65%) because the bounce feel wants energy and movement from every element.');
-    } else if (songFeel === 'dilla') {
+    } else if (songFeelBase === 'dilla') {
       lines.push('<b>In this beat:</b> Scattered and loose — random upbeats at varying velocities. Dilla\'s shakers feel improvised, not programmed. The velocity variation is wide (35-60%) because the shaker responds to the groove in real time.');
-    } else if (songFeel === 'lofi') {
+    } else if (songFeelBase === 'lofi') {
       lines.push('<b>In this beat:</b> Barely there — 1-2 hits per bar at 32-40%. The shaker adds texture without presence, like it\'s playing through the same dusty sampler as everything else.');
-    } else if (songFeel === 'gfunk') {
+    } else if (songFeelBase === 'gfunk') {
       lines.push('<b>In this beat:</b> 16th note upbeats at ~50% — the West Coast shimmer. Sits above the 16th note hats and adds a second layer of high-frequency movement.');
-    } else if (songFeel === 'jazzy') {
+    } else if (songFeelBase === 'jazzy') {
       lines.push('<b>In this beat:</b> Very sparse, very soft — just 2-3 hits per bar at 32-40%. The shaker is a whisper of shimmer that adds organic texture without competing with the dense ghost notes.');
-    } else if (songFeel === 'halftime') {
+    } else if (songFeelBase === 'halftime') {
       lines.push('<b>In this beat:</b> 8th note upbeats at ~48%. Adds forward momentum to the slow halftime feel — the shaker keeps the groove moving even when the snare only hits once every two beats.');
     }
     lines.push('<b>Programming tip:</b> Assign a shaker or tambourine sample to MIDI note 54 (GM Tambourine). On the MPC, use pad A10. Keep the velocity low (35-55%) — the shaker should be felt, not heard. If you can clearly hear the shaker as a separate element, it\'s too loud.');
@@ -952,21 +956,21 @@ function analyzeBeat() {
   if (baseKick[6]) techLines.push('• <b>DJ Premier / Large Professor</b> — Kick on the "and" of 2. The signature of boom bap, used extensively by Premier on Gang Starr records.');
   if (baseKick[14]) techLines.push('• <b>Hi-Tek</b> — Kick on the "and" of 4. Hi-Tek\'s productions for Talib Kweli often pushed the kick into the last 16th of the bar, creating forward momentum.');
   if (hasBreakFeel) techLines.push('• <b>Breakbeat heritage</b> — This pattern echoes the "Funky Drummer" (Clyde Stubblefield) and "Amen Brother" (Gregory Coleman) breaks that are the DNA of hip hop drumming.');
-  if (songFeel === 'dilla') techLines.push('• <b>J Dilla — Full Dilla feel</b> — Softened backbeat (~82%), ghost snares scattered across every odd step, off-grid kick placements, heavy swing. "Donuts" (2006) and Slum Village "Fantastic Vol. 2" defined this technique.');
-  if (songFeel === 'gfunk') techLines.push('• <b>Dr. Dre / DJ Quik — G-Funk</b> — 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare, heavy swing. "The Chronic" (1992) and "Quik Is the Name" defined this style.');
-  if (songFeel === 'crunk') techLines.push('• <b>Lil Jon / Ying Yang Twins — Crunk</b> — Maximum velocity on everything, kick on every beat, snare and clap at full force. "Get Low" (2003) defined this style.');
-  if (songFeel === 'memphis') techLines.push('• <b>DJ Paul / Juicy J / Three 6 Mafia — Memphis rap</b> — Sparse kick, minimal ghost notes, low-velocity hats. "Tear Da Club Up \'97" defined this sound. The drums that influenced trap before trap existed.');
-  if (songFeel === 'lofi') techLines.push('• <b>Madlib / Knxwledge — Lo-fi dynamics</b> — Compressed dynamics where every hit lives in a narrow velocity band. Running drums through the SP-404\'s vinyl simulation effect. MF DOOM\'s "MM..FOOD" and Roc Marciano\'s "Marcberg" are textbook examples.');
-  if (songFeel === 'chopbreak') techLines.push('• <b>DJ Premier / Havoc — Chopped break phrasing</b> — Dense ghost snares mimic the phrasing of real funk drummers whose breaks were sampled and reprogrammed. The ghost note density comes from the original break, not from programming.');
-  if (songFeel === 'normal') techLines.push('• <b>DJ Premier / Pete Rock — Classic boom bap</b> — Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, and ghost notes for groove. Premier\'s Gang Starr productions and Pete Rock\'s work with CL Smooth defined this template. The "and-of-2" kick syncopation is the signature move.');
-  if (songFeel === 'halftime') techLines.push('• <b>Havoc / RZA — Halftime feel</b> — Moving the snare from beats 2 and 4 to beat 3 creates a slower, heavier groove at the same tempo. Havoc\'s "Quiet Storm" and RZA\'s darker Wu-Tang productions pioneered this approach. The snare displacement is the entire technique.');
-  if (songFeel === 'dark') techLines.push('• <b>RZA / Daringer — Dark minimal</b> — Stripped-back drums where the kick barely appears and the snare hits hard when it does. RZA\'s Wu-Tang productions and Daringer\'s Griselda work use this approach — the atmosphere and samples carry the weight the drums leave behind.');
-  if (songFeel === 'bounce') techLines.push('• <b>Easy Mo Bee / Puff Daddy — Bounce</b> — Busier kick patterns with extra hits on the "and" positions keep the low end moving constantly. Easy Mo Bee\'s work on Biggie\'s "Ready to Die" and Puff Daddy\'s Bad Boy productions defined this danceable approach.');
-  if (songFeel === 'big') techLines.push('• <b>DJ Premier / Pete Rock — Big/anthem</b> — Maximum energy for hooks and climaxes. Extra kick hits, full clap layering, crashes on every section change, open hats throughout. Premier\'s "Kick in the Door" and Pete Rock\'s "The World Is Yours" are the templates for this approach.');
-  if (songFeel === 'driving') techLines.push('• <b>DJ Premier / EPMD — Driving</b> — Forward momentum with extra syncopated kicks on the "and" positions. The groove pushes relentlessly, never letting up. Premier\'s Gang Starr uptempo cuts and EPMD\'s harder productions defined this approach — tight, precise, relentless.');
-  if (songFeel === 'sparse') techLines.push('• <b>RZA / Alchemist — Sparse</b> — Just enough drums to hold the groove. The space creates tension and lets the sample or melody dominate. RZA\'s Wu-Tang instrumentals and Alchemist\'s minimal productions prove that restraint is a technique, not a limitation.');
-  if (songFeel === 'jazzy') techLines.push('• <b>Q-Tip / Pete Rock — Jazz-influenced</b> — Dense ghost notes, softer dynamics, wider velocity range. Q-Tip\'s production for Tribe Called Quest and Pete Rock\'s work with CL Smooth brought jazz drumming sensibility into hip hop. The groove breathes like a live jazz drummer sitting in with a quartet.');
-  if (songFeel === 'hard') techLines.push('• <b>Havoc / DJ Premier — Hard/aggressive</b> — Maximum velocity, minimal ghost notes. The drums are a weapon, not a groove. Havoc\'s Mobb Deep productions and Premier\'s harder cuts for Jeru the Damaja and Notorious B.I.G. defined this approach. Every hit is a statement.');
+  if (songFeelBase === 'dilla') techLines.push('• <b>J Dilla — Full Dilla feel</b> — Softened backbeat (~82%), ghost snares scattered across every odd step, off-grid kick placements, heavy swing. "Donuts" (2006) and Slum Village "Fantastic Vol. 2" defined this technique.');
+  if (songFeelBase === 'gfunk') techLines.push('• <b>Dr. Dre / DJ Quik — G-Funk</b> — 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare, heavy swing. "The Chronic" (1992) and "Quik Is the Name" defined this style.');
+  if (songFeelBase === 'crunk') techLines.push('• <b>Lil Jon / Ying Yang Twins — Crunk</b> — Maximum velocity on everything, kick on every beat, snare and clap at full force. "Get Low" (2003) defined this style.');
+  if (songFeelBase === 'memphis') techLines.push('• <b>DJ Paul / Juicy J / Three 6 Mafia — Memphis rap</b> — Sparse kick, minimal ghost notes, low-velocity hats. "Tear Da Club Up \'97" defined this sound. The drums that influenced trap before trap existed.');
+  if (songFeelBase === 'lofi') techLines.push('• <b>Madlib / Knxwledge — Lo-fi dynamics</b> — Compressed dynamics where every hit lives in a narrow velocity band. Running drums through the SP-404\'s vinyl simulation effect. MF DOOM\'s "MM..FOOD" and Roc Marciano\'s "Marcberg" are textbook examples.');
+  if (songFeelBase === 'chopbreak') techLines.push('• <b>DJ Premier / Havoc — Chopped break phrasing</b> — Dense ghost snares mimic the phrasing of real funk drummers whose breaks were sampled and reprogrammed. The ghost note density comes from the original break, not from programming.');
+  if (songFeelBase === 'normal') techLines.push('• <b>DJ Premier / Pete Rock — Classic boom bap</b> — Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, and ghost notes for groove. Premier\'s Gang Starr productions and Pete Rock\'s work with CL Smooth defined this template. The "and-of-2" kick syncopation is the signature move.');
+  if (songFeelBase === 'halftime') techLines.push('• <b>Havoc / RZA — Halftime feel</b> — Moving the snare from beats 2 and 4 to beat 3 creates a slower, heavier groove at the same tempo. Havoc\'s "Quiet Storm" and RZA\'s darker Wu-Tang productions pioneered this approach. The snare displacement is the entire technique.');
+  if (songFeelBase === 'dark') techLines.push('• <b>RZA / Daringer — Dark minimal</b> — Stripped-back drums where the kick barely appears and the snare hits hard when it does. RZA\'s Wu-Tang productions and Daringer\'s Griselda work use this approach — the atmosphere and samples carry the weight the drums leave behind.');
+  if (songFeelBase === 'bounce') techLines.push('• <b>Easy Mo Bee / Puff Daddy — Bounce</b> — Busier kick patterns with extra hits on the "and" positions keep the low end moving constantly. Easy Mo Bee\'s work on Biggie\'s "Ready to Die" and Puff Daddy\'s Bad Boy productions defined this danceable approach.');
+  if (songFeelBase === 'big') techLines.push('• <b>DJ Premier / Pete Rock — Big/anthem</b> — Maximum energy for hooks and climaxes. Extra kick hits, full clap layering, crashes on every section change, open hats throughout. Premier\'s "Kick in the Door" and Pete Rock\'s "The World Is Yours" are the templates for this approach.');
+  if (songFeelBase === 'driving') techLines.push('• <b>DJ Premier / EPMD — Driving</b> — Forward momentum with extra syncopated kicks on the "and" positions. The groove pushes relentlessly, never letting up. Premier\'s Gang Starr uptempo cuts and EPMD\'s harder productions defined this approach — tight, precise, relentless.');
+  if (songFeelBase === 'sparse') techLines.push('• <b>RZA / Alchemist — Sparse</b> — Just enough drums to hold the groove. The space creates tension and lets the sample or melody dominate. RZA\'s Wu-Tang instrumentals and Alchemist\'s minimal productions prove that restraint is a technique, not a limitation.');
+  if (songFeelBase === 'jazzy') techLines.push('• <b>Q-Tip / Pete Rock — Jazz-influenced</b> — Dense ghost notes, softer dynamics, wider velocity range. Q-Tip\'s production for Tribe Called Quest and Pete Rock\'s work with CL Smooth brought jazz drumming sensibility into hip hop. The groove breathes like a live jazz drummer sitting in with a quartet.');
+  if (songFeelBase === 'hard') techLines.push('• <b>Havoc / DJ Premier — Hard/aggressive</b> — Maximum velocity, minimal ghost notes. The drums are a weapon, not a groove. Havoc\'s Mobb Deep productions and Premier\'s harder cuts for Jeru the Damaja and Notorious B.I.G. defined this approach. Every hit is a statement.');
   // Always show at least these universal techniques
   techLines.push('• <b>Snare + clap layering</b> — Standard technique since the SP-1200 era. Marley Marl pioneered sampling and layering drum hits in the late 1980s.');
   techLines.push('• <b>Open hat on the "and" of 4</b> — From live drumming, brought into hip hop by Pete Rock and Diamond D. The hat opens right before the bar loops, creating a breathing, cyclical feel.');
