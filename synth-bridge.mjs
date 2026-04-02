@@ -10,7 +10,7 @@
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-import { WorkletSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
+import { WorkletSynthesizer, WorkerSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
 
 let synth = null;
 let sequencer = null;
@@ -113,12 +113,13 @@ function resumeSynth() {
  * Stop playback and reset to beginning.
  */
 function stopSynth() {
+  if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
   if (sequencer) {
-    sequencer.stop();
-    isPlaying = false;
-    if (onPlayStateChange) onPlayStateChange(false);
-    if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+    try { sequencer.pause(); } catch(e) {}
+    try { sequencer.currentTime = 0; } catch(e) {}
   }
+  isPlaying = false;
+  if (onPlayStateChange) onPlayStateChange(false);
 }
 
 /**
@@ -151,27 +152,25 @@ function getSynthState() {
 async function renderToWav(midiBytes) {
   // Ensure synth is initialized (for the SoundFont buffer)
   await initSynth();
-  // Use the arrangement time from the DOM as duration estimate
-  var timeEl = document.getElementById('playerTotal');
-  var timeText = timeEl ? timeEl.textContent : '3:00';
-  var parts = timeText.split(':');
-  var duration = (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
-  if (duration < 10) duration = 180; // fallback 3 minutes
-  duration += 2; // reverb tail
 
-  const sampleRate = 44100;
-  const offlineCtx = new OfflineAudioContext(2, Math.ceil(sampleRate * duration), sampleRate);
-  await offlineCtx.audioWorklet.addModule("spessasynth_processor.min.js");
+  // Use WorkerSynthesizer for offline rendering (has renderAudio method)
+  const workerSynth = new WorkerSynthesizer();
+  await workerSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
 
-  const offlineSynth = new WorkletSynthesizer(offlineCtx);
-  offlineSynth.connect(offlineCtx.destination);
-  await offlineSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
+  // Create a sequencer and load the MIDI
+  const renderSeq = new Sequencer(workerSynth);
+  renderSeq.loadNewSongList([{ binary: new Uint8Array(midiBytes).buffer, fileName: "beat.mid" }]);
 
-  const offlineSeq = new Sequencer(offlineSynth);
-  offlineSeq.loadNewSongList([{ binary: new Uint8Array(midiBytes).buffer, fileName: "beat.mid" }]);
-  offlineSeq.play();
+  // Render to audio buffer
+  const audioBuffers = await workerSynth.renderAudio(44100, {
+    extraTime: 2,
+    separateChannels: false,
+    loopCount: 0,
+    enableEffects: true
+  });
 
-  const audioBuffer = await offlineCtx.startRendering();
+  // audioBuffers is a single AudioBuffer when separateChannels is false
+  const audioBuffer = Array.isArray(audioBuffers) ? audioBuffers[0] : audioBuffers;
   const wavData = audioBufferToWav(audioBuffer);
   return new Blob([wavData], { type: "audio/wav" });
 }
