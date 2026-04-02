@@ -311,7 +311,7 @@ function buildMpcPattern(sectionList, bpm) {
  *     MIDI Patterns/
  *       01_{section}_{bars}bars_{bpm}bpm.mid — one file per unique section
  *     MPC/
- *       01_{section}_{bars}bars_{bpm}bpm.mpcpattern — Akai MPC pattern per section
+ *       {Section}.mpcpattern — Akai MPC pattern per section
  *
  * MPC patterns use 960 PPQ and the .mpcpattern JSON format compatible with
  * Akai Force, MPC Live, MPC X, and other Akai devices.
@@ -362,7 +362,8 @@ function exportMIDI(opts) {
         midiFolder.file(baseName + swingTag + '.mid', buildMidiBytes([sec], bpm, noSwing));
       }
       if (opts.mpc) {
-        mpcFolder.file(baseName + '.mpcpattern', buildMpcPattern([sec], bpm));
+        var mpcName = (SL[sec] || sec).replace(/\s+/g, '_');
+        mpcFolder.file(mpcName + '.mpcpattern', buildMpcPattern([sec], bpm));
       }
       idx++;
     });
@@ -392,9 +393,7 @@ function exportMIDI(opts) {
     if (bassMidiFolder) {
       bassMidiFolder.file('00_bass_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
     }
-    if (bassMpcFolder) {
-      bassMpcFolder.file('00_bass_full_song_' + bpm + 'bpm.mpcpattern', buildBassMpcPattern(arrangement, bpm));
-    }
+    // No full-song MPC pattern — individual sections only
     // Individual section bass
     var bassExported = {};
     var bassIdx = 1;
@@ -409,7 +408,8 @@ function exportMIDI(opts) {
         bassMidiFolder.file(bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
       }
       if (bassMpcFolder) {
-        bassMpcFolder.file(bassBaseName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
+        var bassMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
+        bassMpcFolder.file(bassMpcName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
       }
       bassIdx++;
     });

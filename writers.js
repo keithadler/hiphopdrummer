@@ -1321,6 +1321,25 @@ function addFill(p, sec, len, feel) {
     p.clap[len - 1] = v(115, 4);
     if (isBig) p.crash[len - 1] = v(105, 8);
   }
+  else if (feel === 'driving') {
+    // Driving fill: kick-snare buildup with forward momentum
+    if (fillLen >= 3) p.kick[len - 3] = v(105, 8);
+    p.snare[len - 2] = v(100, 8);
+    p.kick[len - 2] = v(95, 10);
+    p.snare[len - 1] = v(120, 6);
+    p.clap[len - 1] = v(112, 8);
+    if (isBig) p.crash[len - 1] = v(110, 8);
+  }
+  else if (feel === 'big') {
+    // Big/Anthem fill: snare crescendo with clap layers — stadium energy
+    for (var i = start; i < len; i++) {
+      var vel = 75 + Math.floor(((i - start) / fillLen) * 50);
+      p.snare[i] = v(vel, 8);
+      if (i >= len - 2) p.clap[i] = v(vel - 5, 8);
+    }
+    p.crash[len - 1] = v(115, 8);
+    if (maybe(.5)) p.kick[len - 1] = v(120, 5);
+  }
   else {
     // Standard B-Boy fill — 3 types picked randomly
     var type = pick(['snare_build', 'kick_snare', 'snare_crash']);
