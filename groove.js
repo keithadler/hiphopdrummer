@@ -98,7 +98,7 @@ function applyGroove(p, len, feel) {
   // curve over an 8-bar phrase: settle in bars 3-4, build bars 5-6, push bar 7
   // Dampened for lo-fi and dilla to keep dynamics flat/hypnotic
   // Skipped for crunk — maximum energy throughout, no arc
-  if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk') {
+  if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk' && feel !== 'nujabes') {
     for (var i = 0; i < len; i++) {
       var barNum = Math.floor(i / 16);
       var barInPhrase = barNum % 8;
@@ -147,6 +147,9 @@ function humanizeVelocities(p, len, feel) {
     else if (hFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;
     else if (hFeel === 'crunk') instrJitter *= 0.4;
     else if (hFeel === 'memphis' && r === 'kick') instrJitter *= 0.6;
+    else if (hFeel === 'griselda') instrJitter *= 0.7;                                // Griselda: tight, punchy, controlled
+    else if (hFeel === 'phonk' && r === 'kick') instrJitter *= 0.5;                   // Phonk: heavy kick is very consistent
+    else if (hFeel === 'nujabes') instrJitter *= 1.2;                                 // Nujabes: loose, live-drummer feel
     for (var i = 0; i < len; i++) {
       if (p[r][i] > 0) {
         var pos = i % 16;
@@ -207,7 +210,7 @@ function postProcessPattern(p, len, isCh, feel) {
   // Chopbreak: higher clustering (dense diddle patterns from real breaks)
   // Lo-fi: lower clustering (sparse aesthetic)
   // Dilla: moderate clustering with wider spacing (3 steps instead of 2)
-  var clusterProb = (feel === 'chopbreak') ? 0.50 : (feel === 'lofi') ? 0.15 : (feel === 'dilla') ? 0.30 : (feel === 'memphis') ? 0.12 : (feel === 'crunk') ? 0 : 0.35;
+  var clusterProb = (feel === 'chopbreak') ? 0.50 : (feel === 'lofi') ? 0.15 : (feel === 'dilla') ? 0.30 : (feel === 'memphis') ? 0.12 : (feel === 'crunk' || feel === 'phonk') ? 0 : (feel === 'griselda') ? 0.10 : (feel === 'nujabes') ? 0.40 : 0.35;
   var clusterSpacing = (feel === 'dilla') ? 3 : 2;
   clusterProb *= ghostDensity;
   for (var i = 0; i < len; i++) {

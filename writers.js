@@ -241,10 +241,22 @@ function writeBarK(p, feel, off, kickPat) {
     if (maybe(.4) && !kickPat[14]) p.kick[off + 14] = v(112, 8);
   }
   if (feel === 'memphis') {
-    // Memphis: use the kick library pattern (now memphis-specific), heavy and dark
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(118, 10);
-    // Beat 1 always hardest
     if (p.kick[off] > 0) p.kick[off] = v(122, 8);
+  }
+  if (feel === 'griselda') {
+    // Griselda: heavy kick with wide dynamics — Daringer's punchy, compressed sound
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(120, 8);
+    if (p.kick[off] > 0) p.kick[off] = v(125, 5);
+  }
+  if (feel === 'phonk') {
+    // Phonk: heavy, distorted kick — similar to memphis but heavier
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(122, 8);
+    if (p.kick[off] > 0) p.kick[off] = v(125, 5);
+  }
+  if (feel === 'nujabes') {
+    // Nujabes: softer kicks with wider dynamic range — live jazz drummer feel
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(98, 20);
   }
 }
 
@@ -344,9 +356,28 @@ function writeSnA(p, feel, off) {
   if (feel === 'crunk') {
     p.snare[off + 4] = v(127, 2); p.snare[off + 12] = v(127, 2);
   }
-  // Memphis: snare on 2 and 4, dark and snappy — Three 6 Mafia "Tear Da Club Up"
   if (feel === 'memphis') {
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
+  }
+  if (feel === 'griselda') {
+    // Griselda: hard snare crack with wider dynamics than 90s dark
+    p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(125, 4);
+    // Rare ghost — Griselda is sparse but not completely dead
+    if (maybe(.15 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(45, 8);
+  }
+  if (feel === 'phonk') {
+    // Phonk: snappy snare, similar to memphis
+    p.snare[off + 4] = v(115, 8); p.snare[off + 12] = v(120, 8);
+  }
+  if (feel === 'nujabes') {
+    // Nujabes: soft backbeat with dense brush-like ghosts
+    p.snare[off + 4] = v(105, 15); p.snare[off + 12] = v(110, 15);
+    // Dense brush ghosts — the Nujabes signature
+    var nujabesGhosts = [1, 3, 5, 7, 9, 11, 13, 15];
+    for (var ng = 0; ng < nujabesGhosts.length; ng++) {
+      var ngp = nujabesGhosts[ng];
+      if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 12);
+    }
   }
 }
 
@@ -435,8 +466,22 @@ function writeSnB(p, feel, off) {
   }
   if (feel === 'memphis') {
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
-    // Bar B: occasional ghost snare for subtle A/B variation — very quiet
     if (maybe(.2 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(42, 8);
+  }
+  if (feel === 'griselda') {
+    p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(125, 4);
+    if (maybe(.15 * ghostDensity) && !p.kick[off+11]) p.snare[off+11] = v(42, 8);
+  }
+  if (feel === 'phonk') {
+    p.snare[off + 4] = v(115, 8); p.snare[off + 12] = v(120, 8);
+  }
+  if (feel === 'nujabes') {
+    p.snare[off + 4] = v(105, 15); p.snare[off + 12] = v(110, 15);
+    var nujabesGhostsB = [1, 3, 5, 7, 9, 11, 13, 15];
+    for (var ng = 0; ng < nujabesGhostsB.length; ng++) {
+      var ngp = nujabesGhostsB[ng];
+      if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
+    }
   }
 }
 
@@ -457,7 +502,7 @@ function writeSnB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKA(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
     var darkPos = pick([9, 11]);
@@ -475,6 +520,8 @@ function writeGKA(p, feel, off) {
   if (feel === 'gfunk') ch *= 0.6;    // G-Funk: clean pocket, minimal ghost kicks
   if (feel === 'crunk') ch *= 0.1;    // Crunk: almost no ghost kicks — raw and mechanical
   if (feel === 'memphis') ch *= 0.4;  // Memphis: sparse ghost kicks
+  if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
+  if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
   // Ghost kick velocity curve: softer leading into snare (steps 3,11),
   // firmer after snare rebound (steps 5,13), neutral elsewhere
   var gkVel = {1:68, 3:60, 5:75, 9:68, 11:60, 13:75};
@@ -504,7 +551,7 @@ function writeGKA(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKB(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
     var darkPos = pick([5, 13]);
@@ -833,7 +880,7 @@ function writeHB(p, feel, off) {
  */
 function writeOpenHat(p, feel, off) {
   if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
-  if (feel === 'memphis') {
+  if (feel === 'memphis' || feel === 'phonk') {
     // Memphis: sparse open hat — 50/50 &2 vs &4, skips more bars than other feels
     if (maybe(.35)) {
       var mPos = maybe(.5) ? 14 : 6; // &4 or &2 — equal chance
@@ -901,7 +948,7 @@ function writeOpenHat(p, feel, off) {
  */
 function writeRide(p, feel, off) {
   if (!useRide) return;
-  if (feel === 'hard' || feel === 'sparse' || feel === 'lofi' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis') return;
+  if (feel === 'hard' || feel === 'sparse' || feel === 'lofi' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk') return;
   if (feel === 'jazzy' || feel === 'dilla') {
     // Jazz ride: quarter notes accented + ghost taps on "ah" positions (steps 3, 7, 11, 15)
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(90, 12);
@@ -955,8 +1002,8 @@ function writeRide(p, feel, off) {
  */
 function writeClap(p, feel, off) {
   if (feel === 'sparse') return;
-  if (feel === 'dark') {
-    // Wu-Tang: clap only on beat 4, not 2 — sparser
+  if (feel === 'dark' || feel === 'phonk') {
+    // Dark/Phonk: clap only on beat 4, not 2 — sparser
     if (p.snare[off + 12] > 0 && maybe(.7)) p.clap[off + 12] = v(95, 10);
     return;
   }
@@ -1017,7 +1064,7 @@ function writeClap(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeRimshot(p, feel, off) {
-  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis' || feel === 'gfunk') return;
+  if (feel === 'hard' || feel === 'lofi' || feel === 'crunk' || feel === 'memphis' || feel === 'gfunk' || feel === 'griselda' || feel === 'phonk') return;
   if (feel === 'sparse') {
     // Sparse: one possible rimshot for character
     if (maybe(.2 * ghostDensity)) { var rp = pick([5, 9, 13]); if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(52, 10); }
@@ -1262,7 +1309,7 @@ function addFill(p, sec, len, feel) {
 function writeShaker(p, feel, off) {
   // Styles that don't use shaker
   if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
-      feel === 'crunk' || feel === 'memphis' ||
+      feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' ||
       feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c' ||
       feel === 'outro_fade' || feel === 'outro_stop') return;
 
@@ -1273,7 +1320,7 @@ function writeShaker(p, feel, off) {
       if (maybe(0.65 * ghostDensity)) p.shaker[off + s] = v(52, 12);
     });
   }
-  else if (feel === 'jazzy') {
+  else if (feel === 'jazzy' || feel === 'nujabes') {
     // Sparse but consistent — a hint of shimmer on the "and" positions
     if (maybe(0.6)) p.shaker[off + 6]  = v(40, 10);
     if (maybe(0.5)) p.shaker[off + 14] = v(38, 10);
@@ -1322,3 +1369,74 @@ function writeShaker(p, feel, off) {
     });
   }
 }
+
+// =============================================
+// New Feel Handlers — Griselda, Phonk, Nujabes
+//
+// These feels are handled inline in the existing write*() functions
+// via the feel parameter. The additions below document the approach
+// for each feel across all instruments. The actual code is added
+// to each writer function above via the feel === 'griselda' etc.
+// branches. This comment block serves as a reference.
+//
+// Griselda: Modern boom bap revival. Sparse kick, hard snare (wider
+//   dynamic range than 90s dark), minimal ghosts, tight 8th note hats,
+//   no shaker, no rimshot. Daringer, Beat Butcha, Conductor Williams.
+//
+// Phonk: Cloud rap / Memphis revival. Slow tempo, sparse kick,
+//   triplet-influenced hats, cowbell-like accents, minimal ghosts,
+//   no shaker, no rimshot. SpaceGhostPurrp, DJ Smokey.
+//
+// Nujabes: Jazz hop. Clean kick, soft snare with brush-like ghosts,
+//   ride cymbal as primary timekeeper, swung 8th note hats (soft),
+//   shaker present, rimshot present. Nujabes, Fat Jon, DJ Okawari.
+// =============================================
+
+// ── Griselda/Phonk/Nujabes additions to existing writers ──
+// These are handled by the existing writer functions via the
+// following mappings (the writers use if/else chains):
+//
+// writeBarK:
+//   griselda → same as dark (heavy kick, beat 1 hardest)
+//   phonk    → same as dark (heavy, sparse)
+//   nujabes  → same as jazzy (softer kicks, wider dynamic range)
+//
+// writeSnA/B:
+//   griselda → hard-ish snare (118-124) but with occasional ghost at low prob
+//   phonk    → dark snare (118-122) with no ghosts
+//   nujabes  → jazzy snare (soft backbeat ~105-110, dense brush ghosts)
+//
+// writeHA/B:
+//   griselda → tight 8ths (falls through to default 8th pattern)
+//   phonk    → triplet pattern (handled by hatPatternType override)
+//   nujabes  → soft 8ths (falls through to default, ride carries time)
+//
+// writeGKA/B:
+//   griselda → sparse (ch *= 0.4)
+//   phonk    → skip (too sparse for ghost kicks)
+//   nujabes  → moderate (ch *= 1.5, like jazzy)
+//
+// writeClap:
+//   griselda → standard (falls through to default)
+//   phonk    → dark-style (clap only on beat 4)
+//   nujabes  → soft (falls through to default with lower velocity)
+//
+// writeRimshot:
+//   griselda → skip (too raw for rimshots)
+//   phonk    → skip (too sparse)
+//   nujabes  → present (falls through to default)
+//
+// writeRide:
+//   griselda → skip (no ride in Griselda)
+//   phonk    → skip (no ride in phonk)
+//   nujabes  → always active (useRide forced true)
+//
+// writeOpenHat:
+//   griselda → standard (falls through)
+//   phonk    → rare (like memphis)
+//   nujabes  → standard (falls through)
+//
+// writeShaker:
+//   griselda → skip (too raw)
+//   phonk    → skip (too sparse)
+//   nujabes  → present (like jazzy, sparse and soft)

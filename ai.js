@@ -156,7 +156,7 @@ var _forcedKey = null;
  */
 var FEELS = {
   intro: ['intro_a', 'intro_b', 'intro_c'],
-  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis'],
+  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis', 'griselda', 'phonk', 'nujabes'],
   pre: ['normal', 'driving', 'hard', 'chopbreak', 'crunk'],  // No dilla/lofi — pre must build energy
   chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak', 'crunk', 'gfunk'],
   verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis'],
@@ -313,6 +313,12 @@ var FEEL_PALETTES = [
   ['memphis', 'dark', 'sparse', 'halftime'],
   // Halftime/slow
   ['halftime', 'big', 'dark', 'sparse'],
+  // Griselda revival
+  ['griselda', 'hard', 'dark', 'driving'],
+  // Phonk / Cloud Rap
+  ['phonk', 'dark', 'sparse', 'halftime'],
+  // Nujabes / Jazz Hop
+  ['nujabes', 'jazzy', 'lofi', 'normal'],
 ];
 
 var SWING_POOLS = {
@@ -330,7 +336,10 @@ var SWING_POOLS = {
   chopbreak: [58, 60, 60, 62, 62, 64, 64, 66, 66],
   gfunk:     [62, 64, 64, 66, 66, 68, 68, 70],   // heavy swing — the G-Funk bounce
   crunk:     [50, 50, 52, 52, 54, 54, 56],        // nearly straight — crunk is mechanical
-  memphis:   [50, 52, 52, 54, 54, 56, 56, 58]     // minimal swing — dark and cold
+  memphis:   [50, 52, 52, 54, 54, 56, 56, 58],     // minimal swing — dark and cold
+  griselda:  [50, 52, 52, 54, 54, 56, 58],          // nearly straight — modern boom bap, tight and punchy
+  phonk:     [54, 56, 56, 58, 58, 60, 62],          // moderate swing — triplet-influenced but not heavy
+  nujabes:   [60, 62, 62, 64, 64, 66, 66, 68, 70]   // jazz swing — heavier than normal, lighter than Dilla
 };
 
 /**
@@ -563,6 +572,7 @@ function genBasePatterns() {
   // Use songPalette[0] since songFeel isn't set yet at this point in the pipeline
   var paletteFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
   if (paletteFeel === 'gfunk') useRide = maybe(.5);
+  if (paletteFeel === 'nujabes') useRide = true; // Nujabes: ride cymbal is the primary timekeeper
 }
 
 // =============================================
@@ -625,7 +635,10 @@ function generatePattern(sec) {
         dark: ['dark', 'dark', 'lofi', 'halftime'],
         gfunk: ['gfunk', 'gfunk', 'bounce', 'normal'],
         crunk: ['crunk', 'crunk', 'hard', 'bounce'],
-        memphis: ['memphis', 'memphis', 'dark', 'lofi']
+        memphis: ['memphis', 'memphis', 'dark', 'lofi'],
+        griselda: ['griselda', 'griselda', 'dark', 'hard'],
+        phonk: ['phonk', 'phonk', 'memphis', 'dark'],
+        nujabes: ['nujabes', 'nujabes', 'jazzy', 'dilla']
       };
       if (compatMap[songFeel]) feel = pick(compatMap[songFeel]);
     }
@@ -672,6 +685,9 @@ function generatePattern(sec) {
   if (feel === 'gfunk') sectionHatType = '16th';        // G-Funk: 16th note hats are the signature sound
   if (feel === 'crunk') sectionHatType = '16th';        // Crunk: 16th note hats, loud and mechanical
   if (feel === 'memphis') sectionHatType = '8th';       // Memphis: sparse 8ths, dark and minimal
+  if (feel === 'griselda') sectionHatType = '8th';     // Griselda: tight 8ths, modern boom bap
+  if (feel === 'phonk') sectionHatType = 'triplet';    // Phonk: triplet-influenced hat patterns
+  if (feel === 'nujabes') sectionHatType = '8th';      // Nujabes: swung 8ths, ride cymbal carries the time
   // Normal: bias toward 8th notes (classic boom bap) — 70% chance regardless of song-level selection
   if (feel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
   // Chorus/lastchorus: step up hat density if currently on 8ths (more energy)
@@ -874,6 +890,53 @@ function generatePattern(sec) {
     kickB = kick.slice();
     var ckPos = pick([6, 10, 14]);
     kickB[ckPos] = kickB[ckPos] ? 0 : 1;
+  }
+
+  // Griselda: modern boom bap — sparse, punchy, sample-heavy
+  if (feel === 'griselda' && !isCh) {
+    var griseldaKicks = [
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — Daringer minimal
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark minimal
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic but punchy
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — Beat Butcha
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — Conductor Williams
+      [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // delayed: and-of-1, 3 — off-kilter
+    ];
+    kick = pick(griseldaKicks);
+    kickB = kick.slice();
+    var grPos = pick([8, 10, 11]);
+    kickB[grPos] = kickB[grPos] ? 0 : 1;
+  }
+
+  // Phonk: slow, distorted, cowbell-influenced
+  if (feel === 'phonk' && !isCh) {
+    var phonkKicks = [
+      [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // kick on 1 only — maximum space for 808
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — simple
+      [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,0,0],  // 1, ah-of-3 — dark
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sinister
+      [1,0,0,0, 0,0,0,1, 0,0,0,0, 0,0,0,0],  // 1, ah-of-2 — SpaceGhostPurrp
+    ];
+    kick = pick(phonkKicks);
+    kickB = kick.slice();
+    var phPos = pick([8, 10, 11]);
+    kickB[phPos] = kickB[phPos] ? 0 : 1;
+  }
+
+  // Nujabes: jazz hop — clean, musical, live-drummer feel
+  if (feel === 'nujabes' && !isCh) {
+    var nujabesKicks = [
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — clean jazz pocket
+      [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3 — classic
+      [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4 — slight movement
+      [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+      [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — minimal jazz
+      [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,0,0],  // 1, e-of-2, 3 — subtle syncopation
+    ];
+    kick = pick(nujabesKicks);
+    kickB = kick.slice();
+    var njPos = pick([8, 10, 14]);
+    kickB[njPos] = kickB[njPos] ? 0 : 1;
   }
 
   // Dilla: B variant can toggle in the first half too (Dilla's variations weren't limited to second half)
@@ -1342,6 +1405,9 @@ function generateAll(opts) {
   if (dominantFeel === 'gfunk') ghostDensity = Math.min(0.8, ghostDensity);   // G-Funk: sparse ghosts, clean pocket
   if (dominantFeel === 'crunk') ghostDensity = Math.min(0.4, ghostDensity);   // Crunk: almost no ghosts — raw and mechanical
   if (dominantFeel === 'memphis') ghostDensity = Math.min(0.6, ghostDensity); // Memphis: minimal ghosts, sinister space
+  if (dominantFeel === 'griselda') ghostDensity = Math.min(0.7, ghostDensity); // Griselda: sparse ghosts, wide dynamics
+  if (dominantFeel === 'phonk') ghostDensity = Math.min(0.5, ghostDensity);   // Phonk: very sparse, space dominates
+  if (dominantFeel === 'nujabes') ghostDensity = Math.max(0.9, ghostDensity); // Nujabes: moderate-to-dense, live feel
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
