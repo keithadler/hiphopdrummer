@@ -645,6 +645,25 @@ function buildChordSheet() {
   };
 })();
 
+// Wire chord sheet toggle
+(function() {
+  var toggle = document.getElementById('chordSheetToggle');
+  if (!toggle) return;
+  function toggleChords() {
+    var sheet = document.getElementById('chordSheet');
+    if (!sheet) return;
+    var isHidden = sheet.style.display === 'none';
+    sheet.style.display = isHidden ? '' : 'none';
+    var arrow = toggle.querySelector('.about-arrow');
+    if (arrow) arrow.textContent = isHidden ? '▾' : '▸';
+    toggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  }
+  toggle.onclick = toggleChords;
+  toggle.onkeydown = function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleChords(); }
+  };
+})();
+
 // =============================================
 // Glossary — Hover definitions for drum programming terms
 // =============================================

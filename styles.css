@@ -65,7 +65,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .about-toggle:focus:not(:focus-visible){outline:none}
 
 /* ── Chord Sheet ── */
-.chord-sheet{font-family:var(--mono);font-size:12px;color:var(--text-secondary);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.chord-sheet{font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
 .chord-sheet-row{margin-bottom:6px}
 .chord-sheet-section{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:3px}
 .chord-sheet-bars{display:flex;gap:4px;flex-wrap:wrap}
