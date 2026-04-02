@@ -74,7 +74,7 @@ async function playSynthMidi(midiBytes) {
       if (onPlayStateChange) onPlayStateChange(false);
       if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
     }
-  }, 100);
+  }, 50);
 }
 
 /**
@@ -105,7 +105,7 @@ function resumeSynth() {
           if (onPlayStateChange) onPlayStateChange(false);
           if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
         }
-      }, 100);
+      }, 50);
     }
   }
 }
