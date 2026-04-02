@@ -588,8 +588,10 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   // Tempo
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
-  // Program change on channel 1: GM program 33 = Electric Bass (Finger)
-  td.push(0, 0xC0 | bassCh, 33);
+  // Program change on channel 1: bass sound from preferences (default: 33 = Electric Bass Finger)
+  var bassProgram = 33;
+  try { var bp = localStorage.getItem('hhd_bass_sound'); if (bp) bassProgram = parseInt(bp) || 33; } catch(e) {}
+  td.push(0, 0xC0 | bassCh, bassProgram);
 
   // Write events
   var lastTick = 0;

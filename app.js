@@ -200,6 +200,10 @@ function showPrefsDialog() {
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
   document.getElementById('prefsBassPlayback').checked = bassOn;
+  // Restore bass sound preference (default: 33 = Electric Bass Finger)
+  var bassSound = '33';
+  try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
+  document.getElementById('prefsBassSound').value = bassSound;
   document.getElementById('prefsOverlay').style.display = 'flex';
 }
 
@@ -217,6 +221,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_drumkit', kit); } catch(e) {}
   var bassOn = document.getElementById('prefsBassPlayback').checked;
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
+  var bassSound = document.getElementById('prefsBassSound').value;
+  try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   applySoundFont(kit);
   hidePrefsDialog();
 };

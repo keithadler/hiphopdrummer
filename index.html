@@ -202,8 +202,16 @@
         </div>
         <div class="regen-field">
           <label class="regen-label">Bass Preview</label>
-          <label class="export-check"><input type="checkbox" id="prefsBassPlayback" checked> Play bass line with drums</label>
-          <div class="prefs-hint">When enabled, the preview player includes a bass line locked to the kick pattern. Disable to hear drums only.</div>
+          <select id="prefsBassSound" class="regen-select">
+            <option value="33">Electric Bass (Finger)</option>
+            <option value="34">Electric Bass (Pick)</option>
+            <option value="35">Fretless Bass</option>
+            <option value="36">Slap Bass</option>
+            <option value="38">Synth Bass 1</option>
+            <option value="39">Synth Bass 2</option>
+          </select>
+          <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsBassPlayback" checked> Play bass line with drums</label>
+          <div class="prefs-hint">Select the bass sound for the preview player. Changes the GM program on MIDI channel 1.</div>
         </div>
       </div>
       <div class="regen-actions">
