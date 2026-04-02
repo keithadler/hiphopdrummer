@@ -98,9 +98,9 @@ test('All JS files parse without errors', function() {
 });
 
 // === Test STYLE_DATA completeness ===
-test('STYLE_DATA has all 18 feels', function() {
+test('STYLE_DATA has all 19 feels', function() {
   var expected = ['normal','halftime','hard','jazzy','dark','bounce','big','driving',
-    'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes'];
+    'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes','oldschool'];
   expected.forEach(function(f) {
     assert(STYLE_DATA[f], 'STYLE_DATA missing: ' + f);
     assert(STYLE_DATA[f].label, 'STYLE_DATA[' + f + '] missing label');

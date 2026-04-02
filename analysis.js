@@ -50,7 +50,8 @@ function analyzeBeat() {
     big: 'BIG/ANTHEM', driving: 'DRIVING', sparse: 'SPARSE',
     dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
     gfunk: 'G-FUNK', crunk: 'CRUNK', memphis: 'MEMPHIS',
-    griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP'
+    griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP',
+    oldschool: 'OLD SCHOOL'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. DJ Premier, Pete Rock, Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, ghost notes for groove.',
@@ -70,7 +71,8 @@ function analyzeBeat() {
     memphis: 'Three 6 Mafia, DJ Paul, Juicy J, early Gangsta Boo. Slow, minimal swing, sparse kick, dark and sinister. Skeletal drums. The sound that influenced trap before trap existed.',
     griselda: 'Modern boom bap revival — Daringer, Beat Butcha, Conductor Williams. Sparse kick patterns with wide dynamics, hard snare crack with modern compression, minimal ghost notes. Sample-heavy with vinyl texture. The drums are punchy and direct — every hit is a statement. Westside Gunn, Conway the Machine, Benny the Butcher.',
     phonk: 'Cloud rap / Memphis revival — SpaceGhostPurrp, DJ Smokey, Soudiere. Slow tempo (60-78 BPM), triplet-influenced hat patterns, sparse distorted kick, dark and hypnotic. The cowbell and lo-fi aesthetic of Memphis rap filtered through SoundCloud. Sinister, repetitive, and trance-like.',
-    nujabes: 'Jazz hop — Nujabes, Fat Jon, DJ Okawari, Marcus D. Clean kick patterns, soft brush-like snare ghosts, ride cymbal as the primary timekeeper, warm swing. The groove breathes like a live jazz trio. Melodic, meditative, and deeply musical. The sound of late-night study sessions and rainy Tokyo streets.'
+    nujabes: 'Jazz hop — Nujabes, Fat Jon, DJ Okawari, Marcus D. Clean kick patterns, soft brush-like snare ghosts, ride cymbal as the primary timekeeper, warm swing. The groove breathes like a live jazz trio. Melodic, meditative, and deeply musical. The sound of late-night study sessions and rainy Tokyo streets.',
+    oldschool: 'Early hip hop drum machine era — Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO. Roland TR-808, LinnDrum, and Oberheim DMX patterns. Nearly straight timing, simple kick patterns, mechanical 8th-note hats with flat dynamics, hard clap on the backbeat, zero ghost notes. Clean, punchy, and precise — the sound of the block party and the boombox.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeel] || styleDescs.normal);
@@ -105,6 +107,7 @@ function analyzeBeat() {
   if (songFeel === 'griselda') lines.push('Griselda beats are raw and punchy. Short, aggressive bars with hard consonants. Think Westside Gunn\'s ad-libs and Conway\'s precise delivery. The drums hit hard — your words should match.');
   if (songFeel === 'phonk') lines.push('Phonk is slow and hypnotic. Let your delivery drift with the triplet feel. Think Memphis rap cadence — deliberate, menacing, repetitive. The space between words is as important as the words.');
   if (songFeel === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
+  if (songFeel === 'oldschool') lines.push('Old school beats are simple and direct. Short, punchy bars with clear enunciation. Think Run-DMC\'s call-and-response, LL Cool J\'s braggadocio, KRS-One\'s commanding delivery. The drums are a machine — your voice is the human element.');
   lines.push('<b>Producer note:</b> At ' + bpm + ' BPM with ' + swing + '% swing, your melodic parts should ' + (swing >= 62 ? 'lean into the groove — don\'t quantize samples too tightly, let them breathe with the swing.' : 'sit cleanly on the grid — tight quantization works well at this swing level.'));
 
 
@@ -234,6 +237,13 @@ function analyzeBeat() {
       { root: 'Am7', type: 'minor', i: 'Am7', iv: 'Dm7', v: 'Em7', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Introspective and warm. The most common jazz hop key. Fat Jon, Marcus D.' },
       { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'Cm7', v: 'Dm7', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep and warm. Perfect for bass-heavy jazz hop grooves. DJ Okawari territory.' },
       { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', ii: 'Cm7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Uyama Hiroto territory. The major 7th floats above the groove.' }
+    ]},
+    oldschool: { keys: [
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'The old school key. Raw and direct. Run-DMC "It\'s Like That," LL Cool J "Rock the Bells." Simple minor key, maximum impact.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Funky and driving. Salt-N-Pepa "Push It" energy. The minor key gives the drum machine patterns a harder edge.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Boogie Down Productions "South Bronx" territory. Guitar riffs and scratches love Em.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and heavy. Whodini, early Beastie Boys. The flat minor key gives 808 patterns a menacing quality.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. UTFO "Roxanne Roxanne" energy. The minor key with a funk edge.' }
     ]}
   };
 

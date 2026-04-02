@@ -171,7 +171,8 @@ var STYLE_DATA = {
   memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' },
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 95],  keys: ['Cm','Dm','Am','Fm','Gm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway' },
   phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [60, 78],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp' },
-  nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 98],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto' }
+  nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 98],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto' },
+  oldschool: { label: 'Old School',        bpmRange: [98, 120], keys: ['Am','Dm','Em','Cm','Gm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO' }
 };
 
 /**
