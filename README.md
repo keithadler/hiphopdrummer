@@ -90,6 +90,10 @@ MIT — see [LICENSE](LICENSE).
 
 Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.
 
+## Trademarks
+
+All product names, logos, and brands mentioned in this project are property of their respective owners. Use of these names does not imply endorsement. Specifically: Akai, MPC, Force are trademarks of Akai Professional / inMusic Brands. Logic Pro, GarageBand are trademarks of Apple Inc. Ableton Live is a trademark of Ableton AG. FL Studio is a trademark of Image-Line. Maschine is a trademark of Native Instruments. Pro Tools is a trademark of Avid Technology. Studio One is a trademark of PreSonus Audio Electronics. Reason is a trademark of Reason Studios. Reaper is a trademark of Cockos Inc. Roland, TR-808, TR-909 are trademarks of Roland Corporation. General MIDI is a standard of the MIDI Manufacturers Association.
+
 ## Credits
 
 MPC pattern export format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev, which is a restructured version of the original implementation by Catnip / Jamie Faye Fenton (Fentonia). The `.mpcpattern` JSON format and static header event structure are derived from that work. No license was specified in the original project; credit is given here in accordance with open source attribution best practices.

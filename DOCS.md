@@ -258,3 +258,7 @@ Covers:
 ## Disclaimer
 
 Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.
+
+## Trademarks
+
+All product names, logos, and brands mentioned in this project are property of their respective owners. Use of these names does not imply endorsement.
