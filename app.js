@@ -120,6 +120,14 @@ document.getElementById('btnExport').onclick = showExportDialog;
 // ── Export Dialog ──
 
 function showExportDialog() {
+  // Reset all checkboxes to checked on every open
+  document.getElementById('expFullSong').checked = true;
+  document.getElementById('expSections').checked = true;
+  document.getElementById('expMpc').checked = true;
+  document.getElementById('expPdf').checked = true;
+  document.querySelectorAll('.daw-check').forEach(function(c) { c.checked = true; });
+  var toggle = document.getElementById('exportDawToggle');
+  if (toggle) toggle.textContent = 'Deselect all';
   document.getElementById('exportOverlay').style.display = 'flex';
 }
 
@@ -169,6 +177,7 @@ document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.key === 'Escape') {
     hideRegenDialog();
+    hideExportDialog();
   }
   if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
     e.preventDefault();

@@ -174,14 +174,13 @@ function renderGrid() {
  *
  * @returns {string} Formatted time string "M:SS"
  */
-function calcArrTime() {
-  // Use the MIDI player's actual duration if available (includes swing timing)
+function calcArrTime(useCalculation) {
+  // Use the MIDI player's actual duration if available and not forced to calculate
   var player = document.getElementById('midiPlayer');
   var totalSec = 0;
-  if (player && player.duration && player.duration > 0) {
+  if (!useCalculation && player && player.duration && player.duration > 0) {
     totalSec = player.duration;
   } else {
-    // Fallback: calculate from step counts
     var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
     var totalSteps = 0;
     arrangement.forEach(function(s) { totalSteps += secSteps[s] || 32; });
@@ -306,7 +305,7 @@ function renderArr(skipMidiUpdate) {
   });
 
   // Update the total song time display
-  document.getElementById('arrTime').textContent = calcArrTime();
+  document.getElementById('arrTime').textContent = calcArrTime(true);
   // Rebuild the MIDI player unless told to skip (e.g. selection-only change)
   if (!skipMidiUpdate && typeof updateMidiPlayer === 'function') updateMidiPlayer();
 }
