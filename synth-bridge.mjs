@@ -37,7 +37,7 @@ async function initSynth() {
   // Create the synthesizer
   synth = new WorkletSynthesizer(audioContext);
   synth.connect(audioContext.destination);
-  await synth.loadSoundFont(soundFontBuffer);
+  await synth.soundBankManager.addSoundBank(soundFontBuffer, "gm");
 }
 
 /**
@@ -171,7 +171,7 @@ async function renderToWav(midiBytes) {
 
   const offlineSynth = new WorkletSynthesizer(offlineCtx);
   offlineSynth.connect(offlineCtx.destination);
-  await offlineSynth.loadSoundFont(soundFontBuffer);
+  await offlineSynth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
 
   const offlineSeq = new Sequencer(offlineSynth, midi);
   offlineSeq.play();
