@@ -181,6 +181,7 @@ async function renderToWav(midiBytes) {
   const blockR = new Float32Array(BLOCK);
 
   for (let i = 0; i < totalBlocks; i++) {
+    seq.processTick();
     processor.renderAudio([blockL, blockR]);
     leftChannel.set(blockL, i * BLOCK);
     rightChannel.set(blockR, i * BLOCK);
