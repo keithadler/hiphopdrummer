@@ -14,8 +14,9 @@ Thanks for your interest in contributing! This project is pure vanilla JS with z
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes
-4. Test by opening `index.html` locally
-5. Submit a pull request with a clear description
+4. Run `node tests.js` — all 4622 assertions must pass
+5. Test by opening `index.html` locally
+6. Submit a pull request with a clear description
 
 ## Architecture
 
@@ -31,6 +32,7 @@ The project is split into focused modules:
 - **`daw-help.js`** — DAW-specific help file builders (11 functions, one per DAW/platform)
 - **`pdf-export.js`** — PDF beat sheet generator
 - **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor
+- **`tests.js`** — Automated test suite (4622 assertions, zero dependencies, `node tests.js`)
 
 ## Key Concepts
 
