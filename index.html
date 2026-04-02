@@ -45,6 +45,7 @@
           <span class="ctrl-input" id="swing">62</span><span class="ctrl-swing-desc" id="swingDesc" title="Swing timing: how much even 16th-note steps are delayed"></span>
         </div>
         <button class="btn btn-export" id="btnExport">EXPORT</button>
+        <button class="btn btn-prefs" id="btnPrefs" title="Preferences">⚙</button>
       </div>
     </div>
 
@@ -173,6 +174,27 @@
       </div>
     </div>
   </div>
+  <!-- Preferences dialog -->
+  <div id="prefsOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog prefs-dialog">
+      <div class="regen-title">Preferences</div>
+      <div class="regen-fields">
+        <div class="regen-field">
+          <label class="regen-label">Drum Kit (SoundFont)</label>
+          <select id="prefsDrumKit" class="regen-select">
+            <option value="">Rock</option>
+            <option value="https://storage.googleapis.com/magentadata/js/soundfonts/jazz_kit">Jazz</option>
+          </select>
+          <div class="prefs-hint" id="prefsKitDesc">Changes the drum sounds used by the MIDI preview player. May take a moment to load.</div>
+        </div>
+      </div>
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="prefsCancel">Cancel</button>
+        <button class="btn regen-go btn-prefs-save" id="prefsSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="patterns.js"></script>
   <script src="ai.js"></script>
   <script src="writers.js"></script>
