@@ -267,7 +267,7 @@ test('Bass generator produces valid patterns for all feels', function() {
     assert(Array.isArray(bassEvents), feel + ': bass should return array');
     assert(bassEvents.length > 0, feel + ': bass should have events, got ' + bassEvents.length);
     bassEvents.forEach(function(e, idx) {
-      assert(e.note >= 24 && e.note <= 60, feel + ' bass note ' + idx + ': MIDI note ' + e.note + ' out of bass range');
+      assert(e.note >= 24 && e.note <= 48, feel + ' bass note ' + idx + ': MIDI note ' + e.note + ' out of bass range');
       assert(e.vel >= 30 && e.vel <= 127, feel + ' bass note ' + idx + ': velocity ' + e.vel + ' out of range');
     });
   });
@@ -298,7 +298,7 @@ test('Bass MIDI and MPC export produce valid output', function() {
   var noteEvents = parsed.pattern.events.filter(function(e) { return e.type === 2; });
   assert(noteEvents.length > 0, 'bass MPC should have note events');
   noteEvents.forEach(function(e) {
-    assert(e['1'] >= 24 && e['1'] <= 60, 'bass MPC note ' + e['1'] + ' should be in bass range');
+    assert(e['1'] >= 24 && e['1'] <= 48, 'bass MPC note ' + e['1'] + ' should be in bass range');
   });
 });
 
