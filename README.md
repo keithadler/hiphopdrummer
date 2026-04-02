@@ -63,6 +63,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── analysis.js        — "About This Beat" educational text generator
 ├── ui.js              — Grid rendering, arrangement editor, tooltips, glossary
 ├── midi-export.js     — MIDI file writer with swing, ZIP export, MIDI player
+├── daw-help.js        — DAW-specific help file builders (Ableton, Logic, FL, etc.)
 ├── pdf-export.js      — PDF beat sheet generator
 ├── app.js             — Main controller, New Beat dialog, event wiring, playback cursor
 ├── DOCS.md            — Full technical documentation

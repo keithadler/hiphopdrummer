@@ -15,6 +15,7 @@ var ASSETS = [
   '/hiphopdrummer/analysis.js',
   '/hiphopdrummer/ui.js',
   '/hiphopdrummer/midi-export.js',
+  '/hiphopdrummer/daw-help.js',
   '/hiphopdrummer/pdf-export.js',
   '/hiphopdrummer/app.js',
   '/hiphopdrummer/icon-192.png',
