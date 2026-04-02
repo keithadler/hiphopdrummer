@@ -927,6 +927,44 @@ test('Bass chorus re-entry has beat 1 hit', function() {
   assert(hasBeat1, 'bass chorus should have beat 1 re-entry hit');
 });
 
+// === Test arrangement arc ===
+test('applyArrangementArc creates energy progression', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['intro', 'verse', 'chorus', 'verse2', 'chorus2', 'breakdown', 'lastchorus', 'outro'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  genBasePatterns();
+  arrangement.forEach(function(sec) { patterns[sec] = generatePattern(sec); });
+  applySectionTransitions();
+  applyArrangementArc();
+
+  // sectionEnergyMap should exist and have entries
+  assert(typeof sectionEnergyMap === 'object', 'sectionEnergyMap should exist');
+  assert(sectionEnergyMap['lastchorus'] > sectionEnergyMap['verse'], 'lastchorus energy should exceed verse');
+  assert(sectionEnergyMap['chorus'] > sectionEnergyMap['breakdown'], 'chorus energy should exceed breakdown');
+  assert(sectionEnergyMap['intro'] < sectionEnergyMap['chorus'], 'intro energy should be less than chorus');
+
+  // Verse 2 should have more ghost notes than verse 1
+  var v1Ghosts = 0, v2Ghosts = 0;
+  var v1Len = secSteps['verse'] || 32, v2Len = secSteps['verse2'] || 32;
+  for (var i = 0; i < v1Len; i++) {
+    if (patterns['verse'].snare[i] > 0 && patterns['verse'].snare[i] < 80) v1Ghosts++;
+    if (patterns['verse'].ghostkick[i] > 0) v1Ghosts++;
+  }
+  for (var i = 0; i < v2Len; i++) {
+    if (patterns['verse2'].snare[i] > 0 && patterns['verse2'].snare[i] < 80) v2Ghosts++;
+    if (patterns['verse2'].ghostkick[i] > 0) v2Ghosts++;
+  }
+  // Normalize by length for fair comparison
+  var v1Rate = v1Ghosts / v1Len, v2Rate = v2Ghosts / v2Len;
+  assert(v2Rate >= v1Rate * 0.8, 'verse2 ghost rate should be close to or exceed verse1 (' + v2Rate.toFixed(3) + ' vs ' + v1Rate.toFixed(3) + ')');
+});
+
 // === Test bass call-and-response ===
 test('Bass call-and-response modifies events based on drum context', function() {
   songFeel = 'normal';

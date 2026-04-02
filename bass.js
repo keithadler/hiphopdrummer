@@ -791,13 +791,19 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
   var totalBars = Math.ceil(len / 16);
 
   // ── 1. Section-aware density scaling ──
-  // Chorus/lastchorus: boost velocity. Breakdown: reduce. Verse: neutral.
+  // Uses sectionEnergyMap from arrangement arc if available, falls back to static values
   var densityMult = 1.0;
-  if (sec === 'lastchorus') densityMult = 1.08;
-  else if (sec === 'chorus' || sec === 'chorus2') densityMult = 1.04;
-  else if (sec === 'pre') densityMult = 1.0; // pre builds at the end, not overall
-  else if (sec === 'breakdown') densityMult = 0.85;
-  else if (sec === 'intro') densityMult = 0.9;
+  if (typeof sectionEnergyMap !== 'undefined' && sectionEnergyMap[sec]) {
+    // Energy map: 0.5 (outro) to 1.25 (lastchorus) — normalize to velocity multiplier
+    densityMult = 0.9 + (sectionEnergyMap[sec] - 0.7) * 0.2; // maps 0.7-1.25 to 0.9-1.01
+    densityMult = Math.max(0.85, Math.min(1.12, densityMult));
+  } else {
+    if (sec === 'lastchorus') densityMult = 1.08;
+    else if (sec === 'chorus' || sec === 'chorus2') densityMult = 1.04;
+    else if (sec === 'pre') densityMult = 1.0;
+    else if (sec === 'breakdown') densityMult = 0.85;
+    else if (sec === 'intro') densityMult = 0.9;
+  }
 
   if (densityMult !== 1.0) {
     for (var e = 0; e < events.length; e++) {
