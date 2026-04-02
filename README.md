@@ -10,6 +10,36 @@ I grew up on KRS-One and LL Cool J. I'm a musician, and one thing that's always 
 
 So I built Hip Hop Drummer as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop beats. Every beat it generates comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs.
 
+## 40+ Years of Drum & Bass Knowledge, Encoded
+
+This isn't a random pattern generator. Every line of code in the generation engine encodes specific production knowledge spanning four decades of hip hop — from the Oberheim DMX patterns on Run-DMC's debut (1984) through DJ Premier's SP-1200 chops, Dilla's MPC3000 swing experiments, Dr. Dre's G-Funk Minimoog bass, Three 6 Mafia's sparse Memphis 808s, and Daringer's modern Griselda revival.
+
+The drum engine alone models over 60 distinct behaviors per style: kick placement libraries curated from real records, ghost note clustering that mimics a drummer's stick control, accent curves that shape dynamics the way a real ride hand does, hat patterns with 3-level velocity dynamics (G-Funk's signature), pocket-delayed snares that land behind the beat (Dilla's trademark), and fill types that match each era's aesthetic — from a single snare hit (Memphis minimalism) to dense flam rolls (chopped break fills).
+
+The bass engine adds another layer. It doesn't just follow the root note — it models how a real bassist interacts with a drummer. The bass locks to the kick pattern, uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches with Moog-style glissando for G-Funk, drops to sub octaves on beat 1 for 808 styles, and breathes with intentional rests on weak beats. It even generates 2-bar motifs and repeats them with mutations — the way a session player develops a part over a song. Section-ending bass fills complement the drum fills: jazzy styles get walking diatonic runs, Dilla gets soft chromatic dissolves, 808 styles drop out and let the sub tail ring, boom bap gets chromatic walk-ups into the next section.
+
+Every parameter is tuned to the style. Dilla's bass sits 3 ticks behind the beat with per-note timing jitter. Lo-fi bass gets velocity compression that squashes dynamics into a narrow band, simulating tape saturation. Breakdown sections thin the bass in parallel with the drums — full pattern in bar 1, sparse in bar 2, sustained root only by bar 3. Chorus entries slam a hard octave-drop root on beat 1. Turnaround figures at bar 7 of 8-bar phrases signal the cycle with root→5th→octave licks or chromatic walks.
+
+None of this is documented in a textbook. It comes from decades of listening, playing, programming, and studying what makes each style feel authentic.
+
+## Every Beat Is a Lesson
+
+The real value isn't just the patterns — it's the education that comes with them. Every beat generates a detailed "About This Beat" breakdown that teaches you production techniques while you listen. Here's what that looks like in practice:
+
+**You generate a Dilla/Neo-Soul beat at 88 BPM.** The analysis explains that Dilla's swing isn't just a percentage — it's the specific way even 16th-note steps drag behind the grid while odd steps stay locked. It tells you the swing value (say, 66%) and warns you not to add more swing in your DAW because it's already baked into the MIDI. It explains why the ghost snares cluster in pairs (the "diddle" pattern from real stick technique), why the kick on the "and-of-2" is softer than beat 1 (accent curves model a drummer's natural dynamics), and why the hi-hats are swung 8ths instead of 16ths (Dilla almost never used 16th hats — that's a common misconception).
+
+**You generate a G-Funk beat.** The analysis breaks down Dr. Dre's signature 3-level hat dynamic: quarter notes loud, 8th-note upbeats medium, "e" and "ah" positions very soft. It explains that this rolling, hypnotic feel is what separates G-Funk from boom bap — not the synth sounds, but the hat programming. The bass section explains why the notes are long and sustained with slide probability, and suggests using a Minimoog-style synth with portamento.
+
+**You generate a Memphis beat.** The analysis explains Three 6 Mafia's aesthetic of sinister space — sparse kick, barely-there hats, minimal ghost notes. It points out that Memphis beats are defined by what's absent, and that your brain fills in the missing elements with dread. The bass is 808 sub with long sustain, velocity-compressed into a narrow band, and the fill is a single snare hit — because in Memphis, less is the entire point.
+
+**You click a single grid cell** — say, a ghost snare at velocity 52 on the "and-of-3." The app explains that this specific hit exists because ghost snares on off-beats create the illusion of a busier pattern without adding volume. It tells you the velocity is intentionally low (52 out of 127) because ghost notes should be felt, not heard. It references the specific accent curve that shaped this velocity and explains how it differs from the backbeat snare at velocity 120 on beat 2.
+
+**The Suggested Key section** doesn't just list chords — it gives you a 3-chord progression matched to the style, explains the mood of the key ("Cm: cold and dark, the classic boom bap key"), suggests a relative major/minor companion for borrowing chords, and provides a section-by-section melodic guide. The chord sheet shows piano keyboard diagrams with feel-aware voicings — triads for boom bap, 7th chords for jazz, 9ths for Dilla, min7 for G-Funk.
+
+**The Flow Guide** tells rappers how to ride the beat — suggesting delivery cadence, breath points, and rhyme density based on the BPM and feel. A 78 BPM Dilla beat gets different flow advice than a 120 BPM old school beat.
+
+Every generation is different. Every generation teaches something. The patterns are ready to use in your DAW or MPC, and the knowledge transfers to every beat you make after.
+
 ## What It Does
 
 Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
@@ -78,7 +108,7 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-4700+ assertions, zero dependencies. Covers all 19 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+4700+ assertions, zero dependencies. Covers all 19 feels × 10 instruments, bass pattern generation, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
 
 ## How It Works
 
