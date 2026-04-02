@@ -281,6 +281,7 @@ document.addEventListener('keydown', function(e) {
 
 /**
  * Wire the custom player UI buttons to the synthBridge.
+ * Uses polling to wait for the async ES module to load.
  */
 function initPlayerControls() {
   var playBtn = document.getElementById('playerPlayBtn');
@@ -297,12 +298,7 @@ function initPlayerControls() {
     if (window.synthBridge.isPlaying) {
       window.synthBridge.pause();
     } else if (window._currentMidiBytes) {
-      var state = window.synthBridge.state();
-      if (state.currentTime > 0 && state.currentTime < state.duration) {
-        window.synthBridge.resume();
-      } else {
-        window.synthBridge.play(window._currentMidiBytes);
-      }
+      window.synthBridge.play(window._currentMidiBytes);
     }
   };
 
@@ -310,9 +306,9 @@ function initPlayerControls() {
     if (window.synthBridge) window.synthBridge.stop();
     if (currentEl) currentEl.textContent = '0:00';
     if (seekBar) seekBar.value = 0;
+    if (playBtn) playBtn.textContent = '▶';
   };
 
-  // Seek bar
   if (seekBar) {
     seekBar.oninput = function() { isSeeking = true; };
     seekBar.onchange = function() {
@@ -325,7 +321,6 @@ function initPlayerControls() {
     };
   }
 
-  // WAV download button
   if (wavBtn) {
     wavBtn.onclick = function() {
       if (!window.synthBridge || !window._currentMidiBytes) return;
@@ -349,8 +344,12 @@ function initPlayerControls() {
     };
   }
 
-  // Time update callback
-  if (window.synthBridge) {
+  // Poll for synthBridge availability and connect callbacks
+  function connectCallbacks() {
+    if (!window.synthBridge) {
+      setTimeout(connectCallbacks, 200);
+      return;
+    }
     window.synthBridge.onTimeUpdate = function(current, duration) {
       if (currentEl) {
         var min = Math.floor(current / 60), sec = Math.floor(current % 60);
@@ -364,6 +363,7 @@ function initPlayerControls() {
       if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
     };
   }
+  connectCallbacks();
 }
 
 // ── Playback Tracking ──
@@ -437,18 +437,34 @@ function initPlaybackTracking() {
     }
   }
 
-  // Use synthBridge time updates for tracking
-  if (window.synthBridge) {
+  // Use synthBridge time updates for tracking — poll until available
+  function connectTracking() {
+    if (!window.synthBridge) {
+      setTimeout(connectTracking, 200);
+      return;
+    }
+    // Override the callbacks set by initPlayerControls to add tracking
     var origTimeUpdate = window.synthBridge.onTimeUpdate;
+    var origPlayState = window.synthBridge.onPlayStateChange;
+
     window.synthBridge.onTimeUpdate = function(current, duration) {
-      if (origTimeUpdate) origTimeUpdate(current, duration);
+      // Call the player controls time update
+      var currentEl = document.getElementById('playerCurrent');
+      var seekBar = document.getElementById('playerSeek');
+      if (currentEl) {
+        var min = Math.floor(current / 60), sec = Math.floor(current % 60);
+        currentEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+      }
+      if (seekBar && duration > 0) {
+        seekBar.value = (current / duration) * 100;
+      }
+      // Call the section tracking
       updateCurrentSection(current);
     };
     window.synthBridge.onPlayStateChange = function(playing) {
-      if (!playing) clearCursor();
-      // Update play button
       var playBtn = document.getElementById('playerPlayBtn');
       if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
+      if (!playing) clearCursor();
       if (playing) {
         lastTrackedSection = -1;
         lastHighlightedStep = -1;
@@ -456,4 +472,5 @@ function initPlaybackTracking() {
       }
     };
   }
+  connectTracking();
 }
