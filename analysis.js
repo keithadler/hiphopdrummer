@@ -236,6 +236,8 @@ function analyzeBeat() {
       { root: 'Bbmaj7', type: 'major', i: 'Bbmaj7', iv: 'Ebmaj7', v: 'F7', ii: 'Cm7', rel: 'Gm', relNote: 'Gm7, Dm7, Am7', context: 'Smooth and sophisticated. Uyama Hiroto territory. The major 7th floats above the groove.' }
     ]}
   };
+
+  var feelKeys = keyData[songFeel] || keyData.normal;
   var chosenKey = feelKeys.keys[0];
   if (typeof _forcedKey !== 'undefined' && _forcedKey) {
     for (var fki = 0; fki < feelKeys.keys.length; fki++) {

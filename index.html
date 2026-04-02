@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5">
   <meta name="theme-color" content="#15151c">
   <meta name="description" content="Generate authentic hip hop drum patterns. Learn the art of hip hop drum programming.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HH Drummer">
   <link rel="manifest" href="manifest.json">
@@ -179,7 +179,7 @@
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/hiphopdrummer/sw.js')
+      navigator.serviceWorker.register('sw.js')
         .then(function(reg) {
           // Check for updates every time the app loads
           reg.addEventListener('updatefound', function() {
