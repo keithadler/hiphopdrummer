@@ -201,7 +201,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .controls-bar{
     width:100%;
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr 1fr auto;
     gap:5px;
     order:2;
   }
@@ -213,16 +213,17 @@ midi-player::part(play-button){color:var(--accent-green)}
     height:38px;
   }
   .btn-export{
-    grid-column:1 / -1;
+    grid-column:1 / 3;
     justify-content:center;
     font-size:12px;
     height:36px;
   }
   .btn-prefs{
-    grid-column:1 / -1;
-    justify-content:center;
+    grid-column:3;
     font-size:16px;
     height:36px;
+    padding:0 12px;
+    justify-content:center;
   }
   /* Style text: no truncation */
   .ctrl-input-wide{
