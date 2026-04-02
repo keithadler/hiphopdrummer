@@ -1,6 +1,6 @@
 # 🥁 Hip Hop Drummer
 
-Generate authentic hip hop drum patterns in your browser. Learn the art of hip hop drum programming while you create.
+Learn hip hop drum programming by generating and studying authentic patterns — from old school 808s to modern boom bap, G-Funk, and beyond.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -57,7 +57,7 @@ python3 -m http.server 8080
 node tests.js
 ```
 
-4622 assertions, zero dependencies. Covers all 19 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+4700+ assertions, zero dependencies. Covers all 19 feels × 10 instruments, MIDI/MPC output validation, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
 
 ## How It Works
 

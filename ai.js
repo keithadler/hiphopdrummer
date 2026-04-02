@@ -443,6 +443,30 @@ function genBasePatterns() {
   ];
   baseKick = pick(kickLib);
 
+  // Old School kick library — simple drum machine patterns (808/LinnDrum era).
+  // These are deliberately simpler than the boom bap library: mostly on-beat,
+  // minimal syncopation, 2-3 hits per bar maximum.
+  var oldschoolKickLib = [
+    // 1 and 3 — the most basic drum machine pattern (Run-DMC "It's Like That")
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+    // 1, 3, and-of-4 — pickup into next bar (LL Cool J "Rock the Bells")
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],
+    // 1, and-of-2, 3 — the one syncopation old school allows (BDP "South Bronx")
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
+    // 1 and 3 with beat 4 — four-on-the-floor adjacent (Salt-N-Pepa "Push It")
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
+    // 1, 2, 3 — heavy downbeats (Whodini "Freaks Come Out at Night")
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],
+    // Just beat 1 and and-of-2 — minimal (UTFO "Roxanne Roxanne")
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],
+  ];
+
+  // Select from old school library if the palette calls for it
+  var paletteFeel0 = (songPalette && songPalette[0]) ? songPalette[0] : null;
+  if (paletteFeel0 === 'oldschool') {
+    baseKick = pick(oldschoolKickLib);
+  }
+
   // B variant — guaranteed to differ from A in the second half of the bar.
   // Tries to toggle one existing hit; if no change was made, forces a toggle
   // at a random position in the second half.
@@ -480,7 +504,8 @@ function genBasePatterns() {
   baseKickChorusB[cPos] = baseKickChorusB[cPos] ? 0 : 1;
 
   // Verse 2 kick — must be a DIFFERENT pattern from verse 1
-  do { baseKickV2 = pick(kickLib); } while (baseKickV2.join('') === baseKick.join(''));
+  var v2Lib = (paletteFeel0 === 'oldschool') ? oldschoolKickLib : kickLib;
+  do { baseKickV2 = pick(v2Lib); } while (baseKickV2.join('') === baseKick.join(''));
   baseKickV2B = baseKickV2.slice();
   var v2changed = false;
   for (var i = 8; i < 16; i++) {

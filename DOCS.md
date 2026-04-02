@@ -242,7 +242,7 @@ Run `node tests.js` — zero dependencies, runs in Node.js.
 
 Covers:
 - All JS files parse without syntax errors
-- All 18 feels generate valid patterns for all 10 section types
+- All 19 feels generate valid patterns for all 10 section types
 - Velocity ranges (1-127), kick-snare interlock, hat choke enforcement
 - MIDI bytes: MThd header, tempo meta-event, note-on events, end-of-track
 - MPC patterns: valid JSON, chronological order, straight grid timing, velocity floats
