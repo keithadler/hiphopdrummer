@@ -120,14 +120,24 @@ document.getElementById('btnExport').onclick = showExportDialog;
 // ── Export Dialog ──
 
 function showExportDialog() {
-  // Reset all checkboxes to checked on every open
-  document.getElementById('expFullSong').checked = true;
-  document.getElementById('expSections').checked = true;
-  document.getElementById('expMpc').checked = true;
-  document.getElementById('expPdf').checked = true;
-  document.querySelectorAll('.daw-check').forEach(function(c) { c.checked = true; });
+  // Restore saved settings from localStorage
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem('hhd_export_prefs')); } catch(e) {}
+  if (saved) {
+    if (typeof saved.fullSong === 'boolean') document.getElementById('expFullSong').checked = saved.fullSong;
+    if (typeof saved.sections === 'boolean') document.getElementById('expSections').checked = saved.sections;
+    if (typeof saved.bakeSwing === 'boolean') document.getElementById('expSwing').checked = saved.bakeSwing;
+    if (typeof saved.mpc === 'boolean') document.getElementById('expMpc').checked = saved.mpc;
+    if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
+    if (saved.daws && Array.isArray(saved.daws)) {
+      document.querySelectorAll('.daw-check').forEach(function(c) {
+        c.checked = saved.daws.indexOf(c.value) >= 0;
+      });
+    }
+  }
   var toggle = document.getElementById('exportDawToggle');
-  if (toggle) toggle.textContent = 'Deselect all';
+  var anyChecked = Array.from(document.querySelectorAll('.daw-check')).some(function(c) { return c.checked; });
+  if (toggle) toggle.textContent = anyChecked ? 'Deselect all' : 'Select all';
   document.getElementById('exportOverlay').style.display = 'flex';
 }
 
@@ -157,12 +167,15 @@ document.getElementById('exportGo').onclick = function() {
   var opts = {
     fullSong:    document.getElementById('expFullSong').checked,
     sections:    document.getElementById('expSections').checked,
+    bakeSwing:   document.getElementById('expSwing').checked,
     mpc:         document.getElementById('expMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
                .map(function(c) { return c.value; })
   };
+  // Save preferences to localStorage
+  try { localStorage.setItem('hhd_export_prefs', JSON.stringify(opts)); } catch(e) {}
   hideExportDialog();
   exportMIDI(opts);
 };

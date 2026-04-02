@@ -78,19 +78,17 @@ var MPC_NOTE_MAP = {
  * @returns {Uint8Array} Complete MIDI file as a byte array, ready to
  *   be saved as a .mid file or fed to a MIDI player element
  */
-function buildMidiBytes(sectionList, bpm) {
-  var ppq = 96, ch = 9; // 96 PPQ, MIDI channel 10 (0-indexed = 9)
-  var ticksPerStep = ppq / 4; // 24 ticks per 16th note
-  var noteDurTicks = Math.floor(ticksPerStep * 0.75); // 18-tick note duration
+function buildMidiBytes(sectionList, bpm, noSwing) {
+  var ppq = 96, ch = 9;
+  var ticksPerStep = ppq / 4;
+  var noteDurTicks = Math.floor(ticksPerStep * 0.75);
   var events = [];
   var tickPos = 0;
-  // Map of "tick:note" → event index for O(1) deduplication
   var eventMap = {};
 
-  // Read swing percentage from the UI (50 = straight, 66+ = heavy shuffle)
-  // and convert to a tick delay applied to even-numbered 16th-note steps
+  // Swing: read from UI and apply unless noSwing is true
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var swingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var pat = patterns[sec];
@@ -332,9 +330,11 @@ function exportMIDI(opts) {
   var folder = zip.folder(folderName);
   var swingVal = parseInt(document.getElementById('swing').textContent) || 62;
 
+  var noSwing = (opts.bakeSwing === false);
+
   // Full song MIDI
   if (opts.fullSong) {
-    var fullSong = buildMidiBytes(arrangement, bpm);
+    var fullSong = buildMidiBytes(arrangement, bpm, noSwing);
     folder.file('00_full_song_' + bpm + 'bpm.mid', fullSong);
   }
 
@@ -353,7 +353,7 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       if (opts.sections) {
-        midiFolder.file(baseName + '.mid', buildMidiBytes([sec], bpm));
+        midiFolder.file(baseName + '.mid', buildMidiBytes([sec], bpm, noSwing));
       }
       if (opts.mpc) {
         mpcFolder.file(baseName + '.mpcpattern', buildMpcPattern([sec], bpm));

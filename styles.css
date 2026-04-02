@@ -127,6 +127,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .export-check:hover{color:var(--text-primary)}
 .export-toggle{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:11px;cursor:pointer;padding:4px 0;text-align:left;letter-spacing:.3px}
 .export-toggle:hover{color:var(--accent-blue)}
+.export-note{font-size:10px;color:var(--text-dim);font-style:italic}
 
 /* ── Mobile responsive layout ── */
 @media (max-width: 1024px) {
