@@ -155,6 +155,9 @@ function emptyPat() {
  */
 var STYLE_DATA = {
   normal:    { label: 'Classic Boom Bap',  bpmRange: [83, 110], keys: ['Cm','Dm','Am','Gm','Em'],          artists: 'DJ Premier, Pete Rock, Buckwild, Large Professor, Gangstarr' },
+  normal_bronx: { label: 'Boom Bap — Bronx', bpmRange: [88, 108], keys: ['Cm','Dm','Am','Gm'],            artists: 'DJ Premier, Gangstarr, KRS-One, Buckwild — tight, minimal, punchy' },
+  normal_queens: { label: 'Boom Bap — Queens', bpmRange: [83, 100], keys: ['Am','Dm','Em','Cm'],           artists: 'Large Professor, Nas, Marley Marl, MC Shan — jazzy, sample-heavy' },
+  normal_li: { label: 'Boom Bap — Long Island', bpmRange: [85, 105], keys: ['Fmaj7','Dm','Am','Gm'],      artists: 'De La Soul, A Tribe Called Quest, Leaders of the New School — playful, loose' },
   halftime:  { label: 'Halftime',          bpmRange: [75, 98],  keys: ['Cm','Fm','Bbm','Gm'],              artists: 'Havoc (Mobb Deep), RZA (Wu-Tang), Alchemist' },
   hard:      { label: 'Hard / Aggressive', bpmRange: [88, 115], keys: ['Cm','Bbm','Dm','Am','Fm'],         artists: 'Havoc, DJ Premier, Onyx, M.O.P., early Mobb Deep' },
   jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 100], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7'], artists: 'Q-Tip, Pete Rock, De La Soul, Guru (Jazzmatazz), Buckwild' },
@@ -167,6 +170,9 @@ var STYLE_DATA = {
   lofi:      { label: 'Lo-Fi / Dusty',     bpmRange: [75, 95],  keys: ['Cm7','Fm','Dm','Am7','Gm'],        artists: 'Madlib, Knxwledge, MF DOOM, Roc Marciano, Dibia$e' },
   chopbreak: { label: 'Chopped Break',     bpmRange: [88, 110], keys: ['Am','Dm','Em','Gm','Cm'],          artists: 'DJ Premier, Havoc, Alchemist, Large Professor, Pete Rock' },
   gfunk:     { label: 'G-Funk',            bpmRange: [80, 105], keys: ['Gm7','Dm7','Cm7','Am7','Fm7'],        artists: 'Dr. Dre, DJ Quik, Warren G, Snoop Dogg, Nate Dogg' },
+  gfunk_dre: { label: 'G-Funk — Dre',     bpmRange: [84, 100], keys: ['Gm7','Dm7','Cm7','Am7'],           artists: 'Dr. Dre, Snoop Dogg, Warren G — polished, controlled, deep sub' },
+  gfunk_quik: { label: 'G-Funk — DJ Quik', bpmRange: [88, 108], keys: ['Gm7','Dm7','Cm7','Fm7'],          artists: 'DJ Quik, 2nd II None, Hi-C — raw funk, busier kick, more ghosts' },
+  gfunk_battlecat: { label: 'G-Funk — Battlecat', bpmRange: [80, 98], keys: ['Gm7','Cm7','Fm7'],          artists: 'Battlecat, Snoop Dogg, Tha Dogg Pound — heavy bounce, deep swing' },
   crunk:     { label: 'Crunk',             bpmRange: [115, 130],keys: ['Am','Dm','Em','Cm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
   memphis:   { label: 'Memphis',           bpmRange: [68, 88],  keys: ['Cm','Fm','Bbm','Gm','Am'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' },
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 95],  keys: ['Cm','Dm','Am','Fm','Gm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway' },
@@ -279,11 +285,49 @@ var INSTRUMENT_SWING = {
  * @returns {number} Swing multiplier (1.0 = normal)
  */
 function getInstrumentSwing(row, vel, feel) {
-  var s = INSTRUMENT_SWING[feel] || INSTRUMENT_SWING.normal;
+  var baseFeel = resolveBaseFeel(feel);
+  var s = INSTRUMENT_SWING[baseFeel] || INSTRUMENT_SWING.normal;
   if (row === 'hat' || row === 'openhat' || row === 'ride' || row === 'shaker') return s.hat;
   if (row === 'kick' || row === 'ghostkick') return s.kick;
   if (row === 'crash') return 0; // crashes on grid — no swing
   if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;
   if (row === 'rimshot') return s.ghostSnare;
   return 1.0;
+}
+
+/**
+ * Regional sub-style variants. Maps variant feel names to their parent feel
+ * and provides parameter overrides that differentiate the regional sound.
+ *
+ * Boom Bap regions:
+ *   normal_bronx  — Premier's Bronx: tight, minimal, less ghosts, straighter
+ *   normal_queens — Large Pro's Queens: jazzy, sample-heavy, ride cymbal, wider dynamics
+ *   normal_li     — De La's Long Island: playful, loose, more swing, lighter touch
+ *
+ * G-Funk regions:
+ *   gfunk_dre      — Dre's polished: controlled, tight kick, smooth hats, deep sub
+ *   gfunk_quik     — DJ Quik's raw funk: busier kick, more ghost snares, funkier
+ *   gfunk_battlecat — Battlecat's bounce: heavier swing, more syncopation, deep pocket
+ *
+ * @type {Object.<string, {parent: string, ghostDensityMult: number, swingBias: number, hatType: string|null, useRide: boolean|null, kickBusy: number, velRange: number}>}
+ */
+var REGIONAL_VARIANTS = {
+  normal_bronx:  { parent: 'normal', ghostDensityMult: 0.6, swingBias: -2, hatType: '8th', useRide: false, kickBusy: 0, velRange: -3 },
+  normal_queens: { parent: 'normal', ghostDensityMult: 1.4, swingBias: 2,  hatType: '8th', useRide: true,  kickBusy: 0, velRange: 4 },
+  normal_li:     { parent: 'normal', ghostDensityMult: 1.1, swingBias: 4,  hatType: '8th', useRide: false, kickBusy: -1, velRange: 2 },
+  gfunk_dre:     { parent: 'gfunk', ghostDensityMult: 0.7, swingBias: 0,  hatType: '16th', useRide: false, kickBusy: -1, velRange: -2 },
+  gfunk_quik:    { parent: 'gfunk', ghostDensityMult: 1.5, swingBias: 2,  hatType: '16th', useRide: false, kickBusy: 1, velRange: 3 },
+  gfunk_battlecat: { parent: 'gfunk', ghostDensityMult: 1.0, swingBias: 4, hatType: '16th', useRide: false, kickBusy: 0, velRange: 0 }
+};
+
+/**
+ * Resolve a feel name to its base/parent feel.
+ * Regional variants (e.g. 'normal_bronx') map to their parent ('normal').
+ * Non-variant feels return themselves unchanged.
+ * @param {string} feel
+ * @returns {string} Base feel name
+ */
+function resolveBaseFeel(feel) {
+  if (REGIONAL_VARIANTS[feel]) return REGIONAL_VARIANTS[feel].parent;
+  return feel;
 }
