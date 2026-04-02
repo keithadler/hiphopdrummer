@@ -1143,5 +1143,13 @@ function updateMidiPlayer() {
     if (player._blobUrl) URL.revokeObjectURL(player._blobUrl);
     player._blobUrl = url;
     player.src = url;
+    // Update arrangement time once the player reports its actual duration
+    player.addEventListener('load', function onLoad() {
+      player.removeEventListener('load', onLoad);
+      var arrTimeEl = document.getElementById('arrTime');
+      if (arrTimeEl && typeof calcArrTime === 'function') {
+        arrTimeEl.textContent = calcArrTime();
+      }
+    });
   }
 }
