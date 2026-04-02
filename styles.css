@@ -275,6 +275,8 @@ midi-player::part(play-button){color:var(--accent-green)}
   .about-stat-value{font-size:12px}
   .about-stat-hint{font-size:9px}
   .about-toggle{font-size:10px;padding:4px 8px}
+  #aboutBeat{display:none}
+  #aboutToggle{display:block}
   .about-arrow{font-size:14px}
 
   /* Bar tabs */

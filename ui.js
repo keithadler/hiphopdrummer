@@ -496,6 +496,15 @@ function buildAboutSummary() {
   html += '</div>';
 
   summaryEl.innerHTML = html;
+
+  // Sync toggle button text with current visibility
+  var toggleEl = document.getElementById('aboutToggle');
+  var detailEl = document.getElementById('aboutBeat');
+  if (toggleEl && detailEl) {
+    var isHidden = window.getComputedStyle(detailEl).display === 'none';
+    toggleEl.textContent = isHidden ? 'Show full analysis' : 'Hide full analysis';
+    toggleEl.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  }
 }
 
 // Wire the toggle button once on boot
@@ -505,8 +514,8 @@ function buildAboutSummary() {
   toggleEl.onclick = function() {
     var detailEl = document.getElementById('aboutBeat');
     if (!detailEl) return;
-    var isHidden = detailEl.style.display === 'none';
-    detailEl.style.display = isHidden ? '' : 'none';
+    var isHidden = window.getComputedStyle(detailEl).display === 'none';
+    detailEl.style.display = isHidden ? 'block' : 'none';
     toggleEl.textContent = isHidden ? 'Hide full analysis' : 'Show full analysis';
     toggleEl.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
   };
