@@ -11,7 +11,7 @@
 // =============================================
 
 import { WorkletSynthesizer, Sequencer, audioBufferToWav } from "spessasynth_lib";
-import { SpessaSynthProcessor, SpessaSynthSequencer, BasicMIDI, BasicSoundBank } from "spessasynth_core";
+import { SpessaSynthProcessor, SpessaSynthSequencer, BasicMIDI, SoundBankLoader } from "spessasynth_core";
 
 let synth = null;
 let sequencer = null;
@@ -158,7 +158,7 @@ async function renderToWav(midiBytes) {
 
   // Parse MIDI and SoundFont using core classes
   const midi = BasicMIDI.fromArrayBuffer(new Uint8Array(midiBytes).buffer, "beat.mid");
-  const sf = BasicSoundBank.fromArrayBuffer(soundFontBuffer.slice(0));
+  const sf = SoundBankLoader.fromArrayBuffer(soundFontBuffer.slice(0));
 
   // Create offline processor
   const processor = new SpessaSynthProcessor(sampleRate);
