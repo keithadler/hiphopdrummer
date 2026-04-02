@@ -180,6 +180,50 @@ document.getElementById('exportGo').onclick = function() {
   exportMIDI(opts);
 };
 
+// ── Preferences Dialog ──
+
+/** Preferences button: show the dialog */
+document.getElementById('btnPrefs').onclick = showPrefsDialog;
+
+function showPrefsDialog() {
+  // Restore saved drumkit preference
+  var saved = '';
+  try { saved = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
+  document.getElementById('prefsDrumKit').value = saved;
+  document.getElementById('prefsOverlay').style.display = 'flex';
+}
+
+function hidePrefsDialog() {
+  document.getElementById('prefsOverlay').style.display = 'none';
+}
+
+document.getElementById('prefsCancel').onclick = hidePrefsDialog;
+document.getElementById('prefsOverlay').onclick = function(e) {
+  if (e.target === this) hidePrefsDialog();
+};
+
+document.getElementById('prefsSave').onclick = function() {
+  var kit = document.getElementById('prefsDrumKit').value;
+  try { localStorage.setItem('hhd_drumkit', kit); } catch(e) {}
+  applySoundFont(kit);
+  hidePrefsDialog();
+};
+
+/**
+ * Apply a soundfont URL to the MIDI player.
+ * Empty string = default (sgm_plus).
+ */
+function applySoundFont(url) {
+  var player = document.getElementById('midiPlayer');
+  if (!player) return;
+  if (url) {
+    player.setAttribute('sound-font', url);
+  } else {
+    player.setAttribute('sound-font', '');
+  }
+  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+}
+
 /**
  * Keyboard shortcuts:
  *   R      — open New Beat dialog
@@ -191,6 +235,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     hideRegenDialog();
     hideExportDialog();
+    hidePrefsDialog();
   }
   if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
     e.preventDefault();
@@ -213,6 +258,14 @@ document.addEventListener('keydown', function(e) {
  *   4. Start playback tracking
  */
 (function() {
+  // Apply saved drumkit preference before first MIDI build
+  try {
+    var savedKit = localStorage.getItem('hhd_drumkit') || '';
+    var player = document.getElementById('midiPlayer');
+    if (player && savedKit) {
+      player.setAttribute('sound-font', savedKit);
+    }
+  } catch(e) {}
   generateAll();
   updateMidiPlayer();
   document.getElementById('loadMsg').style.display = 'none';
