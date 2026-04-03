@@ -142,25 +142,33 @@ function renderGrid() {
     });
   }
 
+  // Scroll grid container to top so Bar 1 is visible after render
+  var gridContainer = document.getElementById('gridR');
+  if (gridContainer && gridContainer.parentElement) {
+    gridContainer.parentElement.scrollTop = 0;
+  }
+
   // IntersectionObserver: highlight the bar tab matching the bar currently in view
   // Disabled during playback — playback tracking controls bar tabs instead
+  // Delayed slightly so it doesn't fire on the initial render scroll-to-top
   if (window.IntersectionObserver && totalPages > 1) {
-    var barObserver = new IntersectionObserver(function(entries) {
-      // Skip if playback is controlling bar tabs
-      if (window._playbackControlsBarTabs) return;
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var barIdx = entry.target.id.replace('grid-page-', '');
-          bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
-          var activeTab = bt.querySelector('[data-b="' + barIdx + '"]');
-          if (activeTab) activeTab.classList.add('bar-btn-active');
-        }
-      });
-    }, { root: document.getElementById('gridR').parentElement, threshold: 0.5 });
-    for (var ob = 0; ob < totalPages; ob++) {
-      var lbl = document.getElementById('grid-page-' + ob);
-      if (lbl) barObserver.observe(lbl);
-    }
+    setTimeout(function() {
+      var barObserver = new IntersectionObserver(function(entries) {
+        if (window._playbackControlsBarTabs) return;
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var barIdx = entry.target.id.replace('grid-page-', '');
+            bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+            var activeTab = bt.querySelector('[data-b="' + barIdx + '"]');
+            if (activeTab) activeTab.classList.add('bar-btn-active');
+          }
+        });
+      }, { root: document.getElementById('gridR').parentElement, threshold: 0.5 });
+      for (var ob = 0; ob < totalPages; ob++) {
+        var lbl = document.getElementById('grid-page-' + ob);
+        if (lbl) barObserver.observe(lbl);
+      }
+    }, 100);
   }
 }
 
