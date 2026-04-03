@@ -148,12 +148,17 @@ function renderGrid() {
     gridContainer.parentElement.scrollTop = 0;
     gridContainer.scrollTop = 0;
   }
-  // Also scroll the pattern panel to the top so the bar tabs and Bar 1 label are visible
   var patPanel = document.getElementById('patternPanel');
   if (patPanel) patPanel.scrollTop = 0;
-  // Scroll grid-page-0 into view to ensure Bar 1 is at the top
-  var firstPage = document.getElementById('grid-page-0');
-  if (firstPage) firstPage.scrollIntoView({ block: 'start' });
+  // Only scroll the page to grid-page-0 if NOT during playback with follow-playhead off
+  // During playback without follow, the user controls their own scroll position
+  var isPlaybackActive = window._playbackControlsBarTabs;
+  var followOn = false;
+  try { followOn = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
+  if (!isPlaybackActive || followOn) {
+    var firstPage = document.getElementById('grid-page-0');
+    if (firstPage) firstPage.scrollIntoView({ block: 'start' });
+  }
 
   // IntersectionObserver: highlight the bar tab matching the bar currently in view
   // Disabled during playback — playback tracking controls bar tabs instead
