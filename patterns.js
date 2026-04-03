@@ -173,13 +173,12 @@ var STYLE_DATA = {
   gfunk_dre: { label: 'G-Funk — Dre',     bpmRange: [88, 98], keys: ['Gm7','Dm7','Cm7','Am7'],           artists: 'Dr. Dre, Snoop Dogg, Warren G — polished, controlled, deep sub' },
   gfunk_quik: { label: 'G-Funk — DJ Quik', bpmRange: [90, 100], keys: ['Gm7','Dm7','Cm7','Fm7','Am7'],          artists: 'DJ Quik, 2nd II None, Hi-C — raw funk, busier kick, more ghosts' },
   gfunk_battlecat: { label: 'G-Funk — Battlecat', bpmRange: [85, 95], keys: ['Gm7','Cm7','Fm7','Dm7'],          artists: 'Battlecat, Snoop Dogg, Tha Dogg Pound — heavy bounce, deep swing' },
-  crunk:     { label: 'Crunk',             bpmRange: [135, 150],  keys: ['Am','Dm','Em','Cm','Gm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
+  crunk:     { label: 'Crunk',             bpmRange: [135, 150],  keys: ['Am','Dm','Em','Cm','Gm','Fm','Bbm'],       artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
   memphis:   { label: 'Memphis',           bpmRange: [68, 85],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm','Abm'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' },
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 92],  keys: ['Cm','Dm','Am','Fm','Gm','Bbm','Ebm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway' },
   phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 140],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp' },
   nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 95],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto' },
-  oldschool: { label: 'Old School',        bpmRange: [95, 120], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Beastie Boys, Public Enemy, Eric B. & Rakim' },
-  oldschool: { label: 'Old School',        bpmRange: [95, 110], keys: ['Am','Dm','Em','Cm','Gm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO' }
+  oldschool: { label: 'Old School',        bpmRange: [95, 115], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO, Eric B. & Rakim' }
 };
 
 /**
