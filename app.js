@@ -126,6 +126,10 @@ document.getElementById('regenGo').onclick = function() {
   updateMidiPlayer();
   // Rebuild chord sheet after MIDI build so it picks up bass progressions
   if (typeof buildChordSheet === 'function') buildChordSheet();
+  // Scroll to top of the page so the user sees the new beat
+  var scrollArea = document.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
+  else window.scrollTo(0, 0);
 };
 
 /** New Beat button: show the dialog */
@@ -414,6 +418,9 @@ function initWelcome() {
   document.getElementById('app').style.display = '';
   initPlayerControls();
   initPlaybackTracking();
+  // Beat is fully rendered — enable the play button
+  var playBtn = document.getElementById('headerPlayBtn');
+  if (playBtn) playBtn.disabled = false;
   // Show welcome screen on first visit
   initWelcome();
 })();

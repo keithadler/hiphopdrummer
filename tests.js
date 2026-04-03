@@ -821,7 +821,7 @@ test('getInstrumentSwing returns correct categories', function() {
 test('CHORD_PROGRESSIONS covers all 19 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
     'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
-  var validDegrees = ['i', 'iv', 'v', 'ii', 'bII', 'bIII', 'bVI', 'bVII'];
+  var validDegrees = ['i', 'iv', 'v', 'ii', 'bII', 'bIII', 'bVI', 'bVII', '#idim'];
   baseFeels.forEach(function(f) {
     assert(CHORD_PROGRESSIONS[f], 'CHORD_PROGRESSIONS missing: ' + f);
     assert(CHORD_PROGRESSIONS[f].length >= 2, f + ' should have at least 2 progressions');

@@ -619,11 +619,18 @@ function buildChordSheet() {
 
   function chordNotes(chord) {
     var root = chordRootSemi(chord);
-    // Strip root to get quality suffix: 'Cm7' → 'm7', 'Fmaj7' → 'maj7', 'Em7b5' → 'm7b5'
     var quality = chord.replace(/^[A-G][#b]?/, '');
     var third, fifth, seventh, ninth;
     ninth = -1;
-    if (/^m7b5/.test(quality)) {
+    if (/^dim7/.test(quality)) {
+      third = 3; fifth = 6; seventh = 9; // fully diminished 7th
+    } else if (/^dim/.test(quality)) {
+      third = 3; fifth = 6; seventh = -1; // diminished triad
+    } else if (/^m6/.test(quality)) {
+      third = 3; fifth = 7; seventh = 9; // minor 6th (6th = major 6th interval)
+    } else if (/^6$/.test(quality)) {
+      third = 4; fifth = 7; seventh = 9; // major 6th
+    } else if (/^m7b5/.test(quality)) {
       third = 3; fifth = 6; seventh = 10;
     } else if (/^maj9/.test(quality)) {
       third = 4; fifth = 7; seventh = 11; ninth = 14;
@@ -687,6 +694,7 @@ function buildChordSheet() {
   // Voice leading: find the inversion of the next chord closest to the previous voicing
   // Returns the same set of pitch classes but reordered for display
   var _lastVoicing = null;
+  var _voicingSeed = 0;
   function voiceLead(notes) {
     if (!_lastVoicing || _lastVoicing.length === 0) {
       _lastVoicing = notes.slice();
@@ -735,8 +743,10 @@ function buildChordSheet() {
         }
         return rawChord;
 
-      // 7th and 9th chords — jazz, dilla, nujabes want extensions
+      // 7th, 9th, and 6th chords — jazz, dilla, nujabes want extensions
       case 'jazzy': case 'dilla': case 'nujabes':
+        // Diminished chords pass through as-is
+        if (/dim/.test(rawQuality)) return rawChord;
         // If it's already extended, keep it. Otherwise add 9th (jazzy/dilla) or 7th.
         if (/9/.test(rawQuality)) return rawChord;
         if (/7/.test(rawQuality)) {
@@ -745,8 +755,10 @@ function buildChordSheet() {
           if ((feel === 'dilla' || feel === 'nujabes') && /^maj7$/.test(rawQuality)) return root + 'maj9';
           return rawChord;
         }
-        if (/^m$/.test(rawQuality)) return root + 'm9';
-        if (rawQuality === '') return root + 'maj9';
+        // Minor chords: m9 most of the time, m6 occasionally (jazz color)
+        if (/^m$/.test(rawQuality)) return (_voicingSeed++ % 5 === 0) ? root + 'm6' : root + 'm9';
+        // Major chords: maj9 most of the time, 6 occasionally
+        if (rawQuality === '') return (_voicingSeed++ % 5 === 0) ? root + '6' : root + 'maj9';
         return rawChord;
 
       case 'lofi':
@@ -812,6 +824,14 @@ function buildChordSheet() {
       else if (deg === 'bVII') {
         var parts = (key.relNote || '').split(',');
         raw = (parts[2] || key.v).trim(); fn = 'bVII'; cls = 'chord-five';
+      }
+      else if (deg === '#idim') {
+        // Chromatic passing diminished: half step above the root
+        var rootNote = (key.i || 'C').replace(/m7|maj7|m9|maj9|m|7|9/g, '');
+        var SEMI_TO_NOTE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        var semi = NOTE_TO_SEMI[rootNote] || 0;
+        var dimRoot = SEMI_TO_NOTE[(semi + 1) % 12];
+        raw = dimRoot + 'dim'; fn = '#idim'; cls = 'chord-five';
       }
       else { raw = key.i; fn = 'I'; cls = 'chord-root'; }
       return { name: voiceChord(raw, feel), fn: fn, cls: cls };
