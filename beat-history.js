@@ -118,16 +118,22 @@ function restoreBeatState(beatData) {
   if (beatData.ghostDensity !== null) ghostDensity = beatData.ghostDensity;
   if (beatData.activePlayerProfile !== null && typeof activePlayerProfile !== 'undefined') activePlayerProfile = beatData.activePlayerProfile;
   
-  // Restore chord progressions and key data
+  // Restore chord progressions and key data BEFORE calling analyzeBeat
+  // This ensures analyzeBeat uses the saved key instead of generating a new one
   if (beatData._lastChosenKey !== null) _lastChosenKey = JSON.parse(JSON.stringify(beatData._lastChosenKey));
   if (beatData._sectionProgressions !== null) _sectionProgressions = JSON.parse(JSON.stringify(beatData._sectionProgressions));
+  
+  // Set _forcedKey to prevent analyzeBeat from regenerating the key
+  if (typeof _forcedKey !== 'undefined' && beatData.songKey) {
+    _forcedKey = beatData.songKey;
+  }
   
   // Update UI
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   if (typeof renderGrid === 'function') renderGrid();
   if (typeof renderArr === 'function') renderArr();
   
-  // Regenerate About This Beat
+  // Regenerate About This Beat (will use _forcedKey and _lastChosenKey)
   var aboutEl = document.getElementById('aboutBeat');
   if (aboutEl && typeof analyzeBeat === 'function') {
     aboutEl.innerHTML = analyzeBeat();
@@ -135,6 +141,11 @@ function restoreBeatState(beatData) {
     if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
     if (typeof buildAboutSummary === 'function') buildAboutSummary();
     if (typeof buildChordSheet === 'function') buildChordSheet();
+  }
+  
+  // Clear _forcedKey after analysis is complete
+  if (typeof _forcedKey !== 'undefined') {
+    _forcedKey = null;
   }
 }
 
