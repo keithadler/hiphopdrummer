@@ -171,15 +171,19 @@ function showSlotReplacementDialog(newBeatData, callback) {
       + '</div>';
   }).join('');
   
-  // Wire click handlers
+  // Wire click handlers with both click and touch events for mobile
   slotsContainer.querySelectorAll('.slot-item').forEach(function(item) {
-    item.onclick = function() {
+    var handler = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       var idx = parseInt(item.dataset.idx);
       history[idx] = newBeatData;
       saveBeatHistory(history);
       overlay.style.display = 'none';
       if (callback) callback();
     };
+    item.onclick = handler;
+    item.ontouchend = handler;
   });
   
   overlay.style.display = 'flex';
@@ -194,24 +198,45 @@ function showBeatHistoryDialog() {
   
   renderBeatHistorySlots();
   
-  // Wire up the dialog buttons
+  // Wire up the dialog buttons with both click and touchend for mobile
   var closeBtn = document.getElementById('historyClose');
   if (closeBtn) {
-    closeBtn.onclick = function() {
+    closeBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      overlay.style.display = 'none';
+    };
+    closeBtn.ontouchend = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       overlay.style.display = 'none';
     };
   }
   
   var backupBtn = document.getElementById('btnBackupHistory');
   if (backupBtn) {
-    backupBtn.onclick = function() {
+    backupBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      backupBeatHistory();
+    };
+    backupBtn.ontouchend = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       backupBeatHistory();
     };
   }
   
   var restoreBtn = document.getElementById('btnRestoreHistory');
   if (restoreBtn) {
-    restoreBtn.onclick = function() {
+    restoreBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      restoreBeatHistory();
+    };
+    restoreBtn.ontouchend = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       restoreBeatHistory();
     };
   }
@@ -250,18 +275,23 @@ function renderBeatHistorySlots() {
       + '</div>';
   }).join('');
   
-  // Wire load handlers
+  // Wire load handlers with both click and touch events for mobile
   slotsContainer.querySelectorAll('.history-slot-load').forEach(function(btn) {
-    btn.onclick = function() {
+    var handler = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       var idx = parseInt(btn.dataset.idx);
       restoreBeatState(history[idx]);
       document.getElementById('beatHistoryOverlay').style.display = 'none';
     };
+    btn.onclick = handler;
+    btn.ontouchend = handler;
   });
   
-  // Wire delete handlers
+  // Wire delete handlers with both click and touch events for mobile
   slotsContainer.querySelectorAll('.history-slot-delete').forEach(function(btn) {
-    btn.onclick = function(e) {
+    var handler = function(e) {
+      e.preventDefault();
       e.stopPropagation();
       var idx = parseInt(btn.dataset.idx);
       if (confirm('Delete this beat from history?')) {
@@ -270,6 +300,8 @@ function renderBeatHistorySlots() {
         renderBeatHistorySlots();
       }
     };
+    btn.onclick = handler;
+    btn.ontouchend = handler;
   });
 }
 
