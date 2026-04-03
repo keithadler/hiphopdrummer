@@ -625,7 +625,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Bass events (channel 1) — generated per section
-    var bassEvents = (typeof generateBassPattern === 'function') ? generateBassPattern(sec) : [];
+    var bassEvents = (typeof generateBassPattern === 'function') ? generateBassPattern(sec, bpm) : [];
     var secTickStart = tickPos - (len * ticksPerStep); // rewind to section start
     // Per-instrument swing for bass
     var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[swingFeel]) ? INSTRUMENT_SWING[swingFeel].bass : 0.9;

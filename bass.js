@@ -272,15 +272,60 @@ var CHORD_PROGRESSIONS = {
  * 10. Section energy arc — mirror drum dynamics across phrase
  *
  * @param {string} sec - Section identifier
+ * @param {number} [bpm] - Optional BPM for tempo-aware adjustments
  * @returns {Array.<{step: number, note: number, vel: number, dur: number,
  *   slide: boolean, dead: boolean, timingOffset: number, hammerOn: boolean,
  *   subSwell: boolean}>}
  */
-function generateBassPattern(sec) {
+function generateBassPattern(sec, bpm) {
   var drumPat = patterns[sec];
   if (!drumPat) return [];
   var len = secSteps[sec] || 32;
   var feel = secFeels[sec] || songFeel || 'normal';
+
+  // Get BPM from DOM if not provided
+  if (!bpm) {
+    try {
+      bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    } catch(e) {
+      bpm = 90;
+    }
+  }
+
+  // ── BPM-based adjustments ──
+  // Slower tempos (68-78): bass can be busier, longer notes work
+  // Mid tempos (80-95): balanced approach
+  // Faster tempos (98-110): simpler patterns, shorter notes
+  var densityMult = 1.0;
+  var ghostMult = 1.0;
+  var durationMult = 1.0;
+  
+  if (bpm <= 75) {
+    // Slow: allow more activity
+    densityMult = 1.15;
+    ghostMult = 1.3;
+    durationMult = 1.1;
+  } else if (bpm <= 85) {
+    // Mid-slow: slight boost
+    densityMult = 1.08;
+    ghostMult = 1.15;
+    durationMult = 1.05;
+  } else if (bpm <= 95) {
+    // Sweet spot: no adjustment
+    densityMult = 1.0;
+    ghostMult = 1.0;
+    durationMult = 1.0;
+  } else if (bpm <= 105) {
+    // Mid-fast: reduce slightly
+    densityMult = 0.92;
+    ghostMult = 0.85;
+    durationMult = 0.95;
+  } else {
+    // Fast: simplify significantly
+    densityMult = 0.85;
+    ghostMult = 0.7;
+    durationMult = 0.9;
+  }
 
   var keyData = _lastChosenKey;
   if (!keyData) {
@@ -450,7 +495,7 @@ function generateBassPattern(sec) {
       if (!shouldPlay) {
         // ── Normal note generation ──
         if (style.rhythm === 'kick') {
-          if (drumPat.kick[step] > 0 && maybe(style.density)) {
+          if (drumPat.kick[step] > 0 && maybe(style.density * densityMult)) {
             shouldPlay = true;
             isFromKick = true;
             noteVel = v(style.velBase, style.velRange);
@@ -460,7 +505,7 @@ function generateBassPattern(sec) {
             noteVel = v(style.velBase - 20, style.velRange);
           }
         } else if (style.rhythm === 'eighth') {
-          if (pos % 2 === 0 && maybe(style.density)) {
+          if (pos % 2 === 0 && maybe(style.density * densityMult)) {
             shouldPlay = true;
             isFromKick = (drumPat.kick[step] > 0);
             noteVel = v(style.velBase, style.velRange);
@@ -474,7 +519,7 @@ function generateBassPattern(sec) {
             }
           }
         } else if (style.rhythm === 'quarter') {
-          if (pos % 4 === 0 && maybe(style.density)) {
+          if (pos % 4 === 0 && maybe(style.density * densityMult)) {
             shouldPlay = true;
             isFromKick = true;
             noteVel = v(style.velBase, style.velRange);
@@ -484,8 +529,8 @@ function generateBassPattern(sec) {
         // ── Fix #4: Unified ghost/dead note decision ──
         // Single roll on off-beat 16ths: choose ghost, dead, or nothing
         if (!shouldPlay && pos % 2 === 1) {
-          var ghostW = style.ghostNoteDensity || 0;
-          var deadW = style.deadNoteProb || 0;
+          var ghostW = (style.ghostNoteDensity || 0) * ghostMult;
+          var deadW = (style.deadNoteProb || 0) * ghostMult;
           var totalW = ghostW + deadW;
           if (totalW > 0) {
             var roll = rnd();
@@ -563,7 +608,7 @@ function generateBassPattern(sec) {
 
       // Clamp
       noteVel = Math.min(127, Math.max(30, noteVel));
-      var noteDur = isDead ? 0.1 : style.noteDur;
+      var noteDur = isDead ? 0.1 : (style.noteDur * durationMult);
       midiNote = Math.min(48, Math.max(24, midiNote));
 
       // ── Fix #9: Per-note timing jitter (fluctuating, not static) ──
@@ -1180,7 +1225,7 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
   var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
-    var bassEvents = generateBassPattern(sec);
+    var bassEvents = generateBassPattern(sec, bpm);
     var len = secSteps[sec] || 32;
     // Per-instrument swing for bass
     var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
@@ -1322,7 +1367,7 @@ function buildBassMpcPattern(sectionList, bpm) {
   var tickPos = 0;
 
   sectionList.forEach(function(sec) {
-    var bassEvents = generateBassPattern(sec);
+    var bassEvents = generateBassPattern(sec, bpm);
     var len = secSteps[sec] || 32;
 
     bassEvents.forEach(function(e) {
