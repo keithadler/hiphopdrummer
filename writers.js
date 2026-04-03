@@ -319,13 +319,16 @@ function writeSnA(p, feel, off) {
   // because it resolves the bar and pulls into the next downbeat
   // FIX #2: Feel-specific backbeat velocities
   // FIX #7: Bar-position scaling within sections — bars build intensity
+  // FIX #2 (Round 10): Skip bar-position scaling for minimal feels (dark, memphis, phonk, sparse)
   var barNum = Math.floor(off / 16);
   var velBoost = Math.min(8, barNum * 2);
-  if (feel === 'normal' || feel === 'chopbreak' || feel === 'bounce' || feel === 'driving') {
-    p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
-  } else if (feel === 'sparse') {
-    // Sparse: no bar-position scaling, keep dynamics flat
+  var skipBarScaling = (feel === 'sparse' || feel === 'dark' || feel === 'memphis' || feel === 'phonk');
+  
+  if (skipBarScaling) {
+    // Minimal feels: no bar-position scaling, keep dynamics flat
     p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+  } else if (feel === 'normal' || feel === 'chopbreak' || feel === 'bounce' || feel === 'driving') {
+    p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
   } else {
     p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
   }
@@ -889,7 +892,14 @@ function writeHA(p, feel, off) {
     var bp=pick([4,8,12]); if (p.hat[off+bp+1]===0) p.hat[off+bp+1]=v(55,10);
   }
   // Occasional ghost hat on an off-grid position
-  if (hatPatternType === '8th' && maybe(.3)) { var gp=pick([1,5,9,13]); p.hat[off+gp]=v(40,10); }
+  // FIX #4: Triplet ghost hats use triplet-aligned positions, not straight 16ths
+  if (hatPatternType === '8th' && maybe(.3)) { 
+    var gp=pick([1,5,9,13]); 
+    p.hat[off+gp]=v(40,10); 
+  } else if (hatPatternType === 'triplet' && maybe(.3)) {
+    var gp=pick([1,2,5,7,9,10,13,15]); // triplet-aligned ghost positions
+    p.hat[off+gp]=v(40,10);
+  }
 }
 
 /**
@@ -1030,7 +1040,14 @@ function writeHB(p, feel, off) {
     var bp=pick([4,8,12]); if (p.hat[off+bp+1]===0) p.hat[off+bp+1]=v(50,10);
   }
   // Different ghost hat position than A
-  if (hatPatternType === '8th' && maybe(.25)) { var gp=pick([3,7,11,15]); p.hat[off+gp]=v(40,10); }
+  // FIX #4: Triplet ghost hats use triplet-aligned positions, not straight 16ths
+  if (hatPatternType === '8th' && maybe(.25)) { 
+    var gp=pick([3,7,11,15]); 
+    p.hat[off+gp]=v(40,10); 
+  } else if (hatPatternType === 'triplet' && maybe(.25)) {
+    var gp=pick([1,2,5,6,9,10,13,14]); // triplet-aligned ghost positions (different from A)
+    p.hat[off+gp]=v(40,10);
+  }
 }
 
 /**
@@ -1133,9 +1150,10 @@ function writeRide(p, feel, off) {
   if (feel === 'hard' || feel === 'sparse' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'jazzy' || feel === 'dilla') {
     // FIX #9: Conditional ghost tap probability - if previous ghost played, next is more likely
+    // FIX #6 (Round 10): Reset prevGhost at bar boundaries to prevent cross-bar inheritance
     // Jazz ride: quarter notes accented + ghost taps on "ah" positions (steps 3, 7, 11, 15)
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(90, 12);
-    var prevGhost = false;
+    var prevGhost = false; // Reset for each bar
     if (maybe(.6)) { p.ride[off + 3] = v(50, 10); prevGhost = true; }
     if (maybe(prevGhost ? .80 : .50)) { p.ride[off + 7] = v(48, 10); prevGhost = true; } else { prevGhost = false; }
     if (maybe(prevGhost ? .80 : .60)) { p.ride[off + 11] = v(50, 10); prevGhost = true; } else { prevGhost = false; }
@@ -1174,13 +1192,14 @@ function writeRide(p, feel, off) {
   }
   if (feel === 'nujabes') {
     // FIX #9: Conditional ghost tap probability for nujabes as well
+    // FIX #6 (Round 10): Reset prevGhost at bar boundaries
     // Nujabes: jazz ride pattern — beats 2 and 4 accented (jazz convention),
     // beats 1 and 3 lighter, ghost taps on "ah" positions for swing
     p.ride[off] = v(72, 12);      // beat 1 — lighter
     p.ride[off + 4] = v(92, 10);  // beat 2 — accented (jazz ride)
     p.ride[off + 8] = v(70, 12);  // beat 3 — lighter
     p.ride[off + 12] = v(95, 10); // beat 4 — strongest accent
-    var prevGhost = false;
+    var prevGhost = false; // Reset for each bar
     if (maybe(.55)) { p.ride[off + 3] = v(42, 10); prevGhost = true; }
     if (maybe(prevGhost ? .75 : .45)) { p.ride[off + 7] = v(40, 10); prevGhost = true; } else { prevGhost = false; }
     if (maybe(prevGhost ? .80 : .55)) { p.ride[off + 11] = v(42, 10); prevGhost = true; } else { prevGhost = false; }
@@ -1391,9 +1410,25 @@ function addFill(p, sec, len, feel) {
   var doFill = false, fillLen = 4;
   
   // FIX #4: Arrangement position awareness — boost fill probability before chorus/lastchorus
+  // FIX #8 (Round 10): Handle duplicate sections by finding ALL occurrences
   var arrIdx = -1, nextSec = '';
   if (typeof arrangement !== 'undefined' && arrangement.length > 0) {
-    arrIdx = arrangement.indexOf(sec);
+    // Find the CURRENT occurrence by checking which section we're generating
+    // Use a global counter or check against patterns object to identify which occurrence
+    var occurrenceCount = 0;
+    for (var i = 0; i < arrangement.length; i++) {
+      if (arrangement[i] === sec) {
+        // Check if this is the occurrence we're currently generating
+        // by seeing if the pattern already exists
+        if (typeof patterns !== 'undefined' && patterns[sec] && occurrenceCount > 0) {
+          // This is a duplicate, use this index
+          arrIdx = i;
+          break;
+        }
+        occurrenceCount++;
+        if (occurrenceCount === 1) arrIdx = i; // First occurrence
+      }
+    }
     if (arrIdx >= 0 && arrIdx < arrangement.length - 1) {
       nextSec = arrangement[arrIdx + 1];
     }
@@ -1623,9 +1658,25 @@ function addFill(p, sec, len, feel) {
 function writeShaker(p, feel, off, sec) {
   // Styles that don't use shaker
   if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
-      feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool' ||
-      feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c' ||
-      feel === 'outro_fade' || feel === 'outro_stop') return;
+      feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
+
+  // FIX #7 (Round 10): Intro/outro density scaling
+  var isIntro = (feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c');
+  var isOutro = (feel === 'outro_fade' || feel === 'outro_stop');
+  if (isIntro || isOutro) {
+    // Intros and outros use shaker but at reduced density
+    var introOutroMult = isIntro ? 0.8 : 0.7;
+    // Apply intro/outro shaker pattern
+    var upbeats = [2, 6, 10, 14];
+    upbeats.forEach(function(s) {
+      if (maybe(0.65 * ghostDensity * introOutroMult)) {
+        var sineVal = Math.sin((s / 16) * Math.PI * 2);
+        var vel = 35 + Math.floor((sineVal + 1) * 17.5);
+        p.shaker[off + s] = v(vel, 3);
+      }
+    });
+    return;
+  }
 
   // FIX #10: Section energy scaling for shaker density
   var energyMult = 1.0;

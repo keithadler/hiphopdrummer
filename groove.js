@@ -95,9 +95,10 @@ function applyGroove(p, len, feel) {
         p.kick[i] = Math.min(127, Math.max(100, p.kick[i]));
       } else {
         // Multiplicative accent scaling preserves feel-specific velocity ranges
+        // FIX #3 (Round 10): Syncopated kick (pos 6 = and-of-2) should be SOFTER, not louder
         if (pos === 0) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.08));
         else if (pos === 8) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.03));
-        else if (pos === 6) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.04));
+        else if (pos === 6) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 0.94)); // syncopated: softer
         else if (pos === 4 || pos === 12) p.kick[i] = p.kick[i];
         else if (pos % 2 === 0) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
         else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
