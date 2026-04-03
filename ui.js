@@ -165,6 +165,11 @@ function renderGrid() {
   // Delayed slightly so it doesn't fire on the initial render scroll-to-top
   if (window.IntersectionObserver && totalPages > 1) {
     setTimeout(function() {
+      // Re-force Bar 1 active after delay (observer may have fired during scroll reset)
+      bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+      var firstBtn = bt.querySelector('.bar-btn');
+      if (firstBtn) firstBtn.classList.add('bar-btn-active');
+
       var barObserver = new IntersectionObserver(function(entries) {
         if (window._playbackControlsBarTabs) return;
         entries.forEach(function(entry) {
@@ -222,19 +227,21 @@ function _selectArrItem(idx) {
   curSec = arrangement[arrIdx];
   renderGrid();
   renderArr(true);
-  var pp = document.getElementById('patternPanel');
-  if (pp) pp.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  var player = document.getElementById('midiPlayer');
-  if (player) {
-    try { player.stop(); } catch(err) {}
+  // Seek playback to this section's start time and play
+  if (window.synthBridge && window._currentMidiBytes) {
     var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
     var secPerStep = 60 / bpm / 4;
     var t = 0;
     for (var si = 0; si < arrIdx; si++) {
       t += (secSteps[arrangement[si]] || 32) * secPerStep;
     }
-    try { player.seek(t); } catch(err) {
-      try { player.currentTime = t; } catch(err2) {}
+    // If already playing, just seek. If stopped, start and seek.
+    if (window.synthBridge.isPlaying) {
+      window.synthBridge.seek(t);
+    } else {
+      window.synthBridge.play(window._currentMidiBytes);
+      // Small delay to let playback initialize before seeking
+      setTimeout(function() { window.synthBridge.seek(t); }, 100);
     }
   }
 }
