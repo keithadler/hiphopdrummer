@@ -246,6 +246,10 @@ function showPrefsDialog() {
   var chordsOn = true;
   try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp !== 'false'); } catch(e) {}
   document.getElementById('prefsShowChords').checked = chordsOn;
+  // Restore countdown preference (default: off)
+  var countdownOn = false;
+  try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd === 'true'); } catch(e) {}
+  document.getElementById('prefsCountdown').checked = countdownOn;
   // Restore role preference
   var savedRole = '';
   try { savedRole = localStorage.getItem('hhd_user_role') || 'producer'; } catch(e) {}
@@ -273,6 +277,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_follow_playhead', followPlayhead ? 'true' : 'false'); } catch(e) {}
   var showChords = document.getElementById('prefsShowChords').checked;
   try { localStorage.setItem('hhd_show_chords', showChords ? 'true' : 'false'); } catch(e) {}
+  var countdown = document.getElementById('prefsCountdown').checked;
+  try { localStorage.setItem('hhd_countdown', countdown ? 'true' : 'false'); } catch(e) {}
   var newRole = document.getElementById('prefsRole').value;
   var oldRole = '';
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
@@ -466,6 +472,48 @@ function initPlayerControls() {
 
   if (!headerPlayBtn) return;
 
+  // Countdown function - plays 3-2-1 at the current BPM
+  function playCountdown(callback) {
+    var countdownEnabled = false;
+    try { countdownEnabled = localStorage.getItem('hhd_countdown') === 'true'; } catch(e) {}
+    
+    if (!countdownEnabled) {
+      callback();
+      return;
+    }
+
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    var beatDuration = 60000 / bpm; // milliseconds per beat
+    var toast = document.getElementById('sectionToast');
+    
+    // Show countdown overlay
+    if (toast) {
+      toast.innerHTML = '<div class="countdown-display">3</div>';
+      toast.classList.add('show', 'countdown-mode');
+    }
+    
+    headerPlayBtn.textContent = '3';
+    headerPlayBtn.disabled = true;
+    
+    setTimeout(function() {
+      if (toast) toast.innerHTML = '<div class="countdown-display">2</div>';
+      headerPlayBtn.textContent = '2';
+      
+      setTimeout(function() {
+        if (toast) toast.innerHTML = '<div class="countdown-display">1</div>';
+        headerPlayBtn.textContent = '1';
+        
+        setTimeout(function() {
+          if (toast) {
+            toast.classList.remove('countdown-mode');
+            toast.classList.remove('show');
+          }
+          callback();
+        }, beatDuration);
+      }, beatDuration);
+    }, beatDuration);
+  }
+
   headerPlayBtn.onclick = function() {
     if (!window.synthBridge) return;
     if (window.synthBridge.isPlaying) {
@@ -478,17 +526,20 @@ function initPlayerControls() {
       headerPlayBtn.disabled = true;
       setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
     } else if (window._currentMidiBytes) {
-      // Disable button while synth initializes (SoundFont load on first play)
-      headerPlayBtn.disabled = true;
-      headerPlayBtn.textContent = '⏳ LOADING';
-      window.synthBridge.play(window._currentMidiBytes).then(function() {
-        headerPlayBtn.textContent = '■ STOP';
-        headerPlayBtn.classList.add('playing');
-        // Brief cooldown before allowing stop
-        setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
-      }).catch(function() {
-        headerPlayBtn.disabled = false;
-        headerPlayBtn.textContent = '▶ PLAY';
+      // Start countdown, then play
+      playCountdown(function() {
+        // Disable button while synth initializes (SoundFont load on first play)
+        headerPlayBtn.disabled = true;
+        headerPlayBtn.textContent = '⏳ LOADING';
+        window.synthBridge.play(window._currentMidiBytes).then(function() {
+          headerPlayBtn.textContent = '■ STOP';
+          headerPlayBtn.classList.add('playing');
+          // Brief cooldown before allowing stop
+          setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
+        }).catch(function() {
+          headerPlayBtn.disabled = false;
+          headerPlayBtn.textContent = '▶ PLAY';
+        });
       });
     }
   };
