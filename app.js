@@ -465,6 +465,15 @@ function initWelcome() {
       var role = btn.dataset.role;
       try { localStorage.setItem('hhd_user_role', role); } catch(e) {}
       document.getElementById('welcomeOverlay').style.display = 'none';
+      // Regenerate About This Beat with role-specific tips
+      var aboutEl = document.getElementById('aboutBeat');
+      if (aboutEl && typeof analyzeBeat === 'function') {
+        aboutEl.innerHTML = analyzeBeat();
+        if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+        if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+        if (typeof buildAboutSummary === 'function') buildAboutSummary();
+        if (typeof buildChordSheet === 'function') buildChordSheet();
+      }
       showRoleTips(role);
     };
   });
