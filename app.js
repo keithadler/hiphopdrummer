@@ -296,6 +296,11 @@ document.addEventListener('keydown', function(e) {
     e.preventDefault();
     showRegenDialog();
   }
+  if (e.key === ' ') {
+    e.preventDefault();
+    var playBtn = document.getElementById('headerPlayBtn');
+    if (playBtn) playBtn.click();
+  }
 });
 
 // ── Boot ──
@@ -517,6 +522,8 @@ function initPlaybackTracking() {
       var end = parseInt(items[i].dataset.end);
       if (barIdx >= start && barIdx <= end) {
         items[i].classList.add('active');
+        // Scroll active chord into view within the toast
+        items[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } else if (barIdx > end && i < totalItems - 1) {
         // Past this chord and it's not the last one — remove it
         items[i].style.display = 'none';
