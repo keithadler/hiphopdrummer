@@ -349,7 +349,7 @@ var SWING_POOLS = {
   lofi:      [56, 58, 58, 60, 60, 62, 62, 64],
   chopbreak: [58, 60, 60, 62, 62, 64, 64, 66, 66],
   gfunk:     [62, 64, 64, 66, 66, 68, 68, 70],   // heavy swing — the G-Funk bounce
-  crunk:     [50, 50, 52, 52, 54, 54, 56],        // nearly straight — crunk is mechanical
+  crunk:     [50, 50, 52, 52, 54, 54, 56, 56, 58],  // nearly straight — crunk is mechanical, occasional slight swing
   memphis:   [50, 52, 52, 54, 54, 56, 56, 58],     // minimal swing — dark and cold
   griselda:  [50, 52, 52, 54, 54, 56, 58],          // nearly straight — modern boom bap, tight and punchy
   phonk:     [54, 56, 56, 58, 58, 60, 62],          // moderate swing — triplet-influenced but not heavy
