@@ -454,14 +454,18 @@ function initPlayerControls() {
       if (seekBar) seekBar.value = 0;
       headerPlayBtn.textContent = '▶ PLAY';
       headerPlayBtn.classList.remove('playing');
+      // Brief cooldown so user can't accidentally re-trigger play immediately
+      headerPlayBtn.disabled = true;
+      setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
     } else if (window._currentMidiBytes) {
       // Disable button while synth initializes (SoundFont load on first play)
       headerPlayBtn.disabled = true;
       headerPlayBtn.textContent = '⏳ LOADING';
       window.synthBridge.play(window._currentMidiBytes).then(function() {
-        headerPlayBtn.disabled = false;
         headerPlayBtn.textContent = '■ STOP';
         headerPlayBtn.classList.add('playing');
+        // Brief cooldown before allowing stop
+        setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
       }).catch(function() {
         headerPlayBtn.disabled = false;
         headerPlayBtn.textContent = '▶ PLAY';
