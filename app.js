@@ -471,37 +471,23 @@ function initPlaybackTracking() {
   function buildChordToast(sec) {
     var toast = document.getElementById('sectionToast');
     _sectionChords = [];
-    var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
-    if (!key || !key.i) { if (toast) toast._chordHtml = ''; return; }
 
-    var bars = Math.ceil((secSteps[sec] || 32) / 16);
-    var isIntro = (sec === 'intro');
-    var isOutro = (sec === 'outro');
+    // Use the chord sheet's voiced chords (same as what's displayed in About This Beat)
+    var chordData = (window._chordSheetData && window._chordSheetData[sec]) ? window._chordSheetData[sec] : null;
 
-    // Use the actual progression the bass is playing (from _sectionProgressions)
-    // Falls back to ['i','i','iv','v'] if not available
-    var prog = (typeof _sectionProgressions !== 'undefined' && _sectionProgressions[sec])
-      ? _sectionProgressions[sec] : ['i', 'i', 'iv', 'v'];
-
-    // Map degree symbols to chord names and function labels
-    var degreeMap = {
-      'i': { name: key.i, fn: 'I' },
-      'iv': { name: key.iv, fn: 'IV' },
-      'v': { name: key.v, fn: 'V' },
-      'ii': { name: key.ii || key.i, fn: 'ii' },
-      'bII': { name: key.bII || key.i, fn: 'bII' }
-    };
-
-    for (var b = 0; b < bars; b++) {
-      if (isIntro || isOutro) {
-        _sectionChords.push({ name: key.i, fn: 'I' });
-      } else {
-        var deg = prog[b % prog.length];
-        var mapped = degreeMap[deg] || { name: key.i, fn: 'I' };
-        _sectionChords.push({ name: mapped.name, fn: mapped.fn });
+    if (!chordData || chordData.length === 0) {
+      // Fallback: try raw key data
+      var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
+      if (!key || !key.i) { if (toast) toast._chordHtml = ''; return; }
+      var bars = Math.ceil((secSteps[sec] || 32) / 16);
+      for (var b = 0; b < bars; b++) { _sectionChords.push({ name: key.i, fn: 'I' }); }
+    } else {
+      for (var b = 0; b < chordData.length; b++) {
+        _sectionChords.push({ name: chordData[b].name, fn: chordData[b].fn });
       }
     }
 
+    // Group consecutive same chords
     var groups = [];
     for (var c = 0; c < _sectionChords.length; c++) {
       if (groups.length > 0 && groups[groups.length - 1].name === _sectionChords[c].name) {
