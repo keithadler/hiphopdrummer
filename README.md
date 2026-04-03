@@ -36,7 +36,7 @@ Every parameter is tuned to the style. Dilla's bass sits 3 ticks behind the beat
 
 The swing system goes deeper than a single percentage. Each instrument swings by a different amount per style — the way real producers program. Dilla's hats swing 30% harder than the base while his kick stays 40% straighter. G-Funk bass swings slightly harder than the kick for that smooth bounce. Crunk and old school are nearly mechanical across all instruments. Crashes always land on the grid.
 
-The harmony is modal, not just minor. G-Funk, Dilla, and Nujabes use Dorian mode — the IV chord is major (C7, not Cm7), and that raised 6th degree is what makes these styles sound warm and funky. Dark, Griselda, Memphis, and Phonk use Phrygian bII — the sinister half-step drop (Db in the key of Cm) that defines their menacing character. Each style has 3-5 authentic chord progressions: jazzy uses ii-V turnarounds, Dilla sits on one chord for 8 bars, G-Funk moves through chromatic bass lines.
+The harmony is modal, not just minor. G-Funk, Dilla, and Nujabes use Dorian mode — the IV chord is major (C7, not Cm7), because Dorian has a natural 6th degree (not flatted like natural minor), which makes these styles sound warm and funky. Dark, Griselda, Memphis, and Phonk use Phrygian bII — the sinister half-step drop (Db in the key of Cm) that defines their menacing character. Jazz-influenced styles include 6th chord voicings and chromatic diminished passing chords for authentic jazz color. Each style has 3-6 authentic chord progressions: jazzy uses ii-V turnarounds with dim passing chords, Dilla sits on one chord for 8 bars, G-Funk moves through chromatic bass lines.
 
 Regional sub-styles capture the geography of hip hop. "Boom bap" from the Bronx (Premier's tight, minimal, fewer ghost notes, straighter timing) sounds different from Queens (Large Pro's jazzy approach with ride cymbal and wider dynamics) sounds different from Long Island (De La's playful, loose, more swing). G-Funk splits into Dre's polished control, DJ Quik's raw funk with busier kicks, and Battlecat's heavy-bounce deep pocket. Each variant modifies ghost density, swing bias, hat type, and dynamics while inheriting the parent style's full pattern generation logic.
 
@@ -70,8 +70,8 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
 - **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), replacing Magenta/Tone.js. Custom play/pause/stop/seek controls.
 - **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra. Selectable in Preferences.
 - **Per-instrument swing** — hats, kick, ghost snares, backbeat, and bass each swing by different amounts per style. Dilla's hats swing 30% harder than the base while his kick stays 40% straighter. Crunk and old school are nearly mechanical across all instruments. Crashes always land on the grid.
-- **Style-specific chord progressions** — each style has 3-5 authentic progression patterns. Jazzy/nujabes use ii-V turnarounds. Dilla sits on one chord or loops a 2-bar pattern. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII movement.
-- **Modal harmony** — G-Funk, Dilla, and Nujabes use Dorian mode (major IV chord instead of minor). Dark, Griselda, Memphis, and Phonk use Phrygian bII (sinister half-step tension). Chord recommendations explain the mode and why it matters.
+- **Style-specific chord progressions** — each style has 3-6 authentic progression patterns. Jazzy/nujabes use ii-V turnarounds and diminished passing chords. Dilla sits on one chord or loops a 2-bar pattern. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII movement. Jazz-influenced styles include 6th chord voicings (Am6, C6) and chromatic diminished passing chords (#idim) for authentic jazz color.
+- **Modal harmony** — G-Funk, Dilla, and Nujabes use Dorian mode (major IV chord instead of minor). The natural 6th degree (not flatted like natural minor) makes the IV chord major, giving these styles their warm, funky sound. Dark, Griselda, Memphis, and Phonk use Phrygian bII (sinister half-step tension). Chord recommendations explain the mode and why it matters.
 - **Regional sub-styles** — Boom Bap Bronx (Premier's tight, minimal, fewer ghosts) vs Queens (Large Pro's jazzy, ride cymbal, wider dynamics) vs Long Island (De La's playful, loose, more swing). G-Funk Dre (polished, controlled) vs DJ Quik (raw funk, busier kick) vs Battlecat (heavy bounce, deep swing). Each variant modifies ghost density, swing bias, hat type, and dynamics.
 - **Bass line generator** — every beat includes a uniquely generated bass line that locks to the kick drum, follows style-specific chord progressions, and reacts to the drums in real time. Boom bap gets punchy bass guitar with dead notes and hammer-ons. G-Funk gets Moog-style slides between pitches. Crunk/Memphis get 808 sub with velocity compression and sub swell. Jazz gets walking bass with diatonic fills. The bass drops out on loud snare backbeats, fills gaps when the kick is sparse, simplifies when hats are busy, and builds its own section-ending fills, breakdown thinning, turnaround figures, and chorus re-entry hits — all generated fresh every time.
 - **6 GM bass sounds** — Electric Bass (Finger/Pick), Fretless, Slap, Synth Bass 1/2. Selectable in Preferences.
@@ -117,6 +117,14 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
 - **Glossary tooltips** — hover over drum terms in the About panel for instant definitions
 - **Keyboard shortcuts** — R to open the New Beat dialog, Escape to cancel, Enter to confirm
 - **Responsive** — works on desktop and mobile with sticky header and touch-aware scrolling
+- **Welcome screen** — first-time visitors pick their role (Producer, Rapper, DJ, Keys, Bassist, Guitarist, Drummer, Learner). Role selection customizes the chord overlay tips and section advice during playback.
+- **Guitarist role** — dedicated role with style-specific playing advice per section (funk rhythm, jazz comping, power chords, arpeggios)
+- **Composition-aware role tips** — the chord overlay during playback shows per-section advice based on your role, the actual chord progression, key, BPM, swing, kick density, ghost count, hat pattern, and style. Every tip is specific to what's actually playing.
+- **6th and diminished chords** — jazzy, dilla, and nujabes styles generate 6th chord voicings (Am6, C6) and chromatic diminished passing chords (#idim) for authentic jazz harmony. Piano diagrams render all chord types correctly.
+- **Play button loading state** — button stays disabled until synth module and MIDI are ready. First play shows "⏳ LOADING" while the SoundFont loads, then switches to "■ STOP" when playback begins. Guarantees toast, chords, and tracking work on first play.
+- **Scroll to top on New Beat** — page scrolls to the Preview Arrangement panel when a new beat is generated
+- **iPhone optimizations** — no double-tap zoom, no input focus zoom, safe area insets for notch/Dynamic Island, overscroll-behavior prevents elastic bounce on sticky header, PWA standalone mode for home screen install
+- **Mobile analysis preview** — on small screens, analysis shows ~4 collapsed section headers with a "Show full analysis" button to expand. On desktop, analysis is always visible and scrollable within the panel.
 
 ## Quick Start
 
@@ -145,7 +153,7 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-9500+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, per-instrument swing, chord progressions, modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined drums+bass MIDI, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35 About This Beat sections.
+9700+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined drums+bass MIDI, section transitions, bar variations, extreme BPMs, forced dialog options, and all 35+ About This Beat sections.
 
 ## How It Works
 

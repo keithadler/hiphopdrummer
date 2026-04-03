@@ -4,7 +4,7 @@ Full technical breakdown of every feature, technique, and design decision in the
 
 ## Hip Hop Styles
 
-Eighteen feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
+Eighteen feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants and a 19th style (Old School):
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
@@ -207,9 +207,9 @@ Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit.
 
 ## "About This Beat" Panel
 
-Organized into collapsible accordion sections. All sections collapsed by default.
+Organized into collapsible accordion sections. All sections collapsed by default. On desktop, the analysis fills the right column and scrolls within the panel. On mobile (≤600px), a 180px preview shows ~4 section headers with a "Show full analysis" button to expand.
 
-Includes: Flow Guide (rapper-focused BPM/feel delivery tips with syllable counts per bar based on kick density and BPM), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), What's In The Export (itemized list of every file in the ZIP), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Song Elements (with fill and strip-down notes per section), Start Here (beginner orientation), Drum Machine Workflow (MIDI import + hand-programming instructions), Quick Start (3 most important settings).
+Includes: Start Here (beginner orientation), Tempo, Swing, Style, Flow Guide (rapper-focused BPM/feel delivery tips with syllable counts per bar based on kick density and BPM), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), Bass Line, Melodic Arrangement, Sample Hunting Guide (key/BPM/style-specific search tips for Splice and Tracklib), Song Elements (with fill and strip-down notes per section, role-specific tips), Reference Tracks (3 specific songs per feel), What Makes This Beat Unique, Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Technique Spotlight (16 rotating deep dives), Did You Know (25 entries), History (13 entries), Common Mistakes (16 entries), Equipment Context (6 gear types), Programming Details tier (Kick Pattern, A/B Phrase, Section Kick Variations, Snare + Clap, Ghost Note Density, Rimshot, Shaker/Tambourine), Advanced Techniques tier (Velocity Humanization, Kick-Snare Interlock, Per-Instrument Accent Curves, Open/Closed Hat Choke, Ghost Note Clustering, Section Transitions, Ride Hand Consistency, Hi-Hats, Ride Cymbal, Crash Cymbal, Bar-by-Bar Variations), Arrangement & Workflow tier (Producer Techniques, What's In The Export, Drum Machine Workflow, Quick Start), Chord Sheet.
 
 ### Alternate Progressions
 The key section shows style-matched alternate progressions with actual chord names computed for the chosen key. Progressions covered:
@@ -236,10 +236,17 @@ The key section shows style-matched alternate progressions with actual chord nam
 Slides/portamento (G-Funk, phonk, memphis), ghost notes (chromatic approach on off-beat 16ths), dead notes (percussive muted hits), hammer-on grace notes (gfunk, bounce, chopbreak), octave drops on beat 1, octave pops on beats 2/3/4, sub swell (808 reinforcement note for sub bloom).
 
 ### Chord Progressions
-`CHORD_PROGRESSIONS` table with 3-5 progressions per feel using degree symbols (i, iv, v, ii, bII). Jazzy/nujabes use ii-V turnarounds. Dilla sits on one chord. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII.
+`CHORD_PROGRESSIONS` table with 3-6 progressions per feel using degree symbols (i, iv, v, ii, bII, #idim). Jazzy/nujabes use ii-V turnarounds and chromatic diminished passing chords (#idim — half step above root, connecting I to ii). Dilla sits on one chord or uses dim passing movement. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII.
+
+### Chord Voicings
+`voiceChord()` applies feel-aware voicings:
+- **Boom bap, hard, dark, crunk, Memphis, old school** — simple triads (strip 7th/9th extensions)
+- **Jazzy, Dilla, Nujabes** — 9th chords (m9, maj9), with occasional 6th chords (Am6, C6) ~20% of the time on I chords, and diminished passing chords
+- **Lo-fi** — dominant 7ths (warmer, dustier than maj7)
+- **G-Funk** — min7 voicings enforced
 
 ### Modal Harmony
-Dorian (G-Funk, Dilla, Nujabes): IV chord is dominant 7th. Phrygian (Dark, Griselda, Memphis, Phonk): bII chord for sinister half-step tension.
+Dorian (G-Funk, Dilla, Nujabes): IV chord is dominant 7th. The natural 6th degree (not flatted like natural minor) makes the IV major. Phrygian (Dark, Griselda, Memphis, Phonk): bII chord for sinister half-step tension.
 
 ### Section Behavior
 Breakdown thinning (mirrors drums), chorus re-entry hits, turnaround figures at bar 7, pre-chorus chromatic builds. Bass reads `sectionEnergyMap` for cross-section density awareness.
@@ -281,6 +288,14 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 - Sticky header on mobile — controls stay visible while scrolling
 - Brand name clickable — opens About dialog
 - Mobile: PLAY + NEW BEAT on one row, EXPORT + Preferences on one row
+- iPhone optimizations: no double-tap zoom, no input focus zoom, safe area insets for notch/Dynamic Island, overscroll-behavior prevents elastic bounce, PWA standalone mode
+- Play button disabled until synth module loaded and MIDI built; shows "⏳ LOADING" on first play while SoundFont loads
+
+### Welcome Screen & Roles
+- First-time visitors see a role selector: Producer, Rapper, DJ, Keys, Bassist, Guitarist, Drummer, Learner
+- Role stored in localStorage, shown in Preferences for changing later
+- Role-specific tips appear in the chord overlay during playback and in the Song Elements section of About This Beat
+- Tips are composition-aware: they reference the actual chord progression, key, BPM, swing, kick density, ghost count, hat pattern, and style for each section
 
 ### New Beat Dialog
 - Key and BPM lock to Auto when style is Auto
@@ -361,7 +376,7 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 
 ## Testing
 
-Run `node tests.js` — zero dependencies, runs in Node.js. 9500+ assertions.
+Run `node tests.js` — zero dependencies, runs in Node.js. 9700+ assertions.
 
 Covers:
 - All JS files parse without syntax errors
@@ -376,13 +391,13 @@ Covers:
 - 8-bar variation system (breathing room on bar 5)
 - Ghost density extremes (0.5 sparse, 1.8 dense)
 - Forced style/key/BPM from dialog
-- All 35 About This Beat sections present
+- All 35+ About This Beat sections present
 - All 11 DAW help builders produce content
 - STYLE_DATA, FEEL_PALETTES, note maps completeness
 - Regional variants: pattern generation, bass events, secFeels storage, resolveBaseFeel
 - REGIONAL_VARIANTS table: required fields, STYLE_DATA/SWING_POOLS entries
 - Per-instrument swing: INSTRUMENT_SWING covers all 19 feels, getInstrumentSwing categories
-- CHORD_PROGRESSIONS: all 19 feels, valid degree symbols
+- CHORD_PROGRESSIONS: all 19 feels, valid degree symbols (including #idim)
 - Modal harmony: Dorian IV for G-Funk/Dilla, Phrygian bII for dark styles
 - Player profiles: PLAYER_PROFILES covers all feels, selected during generateAll
 - Bass call-and-response: snare deference and gap filling verified
