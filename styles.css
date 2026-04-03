@@ -318,18 +318,14 @@ midi-player::part(play-button){color:var(--accent-green)}
     font-size:13px;
     height:38px;
   }
-  /* EXPORT + HISTORY + Preferences on same line */
+  /* EXPORT on left */
   .btn-export{
     justify-content:center;
     font-size:12px;
     height:36px;
     margin-left:0;
   }
-  .btn-history{
-    justify-content:center;
-    font-size:12px;
-    height:36px;
-  }
+  /* Preferences on right */
   .btn-prefs{
     font-size:12px;
     height:36px;
@@ -338,6 +334,13 @@ midi-player::part(play-button){color:var(--accent-green)}
   }
   .btn-prefs .prefs-icon{display:none}
   .btn-prefs .prefs-text{display:inline}
+  /* HISTORY takes full width */
+  .btn-history{
+    justify-content:center;
+    font-size:12px;
+    height:36px;
+    grid-column:1 / -1;
+  }
   /* Style text: no truncation */
   .ctrl-input-wide{
     max-width:none;
@@ -436,8 +439,8 @@ midi-player::part(play-button){color:var(--accent-green)}
 .slot-info{display:flex;gap:10px;flex-wrap:wrap}
 .slot-style{font-family:var(--mono);font-size:12px;color:var(--text-primary);font-weight:600}
 .slot-key,.slot-bpm,.slot-swing{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
-.btn-history{background:var(--accent-green);color:#fff;border:1px solid var(--accent-green)}
-.btn-history:hover{background:var(--bg-surface);color:var(--accent-green)}
+.btn-history{background:var(--accent-blue);color:#fff;border:1px solid var(--accent-blue)}
+.btn-history:hover{background:var(--bg-surface);color:var(--accent-blue)}
 
 /* Mobile-specific history dialog styles */
 @media (max-width: 600px) {
