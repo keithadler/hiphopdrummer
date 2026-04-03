@@ -146,7 +146,14 @@ function renderGrid() {
   var gridContainer = document.getElementById('gridR');
   if (gridContainer && gridContainer.parentElement) {
     gridContainer.parentElement.scrollTop = 0;
+    gridContainer.scrollTop = 0;
   }
+  // Also scroll the pattern panel to the top so the bar tabs and Bar 1 label are visible
+  var patPanel = document.getElementById('patternPanel');
+  if (patPanel) patPanel.scrollTop = 0;
+  // Scroll grid-page-0 into view to ensure Bar 1 is at the top
+  var firstPage = document.getElementById('grid-page-0');
+  if (firstPage) firstPage.scrollIntoView({ block: 'start' });
 
   // IntersectionObserver: highlight the bar tab matching the bar currently in view
   // Disabled during playback — playback tracking controls bar tabs instead
