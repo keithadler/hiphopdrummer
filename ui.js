@@ -322,6 +322,31 @@ function renderArr(skipMidiUpdate) {
       }
       _selectArrItem(parseInt(el.dataset.i));
     };
+    /** Touch: on mobile, draggable can swallow clicks. Handle tap explicitly. */
+    (function(elem) {
+      var touchStartTime = 0;
+      var touchStartX = 0;
+      var touchStartY = 0;
+      elem.addEventListener('touchstart', function(e) {
+        touchStartTime = Date.now();
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      elem.addEventListener('touchend', function(e) {
+        var dt = Date.now() - touchStartTime;
+        var dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+        var dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        // Only treat as tap if short duration and minimal movement (not a drag/scroll)
+        if (dt < 300 && dx < 15 && dy < 15) {
+          if (e.target.classList.contains('rm')) {
+            arrangement.splice(parseInt(e.target.dataset.i), 1);
+            renderArr();
+            return;
+          }
+          _selectArrItem(parseInt(elem.dataset.i));
+        }
+      }, { passive: true });
+    })(el);
     /** Keyboard: Enter/Space to select, Delete to remove, Arrows to reorder */
     el.onkeydown = function(e) {
       var idx = parseInt(el.dataset.i);
