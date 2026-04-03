@@ -307,7 +307,19 @@ function exportChordSheetPDF(returnBlob) {
     var quality = chord.replace(/^[A-G][#b]?/, '');
     var third, fifth, seventh, ninth;
     ninth = -1;
-    if (/^m7b5/.test(quality)) {
+    if (/^dim7/.test(quality)) {
+      third = 3; fifth = 6; seventh = 9;
+    } else if (/^dim/.test(quality)) {
+      third = 3; fifth = 6; seventh = -1;
+    } else if (/^m\(add9\)/.test(quality)) {
+      third = 3; fifth = 7; seventh = -1; ninth = 14;
+    } else if (/^\(add9\)/.test(quality)) {
+      third = 4; fifth = 7; seventh = -1; ninth = 14;
+    } else if (/^m6/.test(quality)) {
+      third = 3; fifth = 7; seventh = 9;
+    } else if (/^6$/.test(quality)) {
+      third = 4; fifth = 7; seventh = 9;
+    } else if (/^m7b5/.test(quality)) {
       third = 3; fifth = 6; seventh = 10;
     } else if (/^maj9/.test(quality)) {
       third = 4; fifth = 7; seventh = 11; ninth = 14;
@@ -432,20 +444,28 @@ function exportChordSheetPDF(returnBlob) {
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var feel = secFeels[sec] || songFeel || 'normal';
 
-    // Section-specific harmonic rhythm with voicing and bar counts
+    // Section-specific harmonic rhythm — use _chordSheetData if available (matches in-app chord sheet)
     var allChords = [];
-    for (var b = 0; b < bars; b++) {
-      var barInPhrase = b % 4;
-      var isIntro = (sec === 'intro'), isOutro = (sec === 'outro'), isBd = (sec === 'breakdown');
-      if (isIntro || isOutro) {
-        allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
-      } else if (isBd) {
-        if (barInPhrase === 2 || barInPhrase === 3) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
-        else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
-      } else {
-        if (barInPhrase === 2) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
-        else if (barInPhrase === 3 && bars > 2) allChords.push({ name: pdfVoiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
-        else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+    var sheetData = (window._chordSheetData && window._chordSheetData[sec]) ? window._chordSheetData[sec] : null;
+    if (sheetData && sheetData.length > 0) {
+      for (var b = 0; b < sheetData.length; b++) {
+        allChords.push({ name: sheetData[b].name, fn: sheetData[b].fn, cls: sheetData[b].cls || 'chord-root' });
+      }
+    } else {
+      // Fallback: simple I-I-IV-V if chord sheet data not available
+      for (var b = 0; b < bars; b++) {
+        var barInPhrase = b % 4;
+        var isIntro = (sec === 'intro'), isOutro = (sec === 'outro'), isBd = (sec === 'breakdown');
+        if (isIntro || isOutro) {
+          allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+        } else if (isBd) {
+          if (barInPhrase === 2 || barInPhrase === 3) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+          else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+        } else {
+          if (barInPhrase === 2) allChords.push({ name: pdfVoiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
+          else if (barInPhrase === 3 && bars > 2) allChords.push({ name: pdfVoiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
+          else allChords.push({ name: pdfVoiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+        }
       }
     }
     // Group consecutive identical chords
@@ -505,8 +525,10 @@ function exportChordSheetPDF(returnBlob) {
     doc.text('Page ' + p + ' of ' + pageCount, pageW - margin, pageH - 5, { align: 'right' });
   }
 
+  var songKeyEl = document.getElementById('songKey');
+  var pdfKeyName = (songKeyEl ? songKeyEl.textContent : key.root).replace(/[#\/]/g, '');
   if (returnBlob) return doc.output('blob');
-  doc.save('chord_sheet_' + key.root.replace(/[#\/]/g, '') + '.pdf');
+  doc.save('chord_sheet_' + pdfKeyName + '.pdf');
 }
 
 /**

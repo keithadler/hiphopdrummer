@@ -390,7 +390,8 @@ function exportMIDI(opts) {
   if (opts.chordSheet && _lastChosenKey && _lastChosenKey.i) {
     try {
       var chordBlob = generateChordSheetPDFBlob();
-      if (chordBlob) folder.file('chord_sheet_' + (_lastChosenKey.root || '').replace(/[#\/]/g, '') + '.pdf', chordBlob);
+      var chordKeyName = (keyStr || (_lastChosenKey.root || '')).replace(/[#\/]/g, '');
+      if (chordBlob) folder.file('chord_sheet_' + chordKeyName + '.pdf', chordBlob);
     } catch(e) { console.warn('Chord sheet PDF failed:', e); }
   }
 
