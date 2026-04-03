@@ -567,21 +567,55 @@ function renderGuitarChord(chordName) {
   var data = GUITAR_CHORDS[lookup] || GUITAR_CHORDS[chordName];
   if (!data) return '<div class="guitar-chord-na">' + chordName + '</div>';
   var f = data.frets;
-  var html = '<div class="guitar-chord"><div class="guitar-name">' + chordName + '</div><div class="guitar-grid">';
-  // 6 strings, 4 frets
-  for (var s = 0; s < 6; s++) {
-    var fret = f[s];
-    html += '<div class="guitar-string">';
-    if (fret === -1) html += '<span class="guitar-mute">×</span>';
-    else if (fret === 0) html += '<span class="guitar-open">○</span>';
-    for (var fr = 1; fr <= 4; fr++) {
-      var isFretted = (fret === fr + (data.barr > 0 ? data.barr - 1 : 0));
-      html += '<div class="guitar-fret' + (isFretted ? ' guitar-dot' : '') + '"></div>';
-    }
-    html += '</div>';
+
+  // SVG fretboard diagram (adapted from AkaiMPC Chord Progression Generator, Unlicense)
+  var w = 120, h = 110;
+  var strSp = 18, fretSp = 22;
+  var lm = 20, tm = 20;
+  var fretNums = [];
+  for (var i = 0; i < 6; i++) { if (f[i] > 0) fretNums.push(f[i]); }
+  var minFret = fretNums.length > 0 ? Math.min.apply(null, fretNums) : 1;
+  var startFret = minFret > 3 ? minFret : 1;
+  var isOpen = (startFret === 1);
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">';
+
+  // Fret position indicator
+  if (!isOpen) {
+    svg += '<text x="' + (lm - 10) + '" y="' + (tm + fretSp / 2 + 3) + '" text-anchor="middle" font-size="9" fill="#9090a8" font-weight="bold">' + startFret + 'fr</text>';
   }
-  html += '</div></div>';
-  return html;
+
+  // Frets (horizontal lines)
+  for (var i = 0; i <= 4; i++) {
+    var y = tm + i * fretSp;
+    var sw = (i === 0 && isOpen) ? 3 : 1;
+    svg += '<line x1="' + lm + '" y1="' + y + '" x2="' + (lm + 5 * strSp) + '" y2="' + y + '" stroke="#666" stroke-width="' + sw + '"/>';
+  }
+
+  // Strings (vertical lines, thicker for low strings)
+  for (var i = 0; i < 6; i++) {
+    var x = lm + i * strSp;
+    var sw = Math.max(1, (6 - i) * 0.4);
+    svg += '<line x1="' + x + '" y1="' + tm + '" x2="' + x + '" y2="' + (tm + 4 * fretSp) + '" stroke="#888" stroke-width="' + sw + '"/>';
+  }
+
+  // Dots, mutes, opens
+  for (var i = 0; i < 6; i++) {
+    var x = lm + i * strSp;
+    var fret = f[i];
+    if (fret === -1) {
+      svg += '<text x="' + x + '" y="' + (tm - 6) + '" text-anchor="middle" font-size="12" fill="#e04848" font-weight="bold">×</text>';
+    } else if (fret === 0) {
+      svg += '<circle cx="' + x + '" cy="' + (tm - 6) + '" r="4" fill="none" stroke="#9090a8" stroke-width="1.5"/>';
+    } else {
+      var displayFret = fret - startFret + 1;
+      var y = tm + (displayFret - 0.5) * fretSp;
+      svg += '<circle cx="' + x + '" cy="' + y + '" r="6" fill="#50a0ff"/>';
+    }
+  }
+
+  svg += '</svg>';
+  return '<div class="guitar-chord-svg">' + svg + '</div>';
 }
 
 /**
