@@ -286,6 +286,7 @@ function showBeatHistoryDialog() {
 
 /**
  * Render beat history slots in the manager dialog.
+ * Slot 1 = oldest, Slot 25 = newest
  */
 function renderBeatHistorySlots() {
   var history = loadBeatHistory();
@@ -299,9 +300,11 @@ function renderBeatHistorySlots() {
   slotsContainer.innerHTML = history.map(function(beat, idx) {
     var date = new Date(beat.timestamp);
     var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    // Slot number: newest (idx 0) = highest slot number
+    var slotNumber = history.length - idx;
     return '<div class="history-slot" data-idx="' + idx + '">'
       + '<div class="history-slot-header">'
-      + '<span class="history-slot-number">Slot ' + (idx + 1) + '</span>'
+      + '<span class="history-slot-number">Slot ' + slotNumber + '</span>'
       + '<span class="history-slot-date">' + dateStr + '</span>'
       + '<button class="history-slot-delete" data-idx="' + idx + '" title="Delete">×</button>'
       + '</div>'
