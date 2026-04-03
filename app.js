@@ -341,7 +341,11 @@ var ROLE_TIPS = {
   },
   bassist: {
     title: '🎸 Bassist',
-    html: '<p>The bass MIDI is a masterclass in hip hop bass playing — not just root notes on the kick.</p><h3>Your Workflow</h3><p>Export the <b>bass MIDI</b> and study the note choices in your DAW. The bass uses correct 5th and minor 7th intervals, chromatic approach notes, hammer-on grace notes, slides for G-Funk, and intentional rests. It generates 2-bar motifs and varies them — the way a session player develops a part.</p><h3>Call and Response</h3><p>The bass reacts to the drums: drops out on loud snare backbeats, fills gaps when the kick is sparse, simplifies when hats are busy. Study these relationships — they\'re what separates a bass player from someone who plays bass.</p><h3>Style Differences</h3><p>Boom bap: punchy, short. G-Funk: Moog slides, long sustain. Memphis: 808 sub, velocity-compressed. Jazz: walking with diatonic fills. Each style has its own articulation.</p>'
+    html: '<p>The bass MIDI is a masterclass in hip hop bass playing — not just root notes on the kick.</p><h3>Your Workflow</h3><p>Export the <b>bass MIDI</b> and study the note choices in your DAW. The bass uses correct 5th and minor 7th intervals, chromatic approach notes, hammer-on grace notes, slides for G-Funk, and intentional rests. It generates 2-bar motifs and varies them — the way a session player develops a part.</p><h3>Guitar Chords</h3><p>During playback, the chord overlay shows <b>guitar chord diagrams</b> so you can play along on bass or guitar. The voicings match the style — simple shapes for boom bap, extended chords for jazz.</p><h3>Call and Response</h3><p>The bass reacts to the drums: drops out on loud snare backbeats, fills gaps when the kick is sparse, simplifies when hats are busy. Study these relationships — they\'re what separates a bass player from someone who plays bass.</p>'
+  },
+  guitarist: {
+    title: '🎸 Guitarist',
+    html: '<p>The chord overlay shows <b>guitar chord diagrams</b> during playback so you can play along in real time.</p><h3>Your Workflow</h3><p>Generate a beat, hit play, and follow the chord overlay. Each bar shows the chord name, function (I, IV, V), and a fretboard diagram with the fingering. The active chord highlights as the section plays.</p><h3>Voicings by Style</h3><p>Boom bap: simple triads and power chords. Dilla/jazz: 9th chords and extensions. G-Funk: min7 voicings with Dorian color. The voicings change with the style because the harmony is modal.</p><h3>What to Play</h3><p>Verse: rhythm guitar on 2 and 4 with the snare, or muted scratches on the kick. Chorus: open chords, let them ring. Breakdown: single notes or silence. The <b>Sample Hunting Guide</b> in About This Beat suggests guitar-based samples to layer.</p>'
   },
   drummer: {
     title: '🥁 Drummer',
@@ -626,6 +630,16 @@ function getRoleSectionTip(sec, role) {
       instrumental: 'Melodic bass line. Show off.',
       outro: 'Sustained root. Fade with the drums.'
     },
+    guitarist: {
+      intro: 'Muted scratches or single clean notes. Set the vibe.',
+      verse: 'Rhythm on 2 and 4 with the snare. Keep it tight.',
+      pre: 'Open up the voicing. Build toward the chorus.',
+      chorus: 'Full chords, let them ring. Strum or arpeggiate.',
+      breakdown: 'Single notes or harmonics. Less is more.',
+      lastchorus: 'Maximum energy. Power chords or full strums.',
+      instrumental: 'Solo or melodic lead. This is your moment.',
+      outro: 'Let the last chord ring out.'
+    },
     dj: {
       intro: 'Blend in. Match the tempo.',
       verse: 'Let it ride. Save your cuts for the breakdown.',
@@ -719,7 +733,7 @@ function initPlaybackTracking() {
     // Check if user role wants guitar chords
     var chordRole = '';
     try { chordRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-    var showGuitar = (chordRole === 'bassist' || chordRole === 'keys');
+    var showGuitar = (chordRole === 'bassist' || chordRole === 'guitarist');
 
     var html = '';
     for (var c = 0; c < _sectionChords.length; c++) {
