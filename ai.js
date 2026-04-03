@@ -1420,8 +1420,8 @@ function generatePattern(sec) {
 
   // ── Section-Specific Adjustments ──
 
-  // Chorus: reinforce beat 1 with kick+snare for impact
-  if (isCh) { p.kick[0]=v(127,5); p.snare[0]=v(110,10); }
+  // Chorus: reinforce beat 1 with kick for impact (snare enters on beat 2 as normal)
+  if (isCh) { p.kick[0]=v(127,5); }
   // Last chorus: add open hats every other bar + crashes on every 4-bar phrase start
   if (sec==='lastchorus') {
     for (var i=0;i<len;i+=32) if (i+14<len) p.openhat[i+14]=v(90,10);
