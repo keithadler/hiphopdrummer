@@ -183,10 +183,13 @@ test('All 19 feels generate patterns without crashing', function() {
     });
 
     // Check kick-snare interlock (no collision on beats 2 and 4)
+    // FIX #9: Exception for crunk and oldschool — they layer kick and snare on backbeat
     for (var i = 0; i < len; i++) {
       var pos = i % 16;
       if ((pos === 4 || pos === 12) && pat.kick[i] > 0 && pat.snare[i] > 0) {
-        assert(false, feel + ': kick-snare collision at step ' + i);
+        if (feel !== 'crunk' && feel !== 'oldschool') {
+          assert(false, feel + ': kick-snare collision at step ' + i);
+        }
       }
     }
 
