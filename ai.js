@@ -1697,10 +1697,10 @@ function applyArrangementArc() {
  *   80–92:  Classic boom bap sweet spot (Premier, Pete Rock)
  *   95–108: Mid-tempo (Nas, Tribe, G-Funk)
  *   110–118: Uptempo/battle rap (EPMD, Onyx, Black Moon)
- *   120–130: Crunk/high energy (Lil Jon, Ying Yang Twins)
+ *   120–160: Crunk/Phonk/high energy (Lil Jon, SpaceGhostPurrp)
  * @type {number[]}
  */
-var BPMS = [60, 63, 65, 68, 72, 75, 78, 80, 83, 85, 88, 90, 92, 95, 98, 100, 105, 108, 110, 115, 118, 120, 125, 128, 130];
+var BPMS = [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110,120,125,130,135,140,145,150,155,160];
 
 /**
  * Master generation function — creates an entire song from scratch.
