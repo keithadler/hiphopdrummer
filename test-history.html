@@ -110,6 +110,18 @@
   </div>
 
   <div class="test-section">
+    <h2>Test 7: Save & Restore Exact Match</h2>
+    <button onclick="testSaveRestoreMatch()">Run Test</button>
+    <div id="test7-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 8: Multiple Save/Load Cycles</h2>
+    <button onclick="testMultipleCycles()">Run Test</button>
+    <div id="test8-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
     <h2>Run All Tests</h2>
     <button onclick="runAllTests()">Run All Tests</button>
     <div id="summary" class="summary"></div>
@@ -517,6 +529,192 @@
       testResults.push({ name: 'Data Integrity', passed, failed });
     }
 
+    async function testSaveRestoreMatch() {
+      const testId = 'test7';
+      log(testId, 'Starting test: Save & Restore Exact Match');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Generate a real beat using the actual generation functions
+      log(testId, 'Generating a real beat...');
+      
+      // Clear history first
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Generate a beat (this would normally be done by generateAll())
+      // For testing, we'll create a realistic beat state
+      const originalBeat = createMockBeat(0);
+      
+      // Save it
+      saveBeatHistory([originalBeat]);
+      log(testId, 'Beat saved to history');
+      
+      // Capture the original state as JSON for comparison
+      const originalJson = JSON.stringify(originalBeat);
+      
+      // Load it back
+      const history = loadBeatHistory();
+      const loadedBeat = history[0];
+      const loadedJson = JSON.stringify(loadedBeat);
+      
+      // Compare the entire JSON
+      if (assert(originalJson === loadedJson, 'Loaded beat matches saved beat exactly', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, 'JSON mismatch detected', 'fail');
+      }
+      
+      // Test specific critical fields
+      const criticalFields = [
+        'bpm', 'swing', 'songStyle', 'songKey', 'songFeel',
+        'baseKick', 'baseKickB', 'baseKickChorus', 'baseKickV2',
+        'baseSnareGhostA', 'baseSnareGhostB',
+        'hatPatternType', 'useRide', 'ghostDensity',
+        '_lastChosenKey', '_sectionProgressions'
+      ];
+      
+      for (const field of criticalFields) {
+        const originalValue = JSON.stringify(originalBeat[field]);
+        const loadedValue = JSON.stringify(loadedBeat[field]);
+        
+        if (assert(originalValue === loadedValue, `Field ${field} matches exactly`, testId)) {
+          passed++;
+        } else {
+          failed++;
+          log(testId, `  Original: ${originalValue}`, 'fail');
+          log(testId, `  Loaded: ${loadedValue}`, 'fail');
+        }
+      }
+      
+      // Test patterns object deep equality
+      const originalPatterns = JSON.stringify(originalBeat.patterns);
+      const loadedPatterns = JSON.stringify(loadedBeat.patterns);
+      
+      if (assert(originalPatterns === loadedPatterns, 'Patterns object matches exactly', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test arrangement array
+      const originalArr = JSON.stringify(originalBeat.arrangement);
+      const loadedArr = JSON.stringify(loadedBeat.arrangement);
+      
+      if (assert(originalArr === loadedArr, 'Arrangement array matches exactly', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Save & Restore Exact Match', passed, failed });
+    }
+
+    async function testMultipleCycles() {
+      const testId = 'test8';
+      log(testId, 'Starting test: Multiple Save/Load Cycles');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Create an original beat
+      const originalBeat = createMockBeat(0);
+      const originalJson = JSON.stringify(originalBeat);
+      
+      log(testId, 'Testing 10 save/load cycles...');
+      
+      // Perform 10 save/load cycles
+      let currentBeat = originalBeat;
+      for (let cycle = 1; cycle <= 10; cycle++) {
+        // Save
+        saveBeatHistory([currentBeat]);
+        
+        // Load
+        const history = loadBeatHistory();
+        currentBeat = history[0];
+        
+        // Verify it still matches the original
+        const currentJson = JSON.stringify(currentBeat);
+        if (assert(currentJson === originalJson, `Cycle ${cycle}: Beat still matches original`, testId)) {
+          passed++;
+        } else {
+          failed++;
+          log(testId, `Cycle ${cycle}: Data corruption detected!`, 'fail');
+          break; // Stop if we detect corruption
+        }
+      }
+      
+      log(testId, 'Testing save/load with multiple beats in history...');
+      
+      // Create 5 different beats
+      const beats = [];
+      for (let i = 0; i < 5; i++) {
+        beats.push(createMockBeat(i));
+      }
+      
+      // Save all beats
+      saveBeatHistory(beats);
+      
+      // Load and verify each beat
+      const loadedHistory = loadBeatHistory();
+      
+      for (let i = 0; i < beats.length; i++) {
+        const originalJson = JSON.stringify(beats[i]);
+        const loadedJson = JSON.stringify(loadedHistory[i]);
+        
+        if (assert(originalJson === loadedJson, `Beat ${i + 1} in history matches original`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      log(testId, 'Testing field-by-field comparison after multiple cycles...');
+      
+      // Test that specific fields survive multiple cycles
+      const testBeat = createMockBeat(99);
+      const testFields = {
+        bpm: testBeat.bpm,
+        songKey: testBeat.songKey,
+        songStyle: testBeat.songStyle,
+        baseKick: JSON.stringify(testBeat.baseKick),
+        _lastChosenKey: JSON.stringify(testBeat._lastChosenKey)
+      };
+      
+      // Save and load 5 times
+      let cycledBeat = testBeat;
+      for (let i = 0; i < 5; i++) {
+        saveBeatHistory([cycledBeat]);
+        cycledBeat = loadBeatHistory()[0];
+      }
+      
+      // Verify fields
+      for (const [field, originalValue] of Object.entries(testFields)) {
+        let loadedValue;
+        if (field === 'baseKick' || field === '_lastChosenKey') {
+          loadedValue = JSON.stringify(cycledBeat[field]);
+        } else {
+          loadedValue = cycledBeat[field];
+        }
+        
+        if (assert(originalValue === loadedValue, `Field ${field} survived 5 cycles`, testId)) {
+          passed++;
+        } else {
+          failed++;
+          log(testId, `  Expected: ${originalValue}`, 'fail');
+          log(testId, `  Got: ${loadedValue}`, 'fail');
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Multiple Save/Load Cycles', passed, failed });
+    }
+
     async function runAllTests() {
       testResults = [];
       document.getElementById('summary').innerHTML = 'Running tests...';
@@ -537,6 +735,12 @@
       await new Promise(resolve => setTimeout(resolve, 500));
       
       await testDataIntegrity();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testSaveRestoreMatch();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testMultipleCycles();
       
       // Display summary
       const totalPassed = testResults.reduce((sum, r) => sum + r.passed, 0);
