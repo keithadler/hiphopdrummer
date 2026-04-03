@@ -996,22 +996,22 @@ function getRoleSectionTip(sec, role) {
   }
   if (role === 'keys') {
     var voicing = (feel === 'dilla' || feel === 'jazzy' || feel === 'nujabes') ? '7ths and 9ths' : (feel === 'gfunk') ? 'Min7 voicings' : (feel === 'lofi') ? 'Simple triads, detuned' : isMinor ? 'Minor voicings' : 'Major voicings';
-    if (secType === 'intro') return keyName + '. ' + voicing + '. ' + (hasMove ? chordCtx : 'Sustained I chord') + '.';
+    if (secType === 'intro') return keyName + '. ' + voicing + '. ' + (hasMove ? chordCtx : 'Sustained I chord') + '. Whole notes, let it ring.';
     if (secType === 'verse') {
       var t = chordCtx + '. ' + voicing + '. ';
-      if (feel === 'dilla') t += 'Comp on "and" of 2 and 4. Let notes ring.';
-      else if (feel === 'jazzy' || feel === 'nujabes') t += 'Walking voicings — move the top note.';
-      else if (feel === 'gfunk') t += modeNote + '. Sustained pad.';
-      else if (kickDense) t += 'Stab on beat 1 only — busy kick needs space.';
-      else t += hasFour ? 'Stab on I, lift on IV.' : 'Stab on chord changes.';
+      if (feel === 'dilla') t += 'Comp on "and" of 2 and 4. Let notes ring into the next bar.';
+      else if (feel === 'jazzy' || feel === 'nujabes') t += 'Walking voicings — move the top note. Comp on upbeats (and-of-1, and-of-3).';
+      else if (feel === 'gfunk') t += modeNote + '. Sustained pad, filter sweep on bar 5.';
+      else if (kickDense) t += 'Stab on beat 1 only — ' + kickCount + ' kicks need space. Rest on 2, 3, 4.';
+      else t += hasFour ? 'Stab on beat 1 (I), lift on the IV. Rest between changes.' : 'Stab on beat 1, ghost on the and-of-2 with the snare.';
       return t;
     }
-    if (secType === 'pre') return chordCtx + '. ' + voicing + '. Shorter notes, building.';
-    if (secType === 'chorus') return chordCtx + '. Full voicings. ' + (hasFour ? 'IV lifts energy. ' : '') + 'Layer pad under stab.';
-    if (secType === 'breakdown') return chordCtx + '. One sustained note or silence.';
-    if (secType === 'lastchorus') return chordCtx + '. Counter-melody. Higher register.';
-    if (secType === 'instrumental') return chordCtx + '. ' + (feel === 'jazzy' || feel === 'nujabes' ? 'Solo — improvise.' : 'Feature your sound.');
-    if (secType === 'outro') return 'Sustain ' + keyName + '. Let it decay.';
+    if (secType === 'pre') return chordCtx + '. ' + voicing + '. Eighth-note comping, building to the chorus downbeat.';
+    if (secType === 'chorus') return chordCtx + '. Full voicings, sustained whole notes. ' + (hasFour ? 'IV lifts energy. ' : '') + 'Layer pad under stab.';
+    if (secType === 'breakdown') return chordCtx + '. One sustained note or silence. Let the drums strip down.';
+    if (secType === 'lastchorus') return chordCtx + '. Counter-melody in octave 4-5. Add movement the verse didn\'t have.';
+    if (secType === 'instrumental') return chordCtx + '. ' + (feel === 'jazzy' || feel === 'nujabes' ? 'Solo — improvise over the changes.' : 'Feature your sound. More rhythmic activity than verse.');
+    if (secType === 'outro') return 'Sustain ' + keyName + '. Whole notes, let it decay to silence.';
   }
   if (role === 'bassist') {
     var tone = (feel === 'gfunk') ? 'Moog, long sustain' : (feel === 'memphis' || feel === 'crunk' || feel === 'phonk') ? '808 sub' : (feel === 'jazzy' || feel === 'nujabes') ? 'Upright/finger bass' : (feel === 'lofi') ? 'Muted, compressed' : 'Punchy, short';
