@@ -186,6 +186,8 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 
 MIT — see [LICENSE](LICENSE).
 
+Beats you generate are yours — commercial releases, demos, freestyles, DJ sets, samples, anything. No attribution required, no royalties, no restrictions.
+
 ## Disclaimer
 
 Artist, producer, and track references throughout this tool are for educational purposes only. Hip Hop Drummer is not affiliated with or endorsed by any artist, producer, or label mentioned.
