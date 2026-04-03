@@ -123,32 +123,7 @@ document.getElementById('regenGo').onclick = function() {
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
   
-  // Save the current beat to history BEFORE generating new one
-  if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-    var currentBeatData = captureBeatState();
-    var history = loadBeatHistory();
-    
-    // Check if this beat is already in history (prevent duplicates)
-    var isDuplicate = history.some(function(beat) {
-      return beat.timestamp === currentBeatData.timestamp;
-    });
-    
-    if (!isDuplicate) {
-      history.unshift(currentBeatData);
-      
-      // Trim to max capacity if needed
-      if (history.length > 25) {
-        history = history.slice(0, 25);
-      }
-      
-      saveBeatHistory(history);
-      console.log('Saved beat to history:', currentBeatData.songStyle, 'at', currentBeatData.bpm, 'BPM');
-    } else {
-      console.log('Beat already in history, skipping duplicate');
-    }
-  }
-  
-  // NOW generate the new beat (after saving the old one)
+  // Generate the new beat
   generateAll({ style: style, key: key, bpm: bpm });
   updateMidiPlayer();
   
@@ -159,6 +134,33 @@ document.getElementById('regenGo').onclick = function() {
   var scrollArea = document.querySelector('.scroll-area');
   if (scrollArea) scrollArea.scrollTop = 0;
   else window.scrollTo(0, 0);
+  
+  // Save the newly generated beat to history
+  if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+    var newBeatData = captureBeatState();
+    var history = loadBeatHistory();
+    
+    // Check if this exact beat is already at the top of history (prevent immediate duplicates)
+    var isTopDuplicate = history.length > 0 && 
+                         history[0].bpm === newBeatData.bpm &&
+                         history[0].songStyle === newBeatData.songStyle &&
+                         history[0].songKey === newBeatData.songKey &&
+                         Math.abs(history[0].timestamp - newBeatData.timestamp) < 5000; // Within 5 seconds
+    
+    if (!isTopDuplicate) {
+      history.unshift(newBeatData);
+      
+      // Trim to max capacity if needed
+      if (history.length > 25) {
+        history = history.slice(0, 25);
+      }
+      
+      saveBeatHistory(history);
+      console.log('Saved new beat to history:', newBeatData.songStyle, 'at', newBeatData.bpm, 'BPM in', newBeatData.songKey);
+    } else {
+      console.log('Beat already at top of history, skipping duplicate');
+    }
+  }
 };
 
 /** New Beat button: show the dialog */
