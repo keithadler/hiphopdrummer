@@ -1503,7 +1503,7 @@ function addFill(p, sec, len, feel) {
     // Bounce fill: kick-snare alternation, danceable
     for (var i = start; i < len; i++) {
       if ((i - start) % 2 === 0) p.kick[i] = v(100, 10);
-      else p.snare[i] = v(95 + (i - start) * 5, 8);
+      else p.snare[i] = v(Math.min(120, 95 + (i - start) * 5), 8);
     }
     p.clap[len - 1] = v(110, 10);
     if (isBig) p.crash[len - 1] = v(110, 10);

@@ -75,7 +75,7 @@ function applyGroove(p, len, feel) {
         else p.ride[i] = Math.max(35, p.ride[i]); // even 16ths: neutral
       }
     }
-    // Shaker: continuous shake feel — less swing than hats (0.4-0.5× hat swing)
+    // Shaker: continuous shake feel — follows hat groove (0.9× hat swing)
     // FIX #7: Skip accent curve for shaker — sine wave already provides dynamic shape
     // Stays in a narrow band (35-70%) — it's texture, not a lead voice
     if (p.shaker[i] > 0) {
@@ -166,6 +166,8 @@ function humanizeVelocities(p, len, feel) {
     if (hFeel === 'lofi') instrJitter *= 0.6;
     else if (hFeel === 'dilla' && r === 'kick') instrJitter *= 1.4;
     else if (hFeel === 'dilla' && r === 'ghostkick') instrJitter *= 1.5;
+    else if (hFeel === 'dilla' && (r === 'hat' || r === 'openhat')) instrJitter *= 1.6;
+    else if (hFeel === 'dilla' && (r === 'snare' || r === 'clap')) instrJitter *= 1.3;
     else if (hFeel === 'chopbreak' && r === 'snare') instrJitter *= 0.7;
     else if (hFeel === 'gfunk' && (r === 'hat' || r === 'ride')) instrJitter *= 1.3;
     else if (hFeel === 'gfunk' && r === 'kick') instrJitter *= 0.7;
