@@ -236,6 +236,10 @@ function showPrefsDialog() {
   var followOn = false;
   try { var fp = localStorage.getItem('hhd_follow_playhead'); if (fp !== null) followOn = (fp === 'true'); } catch(e) {}
   document.getElementById('prefsFollowPlayhead').checked = followOn;
+  // Restore show chords preference (default: on)
+  var chordsOn = true;
+  try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp !== 'false'); } catch(e) {}
+  document.getElementById('prefsShowChords').checked = chordsOn;
   document.getElementById('prefsOverlay').style.display = 'flex';
 }
 
@@ -257,6 +261,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
   try { localStorage.setItem('hhd_follow_playhead', followPlayhead ? 'true' : 'false'); } catch(e) {}
+  var showChords = document.getElementById('prefsShowChords').checked;
+  try { localStorage.setItem('hhd_show_chords', showChords ? 'true' : 'false'); } catch(e) {}
   // Apply drum kit and bass via synth bridge
   if (window.synthBridge) {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
@@ -430,7 +436,8 @@ function initPlaybackTracking() {
   var _lastActiveBar = -1;
   var _touchPauseFollow = false;
   var _sectionChords = []; // chord per bar for current section
-  var _chordToastVisible = false; // user touched screen — pause auto-scroll temporarily
+  var _chordToastVisible = false;
+  var _showChordsOverlay = true; // user touched screen — pause auto-scroll temporarily
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -589,7 +596,7 @@ function initPlaybackTracking() {
       var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
       var barCount = Math.ceil((secSteps[curSec] || 32) / 16);
       var toast = document.getElementById('sectionToast');
-      if (toast) {
+      if (toast && _showChordsOverlay) {
         // Build chord list for this section
         buildChordToast(curSec);
         // Build combined HTML: section header + divider + chords
@@ -668,6 +675,7 @@ function initPlaybackTracking() {
         buildSectionTimeMap();
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
+        try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc === null || sc !== 'false'); } catch(e) { _showChordsOverlay = true; }
         _touchPauseFollow = false;
       }
     };
