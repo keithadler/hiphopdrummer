@@ -1042,6 +1042,10 @@ function explainCell(instrument, step, velocity) {
   var pos = step % 16;
   var bar = Math.floor(step / 16) + 1;
   var pct = Math.round(velocity / 127 * 100);
+  // Get velocity display mode preference
+  var velocityMode = 'percent';
+  try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  var velDisplay = velocityMode === 'midi' ? velocity.toString() : pct + '%';
   var beatNames = ['beat 1','e-of-1','&-of-1','ah-of-1','beat 2','e-of-2','&-of-2','ah-of-2','beat 3','e-of-3','&-of-3','ah-of-3','beat 4','e-of-4','&-of-4','ah-of-4'];
   var posName = beatNames[pos] || ('step ' + (pos + 1));
   var stepNum = (pos + 1); // 1-indexed step number as shown in the grid header
@@ -1051,7 +1055,7 @@ function explainCell(instrument, step, velocity) {
       + 'Empty — no hit on this step. The space is intentional. In hip hop drumming, where you DON\'T play is as important as where you do.';
   }
 
-  var lines = '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · Step ' + stepNum + ' (' + posName + ') · ' + pct + '%</span>';
+  var lines = '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · Step ' + stepNum + ' (' + posName + ') · ' + velDisplay + '</span>';
 
   // Instrument + position specific explanations
   if (instrument === 'kick') {
@@ -1060,14 +1064,14 @@ function explainCell(instrument, step, velocity) {
     else if (pos === 8) lines += 'Beat 3 kick — the second strongest downbeat. Reinforces the bar\'s structure.';
     else if (pos === 14 || pos === 15) lines += 'Pickup kick — bridges this bar into the next. Softer than the main kicks because it\'s a transition, not a statement.';
     else if (pos % 2 === 1) lines += 'Off-grid kick — lands between the 8th-note grid. Creates syncopation and forward momentum. Softer than on-beat kicks.';
-    else lines += 'Syncopated kick at ' + pct + '%. Slightly softer than the main downbeats to keep the groove balanced.';
+    else lines += 'Syncopated kick at ' + velDisplay + '. Slightly softer than the main downbeats to keep the groove balanced.';
   }
   else if (instrument === 'snare') {
     if (pos === 4) lines += 'Backbeat on beat 2 — one of the two most important hits in the bar. Beat 4 hits slightly harder because it resolves the bar into the next downbeat.';
     else if (pos === 12) lines += 'Backbeat on beat 4 — the resolution of the bar. Slightly harder than beat 2 because it pulls the listener into the next downbeat.';
-    else if (velocity < 60) lines += 'Ghost snare at ' + pct + '% — a very soft tap between the main backbeats. You feel it more than hear it. Ghost notes are what separate a programmed beat from a played one.';
-    else if (velocity < 85) lines += 'Ghost snare at ' + pct + '% — louder than a whisper, softer than the backbeat. Adds rhythmic texture and groove between the main hits.';
-    else lines += 'Accented snare at ' + pct + '%. Louder than a ghost note — this is a deliberate hit that the listener should hear.';
+    else if (velocity < 60) lines += 'Ghost snare at ' + velDisplay + ' — a very soft tap between the main backbeats. You feel it more than hear it. Ghost notes are what separate a programmed beat from a played one.';
+    else if (velocity < 85) lines += 'Ghost snare at ' + velDisplay + ' — louder than a whisper, softer than the backbeat. Adds rhythmic texture and groove between the main hits.';
+    else lines += 'Accented snare at ' + velDisplay + '. Louder than a ghost note — this is a deliberate hit that the listener should hear.';
     if (pos === 15 && velocity < 85) lines += ' This ghost is on the "ah-of-4" — a pickup into the next bar\'s downbeat, so it gets a slight velocity boost.';
     if ((pos === 3 || pos === 11) && velocity < 50) lines += ' This is a flam — a grace note one step before the backbeat that simulates a drummer\'s stick bouncing.';
   }
@@ -1079,33 +1083,33 @@ function explainCell(instrument, step, velocity) {
   else if (instrument === 'ghostkick') {
     if (pos === 3 || pos === 11) lines += 'Ghost kick before the snare — softer because the foot naturally eases off the pedal before the backbeat hits.';
     else if (pos === 5 || pos === 13) lines += 'Ghost kick after the snare — firmer because the foot rebounds off the pedal after the backbeat.';
-    else lines += 'Ghost kick at ' + pct + '% — a soft pedal tap that adds low-end texture between the main kick hits. Felt, not heard.';
+    else lines += 'Ghost kick at ' + velDisplay + ' — a soft pedal tap that adds low-end texture between the main kick hits. Felt, not heard.';
   }
   else if (instrument === 'hat') {
     if (pos % 4 === 0) lines += 'Quarter-note hat accent — the loudest hat hit in the beat group. The ride hand naturally accents downbeats.';
     else if (pos === 8) lines += 'Beat 3 hat — slightly dipped. Beat 3 is the weakest downbeat in 4/4 time, and the ride hand naturally relaxes here.';
     else if (pos % 2 === 0) lines += '8th-note hat — the "and" position. Softer than the quarter notes to create the accent pattern.';
-    else lines += 'Ghost hat / 16th note at ' + pct + '% — a soft hat tap between the main 8th notes. Adds texture and movement.';
+    else lines += 'Ghost hat / 16th note at ' + velDisplay + ' — a soft hat tap between the main 8th notes. Adds texture and movement.';
   }
   else if (instrument === 'openhat') {
     if (pos === 14) lines += 'Open hat on the "and-of-4" — the B-Boy signature. Creates a breathing, cyclical feel as the bar loops. The closed hat is automatically silenced here (hat choke).';
     else if (pos === 6) lines += 'Open hat on the "and-of-2" — adds variety and expression. Not every bar has this — it moves around across the 8-bar phrase.';
-    else lines += 'Open hat at ' + pct + '%. When this plays, the closed hat is automatically removed (choke group).';
+    else lines += 'Open hat at ' + velDisplay + '. When this plays, the closed hat is automatically removed (choke group).';
   }
   else if (instrument === 'ride') {
     if (pos % 4 === 0) lines += 'Ride cymbal on the quarter note — the primary timekeeping hit. Adds a shimmery, sustained tone above the hi-hat.';
-    else lines += 'Ride ghost tap at ' + pct + '% — a soft ping between the quarter notes. Common in jazz-influenced hip hop (Tribe, Pete Rock).';
+    else lines += 'Ride ghost tap at ' + velDisplay + ' — a soft ping between the quarter notes. Common in jazz-influenced hip hop (Tribe, Pete Rock).';
   }
   else if (instrument === 'rimshot') {
-    lines += 'Rimshot/sidestick at ' + pct + '% — a thin, clicky sound on an off-beat position. Adds tonal variety between the full snare hits. Rimshots are the most variable element — they shift position across bars.';
+    lines += 'Rimshot/sidestick at ' + velDisplay + ' — a thin, clicky sound on an off-beat position. Adds tonal variety between the full snare hits. Rimshots are the most variable element — they shift position across bars.';
   }
   else if (instrument === 'crash') {
     lines += 'Crash cymbal — marks a section boundary. Tells the listener "something new is starting." Placed on beat 1 of the first bar of a new section.';
   }
   else if (instrument === 'shaker') {
     if (pos % 4 === 2) lines += 'Shaker on the "and" — upbeat shimmer above the hi-hat. Sampled from soul records by producers like Pete Rock, Large Professor, and Buckwild. The shaker should be felt, not heard — keep it under 55%.';
-    else if (pos % 2 === 1) lines += 'Shaker on a 16th-note position at ' + pct + '% — the softest layer of high-frequency texture. Adds organic movement without competing with the hat.';
-    else lines += 'Shaker at ' + pct + '% — high-frequency shimmer layered above the hi-hat. The "secret ingredient" in a lot of golden era boom bap. If you can clearly hear it as a separate element, it\'s too loud.';
+    else if (pos % 2 === 1) lines += 'Shaker on a 16th-note position at ' + velDisplay + ' — the softest layer of high-frequency texture. Adds organic movement without competing with the hat.';
+    else lines += 'Shaker at ' + velDisplay + ' — high-frequency shimmer layered above the hi-hat. The "secret ingredient" in a lot of golden era boom bap. If you can clearly hear it as a separate element, it\'s too loud.';
     if (pct <= 35) lines += ' This hit is barely audible — it\'s texture, not rhythm. Your ear registers it as "warmth" rather than a distinct sound.';
     else if (pct >= 55) lines += ' This is on the louder side for a shaker — it\'s adding rhythmic energy, not just texture.';
   }
