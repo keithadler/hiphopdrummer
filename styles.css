@@ -225,10 +225,10 @@ midi-player::part(play-button){color:var(--accent-green)}
 @media (max-width: 1024px) {
   body{overflow:auto;font-size:17px}
   #app-wrap{height:auto;min-height:100vh}
+  .header-bar{position:sticky;top:0;z-index:100;flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
   #aboutBeatPanel{position:static;max-height:none}
-  .header-bar{flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
   .controls-bar{flex-wrap:wrap;gap:6px}
