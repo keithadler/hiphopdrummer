@@ -465,16 +465,6 @@ function generateBassPattern(sec, bpm) {
   }
   var sectionAllowsOctaveDrop = _sectionOctaveDrops[sec];
 
-  /**
-   * Get the chord root for a given bar position in the phrase.
-   * Uses the progression table. Deterministic (no maybe()).
-   */
-  function chordRootForBar(barInPhrase) {
-    if (isIntroOutro) return rootNote;
-    var deg = progression[barInPhrase % progression.length];
-    return degreeToNote(deg);
-  }
-
   for (var barIdx = 0; barIdx < totalBars; barIdx++) {
     var barStart = barIdx * 16;
     var barEnd = Math.min(barStart + 16, len);

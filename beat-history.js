@@ -11,25 +11,6 @@
 var MAX_HISTORY_SLOTS = 100;
 
 /**
- * Save current beat to history.
- * Automatically keeps the last 100 beats, dropping the oldest when full.
- */
-function saveBeatToHistory(callback) {
-  var beatData = captureBeatState();
-  var history = loadBeatHistory();
-  
-  // Add new beat to the front
-  history.unshift(beatData);
-  
-  // Trim to max capacity (keep only the most recent 100)
-  if (history.length > MAX_HISTORY_SLOTS) {
-    history = history.slice(0, MAX_HISTORY_SLOTS);
-  }
-  
-  saveBeatHistory(history);
-  if (callback) callback();
-}
-
 /**
  * Capture complete beat state for saving.
  */
@@ -182,51 +163,6 @@ function loadLastBeat() {
   if (history.length > 0) {
     restoreBeatState(history[0]);
   }
-}
-
-/**
- * Show dialog to choose which slot to replace when history is full.
- */
-function showSlotReplacementDialog(newBeatData, callback) {
-  var overlay = document.getElementById('slotReplacementOverlay');
-  if (!overlay) return;
-  
-  var history = loadBeatHistory();
-  var slotsContainer = document.getElementById('slotReplacementSlots');
-  
-  slotsContainer.innerHTML = history.map(function(beat, idx) {
-    var date = new Date(beat.timestamp);
-    var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-    return '<div class="slot-item" data-idx="' + idx + '">'
-      + '<div class="slot-header">'
-      + '<span class="slot-number">Slot ' + (idx + 1) + '</span>'
-      + '<span class="slot-date">' + dateStr + '</span>'
-      + '</div>'
-      + '<div class="slot-info">'
-      + '<span class="slot-style">' + beat.songStyle + '</span>'
-      + '<span class="slot-key">' + beat.songKey + '</span>'
-      + '<span class="slot-bpm">' + beat.bpm + ' BPM</span>'
-      + '<span class="slot-swing">' + beat.swing + '% swing</span>'
-      + '</div>'
-      + '</div>';
-  }).join('');
-  
-  // Wire click handlers with both click and touch events for mobile
-  slotsContainer.querySelectorAll('.slot-item').forEach(function(item) {
-    var handler = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var idx = parseInt(item.dataset.idx);
-      history[idx] = newBeatData;
-      saveBeatHistory(history);
-      overlay.style.display = 'none';
-      if (callback) callback();
-    };
-    item.onclick = handler;
-    item.ontouchend = handler;
-  });
-  
-  overlay.style.display = 'flex';
 }
 
 /**
