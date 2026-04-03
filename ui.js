@@ -843,7 +843,10 @@ function buildChordSheet() {
         else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
       }
     }
-    // Store per-bar chord data for the playback overlay
+    // Store per-bar chord data for the playback overlay (include piano HTML)
+    for (var ac = 0; ac < allChords.length; ac++) {
+      allChords[ac].pianoHtml = renderPiano(allChords[ac].name);
+    }
     window._chordSheetData[sec] = allChords;
     var chordGroups = [];
     for (var c = 0; c < allChords.length; c++) {
