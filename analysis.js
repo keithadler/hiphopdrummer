@@ -70,7 +70,7 @@ function analyzeBeat() {
     dilla: 'J Dilla "Donuts," Slum Village "Fantastic Vol. 2," Madlib "Madvillainy." Kick avoids the grid, ghost notes everywhere, heavy loose swing. Everything feels behind the beat — deliberately. The feel that changed hip hop production forever.',
     lofi: 'Madlib\'s Beat Konducta, Knxwledge, Roc Marciano, early MF DOOM. Narrow velocity band — no hit too loud, no hit too soft. Like the beat is playing through a dusty SP-404 with the gain turned down.',
     chopbreak: 'DJ Premier "Mass Appeal," Havoc, Alchemist, Large Professor. Kick and snare placements mirror real funk/soul break phrasing (Funky Drummer, Impeach the President, Apache). Dense ghost snares, busy kick, hard-riding hat.',
-    gfunk: 'Dr. Dre "The Chronic," DJ Quik, Warren G "Regulate," Snoop Dogg "Gin and Juice." 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare. Smooth and hypnotic.',
+    gfunk: 'Dr. Dre "The Chronic," DJ Quik, Warren G "Regulate," Snoop Dogg "Gin and Juice," Too Short "Blow the Whistle." 16th note hats with wide dynamics, kick on 1 and 3, laid-back snare. Smooth and hypnotic.',
     crunk: 'Lil Jon "Get Low," Ying Yang Twins, Three 6 Mafia "Tear Da Club Up." Fast, nearly straight, maximum velocity on everything. No subtlety, no ghost notes — just raw energy.',
     memphis: 'Three 6 Mafia, DJ Paul, Juicy J, early Gangsta Boo. Slow, minimal swing, sparse kick, dark and sinister. Skeletal drums. The sound that influenced trap before trap existed.',
     griselda: 'Modern boom bap revival — Daringer, Beat Butcha, Conductor Williams. Sparse kick patterns with wide dynamics, hard snare crack with modern compression, minimal ghost notes. Sample-heavy with vinyl texture. The drums are punchy and direct — every hit is a statement. Westside Gunn, Conway the Machine, Benny the Butcher.',
@@ -244,7 +244,8 @@ function analyzeBeat() {
       { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'G7', v: 'Am7', ii: 'Em7b5', bII: 'Eb7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'West Coast smooth. Dorian — the IV is G7 (major). Warren G "Regulate" energy. Synth bass and Rhodes over Dorian changes.' },
       { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'F7', v: 'Gm7', ii: 'Dm7b5', bII: 'Db7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Deeper G-Funk. Dorian — the IV is F7 (major). DJ Quik territory. The Dorian color gives it warmth even in a minor key.' },
       { root: 'Am7', type: 'minor', i: 'Am7', iv: 'D7', v: 'Em7', ii: 'Bm7b5', bII: 'Bb7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Lighter West Coast. Dorian — the IV is D7 (major). Snoop Dogg "Gin and Juice" energy. The major IV lifts the groove.' },
-      { root: 'Fm7', type: 'minor', i: 'Fm7', iv: 'Bb7', v: 'Cm7', ii: 'Gm7b5', bII: 'Gb7', rel: 'Ab major', relNote: 'Abmaj7, Ebmaj7, Dbmaj7', context: 'Dark G-Funk. Dorian — the IV is Bb7 (major). Heavier, more cinematic West Coast quality.' }
+      { root: 'Fm7', type: 'minor', i: 'Fm7', iv: 'Bb7', v: 'Cm7', ii: 'Gm7b5', bII: 'Gb7', rel: 'Ab major', relNote: 'Abmaj7, Ebmaj7, Dbmaj7', context: 'Dark G-Funk. Dorian — the IV is Bb7 (major). Heavier, more cinematic West Coast quality.' },
+      { root: 'Em7', type: 'minor', i: 'Em7', iv: 'A7', v: 'Bm7', ii: 'F#m7b5', bII: 'F7', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Tight and funky. Dorian — the IV is A7 (major). DJ Quik "Tonite" energy. Too Short\'s Oakland funk lives here.' }
     ]},
     crunk: { keys: [
       { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Crunk energy in Am. Simple, aggressive, and effective. Lil Jon "Get Low" territory.' },
@@ -539,7 +540,7 @@ function analyzeBeat() {
     driving: ['DJ Premier — "Full Clip" (Gangstarr)', 'EPMD — "Crossover"', 'Erick Sermon — "React"', 'Redman — "Whateva Man"'],
     big: ['DJ Premier — "Kick in the Door" (Notorious B.I.G.)', 'Pete Rock — "The World Is Yours" (Nas)', 'Easy Mo Bee — "Ready to Die" (Notorious B.I.G.)', 'DJ Premier — "Mass Appeal" (Gangstarr)'],
     sparse: ['RZA — "Wu-Tang Clan Ain\'t Nuthing ta F\' Wit"', 'Alchemist — "Albert Einstein"', 'RZA — "Tearz" (Wu-Tang Clan)', 'Daringer — "Shawn vs. Ironman" (Westside Gunn)'],
-    gfunk: ['Dr. Dre — "Nuthin\' But a G Thang" (Snoop Dogg)', 'Warren G — "Regulate"', 'DJ Quik — "Tonite"', 'Dr. Dre — "Let Me Ride"'],
+    gfunk: ['Dr. Dre — "Nuthin\' But a G Thang" (Snoop Dogg)', 'Warren G — "Regulate"', 'DJ Quik — "Tonite"', 'Too Short — "Blow the Whistle"'],
     crunk: ['Lil Jon & The East Side Boyz — "Get Low"', 'Ying Yang Twins — "Whistle While You Twurk"', 'Three 6 Mafia — "Tear Da Club Up \'97"', 'Trillville — "Some Cut"'],
     memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"'],
     griselda: ['Daringer — "George Bondo" (Westside Gunn)', 'Beat Butcha — "Shawn vs. Ironman" (Westside Gunn)', 'Conductor Williams — "Pray for Paris" (Westside Gunn)', 'Daringer — "Tito\'s Back" (Conway the Machine)'],
