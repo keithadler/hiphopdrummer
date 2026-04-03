@@ -660,28 +660,34 @@ function generateBassPattern(sec, bpm) {
         noteVel = v(style.velBase - 10, style.velRange);
       }
 
-      // FIX #5: Walk-up over 2-4 steps (steps 11-15), not just step 15
-      if (pos >= 11 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
+      // FIX #1 (Round 10): Walk-up starts earlier (steps 9-15) for better momentum
+      if (pos >= 9 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
         var nextBar = Math.floor((step + (16 - pos)) / 16) % 4;
         var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
-          // Diatonic walk: 11→12→13→14→15 walks up scale degrees
-          if (pos === 11) { midiNote = currentRoot; }
-          else if (pos === 12) { midiNote = currentRoot + 2; }
-          else if (pos === 13) { midiNote = currentRoot + 3; }
+          // Diatonic walk: 9→10→11→12→13→14→15 walks up scale degrees
+          if (pos === 9) { midiNote = currentRoot - 2; }
+          else if (pos === 10) { midiNote = currentRoot; }
+          else if (pos === 11) { midiNote = currentRoot + 2; }
+          else if (pos === 12) { midiNote = currentRoot + 3; }
+          else if (pos === 13) { midiNote = currentRoot + 5; }
           else if (pos === 14) { midiNote = currentRoot + 7; }
           else if (pos === 15) { midiNote = nextRoot - 1; }
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
-        } else if (pos >= 13) {
-          // Chromatic walk: 13→14→15 walks chromatically to next root
+        } else if (pos >= 11) {
+          // Chromatic walk: 11→12→13→14→15 walks chromatically to next root
           if (style.walkDirection === 'above' || (style.walkDirection === 'both' && maybe(0.5))) {
-            if (pos === 13) midiNote = nextRoot - 3;
+            if (pos === 11) midiNote = nextRoot - 5;
+            else if (pos === 12) midiNote = nextRoot - 4;
+            else if (pos === 13) midiNote = nextRoot - 3;
             else if (pos === 14) midiNote = nextRoot - 2;
             else if (pos === 15) midiNote = nextRoot - 1;
           } else {
-            if (pos === 13) midiNote = nextRoot - 3;
+            if (pos === 11) midiNote = nextRoot - 5;
+            else if (pos === 12) midiNote = nextRoot - 4;
+            else if (pos === 13) midiNote = nextRoot - 3;
             else if (pos === 14) midiNote = nextRoot - 2;
             else if (pos === 15) midiNote = nextRoot - 1;
           }
@@ -898,18 +904,22 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
     var ctx = stepCtx[s];
 
     // ── Snare deference: drop or soften bass on loud backbeats ──
-    // FIX #6: Only boost on BACKBEAT snares (beats 2 and 4), not ghost snares
-    // Real bassists emphasize the backbeat, not every ghost snare
+    // FIX #5 (Round 10): Backbeat boost reduced from +12 to +6, only when snare > 110
+    // Real bassists play WITH the snare, not OVER it
     var isBackbeat = (ctx.hasSnare && (s % 16 === 4 || s % 16 === 12));
     if (isBackbeat && !evt.dead) {
-      // 70% chance to boost velocity on backbeat — lock with the snare
-      if (maybe(0.7)) {
-        evt.vel = Math.min(127, evt.vel + 12);
-        evt.dur = Math.max(evt.dur, 0.5); // longer sustain on backbeat
-      }
-      // Only 5% chance to drop (climactic hits only)
-      else if (maybe(0.05)) {
-        continue;
+      // Check snare velocity - only boost if snare is loud enough
+      var snareVel = drumPat.snare[s] || 0;
+      if (snareVel > 110) {
+        // 70% chance to boost velocity on backbeat — lock with the snare
+        if (maybe(0.7)) {
+          evt.vel = Math.min(127, evt.vel + 6); // reduced from +12 to +6
+          evt.dur = Math.max(evt.dur, 0.5); // longer sustain on backbeat
+        }
+        // Only 5% chance to drop (climactic hits only)
+        else if (maybe(0.05)) {
+          continue;
+        }
       }
     }
 
