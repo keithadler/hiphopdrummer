@@ -1,6 +1,6 @@
 # 🥁 Hip Hop Drummer
 
-Learn hip hop drum programming by generating and studying authentic patterns — from old school 808s to modern boom bap, G-Funk, and beyond.
+Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 19 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Learn, produce, rap over it, scratch over it, or jam along.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -62,7 +62,7 @@ Every generation is different. Every generation teaches something. The patterns 
 
 ## What It Does
 
-Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, and BPM — or leave everything on Auto for a fully random beat. You get a complete hip hop drum arrangement — verse, chorus, breakdown, the works — with velocity dynamics, ghost notes, fills, and swing that sound like a real drummer played it. Every beat comes with a detailed breakdown explaining the techniques, producer references, and tips so you learn while you listen.
+Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated from scratch — not pulled from a library, not assembled from presets. The generator picks from 218 kick patterns, selects a chord progression, chooses a player touch profile, builds the bass line note by note from the kick pattern and chord changes, applies style-specific fills and transitions, and assembles a full song structure with a dynamic energy arc. Every parameter is randomized within musically authentic ranges, so every generation sounds different but always sounds right. You get drums, bass, fills, breakdowns, transitions, and a detailed breakdown explaining the techniques behind every decision.
 
 ## Highlights
 
@@ -73,7 +73,7 @@ Hit **NEW BEAT** to open a dialog where you can optionally pick a style, key, an
 - **Style-specific chord progressions** — each style has 3-5 authentic progression patterns. Jazzy/nujabes use ii-V turnarounds. Dilla sits on one chord or loops a 2-bar pattern. G-Funk moves through i-iv-v-iv. Dark styles use Phrygian bII movement.
 - **Modal harmony** — G-Funk, Dilla, and Nujabes use Dorian mode (major IV chord instead of minor). Dark, Griselda, Memphis, and Phonk use Phrygian bII (sinister half-step tension). Chord recommendations explain the mode and why it matters.
 - **Regional sub-styles** — Boom Bap Bronx (Premier's tight, minimal, fewer ghosts) vs Queens (Large Pro's jazzy, ride cymbal, wider dynamics) vs Long Island (De La's playful, loose, more swing). G-Funk Dre (polished, controlled) vs DJ Quik (raw funk, busier kick) vs Battlecat (heavy bounce, deep swing). Each variant modifies ghost density, swing bias, hat type, and dynamics.
-- **Bass line generator** — 19 style-matched bass patterns that lock to the kick drum and follow the key. Boom bap gets punchy bass guitar, G-Funk gets Moog-style slides, crunk/memphis get 808 sub with velocity compression, jazz gets walking bass with diatonic fills. Section-ending bass fills complement drum fills per style. Breakdown thinning, chorus re-entry hits, turnaround figures, and pre-chorus builds.
+- **Bass line generator** — every beat includes a uniquely generated bass line that locks to the kick drum, follows style-specific chord progressions, and reacts to the drums in real time. Boom bap gets punchy bass guitar with dead notes and hammer-ons. G-Funk gets Moog-style slides between pitches. Crunk/Memphis get 808 sub with velocity compression and sub swell. Jazz gets walking bass with diatonic fills. The bass drops out on loud snare backbeats, fills gaps when the kick is sparse, simplifies when hats are busy, and builds its own section-ending fills, breakdown thinning, turnaround figures, and chorus re-entry hits — all generated fresh every time.
 - **6 GM bass sounds** — Electric Bass (Finger/Pick), Fretless, Slap, Synth Bass 1/2. Selectable in Preferences.
 - **WAV audio export** — render the beat (drums + bass) to a WAV file. Download button next to play controls, plus checkbox in the export dialog.
 - **Chord sheet** — visual piano keyboard diagrams for each section's chord progression. Feel-aware voicings (triads for boom bap, 9ths for Dilla, min7 for G-Funk). Collapsible section in About This Beat.
