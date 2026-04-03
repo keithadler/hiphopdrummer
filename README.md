@@ -1,6 +1,6 @@
 # 🥁 Hip Hop Drummer
 
-Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 19 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Learn, produce, rap over it, scratch over it, or jam along.
+Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Learn, produce, rap over it, scratch over it, or jam along.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -31,6 +31,8 @@ This isn't a random pattern generator. Every line of code in the generation engi
 The drum engine alone models over 60 distinct behaviors per style: kick placement libraries curated from real records, ghost note clustering that mimics a drummer's stick control, accent curves that shape dynamics the way a real ride hand does, hat patterns with 3-level velocity dynamics (G-Funk's signature), pocket-delayed snares that land behind the beat (Dilla's trademark), and fill types that match each era's aesthetic — from a single snare hit (Memphis minimalism) to dense flam rolls (chopped break fills).
 
 The bass engine adds another layer. It doesn't just follow the root note — it models how a real bassist interacts with a drummer. The bass locks to the kick pattern, uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches with Moog-style glissando for G-Funk, drops to sub octaves on beat 1 for 808 styles, and breathes with intentional rests on weak beats. It even generates 2-bar motifs and repeats them with mutations — the way a session player develops a part over a song. Section-ending bass fills complement the drum fills: jazzy styles get walking diatonic runs, Dilla gets soft chromatic dissolves, 808 styles drop out and let the sub tail ring, boom bap gets chromatic walk-ups into the next section.
+
+The bass generator is tempo-aware. At slow tempos (68-78 BPM), bass lines get busier with more ghost notes and longer sustains — Memphis and Phonk styles breathe with expressive movement. At fast tempos (98-110 BPM), patterns simplify and tighten — Old School and Driving styles stay punchy without cluttering the groove. Note durations, density, and ghost note probability all scale with BPM, so every beat feels right for its tempo.
 
 Every parameter is tuned to the style. Dilla's bass sits 3 ticks behind the beat with per-note timing jitter. Lo-fi bass gets velocity compression that squashes dynamics into a narrow band, simulating tape saturation. Breakdown sections thin the bass in parallel with the drums — full pattern in bar 1, sparse in bar 2, sustained root only by bar 3. Chorus entries slam a hard octave-drop root on beat 1. Turnaround figures at bar 7 of 8-bar phrases signal the cycle with root→5th→octave licks or chromatic walks.
 
@@ -66,7 +68,7 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
 
 ## Highlights
 
-- **19 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx (Premier), Boom Bap Queens (Large Pro), Boom Bap Long Island (De La), G-Funk Dre, G-Funk DJ Quik, G-Funk Battlecat
+- **25 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx (Premier), Boom Bap Queens (Large Pro), Boom Bap Long Island (De La), G-Funk Dre, G-Funk DJ Quik, G-Funk Battlecat
 - **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), replacing Magenta/Tone.js. Custom play/pause/stop/seek controls.
 - **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra. Selectable in Preferences.
 - **Per-instrument swing** — hats, kick, ghost snares, backbeat, and bass each swing by different amounts per style. Dilla's hats swing 30% harder than the base while his kick stays 40% straighter. Crunk and old school are nearly mechanical across all instruments. Crashes always land on the grid.
