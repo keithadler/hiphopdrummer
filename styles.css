@@ -325,22 +325,22 @@ midi-player::part(play-button){color:var(--accent-green)}
     height:36px;
     margin-left:0;
   }
-  /* Preferences on right */
+  /* HISTORY on right */
+  .btn-history{
+    justify-content:center;
+    font-size:12px;
+    height:36px;
+  }
+  /* Preferences takes full width */
   .btn-prefs{
     font-size:12px;
     height:36px;
     padding:0 12px;
     justify-content:center;
+    grid-column:1 / -1;
   }
   .btn-prefs .prefs-icon{display:none}
   .btn-prefs .prefs-text{display:inline}
-  /* HISTORY takes full width */
-  .btn-history{
-    justify-content:center;
-    font-size:12px;
-    height:36px;
-    grid-column:1 / -1;
-  }
   /* Style text: no truncation */
   .ctrl-input-wide{
     max-width:none;
