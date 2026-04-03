@@ -123,31 +123,41 @@ document.getElementById('regenGo').onclick = function() {
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
   
-  // Save current beat to history before generating new one
-  if (typeof saveBeatToHistory === 'function') {
-    saveBeatToHistory(function() {
-      // After save (or slot selection), generate new beat
-      generateAll({ style: style, key: key, bpm: bpm });
-      updateMidiPlayer();
-      // Rebuild chord sheet after MIDI build so it picks up bass progressions
-      if (typeof buildChordSheet === 'function') buildChordSheet();
-      // Scroll to top of the page so the user sees the new beat
-      var scrollArea = document.querySelector('.scroll-area');
-      if (scrollArea) scrollArea.scrollTop = 0;
-      else window.scrollTo(0, 0);
-      
-      // Note: The newly generated beat will be auto-saved on next generation
-      // or when the page is closed. We don't save it immediately to avoid
-      // double-saving the same beat.
+  // Capture the current beat state BEFORE generating new one
+  var oldBeatData = null;
+  if (typeof captureBeatState === 'function') {
+    oldBeatData = captureBeatState();
+  }
+  
+  // Generate new beat
+  generateAll({ style: style, key: key, bpm: bpm });
+  updateMidiPlayer();
+  // Rebuild chord sheet after MIDI build so it picks up bass progressions
+  if (typeof buildChordSheet === 'function') buildChordSheet();
+  // Scroll to top of the page so the user sees the new beat
+  var scrollArea = document.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
+  else window.scrollTo(0, 0);
+  
+  // Save the OLD beat to history (after generation is complete)
+  if (oldBeatData && typeof saveBeatHistory === 'function') {
+    var history = loadBeatHistory();
+    
+    // Check if this beat is already in history (prevent duplicates)
+    var isDuplicate = history.some(function(beat) {
+      return beat.timestamp === oldBeatData.timestamp;
     });
-  } else {
-    // Fallback if history not loaded
-    generateAll({ style: style, key: key, bpm: bpm });
-    updateMidiPlayer();
-    if (typeof buildChordSheet === 'function') buildChordSheet();
-    var scrollArea = document.querySelector('.scroll-area');
-    if (scrollArea) scrollArea.scrollTop = 0;
-    else window.scrollTo(0, 0);
+    
+    if (!isDuplicate) {
+      history.unshift(oldBeatData);
+      
+      // Trim to max capacity if needed
+      if (history.length > 25) {
+        history = history.slice(0, 25);
+      }
+      
+      saveBeatHistory(history);
+    }
   }
 };
 
