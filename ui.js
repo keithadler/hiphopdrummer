@@ -860,6 +860,11 @@ function buildChordSheet() {
       }
     }
 
+    // Check if user role wants guitar chords instead of piano
+    var chordSheetRole = '';
+    try { chordSheetRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+    var useGuitar = (chordSheetRole === 'guitarist' || chordSheetRole === 'bassist') && (typeof renderGuitarChord === 'function');
+
     html += '<div class="chord-sheet-row">';
     html += '<div class="chord-sheet-section">' + (SL[sec] || sec) + '</div>';
     html += '<div class="chord-sheet-bars">';
@@ -867,7 +872,11 @@ function buildChordSheet() {
       var barLabel = chordGroups[c].bars > 1 ? chordGroups[c].bars + ' bars' : '1 bar';
       html += '<div class="chord-bar ' + chordGroups[c].cls + '">';
       html += '<div class="chord-bar-header"><span class="chord-bar-name">' + chordGroups[c].name + '</span><span class="chord-bar-function">' + chordGroups[c].fn + ' · ' + barLabel + '</span></div>';
-      html += renderPiano(chordGroups[c].name);
+      if (useGuitar) {
+        html += renderGuitarChord(chordGroups[c].name);
+      } else {
+        html += renderPiano(chordGroups[c].name);
+      }
       html += '</div>';
     }
     html += '</div></div>';
