@@ -214,16 +214,16 @@ var BASS_STYLES = {
 var CHORD_PROGRESSIONS = {
   // Boom bap: mostly stays on root, occasional IV, bVI lift on bar 4
   normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv'], ['i','iv','i','bVI']],
-  // Hard: stays on root — occasional bVI for tension
-  hard:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','v'], ['i','i','bVI','i']],
+  // Hard: stays on root — occasional bVI for tension, always some movement
+  hard:      [['i','i','iv','i'], ['i','i','i','v'], ['i','i','bVI','i'], ['i','iv','i','i']],
   // Jazzy: ii-V movement, neo-soul turnarounds with bIII and bVI
   jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
   // Dark: Phrygian bII, Andalusian cadence (i-bVII-bVI-V)
   dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i'], ['i','bVII','bVI','v']],
   // Bounce: Soul Loop (I-bVII-IV-I), danceable movement
   bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','bVII','iv','i'], ['i','iv','iv','v']],
-  // Halftime: Andalusian cadence, root-heavy
-  halftime:  [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','bVI','v']],
+  // Halftime: Andalusian cadence, root-heavy but always some movement
+  halftime:  [['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','bVI','v'], ['i','iv','i','v']],
   // Dilla: one chord or 2-bar loops, occasional bVII warmth
   dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','i','iv']],
   // Lo-fi: sample-based, simple loops, occasional bVII
@@ -243,7 +243,7 @@ var CHORD_PROGRESSIONS = {
   // Nujabes: jazz-influenced, ii-V, neo-soul with bIII
   nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
   // Old school: simple, drum-machine era — root and IV, occasional bVII
-  oldschool: [['i','i','iv','i'], ['i','i','i','i'], ['i','i','iv','iv'], ['i','bVII','i','i']],
+  oldschool: [['i','i','iv','i'], ['i','i','iv','iv'], ['i','bVII','i','i'], ['i','iv','i','iv']],
   // Sparse: minimal, stays on root
   sparse:    [['i','i','i','i'], ['i','i','iv','i']],
   // Driving: forward momentum, bVII push
