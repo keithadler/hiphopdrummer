@@ -142,30 +142,30 @@
     <div class="regen-dialog">
       <div class="regen-title">New Beat</div>
       <div class="regen-subtitle">All fields are optional — leave any on Auto for a random choice.</div>
-
-      <div class="regen-fields">
-        <div class="regen-field">
-          <label class="regen-label">Style</label>
-          <select id="regenStyle" class="regen-select">
-            <option value="">Auto</option>
-          </select>
-          <div id="regenArtists" class="regen-artists"></div>
-        </div>
-        <div class="regen-field">
-          <label class="regen-label">Key</label>
-          <select id="regenKey" class="regen-select">
-            <option value="">Auto</option>
-          </select>
-          <div id="regenKeyMood" class="regen-artists"></div>
-        </div>
-        <div class="regen-field">
-          <label class="regen-label">BPM</label>
-          <select id="regenBpm" class="regen-select">
-            <option value="">Auto</option>
-          </select>
+      <div class="regen-dialog-body">
+        <div class="regen-fields">
+          <div class="regen-field">
+            <label class="regen-label">Style</label>
+            <select id="regenStyle" class="regen-select">
+              <option value="">Auto</option>
+            </select>
+            <div id="regenArtists" class="regen-artists"></div>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">Key</label>
+            <select id="regenKey" class="regen-select">
+              <option value="">Auto</option>
+            </select>
+            <div id="regenKeyMood" class="regen-artists"></div>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">BPM</label>
+            <select id="regenBpm" class="regen-select">
+              <option value="">Auto</option>
+            </select>
+          </div>
         </div>
       </div>
-
       <div class="regen-actions">
         <button class="btn regen-cancel" id="regenCancel">Cancel</button>
         <button class="btn regen-go btn-gen" id="regenGo">Generate</button>
@@ -177,54 +177,49 @@
   <div id="exportOverlay" class="regen-overlay" style="display:none">
     <div class="regen-dialog export-dialog">
       <div class="regen-title">Export</div>
-
-      <div class="regen-fields">
-
-        <div class="regen-field">
-          <label class="regen-label">MIDI Files</label>
-          <div class="export-checks">
-            <label class="export-check"><input type="checkbox" id="expFullSong" checked> Full song .mid (all sections)</label>
-            <label class="export-check"><input type="checkbox" id="expSections" checked> Individual section .mid files</label>
-            <label class="export-check"><input type="checkbox" id="expSwing" checked> Bake swing into MIDI timing</label>
-            <label class="export-check"><input type="checkbox" id="expMpc" checked> Akai MPC .mpcpattern files <span class="export-note">(always straight grid — no swing)</span></label>
+      <div class="regen-dialog-body">
+        <div class="regen-fields">
+          <div class="regen-field">
+            <label class="regen-label">MIDI Files</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expFullSong" checked> Full song .mid (all sections)</label>
+              <label class="export-check"><input type="checkbox" id="expSections" checked> Individual section .mid files</label>
+              <label class="export-check"><input type="checkbox" id="expSwing" checked> Bake swing into MIDI timing</label>
+              <label class="export-check"><input type="checkbox" id="expMpc" checked> Akai MPC .mpcpattern files <span class="export-note">(always straight grid — no swing)</span></label>
+            </div>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">Bass Line</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expBassMidi" checked> Bass .mid files <span class="export-note">(MIDI ch 1, locks to kick pattern)</span></label>
+              <label class="export-check"><input type="checkbox" id="expBassMpc" checked> Bass .mpcpattern files <span class="export-note">(for Keygroup/Plugin track)</span></label>
+            </div>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">DAW Help Files</label>
+            <div class="export-checks export-daws">
+              <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="logic" checked> Logic Pro</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="fl" checked> FL Studio</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="garageband" checked> GarageBand</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="protools" checked> Pro Tools</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="reason" checked> Reason</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="reaper" checked> Reaper</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="studioone" checked> Studio One</label>
+              <label class="export-check"><input type="checkbox" class="daw-check" value="maschine" checked> Maschine</label>
+            </div>
+            <button class="export-toggle" id="exportDawToggle">Deselect all</button>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">Other</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
+              <label class="export-check"><input type="checkbox" id="expChordSheet" checked> Chord sheet PDF <span class="export-note">(piano diagrams for keys/bass players)</span></label>
+              <label class="export-check"><input type="checkbox" id="expWav" checked> WAV audio file <span class="export-note">(rendered beat — drums + bass)</span></label>
+            </div>
           </div>
         </div>
-
-        <div class="regen-field">
-          <label class="regen-label">Bass Line</label>
-          <div class="export-checks">
-            <label class="export-check"><input type="checkbox" id="expBassMidi" checked> Bass .mid files <span class="export-note">(MIDI ch 1, locks to kick pattern)</span></label>
-            <label class="export-check"><input type="checkbox" id="expBassMpc" checked> Bass .mpcpattern files <span class="export-note">(for Keygroup/Plugin track)</span></label>
-          </div>
-        </div>
-
-        <div class="regen-field">
-          <label class="regen-label">DAW Help Files</label>
-          <div class="export-checks export-daws">
-            <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="logic" checked> Logic Pro</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="fl" checked> FL Studio</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="garageband" checked> GarageBand</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="protools" checked> Pro Tools</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="reason" checked> Reason</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="reaper" checked> Reaper</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="studioone" checked> Studio One</label>
-            <label class="export-check"><input type="checkbox" class="daw-check" value="maschine" checked> Maschine</label>
-          </div>
-          <button class="export-toggle" id="exportDawToggle">Deselect all</button>
-        </div>
-
-        <div class="regen-field">
-          <label class="regen-label">Other</label>
-          <div class="export-checks">
-            <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
-            <label class="export-check"><input type="checkbox" id="expChordSheet" checked> Chord sheet PDF <span class="export-note">(piano diagrams for keys/bass players)</span></label>
-            <label class="export-check"><input type="checkbox" id="expWav" checked> WAV audio file <span class="export-note">(rendered beat — drums + bass)</span></label>
-          </div>
-        </div>
-
       </div>
-
       <div class="regen-actions">
         <button class="btn regen-cancel" id="exportCancel">Cancel</button>
         <button class="btn regen-go btn-export" id="exportGo">Download ZIP</button>
@@ -235,6 +230,7 @@
   <div id="prefsOverlay" class="regen-overlay" style="display:none">
     <div class="regen-dialog prefs-dialog">
       <div class="regen-title">Preferences</div>
+      <div class="regen-dialog-body">
       <div class="regen-fields">
         <div class="regen-field">
           <label class="regen-label">Drum Kit</label>
@@ -295,6 +291,7 @@
           </select>
           <div class="prefs-hint">Changing your role shows tips for how this tool fits your workflow.</div>
         </div>
+      </div>
       </div>
       <div class="regen-actions">
         <button class="btn regen-cancel" id="prefsCancel">Cancel</button>
