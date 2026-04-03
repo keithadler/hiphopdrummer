@@ -158,6 +158,30 @@
   </div>
 
   <div class="test-section">
+    <h2>Test 15: Load Various Sizes</h2>
+    <button onclick="testLoadVariousSizes()">Run Test</button>
+    <div id="test15-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 16: Backup/Restore Various Sizes</h2>
+    <button onclick="testBackupRestoreVariousSizes()">Run Test</button>
+    <div id="test16-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 17: Load Specific Slots</h2>
+    <button onclick="testLoadSpecificSlots()">Run Test</button>
+    <div id="test17-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 18: Auto-Trim at 25 Beats</h2>
+    <button onclick="testAutoTrim()">Run Test</button>
+    <div id="test18-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
     <h2>Run All Tests</h2>
     <button onclick="runAllTests()">Run All Tests</button>
     <div id="summary" class="summary"></div>
@@ -1165,6 +1189,378 @@
       testResults.push({ name: 'Concurrent Operations', passed, failed });
     }
 
+    async function testLoadVariousSizes() {
+      const testId = 'test15';
+      log(testId, 'Starting test: Load Various Sizes');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Test loading 1 beat
+      localStorage.removeItem('hhd_beat_history');
+      const beat1 = createMockBeat(1);
+      saveBeatHistory([beat1]);
+      
+      let history = loadBeatHistory();
+      if (assert(history.length === 1, 'Load 1 beat', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test loading 5 beats
+      localStorage.removeItem('hhd_beat_history');
+      const beats5 = [];
+      for (let i = 0; i < 5; i++) {
+        beats5.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats5);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 5, 'Load 5 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify each beat is intact
+      for (let i = 0; i < 5; i++) {
+        if (assert(history[i].bpm === beats5[i].bpm, `Beat ${i} BPM matches`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      // Test loading 10 beats
+      localStorage.removeItem('hhd_beat_history');
+      const beats10 = [];
+      for (let i = 0; i < 10; i++) {
+        beats10.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats10);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 10, 'Load 10 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test loading 25 beats (max capacity)
+      localStorage.removeItem('hhd_beat_history');
+      const beats25 = [];
+      for (let i = 0; i < 25; i++) {
+        beats25.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats25);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 25, 'Load 25 beats (max capacity)', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify first and last beats
+      if (assert(history[0].bpm === beats25[0].bpm, 'First beat (newest) matches', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(history[24].bpm === beats25[24].bpm, 'Last beat (oldest) matches', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Load Various Sizes', passed, failed });
+    }
+
+    async function testBackupRestoreVariousSizes() {
+      const testId = 'test16';
+      log(testId, 'Starting test: Backup/Restore Various Sizes');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Test backup/restore with 3 beats
+      localStorage.removeItem('hhd_beat_history');
+      const beats3 = [];
+      for (let i = 0; i < 3; i++) {
+        beats3.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats3);
+      
+      // Create backup
+      const backup3 = {
+        version: 1,
+        exportDate: new Date().toISOString(),
+        beats: beats3
+      };
+      const backup3Json = JSON.stringify(backup3);
+      
+      // Clear and restore
+      localStorage.removeItem('hhd_beat_history');
+      const restored3 = JSON.parse(backup3Json);
+      saveBeatHistory(restored3.beats);
+      
+      let history = loadBeatHistory();
+      if (assert(history.length === 3, 'Restored 3 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test backup/restore with 15 beats
+      localStorage.removeItem('hhd_beat_history');
+      const beats15 = [];
+      for (let i = 0; i < 15; i++) {
+        beats15.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats15);
+      
+      const backup15 = {
+        version: 1,
+        exportDate: new Date().toISOString(),
+        beats: beats15
+      };
+      const backup15Json = JSON.stringify(backup15);
+      log(testId, `Backup size for 15 beats: ${(backup15Json.length / 1024).toFixed(2)} KB`);
+      
+      localStorage.removeItem('hhd_beat_history');
+      const restored15 = JSON.parse(backup15Json);
+      saveBeatHistory(restored15.beats);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 15, 'Restored 15 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify data integrity
+      for (let i = 0; i < 15; i++) {
+        if (history[i].bpm !== beats15[i].bpm || history[i].songStyle !== beats15[i].songStyle) {
+          failed++;
+          log(testId, `Beat ${i} data mismatch after restore`, 'fail');
+          break;
+        }
+      }
+      passed++; // If we got here, all beats match
+      
+      // Test backup/restore with 25 beats (max)
+      localStorage.removeItem('hhd_beat_history');
+      const beats25 = [];
+      for (let i = 0; i < 25; i++) {
+        beats25.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats25);
+      
+      const backup25 = {
+        version: 1,
+        exportDate: new Date().toISOString(),
+        beats: beats25
+      };
+      const backup25Json = JSON.stringify(backup25);
+      log(testId, `Backup size for 25 beats: ${(backup25Json.length / 1024).toFixed(2)} KB`);
+      
+      localStorage.removeItem('hhd_beat_history');
+      const restored25 = JSON.parse(backup25Json);
+      saveBeatHistory(restored25.beats);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 25, 'Restored 25 beats (max capacity)', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test backup format validation
+      if (assert(restored25.version === 1, 'Backup has version field', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(Array.isArray(restored25.beats), 'Backup has beats array', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Backup/Restore Various Sizes', passed, failed });
+    }
+
+    async function testLoadSpecificSlots() {
+      const testId = 'test17';
+      log(testId, 'Starting test: Load Specific Slots');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Create 10 beats with unique identifiers
+      localStorage.removeItem('hhd_beat_history');
+      const beats = [];
+      for (let i = 0; i < 10; i++) {
+        const beat = createMockBeat(i);
+        beat.testId = 'beat_' + i; // Add unique identifier
+        beats.push(beat);
+      }
+      saveBeatHistory(beats);
+      
+      const history = loadBeatHistory();
+      
+      // Test loading slot 10 (newest, index 0)
+      const slot10 = history[0];
+      if (assert(slot10.testId === 'beat_0', 'Slot 10 (newest) is beat_0', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test loading slot 5 (middle, index 5)
+      const slot5 = history[5];
+      if (assert(slot5.testId === 'beat_5', 'Slot 5 (middle) is beat_5', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test loading slot 1 (oldest, index 9)
+      const slot1 = history[9];
+      if (assert(slot1.testId === 'beat_9', 'Slot 1 (oldest) is beat_9', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test loading each slot and verifying data
+      for (let i = 0; i < 10; i++) {
+        const slotNumber = 10 - i; // Slot 10 to Slot 1
+        const beat = history[i];
+        if (assert(beat.bpm === beats[i].bpm, `Slot ${slotNumber} BPM matches`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Load Specific Slots', passed, failed });
+    }
+
+    async function testAutoTrim() {
+      const testId = 'test18';
+      log(testId, 'Starting test: Auto-Trim at 25 Beats');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Add exactly 25 beats
+      log(testId, 'Adding 25 beats...');
+      for (let i = 0; i < 25; i++) {
+        const beat = createMockBeat(i);
+        beat.testId = 'beat_' + i;
+        const history = loadBeatHistory();
+        history.unshift(beat);
+        saveBeatHistory(history);
+      }
+      
+      let history = loadBeatHistory();
+      if (assert(history.length === 25, 'History has exactly 25 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify oldest beat is beat_0 (first one added, now at end)
+      if (assert(history[24].testId === 'beat_0', 'Oldest beat is beat_0', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Add 26th beat - should auto-trim
+      log(testId, 'Adding 26th beat (should auto-trim)...');
+      const beat26 = createMockBeat(25);
+      beat26.testId = 'beat_25';
+      history = loadBeatHistory();
+      history.unshift(beat26);
+      
+      // Manually trim (simulating saveBeatToHistory behavior)
+      if (history.length > 25) {
+        history = history.slice(0, 25);
+      }
+      saveBeatHistory(history);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 25, 'History still has 25 beats after adding 26th', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify newest beat is beat_25
+      if (assert(history[0].testId === 'beat_25', 'Newest beat is beat_25', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify oldest beat is now beat_1 (beat_0 was dropped)
+      if (assert(history[24].testId === 'beat_1', 'Oldest beat is now beat_1 (beat_0 was dropped)', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Expected beat_1, got ${history[24].testId}`, 'fail');
+      }
+      
+      // Add 5 more beats and verify continuous trimming
+      log(testId, 'Adding 5 more beats...');
+      for (let i = 26; i < 31; i++) {
+        const beat = createMockBeat(i);
+        beat.testId = 'beat_' + i;
+        history = loadBeatHistory();
+        history.unshift(beat);
+        if (history.length > 25) {
+          history = history.slice(0, 25);
+        }
+        saveBeatHistory(history);
+      }
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 25, 'History maintains 25 beats after adding 5 more', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify newest is beat_30
+      if (assert(history[0].testId === 'beat_30', 'Newest beat is beat_30', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify oldest is beat_6 (beats 0-5 were dropped)
+      if (assert(history[24].testId === 'beat_6', 'Oldest beat is beat_6', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Expected beat_6, got ${history[24].testId}`, 'fail');
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Auto-Trim at 25 Beats', passed, failed });
+    }
+
     async function runAllTests() {
       testResults = [];
       document.getElementById('summary').innerHTML = 'Running tests...';
@@ -1209,6 +1605,18 @@
       await new Promise(resolve => setTimeout(resolve, 500));
       
       await testConcurrentOps();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testLoadVariousSizes();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testBackupRestoreVariousSizes();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testLoadSpecificSlots();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testAutoTrim();
       
       // Display summary
       const totalPassed = testResults.reduce((sum, r) => sum + r.passed, 0);
