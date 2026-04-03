@@ -190,6 +190,29 @@ function showBeatHistoryDialog() {
   if (!overlay) return;
   
   renderBeatHistorySlots();
+  
+  // Wire up the dialog buttons
+  var closeBtn = document.getElementById('historyClose');
+  if (closeBtn) {
+    closeBtn.onclick = function() {
+      overlay.style.display = 'none';
+    };
+  }
+  
+  var backupBtn = document.getElementById('btnBackupHistory');
+  if (backupBtn) {
+    backupBtn.onclick = function() {
+      backupBeatHistory();
+    };
+  }
+  
+  var restoreBtn = document.getElementById('btnRestoreHistory');
+  if (restoreBtn) {
+    restoreBtn.onclick = function() {
+      restoreBeatHistory();
+    };
+  }
+  
   overlay.style.display = 'flex';
 }
 
