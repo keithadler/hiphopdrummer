@@ -268,9 +268,9 @@ var INSTRUMENT_SWING = {
   gfunk:     { hat: 1.2,  kick: 0.7,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 1.1 },
   chopbreak: { hat: 1.1,  kick: 0.85, ghostSnare: 1.1,  backbeat: 0.9,  bass: 0.9 },
   crunk:     { hat: 0.8,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
-  memphis:   { hat: 1.3,  kick: 0.6,  ghostSnare: 0.7,  backbeat: 0.7,  bass: 1.3 },
+  memphis:   { hat: 1.3,  kick: 0.6,  ghostSnare: 0.7,  backbeat: 0.7,  bass: 0.5 },
   griselda:  { hat: 0.9,  kick: 0.7,  ghostSnare: 0.8,  backbeat: 0.8,  bass: 0.7 },
-  phonk:     { hat: 1.2,  kick: 0.65, ghostSnare: 0.8,  backbeat: 0.75, bass: 1.2 },
+  phonk:     { hat: 1.2,  kick: 0.65, ghostSnare: 0.8,  backbeat: 0.75, bass: 0.55 },
   nujabes:   { hat: 1.2,  kick: 0.8,  ghostSnare: 1.3,  backbeat: 0.9,  bass: 1.0 },
   oldschool: { hat: 0.7,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
   sparse:    { hat: 1.0,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
@@ -290,7 +290,7 @@ function getInstrumentSwing(row, vel, feel) {
   var s = INSTRUMENT_SWING[baseFeel] || INSTRUMENT_SWING.normal;
   if (row === 'hat' || row === 'openhat' || row === 'ride') return s.hat;
   // FIX #2: Shaker swing multiplier changed from 0.7× to 0.5× to match applyGroove intent (0.4× groove adjustment)
-  if (row === 'shaker') return s.hat * 0.5; // shakers are shaken, not hit - less swing than ride hand
+  if (row === 'shaker') return s.hat * 0.9; // shakers follow the hat groove — same ride hand
   if (row === 'kick' || row === 'ghostkick') return s.kick;
   if (row === 'crash') return 0; // crashes on grid — no swing
   if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;

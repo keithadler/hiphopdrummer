@@ -1531,8 +1531,8 @@ function applySectionTransitions() {
       else if (songFeel === 'memphis') { reKick = 118; reSnare = 112; reClap = 105; reCrash = 95; }
       nextPat.kick[0] = Math.max(nextPat.kick[0], v(reKick, 5));
       if (nextPat.crash[0] === 0) nextPat.crash[0] = v(reCrash, 8);
-      nextPat.snare[0] = v(reSnare, 8);
       nextPat.clap[0] = v(reClap, 8);
+      // No snare on beat 1 — snare enters on beat 2 as normal
     }
 
     // Rule 3: Chorus entries always get a crash on beat 1
