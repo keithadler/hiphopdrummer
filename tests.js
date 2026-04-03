@@ -1549,6 +1549,34 @@ test('Last bar of each section has drum data', function() {
   });
 });
 
+// === Test: Every key offered in STYLE_DATA resolves correctly in analyzeBeat ===
+test('Every key in STYLE_DATA dialog resolves correctly for its feel', function() {
+  var allFeels = Object.keys(STYLE_DATA);
+  var failures = 0;
+  allFeels.forEach(function(feel) {
+    var keys = STYLE_DATA[feel].keys || [];
+    keys.forEach(function(key) {
+      _forcedKey = key;
+      songFeel = feel;
+      songPalette = null;
+      for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+        if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+      }
+      if (!songPalette) songPalette = FEEL_PALETTES[0];
+      ghostDensity = 1.0; hatPatternType = '8th'; useRide = false;
+      _domElements = {};
+      genBasePatterns();
+      analyzeBeat();
+      if (_lastChosenKey.root !== key) {
+        failures++;
+        assert(false, feel + ' + ' + key + ' should resolve to ' + key + ', got ' + _lastChosenKey.root);
+      }
+    });
+  });
+  _forcedKey = null;
+  if (failures === 0) assert(true, 'All ' + allFeels.length + ' feels x keys resolve correctly');
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
