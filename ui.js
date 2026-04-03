@@ -873,7 +873,11 @@ function buildChordSheet() {
       html += '<div class="chord-bar ' + chordGroups[c].cls + '">';
       html += '<div class="chord-bar-header"><span class="chord-bar-name">' + chordGroups[c].name + '</span><span class="chord-bar-function">' + chordGroups[c].fn + ' · ' + barLabel + '</span></div>';
       if (useGuitar) {
-        html += renderGuitarChord(chordGroups[c].name);
+        try {
+          html += renderGuitarChord(chordGroups[c].name);
+        } catch(e) {
+          html += renderPiano(chordGroups[c].name);
+        }
       } else {
         html += renderPiano(chordGroups[c].name);
       }

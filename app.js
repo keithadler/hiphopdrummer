@@ -562,9 +562,20 @@ var GUITAR_CHORDS = {
 };
 
 function renderGuitarChord(chordName) {
-  // Strip 9 → 7 for lookup, strip maj9 → maj7
+  if (!chordName || typeof GUITAR_CHORDS === 'undefined') return '<div class="guitar-chord-na">' + (chordName || '') + '</div>';
+  // Try multiple lookup strategies
   var lookup = chordName.replace(/9$/, '7').replace(/maj9/, 'maj7');
   var data = GUITAR_CHORDS[lookup] || GUITAR_CHORDS[chordName];
+  // Try stripping to just root + basic quality
+  if (!data) {
+    var root = chordName.match(/^([A-G][#b]?)/);
+    if (root) {
+      var rootName = root[1];
+      var quality = chordName.replace(rootName, '');
+      // Try common simplifications
+      data = GUITAR_CHORDS[rootName + quality.replace(/m7b5/, 'm').replace(/m9/, 'm7').replace(/maj7/, '').replace(/7/, '')] || GUITAR_CHORDS[rootName + 'm'] || GUITAR_CHORDS[rootName];
+    }
+  }
   if (!data) return '<div class="guitar-chord-na">' + chordName + '</div>';
   var f = data.frets;
 
