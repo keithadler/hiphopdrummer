@@ -64,6 +64,7 @@ global.document = {
 global.window = { jspdf: null, IntersectionObserver: null };
 global.navigator = { serviceWorker: null };
 global.NodeFilter = { SHOW_TEXT: 4 };
+global.localStorage = { _data: {}, getItem: function(k) { return this._data[k] || null; }, setItem: function(k, v) { this._data[k] = v; }, removeItem: function(k) { delete this._data[k]; } };
 global.MutationObserver = function() { return { observe: function() {}, disconnect: function() {} }; };
 global.URL = { createObjectURL: function() { return ''; }, revokeObjectURL: function() {} };
 global.Blob = function() {};
@@ -83,7 +84,7 @@ var vm = require('vm');
 
 // === Load all source files into global scope ===
 var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'analysis.js',
-             'daw-help.js', 'midi-export.js'];
+             'daw-help.js', 'midi-export.js', 'beat-history.js'];
 
 test('All JS files parse without errors', function() {
   files.forEach(function(f) {
@@ -1056,6 +1057,11 @@ test('buildCombinedMidiBytes produces valid combined drums+bass MIDI', function(
   }
   assert(hasDrums, 'combined MIDI should have drum events (channel 10)');
   assert(hasBass, 'combined MIDI should have bass events (channel 1)');
+});
+
+// === Test MAX_HISTORY_SLOTS ===
+test('MAX_HISTORY_SLOTS is 100', function() {
+  assert(MAX_HISTORY_SLOTS === 100, 'MAX_HISTORY_SLOTS should be 100, got ' + MAX_HISTORY_SLOTS);
 });
 
 // === Results ===

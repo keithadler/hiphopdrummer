@@ -1,18 +1,18 @@
 // =============================================
 // Beat History — Auto-save slots with backup/restore
 //
-// Manages 25 auto-save slots that store complete beat state.
+// Manages 100 auto-save slots that store complete beat state.
 // When slots are full, user must choose which slot to replace.
 // Last beat auto-loads on page load.
 //
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-var MAX_HISTORY_SLOTS = 25;
+var MAX_HISTORY_SLOTS = 100;
 
 /**
  * Save current beat to history.
- * Automatically keeps the last 25 beats, dropping the oldest when full.
+ * Automatically keeps the last 100 beats, dropping the oldest when full.
  */
 function saveBeatToHistory(callback) {
   var beatData = captureBeatState();
@@ -21,7 +21,7 @@ function saveBeatToHistory(callback) {
   // Add new beat to the front
   history.unshift(beatData);
   
-  // Trim to max capacity (keep only the most recent 25)
+  // Trim to max capacity (keep only the most recent 100)
   if (history.length > MAX_HISTORY_SLOTS) {
     history = history.slice(0, MAX_HISTORY_SLOTS);
   }
@@ -286,7 +286,7 @@ function showBeatHistoryDialog() {
 
 /**
  * Render beat history slots in the manager dialog.
- * Slot 1 = oldest, Slot 25 = newest
+ * Slot 1 = oldest, Slot 100 = newest
  */
 function renderBeatHistorySlots() {
   var history = loadBeatHistory();
