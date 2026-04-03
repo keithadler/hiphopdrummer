@@ -428,6 +428,7 @@ function initPlaybackTracking() {
   var _playerPlayBtn = null;
   var _followPlayhead = false;
   var _lastActiveBar = -1;
+  var _touchPauseFollow = false; // user touched screen — pause auto-scroll temporarily
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -476,7 +477,7 @@ function initPlaybackTracking() {
         if (activeTab) activeTab.classList.add('bar-btn-active');
       }
       // Scroll the bar's grid page into view (only if follow playhead is on)
-      if (_followPlayhead) {
+      if (_followPlayhead && !_touchPauseFollow) {
         var gridPage = document.getElementById('grid-page-' + currentBar);
         if (gridPage) gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -489,7 +490,7 @@ function initPlaybackTracking() {
       _cachedCursorEls.push(els[i]);
     }
     // Follow playhead: scroll the last (bottom) cursor element into view
-    if (_followPlayhead && _cachedCursorEls.length > 0) {
+    if (_followPlayhead && !_touchPauseFollow && _cachedCursorEls.length > 0) {
       _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
   }
@@ -514,7 +515,7 @@ function initPlaybackTracking() {
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
       _lastActiveBar = -1; // reset bar tracking for new section
       // Follow playhead: scroll the current section into view
-      if (_followPlayhead) {
+      if (_followPlayhead && !_touchPauseFollow) {
         var activeCard = document.querySelector('.arr-item.playing');
         if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
@@ -571,8 +572,20 @@ function initPlaybackTracking() {
         buildSectionTimeMap();
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
+        _touchPauseFollow = false;
       }
     };
+
+    // Touch handling: pause auto-scroll when user touches the screen during playback
+    // Resume after 3 seconds of no touch to let the auto-scroll take over again
+    var _touchResumeTimer = null;
+    document.addEventListener('touchstart', function() {
+      if (_followPlayhead && window.synthBridge && window.synthBridge.isPlaying) {
+        _touchPauseFollow = true;
+        if (_touchResumeTimer) clearTimeout(_touchResumeTimer);
+        _touchResumeTimer = setTimeout(function() { _touchPauseFollow = false; }, 3000);
+      }
+    }, { passive: true });
   }
   connectTracking();
 }
