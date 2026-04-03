@@ -289,7 +289,8 @@ function getInstrumentSwing(row, vel, feel) {
   var baseFeel = resolveBaseFeel(feel);
   var s = INSTRUMENT_SWING[baseFeel] || INSTRUMENT_SWING.normal;
   if (row === 'hat' || row === 'openhat' || row === 'ride') return s.hat;
-  if (row === 'shaker') return s.hat * 0.7; // shakers are shaken, not hit - less swing than ride hand
+  // FIX #2: Shaker swing multiplier changed from 0.7× to 0.5× to match applyGroove intent (0.4× groove adjustment)
+  if (row === 'shaker') return s.hat * 0.5; // shakers are shaken, not hit - less swing than ride hand
   if (row === 'kick' || row === 'ghostkick') return s.kick;
   if (row === 'crash') return 0; // crashes on grid — no swing
   if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;
