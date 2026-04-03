@@ -305,29 +305,27 @@ document.addEventListener('keydown', function(e) {
  * Uses polling to wait for the async ES module to load.
  */
 function initPlayerControls() {
-  var playBtn = document.getElementById('playerPlayBtn');
-  var stopBtn = document.getElementById('playerStopBtn');
+  var headerPlayBtn = document.getElementById('headerPlayBtn');
   var seekBar = document.getElementById('playerSeek');
   var wavBtn = document.getElementById('playerWavBtn');
   var currentEl = document.getElementById('playerCurrent');
   var isSeeking = false;
 
-  if (!playBtn) return;
+  if (!headerPlayBtn) return;
 
-  playBtn.onclick = function() {
+  headerPlayBtn.onclick = function() {
     if (!window.synthBridge) return;
     if (window.synthBridge.isPlaying) {
-      window.synthBridge.pause();
+      window.synthBridge.stop();
+      if (currentEl) currentEl.textContent = '0:00';
+      if (seekBar) seekBar.value = 0;
+      headerPlayBtn.textContent = '▶ PLAY';
+      headerPlayBtn.classList.remove('playing');
     } else if (window._currentMidiBytes) {
       window.synthBridge.play(window._currentMidiBytes);
+      headerPlayBtn.textContent = '■ STOP';
+      headerPlayBtn.classList.add('playing');
     }
-  };
-
-  stopBtn.onclick = function() {
-    if (window.synthBridge) window.synthBridge.stop();
-    if (currentEl) currentEl.textContent = '0:00';
-    if (seekBar) seekBar.value = 0;
-    if (playBtn) playBtn.textContent = '▶';
   };
 
   if (seekBar) {
@@ -386,7 +384,11 @@ function initPlayerControls() {
       }
     };
     window.synthBridge.onPlayStateChange = function(playing) {
-      if (playBtn) playBtn.textContent = playing ? '⏸' : '▶';
+      if (headerPlayBtn) {
+        headerPlayBtn.textContent = playing ? '■ STOP' : '▶ PLAY';
+        if (playing) headerPlayBtn.classList.add('playing');
+        else headerPlayBtn.classList.remove('playing');
+      }
     };
   }
   connectCallbacks();
@@ -420,7 +422,7 @@ function initPlaybackTracking() {
     _cachedSecPerStep = 60 / _cachedBpm / 4;
     _playerCurrentEl = document.getElementById('playerCurrent');
     _playerSeekEl = document.getElementById('playerSeek');
-    _playerPlayBtn = document.getElementById('playerPlayBtn');
+    _playerPlayBtn = document.getElementById('headerPlayBtn');
     sectionTimeMap = [];
     var t = 0;
     for (var i = 0; i < arrangement.length; i++) {
@@ -538,7 +540,11 @@ function initPlaybackTracking() {
       updateCurrentSection(current);
     };
     window.synthBridge.onPlayStateChange = function(playing) {
-      if (_playerPlayBtn) _playerPlayBtn.textContent = playing ? '⏸' : '▶';
+      if (_playerPlayBtn) {
+        _playerPlayBtn.textContent = playing ? '■ STOP' : '▶ PLAY';
+        if (playing) _playerPlayBtn.classList.add('playing');
+        else _playerPlayBtn.classList.remove('playing');
+      }
       if (!playing) {
         clearCursor();
         window._playbackControlsBarTabs = false;
