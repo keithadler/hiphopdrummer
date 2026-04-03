@@ -136,15 +136,9 @@ document.getElementById('regenGo').onclick = function() {
       if (scrollArea) scrollArea.scrollTop = 0;
       else window.scrollTo(0, 0);
       
-      // Save the newly generated beat to history
-      setTimeout(function() {
-        if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-          var beatData = captureBeatState();
-          var history = loadBeatHistory();
-          history.unshift(beatData);
-          saveBeatHistory(history);
-        }
-      }, 100);
+      // Note: The newly generated beat will be auto-saved on next generation
+      // or when the page is closed. We don't save it immediately to avoid
+      // double-saving the same beat.
     });
   } else {
     // Fallback if history not loaded
