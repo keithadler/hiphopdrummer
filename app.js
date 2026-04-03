@@ -491,22 +491,13 @@ function initPlaybackTracking() {
       }
     }
 
-    var groups = [];
-    for (var c = 0; c < _sectionChords.length; c++) {
-      if (groups.length > 0 && groups[groups.length - 1].name === _sectionChords[c].name) {
-        groups[groups.length - 1].endBar = c;
-        groups[groups.length - 1].barCount++;
-      } else {
-        groups.push({ name: _sectionChords[c].name, fn: _sectionChords[c].fn, pianoHtml: _sectionChords[c].pianoHtml, startBar: c, endBar: c, barCount: 1 });
-      }
-    }
-
+    // One item per bar — no grouping. Each bar is its own chord entry.
     var html = '';
-    for (var g = 0; g < groups.length; g++) {
-      var barLabel = groups[g].barCount > 1 ? ' \u00d7 ' + groups[g].barCount : '';
-      html += '<div class="chord-toast-item" data-start="' + groups[g].startBar + '" data-end="' + groups[g].endBar + '">';
-      html += '<div class="chord-toast-label">' + groups[g].name + '<span class="chord-fn">' + groups[g].fn + barLabel + '</span></div>';
-      if (groups[g].pianoHtml) html += '<div class="chord-toast-piano">' + groups[g].pianoHtml + '</div>';
+    for (var c = 0; c < _sectionChords.length; c++) {
+      var barNum = c + 1;
+      html += '<div class="chord-toast-item" data-start="' + c + '" data-end="' + c + '">';
+      html += '<div class="chord-toast-label">' + _sectionChords[c].name + '<span class="chord-fn">' + _sectionChords[c].fn + ' · bar ' + barNum + '</span></div>';
+      if (_sectionChords[c].pianoHtml) html += '<div class="chord-toast-piano">' + _sectionChords[c].pianoHtml + '</div>';
       html += '</div>';
     }
     if (toast) toast._chordHtml = html;
