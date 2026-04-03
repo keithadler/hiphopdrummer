@@ -123,6 +123,11 @@ document.getElementById('regenGo').onclick = function() {
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
   
+  // Stop playback before generating
+  if (window.synthBridge && window.synthBridge.isPlaying) {
+    window.synthBridge.stop();
+  }
+  
   // Generate the new beat
   generateAll({ style: style, key: key, bpm: bpm });
   updateMidiPlayer();
@@ -568,16 +573,14 @@ function initBeatHistoryHandlers() {
   if (!historyLoaded) {
     console.log('No history found - generating initial beat');
     generateAll();
-    // Save the initial beat to history after generation
-    setTimeout(function() {
-      if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-        var beatData = captureBeatState();
-        var history = loadBeatHistory();
-        history.unshift(beatData);
-        saveBeatHistory(history);
-        console.log('Saved initial beat to history');
-      }
-    }, 100);
+    // Save the initial beat to history
+    if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+      var beatData = captureBeatState();
+      var initHistory = loadBeatHistory();
+      initHistory.unshift(beatData);
+      saveBeatHistory(initHistory);
+      console.log('Saved initial beat to history');
+    }
     
     // Update MIDI player and build UI components (only needed for new generation)
     updateMidiPlayer();
@@ -716,7 +719,16 @@ function initPlayerControls() {
         // Disable button while synth initializes (SoundFont load on first play)
         headerPlayBtn.disabled = true;
         headerPlayBtn.textContent = '⏳ LOADING';
+        // Timeout: if SoundFont load stalls on iOS, reset button after 15 seconds
+        var _loadTimeout = setTimeout(function() {
+          if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
+            headerPlayBtn.disabled = false;
+            headerPlayBtn.textContent = '▶ PLAY';
+            headerPlayBtn.classList.remove('playing');
+          }
+        }, 15000);
         window.synthBridge.play(window._currentMidiBytes).then(function() {
+          clearTimeout(_loadTimeout);
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
           // Brief cooldown before allowing stop

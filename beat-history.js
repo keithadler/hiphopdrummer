@@ -57,10 +57,17 @@ function captureBeatState() {
  * Restore beat state from saved data.
  */
 function restoreBeatState(beatData) {
-  // Stop playback if playing
+  // Stop playback if playing and reset button state
   if (window.synthBridge && window.synthBridge.isPlaying) {
     window.synthBridge.stop();
   }
+  var playBtn = document.getElementById('headerPlayBtn');
+  if (playBtn) {
+    playBtn.textContent = '▶ PLAY';
+    playBtn.classList.remove('playing');
+  }
+  var toast = document.getElementById('sectionToast');
+  if (toast) toast.classList.remove('show');
   
   // Restore global state
   document.getElementById('bpm').textContent = beatData.bpm;
