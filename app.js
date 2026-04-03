@@ -164,9 +164,11 @@ document.getElementById('btnGen').onclick = showRegenDialog;
 document.getElementById('btnExport').onclick = showExportDialog;
 
 /** History button: show beat history dialog */
-document.getElementById('btnHistory').onclick = function() {
+document.getElementById('btnHistory').addEventListener('click', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
   if (typeof showBeatHistoryDialog === 'function') showBeatHistoryDialog();
-};
+}, { passive: false });
 
 // ── Export Dialog ──
 
@@ -462,8 +464,21 @@ function initWelcome() {
 
 function initBeatHistoryHandlers() {
   // Overlay click-outside-to-close handlers
+  // On mobile, only close if the click/touch is directly on the overlay (not during scroll)
   var historyOverlay = document.getElementById('beatHistoryOverlay');
   if (historyOverlay) {
+    var touchStartTarget = null;
+    historyOverlay.addEventListener('touchstart', function(e) {
+      touchStartTarget = e.target;
+    }, { passive: true });
+    
+    historyOverlay.addEventListener('touchend', function(e) {
+      if (e.target === this && touchStartTarget === this) {
+        this.style.display = 'none';
+      }
+      touchStartTarget = null;
+    });
+    
     historyOverlay.onclick = function(e) {
       if (e.target === this) this.style.display = 'none';
     };
@@ -471,6 +486,18 @@ function initBeatHistoryHandlers() {
 
   var slotOverlay = document.getElementById('slotReplacementOverlay');
   if (slotOverlay) {
+    var touchStartTarget2 = null;
+    slotOverlay.addEventListener('touchstart', function(e) {
+      touchStartTarget2 = e.target;
+    }, { passive: true });
+    
+    slotOverlay.addEventListener('touchend', function(e) {
+      if (e.target === this && touchStartTarget2 === this) {
+        this.style.display = 'none';
+      }
+      touchStartTarget2 = null;
+    });
+    
     slotOverlay.onclick = function(e) {
       if (e.target === this) this.style.display = 'none';
     };
@@ -479,7 +506,14 @@ function initBeatHistoryHandlers() {
   // Slot replacement cancel button
   var slotCancel = document.getElementById('slotReplacementCancel');
   if (slotCancel) {
-    slotCancel.onclick = function() {
+    slotCancel.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      document.getElementById('slotReplacementOverlay').style.display = 'none';
+    };
+    slotCancel.ontouchend = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       document.getElementById('slotReplacementOverlay').style.display = 'none';
     };
   }
