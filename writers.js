@@ -556,11 +556,12 @@ function writeGKA(p, feel, off) {
   if (feel === 'memphis') ch *= 0.4;  // Memphis: sparse ghost kicks
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
-  // Ghost kick velocity curve: softer leading into snare (steps 3,11),
-  // firmer after snare rebound (steps 5,13), neutral elsewhere
-  var gkVel = {1:68, 3:60, 5:75, 9:68, 11:60, 13:75};
-  // Lo-fi: compress ghost kick velocity into narrow band
-  if (feel === 'lofi') gkVel = {1:62, 3:58, 5:66, 9:62, 11:58, 13:66};
+  // Ghost kick velocity curve: 60-75 range (felt in chest, not consciously heard)
+  // FIX #4: Corrected ghost kick velocity to 60-75 range for proper ghost feel
+  // Softer leading into snare (steps 3,11), firmer after snare rebound (steps 5,13)
+  var gkVel = {1:67, 3:62, 5:72, 9:67, 11:62, 13:72};
+  // Lo-fi: compress ghost kick velocity into narrow band within 60-75 range
+  if (feel === 'lofi') gkVel = {1:65, 3:62, 5:68, 9:65, 11:62, 13:68};
   pos.forEach(function(i) {
     if (off+i<STEPS && !p.kick[off+i] && !p.snare[off+i] && maybe(ch)) {
       var baseVel = gkVel[i] || 68;
@@ -608,8 +609,9 @@ function writeGKB(p, feel, off) {
   if (feel === 'memphis') ch *= 0.4;
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
-  var gkVel = {1:68, 5:75, 7:60, 13:75, 15:62};
-  if (feel === 'lofi') gkVel = {1:62, 5:66, 7:58, 13:66, 15:58};
+  // FIX #4: Corrected ghost kick velocity to 60-75 range for bar B
+  var gkVel = {1:67, 5:72, 7:62, 13:72, 15:64};
+  if (feel === 'lofi') gkVel = {1:65, 5:68, 7:62, 13:68, 15:64};
   pos.forEach(function(i) {
     if (off+i<STEPS && !p.kick[off+i] && !p.snare[off+i] && maybe(ch)) {
       var baseVel = gkVel[i] || 66;
