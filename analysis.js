@@ -378,7 +378,7 @@ function analyzeBeat() {
   // === BASS LINE ===
   lines.push('');
   lines.push('🎸 <b>BASS LINE</b>');
-  lines.push('A bass line is included in the preview player and export. It locks to the kick drum pattern and follows the key.');
+  lines.push('A uniquely generated bass line is included in the preview player and every export. It\'s not a preset — the bass is built note by note from the kick pattern, chord progression, and style rules each time you generate. The drums and bass are a cohesive unit, the way they\'d be in a real session.');
   var bassStyleNames = {
     normal: 'Punchy bass guitar', hard: 'Aggressive, tight to kick', jazzy: 'Walking bass, passing tones',
     dark: 'Sparse sub bass', bounce: 'Danceable, follows kick', halftime: 'Slow, heavy, sustained',
@@ -1008,6 +1008,23 @@ function analyzeBeat() {
   techLines.push('• <b>Open hat on the "and" of 4</b> — From live drumming, brought into hip hop by Pete Rock and Diamond D. The hat opens right before the bar loops, creating a breathing, cyclical feel.');
   techLines.push('• <b>A/B phrase variation</b> — 9th Wonder and Nottz are known for subtle bar-to-bar variations that keep a simple loop feeling alive across a whole verse.');
   lines.push(techLines.join('<br>'));
+
+  // === WHAT'S IN THE EXPORT ===
+  lines.push('');
+  lines.push('📦 <b>WHAT\'S IN THE EXPORT</b>');
+  lines.push('Hit EXPORT to download a ZIP with everything you need:');
+  lines.push('• <b>Full song MIDI</b> — the complete arrangement as one .mid file (drums on GM channel 10, swing baked in)');
+  lines.push('• <b>Individual section MIDI</b> — separate .mid files for each section (Intro, Verse, Chorus, etc.) in MIDI Patterns/');
+  lines.push('• <b>Bass MIDI</b> — full song + individual sections in MIDI Patterns/Bass/ (channel 1, bass program change embedded)');
+  lines.push('• <b>MPC patterns</b> — .mpcpattern files for Akai MPC/Force in MPC/ (Chromatic C1 layout, straight grid — set swing on device)');
+  lines.push('• <b>Bass MPC patterns</b> — .mpcpattern files in MPC/Bass/ for Keygroup or plugin tracks');
+  lines.push('• <b>WAV audio</b> — rendered drums + bass audio file, ready to use');
+  lines.push('• <b>PDF beat sheet</b> — printable color-coded pattern grids with full analysis text');
+  lines.push('• <b>Chord sheet PDF</b> — piano keyboard diagrams with feel-aware voicings for each section');
+  lines.push('• <b>DAW setup guides</b> — step-by-step import instructions for Ableton, Logic Pro, FL Studio, GarageBand, Pro Tools, Reason, Reaper, Studio One, and Maschine');
+  lines.push('• <b>MPC guide</b> — firmware 3.7.1 and older 2.x workflows, pad assignments, swing setup');
+  lines.push('• <b>HOW_TO_USE.txt</b> — general overview with note maps and quick start');
+  lines.push('<b>Everything is uniquely generated</b> — the drums, bass, fills, transitions, and chord progressions are assembled from scratch every time you hit New Beat. No two exports are the same.');
 
   // === DRUM MACHINE WORKFLOW ===
   lines.push('');
