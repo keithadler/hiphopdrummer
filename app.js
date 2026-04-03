@@ -510,6 +510,15 @@ function initPlaybackTracking() {
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
+      // Show section name toast
+      var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
+      var toast = document.getElementById('sectionToast');
+      if (toast) {
+        toast.textContent = sectionName;
+        toast.classList.add('show');
+        if (toast._hideTimer) clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(function() { toast.classList.remove('show'); }, 1200);
+      }
       renderGrid();
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
@@ -563,6 +572,8 @@ function initPlaybackTracking() {
       if (!playing) {
         clearCursor();
         window._playbackControlsBarTabs = false;
+        var toast = document.getElementById('sectionToast');
+        if (toast) toast.classList.remove('show');
       }
       if (playing) {
         lastTrackedSection = -1;
