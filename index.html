@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="HH Drummer">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
   <title>Hip Hop Drummer</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
@@ -46,6 +47,7 @@
           <span class="ctrl-input" id="swing">62</span><span class="ctrl-swing-desc" id="swingDesc" title="Swing timing: how much even 16th-note steps are delayed"></span>
         </div>
         <button class="btn btn-export" id="btnExport">EXPORT</button>
+        <button class="btn btn-about" id="btnAbout" title="About"><img src="icon-192.png" alt="" class="about-icon">About</button>
         <button class="btn btn-prefs" id="btnPrefs" title="Preferences"><span class="prefs-icon">⚙</span><span class="prefs-text">Preferences</span></button>
       </div>
     </div>
@@ -232,6 +234,40 @@
       <div class="regen-actions">
         <button class="btn regen-cancel" id="prefsCancel">Cancel</button>
         <button class="btn regen-go btn-prefs-save" id="prefsSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- About dialog -->
+  <div id="aboutOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog about-dialog">
+      <div class="about-hero">
+        <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
+        <div class="about-hero-text">
+          <div class="about-app-name">HipHop<span>Drummer</span></div>
+          <div class="about-version">Version 2.0</div>
+          <div class="about-author">by <a href="https://github.com/keithadler" target="_blank" rel="noopener">Keith Adler</a></div>
+        </div>
+      </div>
+      <div class="about-scroll">
+        <p>Learn hip hop drum programming by generating and studying authentic patterns — from old school 808s to modern boom bap, G-Funk, and beyond.</p>
+        <p>Every beat comes with a full breakdown of <em>why</em> the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs.</p>
+        <h3>🎓 A Learning Tool</h3>
+        <p>Click any grid cell to understand why that hit is at that velocity. Read the About This Beat panel for producer references, technique spotlights, and ear training prompts. The chord sheet teaches you harmony. The flow guide teaches you cadence. Every generation is a free lesson.</p>
+        <h3>🎛 A Production Tool</h3>
+        <p>19 hip hop styles with 6 regional variants, 218 curated kick patterns, per-instrument swing, modal harmony, named player profiles, and a bass engine that reacts to the drums. Export MIDI for any DAW, MPC patterns for Akai hardware, or WAV audio. Full song arrangements with fills, breakdowns, and transitions.</p>
+        <h3>🎤 For Rappers</h3>
+        <p>Hit play and rap over it. The flow guide gives you syllable counts per bar based on the actual kick pattern. It tells you where the landing points are. Export the WAV and you've got a practice beat or freestyle session ready to go.</p>
+        <h3>🎧 For DJs</h3>
+        <p>Scratch-ready arrangements with intros, breakdowns, and outros. Export the WAV, load it on your deck, and cut over it. The breakdown sections give you space to work.</p>
+        <h3>🎸 For Musicians</h3>
+        <p>Chord sheets with feel-aware voicings, modal harmony theory (Dorian for G-Funk, Phrygian for dark styles), and bass MIDI that shows what a session player would play. Jam along, add your own parts, build on the foundation.</p>
+        <h3>🥁 What's Inside</h3>
+        <p>40+ years of hip hop production knowledge encoded into every parameter. Dilla's behind-the-beat timing. Premier's mechanical kicks. Questlove's ghost note touch. Dr. Dre's 3-level hat dynamics. Three 6 Mafia's sinister space. Each style sounds different because each style <em>is</em> different — down to the swing, the fills, the chord progressions, and the way the bass breathes.</p>
+        <p class="about-footer">Open source · MIT License · <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener">GitHub</a></p>
+      </div>
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="aboutClose">Close</button>
       </div>
     </div>
   </div>
