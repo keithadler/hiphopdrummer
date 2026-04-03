@@ -1018,6 +1018,17 @@ function _showCellTooltip(cell) {
   if (!gridR) return;
   gridR.addEventListener('click', function(e) {
     var cell = e.target.closest('.cell');
+    var rowLabel = e.target.closest('.row-label');
+
+    // Click on row label: play that instrument at default velocity
+    if (rowLabel && !cell && window.synthBridge && !window.synthBridge.isPlaying) {
+      var row = rowLabel.dataset.row;
+      if (row && MIDI_NOTE_MAP[row] !== undefined) {
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], 100, 250);
+      }
+      return;
+    }
+
     if (!cell) { hideTooltip(); return; }
     _showCellTooltip(cell);
     // Play the drum sound when clicking a filled cell (only when not playing)
