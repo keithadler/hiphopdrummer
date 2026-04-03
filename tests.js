@@ -830,7 +830,7 @@ test('CHORD_PROGRESSIONS covers all 19 base feels', function() {
     assert(CHORD_PROGRESSIONS[f], 'CHORD_PROGRESSIONS missing: ' + f);
     assert(CHORD_PROGRESSIONS[f].length >= 2, f + ' should have at least 2 progressions');
     CHORD_PROGRESSIONS[f].forEach(function(prog, idx) {
-      assert(prog.length === 4, f + ' progression ' + idx + ' should have 4 bars');
+      assert(prog.length === 8, f + ' progression ' + idx + ' should have 8 bars');
       prog.forEach(function(deg) {
         assert(validDegrees.indexOf(deg) >= 0, f + ' progression ' + idx + ' has invalid degree: ' + deg);
       });
