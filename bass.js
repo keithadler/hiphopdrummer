@@ -153,13 +153,13 @@ var BASS_STYLES = {
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 6, chordAnticipation: 0.08,
                subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   crunk:     { rhythm: 'quarter', density: 1.0, velBase: 120, velRange: 5, noteDur: 0.95,
-               useFifth: 0.0, useOctaveDrop: 1.0, walkUp: 0.0,
+               useFifth: 0.0, useOctaveDrop: 0.65, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
                subSwell: 0.3, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub' },
   memphis:   { rhythm: 'kick', density: 0.6, velBase: 110, velRange: 8, noteDur: 0.9,
-               useFifth: 0.0, useOctaveDrop: 1.0, walkUp: 0.0,
+               useFifth: 0.0, useOctaveDrop: 0.70, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
@@ -171,7 +171,7 @@ var BASS_STYLES = {
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
                subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   phonk:     { rhythm: 'kick', density: 0.65, velBase: 115, velRange: 6, noteDur: 0.95,
-               useFifth: 0.0, useOctaveDrop: 1.0, walkUp: 0.0,
+               useFifth: 0.0, useOctaveDrop: 0.70, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
@@ -207,6 +207,7 @@ var BASS_STYLES = {
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 4, chordAnticipation: 0.08,
                subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   // Regional variants — inherit from parent with modifications
+  // FIX #2: Removed static timingOffset, using only timingJitter for natural fluctuation
   normal_bronx:  { rhythm: 'kick', density: 1.0, velBase: 105, velRange: 8, noteDur: 0.4,
                useFifth: 0.1, useOctaveDrop: 0.12, walkUp: 0.05,
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
@@ -215,16 +216,16 @@ var BASS_STYLES = {
                subSwell: 0.0, restProb: 0.02, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   normal_queens: { rhythm: 'eighth', density: 0.7, velBase: 90, velRange: 16, noteDur: 0.65,
                useFifth: 0.35, useOctaveDrop: 0.15, walkUp: 0.25,
-               slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: -1,
+               slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.2, octaveUpProb: 0.1, deadNoteProb: 0.08,
                walkDirection: 'both', walkDiatonic: 0.4, backbeatAccent: 6, chordAnticipation: 0.15,
-               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.06, timingJitter: 2, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.06, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   normal_li:     { rhythm: 'kick', density: 0.85, velBase: 95, velRange: 14, noteDur: 0.55,
                useFifth: 0.25, useOctaveDrop: 0.10, walkUp: 0.18,
-               slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: -1,
+               slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.1, octaveUpProb: 0.08, deadNoteProb: 0.1,
                walkDirection: 'both', walkDiatonic: 0.2, backbeatAccent: 4, chordAnticipation: 0.1,
-               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.05, timingJitter: 2, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.05, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   gfunk_dre:     { rhythm: 'kick', density: 0.85, velBase: 98, velRange: 10, noteDur: 0.9,
                useFifth: 0.3, useOctaveDrop: 0.10, walkUp: 0.2,
                slideProb: 0.06, ghostNoteDensity: 0.0, timingOffset: 0,
@@ -261,55 +262,52 @@ var BASS_STYLES = {
  * @type {Object.<string, Array.<string[]>>}
  */
 var CHORD_PROGRESSIONS = {
-  // Boom bap: mostly stays on root, occasional IV, bVI lift on bar 4
-  normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv'], ['i','iv','i','bVI']],
+  // Boom bap: mostly stays on root, occasional IV, bVI lift on bar 8
+  // FIX #8: Extended all progressions from 4 chords to 8 chords for 8-bar sections
+  normal:    [['i','i','iv','i','i','iv','v','i'], ['i','i','iv','v','i','i','iv','i'], ['i','iv','i','v','i','iv','i','v'], ['i','i','i','iv','i','i','i','iv'], ['i','iv','i','bVI','i','iv','i','i']],
   // Hard: stays on root — occasional bVI for tension, always some movement
-  hard:      [['i','i','iv','i'], ['i','i','i','v'], ['i','i','bVI','i'], ['i','iv','i','i']],
+  hard:      [['i','i','iv','i','i','i','v','i'], ['i','i','i','v','i','i','bVI','i'], ['i','i','bVI','i','i','i','iv','i'], ['i','iv','i','i','i','iv','i','i']],
   // Jazzy: ii-V movement, neo-soul turnarounds with bIII, bVI, and dim passing chords
-  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii'], ['i','#idim','ii','v']],
+  jazzy:     [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','bIII','bVI','ii','i','bIII','bVI','ii'], ['i','#idim','ii','v','i','#idim','ii','v']],
   // Dark: Phrygian bII, Andalusian cadence (i-bVII-bVI-V)
-  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i'], ['i','bVII','bVI','v']],
+  dark:      [['i','i','i','i','i','i','i','i'], ['i','i','iv','i','i','i','iv','i'], ['i','bII','i','iv','i','bII','i','iv'], ['i','i','bII','i','i','i','bII','i'], ['i','bVII','bVI','v','i','bVII','bVI','v']],
   // Bounce: Soul Loop (I-bVII-IV-I), danceable movement
-  bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','bVII','iv','i'], ['i','iv','iv','v']],
+  bounce:    [['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','i','iv','i','i','i','iv','i'], ['i','bVII','iv','i','i','bVII','iv','i'], ['i','iv','iv','v','i','iv','iv','v']],
   // Halftime: Andalusian cadence, root-heavy but always some movement
-  halftime:  [['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','bVI','v'], ['i','iv','i','v']],
+  halftime:  [['i','i','iv','i','i','i','iv','i'], ['i','i','i','iv','i','i','i','iv'], ['i','bVII','bVI','v','i','bVII','bVI','v'], ['i','iv','i','v','i','iv','i','v']],
   // Dilla: one chord or 2-bar loops, occasional bVII warmth, dim passing chord
-  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','i','iv'], ['i','#idim','ii','i']],
+  dilla:     [['i','i','i','i','i','i','i','i'], ['i','iv','i','iv','i','iv','i','iv'], ['i','i','iv','i','i','i','iv','i'], ['i','i','i','iv','i','i','i','iv'], ['i','bVII','i','iv','i','bVII','i','iv'], ['i','#idim','ii','i','i','#idim','ii','i']],
   // Lo-fi: sample-based, simple loops, occasional bVII
-  lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','bVII','bVI','i']],
+  lofi:      [['i','i','i','i','i','i','i','i'], ['i','iv','i','iv','i','iv','i','iv'], ['i','i','iv','i','i','i','iv','i'], ['i','bVII','bVI','i','i','bVII','bVI','i']],
   // G-Funk: ONE CHORD for 8+ bars (Dre's "Nuthin' but a 'G' Thang" is Gm7 the entire song)
-  // FIX #5: Added movement progressions to gfunk (iv and bVII options)
-  gfunk:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
+  gfunk:     [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','bVII','i','i','i','bVII']],
   // Chopbreak: follows the sample, bVI lift
-  chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i'], ['i','iv','i','bVI']],
+  chopbreak: [['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','i','iv','i','i','i','iv','i'], ['i','iv','iv','i','i','iv','iv','i'], ['i','iv','i','bVI','i','iv','i','bVI']],
   // Crunk: ONE CHORD — 808 sub stays on root
-  // FIX #5: Added movement progressions to crunk (iv and bVII options)
-  crunk:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
+  crunk:     [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','bVII','i','i','i','bVII']],
   // Memphis: ONE CHORD or minimal movement — 808 sub hypnotic repetition
-  // FIX #5: Added movement progressions to memphis (iv and bVII options)
-  memphis:   [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
+  memphis:   [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','bII','i','i','i','bII','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','bVII','i','i','i','bVII']],
   // Griselda: Phrygian bII, bVI tension
-  griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v'], ['i','i','bVI','i']],
+  griselda:  [['i','i','iv','i','i','i','iv','i'], ['i','i','bII','i','i','i','bII','i'], ['i','bII','iv','i','i','bII','iv','i'], ['i','i','iv','v','i','i','iv','v'], ['i','i','bVI','i','i','i','bVI','i']],
   // Phonk: ONE CHORD — modern 808 sub, hypnotic
-  // FIX #5: Added movement progressions to phonk (iv and bVII options)
-  phonk:     [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
+  phonk:     [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','bII','i','i','i','bII','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','bVII','i','i','i','bVII']],
   // Nujabes: jazz-influenced, ii-V, neo-soul with bIII and dim passing chords
-  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii'], ['i','#idim','ii','v']],
+  nujabes:   [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','bIII','bVI','ii','i','bIII','bVI','ii'], ['i','#idim','ii','v','i','#idim','ii','v']],
   // Old school: simple, drum-machine era — root and IV, occasional bVII
-  oldschool: [['i','i','iv','i'], ['i','i','iv','iv'], ['i','bVII','i','i'], ['i','iv','i','iv']],
+  oldschool: [['i','i','iv','i','i','i','iv','i'], ['i','i','iv','iv','i','i','iv','iv'], ['i','bVII','i','i','i','bVII','i','i'], ['i','iv','i','iv','i','iv','i','iv']],
   // Sparse: minimal, stays on root
-  sparse:    [['i','i','i','i'], ['i','i','iv','i']],
+  sparse:    [['i','i','i','i','i','i','i','i'], ['i','i','iv','i','i','i','iv','i']],
   // Driving: forward momentum, bVII push
-  driving:   [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','v','iv'], ['i','bVII','iv','v']],
+  driving:   [['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','i','v','iv','i','i','v','iv'], ['i','bVII','iv','v','i','bVII','iv','v']],
   // Big: anthem, Soul Loop, bVI lift
-  big:       [['i','iv','i','v'], ['i','i','iv','v'], ['i','iv','v','i'], ['i','iv','iv','v'], ['i','bVII','iv','i'], ['i','iv','i','bVI']],
+  big:       [['i','iv','i','v','i','iv','i','v'], ['i','i','iv','v','i','i','iv','v'], ['i','iv','v','i','i','iv','v','i'], ['i','iv','iv','v','i','iv','iv','v'], ['i','bVII','iv','i','i','bVII','iv','i'], ['i','iv','i','bVI','i','iv','i','bVI']],
   // Regional variants — inherit from parent with modifications
-  normal_bronx:  [['i','i','iv','i'], ['i','i','i','v'], ['i','i','i','i'], ['i','iv','i','i']],
-  normal_queens: [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','i','iv'], ['i','bVII','i','iv'], ['i','#idim','ii','i']],
-  normal_li:     [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i'], ['i','bVII','iv','v']],
-  gfunk_dre:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv']],
-  gfunk_quik:    [['i','i','i','i'], ['i','i','i','iv'], ['i','iv','i','i']],
-  gfunk_battlecat: [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','bVII']]
+  normal_bronx:  [['i','i','iv','i','i','i','i','v'], ['i','i','i','v','i','i','i','i'], ['i','i','i','i','i','iv','i','i'], ['i','iv','i','i','i','iv','i','i']],
+  normal_queens: [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','i','iv','i','iv','i','iv'], ['i','bVII','i','iv','i','bVII','i','iv'], ['i','#idim','ii','i','i','#idim','ii','i']],
+  normal_li:     [['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','i','iv','i','i','i','iv','i'], ['i','iv','iv','i','i','iv','iv','i'], ['i','bVII','iv','v','i','bVII','iv','v']],
+  gfunk_dre:     [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','i','i','iv']],
+  gfunk_quik:    [['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','iv','i','i'], ['i','iv','i','i','i','iv','i','i']],
+  gfunk_battlecat: [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','i','i','bVII','i','i','i','bVII']]
 };
 
 /**
@@ -662,25 +660,33 @@ function generateBassPattern(sec, bpm) {
         noteVel = v(style.velBase - 10, style.velRange);
       }
 
-      // ── Fix #7: Walk-up only if step doesn't have a strong kick-locked note ──
-      if (pos >= 13 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
+      // FIX #5: Walk-up over 2-4 steps (steps 11-15), not just step 15
+      if (pos >= 11 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
         var nextBar = Math.floor((step + (16 - pos)) / 16) % 4;
         var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
-          if (pos === 13) { midiNote = currentRoot + 3; }
+          // Diatonic walk: 11→12→13→14→15 walks up scale degrees
+          if (pos === 11) { midiNote = currentRoot; }
+          else if (pos === 12) { midiNote = currentRoot + 2; }
+          else if (pos === 13) { midiNote = currentRoot + 3; }
           else if (pos === 14) { midiNote = currentRoot + 7; }
           else if (pos === 15) { midiNote = nextRoot - 1; }
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
-        } else if (pos === 15) {
+        } else if (pos >= 13) {
+          // Chromatic walk: 13→14→15 walks chromatically to next root
           if (style.walkDirection === 'above' || (style.walkDirection === 'both' && maybe(0.5))) {
-            var approachNote = nextRoot + 2;
-            if (approachNote <= 48) midiNote = approachNote;
+            if (pos === 13) midiNote = nextRoot - 3;
+            else if (pos === 14) midiNote = nextRoot - 2;
+            else if (pos === 15) midiNote = nextRoot - 1;
           } else {
-            var approachNote = nextRoot - 1;
-            if (approachNote >= 24) midiNote = approachNote;
+            if (pos === 13) midiNote = nextRoot - 3;
+            else if (pos === 14) midiNote = nextRoot - 2;
+            else if (pos === 15) midiNote = nextRoot - 1;
           }
+          if (midiNote > 48) midiNote -= 12;
+          if (midiNote < 24) midiNote += 12;
         }
         noteVel = v(style.velBase - 10, style.velRange);
       }

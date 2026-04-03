@@ -318,10 +318,16 @@ function writeSnA(p, feel, off) {
   // Backbeat on 2 and 4 — beat 4 (step 12) slightly harder than beat 2 (step 4)
   // because it resolves the bar and pulls into the next downbeat
   // FIX #2: Feel-specific backbeat velocities
+  // FIX #7: Bar-position scaling within sections — bars build intensity
+  var barNum = Math.floor(off / 16);
+  var velBoost = Math.min(8, barNum * 2);
   if (feel === 'normal' || feel === 'chopbreak' || feel === 'bounce' || feel === 'driving') {
+    p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
+  } else if (feel === 'sparse') {
+    // Sparse: no bar-position scaling, keep dynamics flat
     p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
   } else {
-    p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+    p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
   }
   if (feel === 'hard') {
     // Premier/Havoc: maximum crack (120-127)
@@ -462,7 +468,10 @@ function writeSnB(p, feel, off) {
     return;
   }
   // Backbeat — beat 4 slightly harder than beat 2
-  p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+  // FIX #7: Bar-position scaling within sections — bars build intensity
+  var barNum = Math.floor(off / 16);
+  var velBoost = Math.min(8, barNum * 2);
+  p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
   if (feel === 'hard') {
     p.snare[off + 4] = v(124, 3); p.snare[off + 12] = v(127, 3);
     if (maybe(.2 * ghostDensity)) p.snare[off + 7] = v(85, 8);
@@ -557,7 +566,7 @@ function writeSnB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKA(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
     var darkPos = pick([9, 11]);
@@ -578,6 +587,9 @@ function writeGKA(p, feel, off) {
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
   
+  // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
+  var is808Feel = (feel === 'memphis' || feel === 'griselda');
+  
   // FIX #4: Calculate average main kick velocity and scale ghost kicks to 40-45% ratio
   var kickVelSum = 0, kickCount = 0;
   for (var k = 0; k < 16; k++) {
@@ -586,12 +598,16 @@ function writeGKA(p, feel, off) {
   var avgKickVel = kickCount > 0 ? kickVelSum / kickCount : 110;
   
   // Target 42.5% ratio (midpoint of 40-45%), then clamp to 55-75 range
-  var ghostKickBase = Math.floor(avgKickVel * 0.425);
-  ghostKickBase = Math.max(55, Math.min(75, ghostKickBase));
+  // FIX #6: 808 feels use fixed velocity instead
+  var ghostKickBase = is808Feel ? 62 : Math.floor(avgKickVel * 0.425);
+  ghostKickBase = is808Feel ? ghostKickBase : Math.max(55, Math.min(75, ghostKickBase));
   
   // Ghost kick velocity curve: scaled to main kick velocity
   // Softer leading into snare (steps 3,11), firmer after snare rebound (steps 5,13)
-  var gkVel = {
+  // FIX #6: 808 feels use fixed velocity curve instead of scaled
+  var gkVel = is808Feel ? {
+    1: 62, 3: 60, 5: 65, 9: 62, 11: 60, 13: 65
+  } : {
     1: ghostKickBase,
     3: ghostKickBase - 5,
     5: ghostKickBase + 5,
@@ -607,14 +623,19 @@ function writeGKA(p, feel, off) {
   pos.forEach(function(i) {
     if (off+i<STEPS && !p.kick[off+i] && !p.snare[off+i] && maybe(ch)) {
       var baseVel = gkVel[i] || ghostKickBase;
-      // Scale ghost kick relative to nearby main kick — softer when main kick is present, louder when absent
-      var prevKick = (i > 0 && p.kick[off+i-1] > 0) ? p.kick[off+i-1] : 0;
-      var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
-      if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8); // near main kick: softer
-      else baseVel = Math.min(85, baseVel + 4); // no nearby kick: slightly louder, carrying the low end
-      // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
-      var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
-      p.ghostkick[off+i] = v(finalVel, 10);
+      // FIX #6: 808 feels skip scaling adjustments, use fixed velocity
+      if (is808Feel) {
+        p.ghostkick[off+i] = v(baseVel, 3);
+      } else {
+        // Scale ghost kick relative to nearby main kick — softer when main kick is present, louder when absent
+        var prevKick = (i > 0 && p.kick[off+i-1] > 0) ? p.kick[off+i-1] : 0;
+        var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
+        if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8); // near main kick: softer
+        else baseVel = Math.min(85, baseVel + 4); // no nearby kick: slightly louder, carrying the low end
+        // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
+        var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
+        p.ghostkick[off+i] = v(finalVel, 10);
+      }
     }
   });
 }
@@ -630,7 +651,7 @@ function writeGKA(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKB(p, feel, off) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
     var darkPos = pick([5, 13]);
@@ -654,6 +675,9 @@ function writeGKB(p, feel, off) {
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
   
+  // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
+  var is808Feel = (feel === 'memphis' || feel === 'griselda');
+  
   // FIX #4: Calculate average main kick velocity and scale ghost kicks to 40-45% ratio
   var kickVelSum = 0, kickCount = 0;
   for (var k = 0; k < 16; k++) {
@@ -662,11 +686,15 @@ function writeGKB(p, feel, off) {
   var avgKickVel = kickCount > 0 ? kickVelSum / kickCount : 110;
   
   // Target 42.5% ratio (midpoint of 40-45%), then clamp to 55-75 range
-  var ghostKickBase = Math.floor(avgKickVel * 0.425);
-  ghostKickBase = Math.max(55, Math.min(75, ghostKickBase));
+  // FIX #6: 808 feels use fixed velocity instead
+  var ghostKickBase = is808Feel ? 62 : Math.floor(avgKickVel * 0.425);
+  ghostKickBase = is808Feel ? ghostKickBase : Math.max(55, Math.min(75, ghostKickBase));
   
   // Ghost kick velocity curve: scaled to main kick velocity
-  var gkVel = {
+  // FIX #6: 808 feels use fixed velocity curve instead of scaled
+  var gkVel = is808Feel ? {
+    1: 62, 5: 65, 7: 60, 13: 65, 15: 63
+  } : {
     1: ghostKickBase,
     5: ghostKickBase + 5,
     7: ghostKickBase - 5,
@@ -680,13 +708,18 @@ function writeGKB(p, feel, off) {
   pos.forEach(function(i) {
     if (off+i<STEPS && !p.kick[off+i] && !p.snare[off+i] && maybe(ch)) {
       var baseVel = gkVel[i] || ghostKickBase;
-      var prevKick = (i > 0 && p.kick[off+i-1] > 0) ? p.kick[off+i-1] : 0;
-      var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
-      if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8);
-      else baseVel = Math.min(85, baseVel + 4);
-      // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
-      var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
-      p.ghostkick[off+i] = v(finalVel, 10);
+      // FIX #6: 808 feels skip scaling adjustments, use fixed velocity
+      if (is808Feel) {
+        p.ghostkick[off+i] = v(baseVel, 3);
+      } else {
+        var prevKick = (i > 0 && p.kick[off+i-1] > 0) ? p.kick[off+i-1] : 0;
+        var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
+        if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8);
+        else baseVel = Math.min(85, baseVel + 4);
+        // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
+        var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
+        p.ghostkick[off+i] = v(finalVel, 10);
+      }
     }
   });
 }
@@ -1099,12 +1132,14 @@ function writeRide(p, feel, off) {
   // FIX #9: Dilla already has ride support below, removed from exclusion
   if (feel === 'hard' || feel === 'sparse' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'jazzy' || feel === 'dilla') {
+    // FIX #9: Conditional ghost tap probability - if previous ghost played, next is more likely
     // Jazz ride: quarter notes accented + ghost taps on "ah" positions (steps 3, 7, 11, 15)
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(90, 12);
-    if (maybe(.6)) p.ride[off + 3] = v(50, 10);
-    if (maybe(.5)) p.ride[off + 7] = v(48, 10);
-    if (maybe(.6)) p.ride[off + 11] = v(50, 10);
-    if (maybe(.4)) p.ride[off + 15] = v(45, 10);
+    var prevGhost = false;
+    if (maybe(.6)) { p.ride[off + 3] = v(50, 10); prevGhost = true; }
+    if (maybe(prevGhost ? .80 : .50)) { p.ride[off + 7] = v(48, 10); prevGhost = true; } else { prevGhost = false; }
+    if (maybe(prevGhost ? .80 : .60)) { p.ride[off + 11] = v(50, 10); prevGhost = true; } else { prevGhost = false; }
+    if (maybe(prevGhost ? .70 : .40)) p.ride[off + 15] = v(45, 10);
     return;
   }
   if (feel === 'lofi') {
@@ -1138,16 +1173,18 @@ function writeRide(p, feel, off) {
     return;
   }
   if (feel === 'nujabes') {
+    // FIX #9: Conditional ghost tap probability for nujabes as well
     // Nujabes: jazz ride pattern — beats 2 and 4 accented (jazz convention),
     // beats 1 and 3 lighter, ghost taps on "ah" positions for swing
     p.ride[off] = v(72, 12);      // beat 1 — lighter
     p.ride[off + 4] = v(92, 10);  // beat 2 — accented (jazz ride)
     p.ride[off + 8] = v(70, 12);  // beat 3 — lighter
     p.ride[off + 12] = v(95, 10); // beat 4 — strongest accent
-    if (maybe(.55)) p.ride[off + 3] = v(42, 10);  // ah-of-1 ghost
-    if (maybe(.45)) p.ride[off + 7] = v(40, 10);  // ah-of-2 ghost
-    if (maybe(.55)) p.ride[off + 11] = v(42, 10); // ah-of-3 ghost
-    if (maybe(.4)) p.ride[off + 15] = v(38, 10);  // ah-of-4 ghost
+    var prevGhost = false;
+    if (maybe(.55)) { p.ride[off + 3] = v(42, 10); prevGhost = true; }
+    if (maybe(prevGhost ? .75 : .45)) { p.ride[off + 7] = v(40, 10); prevGhost = true; } else { prevGhost = false; }
+    if (maybe(prevGhost ? .80 : .55)) { p.ride[off + 11] = v(42, 10); prevGhost = true; } else { prevGhost = false; }
+    if (maybe(prevGhost ? .70 : .40)) p.ride[off + 15] = v(38, 10);
     return;
   }
   // Default: straight quarter note ride
@@ -1342,6 +1379,9 @@ function writeCR(p, sec, off, feel) {
  *   lastchorus:    100% chance, 3–4 steps (always fills into outro)
  *   breakdown:     50% chance, 2–3 steps
  *
+ * FIX #4: Fill probability scales with arrangement position — pre-chorus
+ * sections before chorus/lastchorus get 90%+ fill probability.
+ *
  * @param {Object.<string, number[]>} p - Pattern to modify in place
  * @param {string} sec - Section identifier
  * @param {number} len - Active step count
@@ -1349,13 +1389,24 @@ function writeCR(p, sec, off, feel) {
  */
 function addFill(p, sec, len, feel) {
   var doFill = false, fillLen = 4;
-  if (sec==='pre') { doFill=maybe(.8); fillLen=pick([3,4]); }
-  else if (sec==='verse'||sec==='verse2') { doFill=maybe(.5); fillLen=pick([2,3]); }
+  
+  // FIX #4: Arrangement position awareness — boost fill probability before chorus/lastchorus
+  var arrIdx = -1, nextSec = '';
+  if (typeof arrangement !== 'undefined' && arrangement.length > 0) {
+    arrIdx = arrangement.indexOf(sec);
+    if (arrIdx >= 0 && arrIdx < arrangement.length - 1) {
+      nextSec = arrangement[arrIdx + 1];
+    }
+  }
+  var isPreChorus = (nextSec === 'chorus' || nextSec === 'lastchorus');
+  
+  if (sec==='pre') { doFill=maybe(isPreChorus ? .95 : .8); fillLen=pick([3,4]); }
+  else if (sec==='verse'||sec==='verse2') { doFill=maybe(isPreChorus ? .9 : .5); fillLen=pick([2,3]); }
   else if (sec==='chorus') { doFill=maybe(.4); fillLen=3; }
-  else if (sec==='chorus2') { doFill=maybe(.6); fillLen=pick([3,4]); }
+  else if (sec==='chorus2') { doFill=maybe(isPreChorus ? .9 : .6); fillLen=pick([3,4]); }
   else if (sec==='lastchorus') { doFill=true; fillLen=pick([3,4]); }
-  else if (sec==='breakdown') { doFill=maybe(.5); fillLen=pick([2,3]); }
-  else if (sec==='instrumental') { doFill=maybe(.4); fillLen=3; }
+  else if (sec==='breakdown') { doFill=maybe(isPreChorus ? .85 : .5); fillLen=pick([2,3]); }
+  else if (sec==='instrumental') { doFill=maybe(isPreChorus ? .85 : .4); fillLen=3; }
   if (!doFill || len < 16) return;
   var isBig = (sec==='pre'||sec==='lastchorus'); // "big" sections get crash at end
   var start = len - fillLen;
@@ -1546,6 +1597,8 @@ function addFill(p, sec, len, feel) {
  * "and" positions) at low-to-medium velocity, creating a layered
  * texture that makes the groove feel more alive.
  *
+ * FIX #10: Shaker density now scales with section energy
+ *
  * Style behaviors:
  *   normal/chopbreak: 8th note upbeats at moderate velocity — Pete Rock,
  *     Large Professor, Buckwild. The shaker is the "secret ingredient"
@@ -1565,20 +1618,28 @@ function addFill(p, sec, len, feel) {
  * @param {Object.<string, number[]>} p - Pattern to write into
  * @param {string} feel - Current section feel
  * @param {number} off - Step offset (start of bar)
+ * @param {string} sec - Section identifier for energy scaling
  */
-function writeShaker(p, feel, off) {
+function writeShaker(p, feel, off, sec) {
   // Styles that don't use shaker
   if (feel === 'hard' || feel === 'dark' || feel === 'sparse' ||
       feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool' ||
       feel === 'intro_a' || feel === 'intro_b' || feel === 'intro_c' ||
       feel === 'outro_fade' || feel === 'outro_stop') return;
 
+  // FIX #10: Section energy scaling for shaker density
+  var energyMult = 1.0;
+  if (sec === 'chorus' || sec === 'chorus2') energyMult = 1.15;
+  else if (sec === 'lastchorus') energyMult = 1.25;
+  else if (sec === 'breakdown') energyMult = 0.6;
+  else if (sec === 'verse2') energyMult = 1.05;
+
   // FIX #2: Shaker sine-wave velocity with minimal jitter to preserve wave shape
   if (feel === 'normal' || feel === 'chopbreak' || feel === 'driving') {
     // 8th note upbeats (steps 2, 6, 10, 14) — the classic boom bap shaker
     var upbeats = [2, 6, 10, 14];
     upbeats.forEach(function(s) {
-      if (maybe(0.65 * ghostDensity)) {
+      if (maybe(0.65 * ghostDensity * energyMult)) {
         var sineVal = Math.sin((s / 16) * Math.PI * 2); // -1 to 1
         var vel = 35 + Math.floor((sineVal + 1) * 17.5); // map to 35-70 range
         p.shaker[off + s] = v(vel, 3); // reduced jitter from 12 to 3
@@ -1587,19 +1648,19 @@ function writeShaker(p, feel, off) {
   }
   else if (feel === 'jazzy' || feel === 'nujabes') {
     // Sparse but consistent — a hint of shimmer on the "and" positions
-    if (maybe(0.6)) {
+    if (maybe(0.6 * energyMult)) {
       var sineVal = Math.sin((6 / 16) * Math.PI * 2);
       p.shaker[off + 6] = v(35 + Math.floor((sineVal + 1) * 17.5), 3);
     }
-    if (maybe(0.5)) {
+    if (maybe(0.5 * energyMult)) {
       var sineVal = Math.sin((14 / 16) * Math.PI * 2);
       p.shaker[off + 14] = v(35 + Math.floor((sineVal + 1) * 17.5), 3);
     }
-    if (maybe(0.35)) {
+    if (maybe(0.35 * energyMult)) {
       var sineVal = Math.sin((2 / 16) * Math.PI * 2);
       p.shaker[off + 2] = v(35 + Math.floor((sineVal + 1) * 17.5), 3);
     }
-    if (maybe(0.25)) {
+    if (maybe(0.25 * energyMult)) {
       var sineVal = Math.sin((10 / 16) * Math.PI * 2);
       p.shaker[off + 10] = v(35 + Math.floor((sineVal + 1) * 17.5), 3);
     }
@@ -1607,14 +1668,14 @@ function writeShaker(p, feel, off) {
   else if (feel === 'bounce' || feel === 'big') {
     // Busier — 16th note upbeats (tambourine feel, Bad Boy era)
     [1, 3, 5, 7, 9, 11, 13, 15].forEach(function(s) {
-      if (maybe(0.55)) {
+      if (maybe(0.55 * energyMult)) {
         var sineVal = Math.sin((s / 16) * Math.PI * 2);
         var vel = 35 + Math.floor((sineVal + 1) * 17.5);
         p.shaker[off + s] = v(vel, 3);
       }
     });
     [2, 6, 10, 14].forEach(function(s) {
-      if (maybe(0.7)) {
+      if (maybe(0.7 * energyMult)) {
         var sineVal = Math.sin((s / 16) * Math.PI * 2);
         var vel = 35 + Math.floor((sineVal + 1) * 17.5);
         p.shaker[off + s] = v(vel, 3);
@@ -1625,32 +1686,32 @@ function writeShaker(p, feel, off) {
     // Loose and scattered — feels improvised
     var allUpbeats = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15];
     allUpbeats.forEach(function(s) {
-      if (maybe(0.25 * ghostDensity)) p.shaker[off + s] = v(42 + Math.floor(rnd() * 20), 15);
+      if (maybe(0.25 * ghostDensity * energyMult)) p.shaker[off + s] = v(42 + Math.floor(rnd() * 20), 15);
     });
   }
   else if (feel === 'lofi') {
     // Present but quiet — consistent on the "and-of-2" and "and-of-4"
-    if (maybe(0.7)) p.shaker[off + 6]  = v(40, 8);
-    if (maybe(0.65)) p.shaker[off + 14] = v(38, 8);
-    if (maybe(0.4)) p.shaker[off + 2]  = v(34, 6);
-    if (maybe(0.3)) p.shaker[off + 10] = v(32, 6);
+    if (maybe(0.7 * energyMult)) p.shaker[off + 6]  = v(40, 8);
+    if (maybe(0.65 * energyMult)) p.shaker[off + 14] = v(38, 8);
+    if (maybe(0.4 * energyMult)) p.shaker[off + 2]  = v(34, 6);
+    if (maybe(0.3 * energyMult)) p.shaker[off + 10] = v(32, 6);
   }
   else if (feel === 'gfunk') {
     // 16th note upbeats — West Coast shimmer
     [1, 3, 5, 7, 9, 11, 13, 15].forEach(function(s) {
-      if (maybe(0.6)) p.shaker[off + s] = v(50, 12);
+      if (maybe(0.6 * energyMult)) p.shaker[off + s] = v(50, 12);
     });
   }
   else if (feel === 'halftime') {
     // 8th note upbeats, moderate — adds forward momentum to the slow feel
     [2, 6, 10, 14].forEach(function(s) {
-      if (maybe(0.55 * ghostDensity)) p.shaker[off + s] = v(48, 12);
+      if (maybe(0.55 * ghostDensity * energyMult)) p.shaker[off + s] = v(48, 12);
     });
   }
   else {
     // Default: sparse 8th note upbeats
     [2, 6, 10, 14].forEach(function(s) {
-      if (maybe(0.45 * ghostDensity)) p.shaker[off + s] = v(48, 12);
+      if (maybe(0.45 * ghostDensity * energyMult)) p.shaker[off + s] = v(48, 12);
     });
   }
 }

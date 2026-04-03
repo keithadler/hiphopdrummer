@@ -742,6 +742,7 @@ function generatePattern(sec) {
 
   // Feel-aware hat pattern override: some feels require specific hat approaches
   // regardless of the song-level hatPatternType selection
+  // FIX #3: Hat pattern can vary per section independently based on feel and section type
   var sectionHatType = hatPatternType;
   // Regional variant hat override
   if (regionalMod && regionalMod.hatType) sectionHatType = regionalMod.hatType;
@@ -756,8 +757,13 @@ function generatePattern(sec) {
   if (baseFeel === 'nujabes') sectionHatType = '8th';
   if (baseFeel === 'oldschool') sectionHatType = '8th';
   if (baseFeel === 'normal' && sectionHatType !== '8th' && maybe(.7)) sectionHatType = '8th';
+  // FIX #3: Chorus sections get busier hats more reliably (75% chance instead of 50%)
   if (isCh && sectionHatType === '8th' && baseFeel !== 'dilla' && baseFeel !== 'lofi' && baseFeel !== 'memphis') {
-    sectionHatType = pick(['8th', '8th', '16th_sparse', '16th']); // 50% chance of busier hats
+    sectionHatType = pick(['8th', '16th_sparse', '16th', '16th']); // 75% chance of busier hats
+  }
+  // FIX #3: Lastchorus always gets busiest hat pattern for maximum energy
+  if (sec === 'lastchorus' && sectionHatType === '8th' && baseFeel !== 'dilla' && baseFeel !== 'lofi' && baseFeel !== 'memphis') {
+    sectionHatType = pick(['16th_sparse', '16th']); // Always busier for lastchorus
   }
 
   // Temporarily override hatPatternType for this section's bar writers
