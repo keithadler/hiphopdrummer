@@ -54,6 +54,14 @@ function noteToMidi(noteName) {
 var _lastChosenKey = null;
 
 /**
+ * Stores the chord progression chosen for each section during bass generation.
+ * Keys are section ids, values are arrays of degree strings (e.g. ['i','iv','i','v']).
+ * Read by the playback chord overlay to show the correct chords.
+ * @type {Object.<string, string[]>}
+ */
+var _sectionProgressions = {};
+
+/**
  * Bass style definitions per feel.
  *
  * Round 1 params: rhythm, density, velBase, velRange, noteDur, useFifth,
@@ -295,7 +303,15 @@ function generateBassPattern(sec) {
 
   // ── Pick a chord progression for this section ──
   var progPool = CHORD_PROGRESSIONS[bassFeel] || CHORD_PROGRESSIONS.normal;
-  var progression = pick(progPool); // e.g. ['i','iv','ii','v']
+  // Use stored progression if one was already picked for this section (consistency
+  // across multiple calls), otherwise pick a new one and store it
+  var progression;
+  if (_sectionProgressions[sec]) {
+    progression = _sectionProgressions[sec];
+  } else {
+    progression = pick(progPool);
+    _sectionProgressions[sec] = progression;
+  }
 
   // Build a MIDI note lookup for each degree
   // ii = root + 2 semitones (supertonic), clamped to bass range

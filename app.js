@@ -470,19 +470,28 @@ function initPlaybackTracking() {
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var isIntro = (sec === 'intro');
     var isOutro = (sec === 'outro');
-    var isBreakdown = (sec === 'breakdown');
+
+    // Use the actual progression the bass is playing (from _sectionProgressions)
+    // Falls back to ['i','i','iv','v'] if not available
+    var prog = (typeof _sectionProgressions !== 'undefined' && _sectionProgressions[sec])
+      ? _sectionProgressions[sec] : ['i', 'i', 'iv', 'v'];
+
+    // Map degree symbols to chord names and function labels
+    var degreeMap = {
+      'i': { name: key.i, fn: 'I' },
+      'iv': { name: key.iv, fn: 'IV' },
+      'v': { name: key.v, fn: 'V' },
+      'ii': { name: key.ii || key.i, fn: 'ii' },
+      'bII': { name: key.bII || key.i, fn: 'bII' }
+    };
 
     for (var b = 0; b < bars; b++) {
-      var barInPhrase = b % 4;
       if (isIntro || isOutro) {
         _sectionChords.push({ name: key.i, fn: 'I' });
-      } else if (isBreakdown) {
-        if (barInPhrase === 2 || barInPhrase === 3) _sectionChords.push({ name: key.iv, fn: 'IV' });
-        else _sectionChords.push({ name: key.i, fn: 'I' });
       } else {
-        if (barInPhrase === 2) _sectionChords.push({ name: key.iv, fn: 'IV' });
-        else if (barInPhrase === 3 && bars > 2) _sectionChords.push({ name: key.v, fn: 'V' });
-        else _sectionChords.push({ name: key.i, fn: 'I' });
+        var deg = prog[b % prog.length];
+        var mapped = degreeMap[deg] || { name: key.i, fn: 'I' };
+        _sectionChords.push({ name: mapped.name, fn: mapped.fn });
       }
     }
 
