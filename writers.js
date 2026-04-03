@@ -489,7 +489,8 @@ function writeSnB(p, feel, off) {
     var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
     for (var g = 0; g < baseSnareGhostB.length; g++) {
       var gPos = baseSnareGhostB[g][0], gVel = baseSnareGhostB[g][1];
-      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
+      var adjVel = (feel === 'crunk') ? Math.min(65, gVel + 10) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
+      adjVel = Math.min(65, adjVel); // Cap ghost snares at 65
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
         p.snare[off + gPos] = v(adjVel, 10);
       }
