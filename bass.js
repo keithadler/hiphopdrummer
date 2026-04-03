@@ -216,16 +216,16 @@ var CHORD_PROGRESSIONS = {
   normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv'], ['i','iv','i','bVI']],
   // Hard: stays on root — occasional bVI for tension, always some movement
   hard:      [['i','i','iv','i'], ['i','i','i','v'], ['i','i','bVI','i'], ['i','iv','i','i']],
-  // Jazzy: ii-V movement, neo-soul turnarounds with bIII and bVI
-  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
+  // Jazzy: ii-V movement, neo-soul turnarounds with bIII, bVI, and dim passing chords
+  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii'], ['i','#idim','ii','v']],
   // Dark: Phrygian bII, Andalusian cadence (i-bVII-bVI-V)
   dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i'], ['i','bVII','bVI','v']],
   // Bounce: Soul Loop (I-bVII-IV-I), danceable movement
   bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','bVII','iv','i'], ['i','iv','iv','v']],
   // Halftime: Andalusian cadence, root-heavy but always some movement
   halftime:  [['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','bVI','v'], ['i','iv','i','v']],
-  // Dilla: one chord or 2-bar loops, occasional bVII warmth
-  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','i','iv']],
+  // Dilla: one chord or 2-bar loops, occasional bVII warmth, dim passing chord
+  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','i','iv'], ['i','#idim','ii','i']],
   // Lo-fi: sample-based, simple loops, occasional bVII
   lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','bVII','bVI','i']],
   // G-Funk: West Coast borrowed chords (bIII, bVII), chromatic movement
@@ -240,8 +240,8 @@ var CHORD_PROGRESSIONS = {
   griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v'], ['i','i','bVI','i']],
   // Phonk: Phrygian bII, dark borrowed chords
   phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv'], ['i','bVI','bVII','i']],
-  // Nujabes: jazz-influenced, ii-V, neo-soul with bIII
-  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
+  // Nujabes: jazz-influenced, ii-V, neo-soul with bIII and dim passing chords
+  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii'], ['i','#idim','ii','v']],
   // Old school: simple, drum-machine era — root and IV, occasional bVII
   oldschool: [['i','i','iv','i'], ['i','i','iv','iv'], ['i','bVII','i','i'], ['i','iv','i','iv']],
   // Sparse: minimal, stays on root
@@ -341,6 +341,7 @@ function generateBassPattern(sec) {
     if (deg === 'bIII') return bIIINote;
     if (deg === 'bVI') return bVINote;
     if (deg === 'bVII') return bVIINote;
+    if (deg === '#idim') return rootNote + 1; // chromatic passing dim: half step above root
     return rootNote; // 'i' or default
   }
 
