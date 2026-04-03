@@ -1270,12 +1270,15 @@ function initPlaybackTracking() {
   var _playerCurrentEl = null;
   var _playerSeekEl = null;
   var _playerPlayBtn = null;
-  var _followPlayhead = false;
   var _lastActiveBar = -1;
   var _touchPauseFollow = false;
   var _sectionChords = []; // chord per bar for current section
   var _chordToastVisible = false;
-  var _showChordsOverlay = true; // user touched screen — pause auto-scroll temporarily
+  // Read preferences from localStorage immediately (not just on playback start)
+  var _showChordsOverlay = true;
+  try { var _sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (_sc === null || _sc !== 'false'); } catch(e) {}
+  var _followPlayhead = false;
+  try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
