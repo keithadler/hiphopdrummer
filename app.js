@@ -452,10 +452,14 @@ function initWelcome() {
 
 function initBeatHistoryHandlers() {
   var historyClose = document.getElementById('historyClose');
+  console.log('historyClose element:', historyClose);
   if (historyClose) {
     historyClose.onclick = function() {
+      console.log('Close button clicked');
       document.getElementById('beatHistoryOverlay').style.display = 'none';
     };
+  } else {
+    console.error('historyClose element not found!');
   }
 
   var historyOverlay = document.getElementById('beatHistoryOverlay');
