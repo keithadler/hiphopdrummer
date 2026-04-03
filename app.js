@@ -635,7 +635,8 @@ function renderGuitarChord(chordName) {
 }
 
 /**
- * Get role-aware, style-specific section tip for the chord overlay.
+ * Get role-aware section tip for the chord overlay during playback.
+ * Uses actual chord progression, key, BPM, style, and pattern data.
  */
 function getRoleSectionTip(sec, role) {
   if (!role) return '';
@@ -644,8 +645,41 @@ function getRoleSectionTip(sec, role) {
   try { feel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeels[sec] || songFeel || 'normal') : (secFeels[sec] || songFeel || 'normal'); } catch(e) { feel = 'normal'; }
   var bpm = 90;
   try { bpm = parseInt(document.getElementById('bpm').textContent) || 90; } catch(e) {}
-  var keyName = '';
-  try { keyName = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) ? _lastChosenKey.root : ''; } catch(e) {}
+  var swing = 62;
+  try { swing = parseInt(document.getElementById('swing').textContent) || 62; } catch(e) {}
+  var key = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) ? _lastChosenKey : null;
+  var keyName = key ? key.root : '';
+  var isMinor = key ? key.type === 'minor' : true;
+
+  // Get actual chords for this section
+  var chords = (window._chordSheetData && window._chordSheetData[sec]) ? window._chordSheetData[sec] : [];
+  var uniqueChords = {}, chordFns = [];
+  for (var ci = 0; ci < chords.length; ci++) { uniqueChords[chords[ci].name] = chords[ci].fn; chordFns.push(chords[ci].fn); }
+  var numChords = Object.keys(uniqueChords).length;
+  var chordList = Object.keys(uniqueChords).join(' → ');
+  var bars = chords.length || Math.ceil(((typeof secSteps !== 'undefined' && secSteps[sec]) || 32) / 16);
+  var hasMove = numChords > 1;
+  var hasFour = chordFns.indexOf('IV') >= 0;
+  var hasBorrowed = chordFns.indexOf('bVI') >= 0 || chordFns.indexOf('bVII') >= 0 || chordFns.indexOf('bIII') >= 0;
+
+  // Analyze pattern
+  var pat = (typeof patterns !== 'undefined') ? patterns[sec] : null;
+  var kickCount = 0, ghostCount = 0, hats16 = false, hasCrash = false, hasRide = false;
+  if (pat) {
+    for (var i = 0; i < 16; i++) {
+      if (pat.kick && pat.kick[i]) kickCount++;
+      if (pat.ghostkick && pat.ghostkick[i]) ghostCount++;
+      if (pat.snare && pat.snare[i] && pat.snare[i] < 70) ghostCount++;
+    }
+    var hh = 0; for (var i = 0; i < 16; i++) if (pat.hat && pat.hat[i]) hh++;
+    hats16 = hh >= 12;
+    hasCrash = pat.crash && pat.crash[0] > 0;
+    for (var i = 0; i < 16; i++) if (pat.ride && pat.ride[i]) { hasRide = true; break; }
+  }
+  var kickDense = kickCount >= 4;
+  var swingHeavy = swing >= 62;
+  var modeNote = (feel === 'gfunk' || feel === 'dilla' || feel === 'nujabes') ? 'Dorian — IV is major' : (feel === 'dark' || feel === 'griselda' || feel === 'memphis' || feel === 'phonk') ? 'Phrygian — bII for tension' : '';
+  var chordCtx = hasMove ? chordList : keyName;
 
   var styleInstr = {
     normal: 'piano stabs or soul sample chops', hard: 'dark piano hits or aggressive brass', jazzy: 'Rhodes or vibraphone',
@@ -658,97 +692,141 @@ function getRoleSectionTip(sec, role) {
   var instr = styleInstr[feel] || 'melodic samples';
 
   if (role === 'rapper') {
-    if (secType === 'intro') return 'Let the beat breathe. Come in on the verse.';
+    var syll = Math.round((60 / bpm) * 4 * (bpm <= 82 ? 5.5 : bpm >= 105 ? 3.5 : 4.5));
+    if (secType === 'intro') return bars + ' bars in ' + keyName + '. Let the beat breathe.';
     if (secType === 'verse') {
-      if (feel === 'dilla' || feel === 'lofi') return 'Drift behind the pocket. Relaxed delivery, every word lands but nothing feels rushed.';
-      if (feel === 'gfunk') return 'Smooth and effortless. Float over the groove. Let the bass carry you.';
-      if (feel === 'memphis' || feel === 'phonk') return 'Slow and deliberate. Every word is a threat. The space between lines matters.';
-      if (feel === 'crunk') return 'Short, aggressive phrases. Call-and-response. Punch every consonant.';
-      if (feel === 'hard') return 'Hard delivery. Punch consonants, stay aggressive. Match the drum energy.';
-      if (feel === 'chopbreak') return 'Precise and punchy. Dense ghosts create rhythmic info — cut through with tight bars.';
-      return 'Lock to the kick on beats 1 and 3. Land your hardest syllables there.';
+      var t = '~' + syll + ' syll/bar at ' + bpm + '. ';
+      if (hasMove) t += 'Chords: ' + chordCtx + '. Shift your tone on the IV. ';
+      if (feel === 'dilla' || feel === 'lofi') t += 'Drift behind the pocket.';
+      else if (feel === 'gfunk') t += 'Smooth and effortless over the Dorian groove.';
+      else if (feel === 'memphis' || feel === 'phonk') t += 'Slow and deliberate. Space between lines matters.';
+      else if (feel === 'crunk') t += 'Short, aggressive phrases. Punch every consonant.';
+      else if (feel === 'hard' || feel === 'griselda') t += 'Hard delivery. Match the drum energy.';
+      else t += kickDense ? 'Land hard words on the ' + kickCount + ' kicks.' : 'Space between kicks — fill it or breathe.';
+      return t;
     }
-    if (secType === 'pre') return 'Build urgency. Shorter phrases, faster cadence. Setting up the hook.';
-    if (secType === 'chorus') return feel === 'crunk' ? 'Chant it. Repeat it. Make them scream it back.' : feel === 'bounce' ? 'Melodic and singable. Think Biggie hooks.' : 'Hook time. Something they remember after one listen.';
-    if (secType === 'breakdown') return (feel === 'memphis' || feel === 'dark') ? 'Silence. Let the menace build.' : 'Drop out or go half-speed. Tension makes the next chorus hit harder.';
-    if (secType === 'lastchorus') return 'Maximum energy. Ad-libs, doubles, everything you held back.';
-    if (secType === 'instrumental') return (feel === 'jazzy' || feel === 'nujabes') ? 'Let the jazz breathe.' : 'Rest or ad-lib. Let the beat speak.';
-    if (secType === 'outro') return 'Last words. Make them count.';
+    if (secType === 'pre') return bars + ' bars to the hook. ' + (hasMove ? chordCtx + '. ' : '') + 'Shorter phrases, faster cadence.';
+    if (secType === 'chorus') return (hasCrash ? 'Crash drops. ' : '') + 'Hook in ' + keyName + '. ' + (feel === 'crunk' ? 'Chant it.' : feel === 'bounce' ? 'Melodic and singable.' : 'Make it memorable.');
+    if (secType === 'breakdown') return (hasMove ? chordCtx + '. ' : keyName + ' holds. ') + 'Pull back or go silent — tension builds.';
+    if (secType === 'lastchorus') return 'Peak energy in ' + keyName + '. Ad-libs, doubles, everything.';
+    if (secType === 'instrumental') return bars + ' bars. Rest or ad-lib over ' + chordCtx + '.';
+    if (secType === 'outro') return 'Last words in ' + keyName + '. ' + bars + ' bars.';
   }
   if (role === 'producer') {
-    if (secType === 'intro') return 'Start with just ' + instr + '. Add drums gradually or drop the full groove on bar 2.';
+    if (secType === 'intro') return instr + ' in ' + keyName + '. ' + (hasMove ? chordCtx : 'Stay on the I') + '. ' + bars + ' bars.';
     if (secType === 'verse') {
-      if (feel === 'dilla') return 'Don\'t quantize your samples — let them drift with the swing.';
-      if (feel === 'lofi') return 'Keep everything in a narrow velocity band. Dusty and compressed.';
-      if (feel === 'gfunk') return 'Layer a Moog bass under the synth pad. Smooth and sustained.';
-      return 'Keep the melody simple — ' + instr + ' on the chord changes. Leave room for vocals.';
+      var t = chordCtx + '. ' + instr + ' on the changes. ';
+      if (feel === 'dilla') t += 'Don\'t quantize — drift with ' + swing + '% swing.';
+      else if (feel === 'lofi') t += 'Narrow velocity band. Dusty.';
+      else if (feel === 'gfunk') t += modeNote + '. Layer Moog bass.';
+      else if (hasBorrowed) t += 'Borrowed chords add color — lean into the tension.';
+      else t += 'Leave room for vocals.';
+      return t;
     }
-    if (secType === 'pre') return feel === 'crunk' ? 'Build with synth risers and snare rolls.' : 'Add layers: risers, extra hats, building energy toward the chorus.';
-    if (secType === 'chorus') return 'Full arrangement. ' + instr + ' at maximum. ' + (feel === 'big' ? 'This is the anthem moment.' : 'Crash on beat 1 signals the arrival.');
-    if (secType === 'breakdown') return (feel === 'memphis' || feel === 'dark') ? 'Strip to just the sample and sparse kick. The emptiness IS the tension.' : feel === 'dilla' ? 'Leave just the Rhodes and a ghost kick.' : 'Strip layers one by one. Create tension through absence.';
-    if (secType === 'lastchorus') return 'Everything plus extras. Counter-melody, ad-libs, extra crashes. This is the peak.';
-    if (secType === 'instrumental') return 'Feature ' + instr + '. ' + (feel === 'jazzy' || feel === 'nujabes' ? 'Let the musician breathe.' : 'Simpler drums, more melody.');
-    if (secType === 'outro') return feel === 'lofi' ? 'Let the vinyl crackle be the last thing they hear.' : 'Fade ' + instr + ' out. End where you started.';
+    if (secType === 'pre') return chordCtx + '. Build layers. ' + bars + ' bars to chorus.';
+    if (secType === 'chorus') return (hasCrash ? 'Crash on 1. ' : '') + chordCtx + '. ' + instr + ' at maximum.';
+    if (secType === 'breakdown') return chordCtx + '. Strip layers. ' + (feel === 'dark' || feel === 'memphis' ? 'Emptiness IS tension.' : 'Absence creates tension.');
+    if (secType === 'lastchorus') return chordCtx + '. Peak energy. Counter-melody, extra crashes.';
+    if (secType === 'instrumental') return instr + ' over ' + chordCtx + '. ' + bars + ' bars.';
+    if (secType === 'outro') return chordCtx + '. Fade ' + instr + ' out.';
   }
   if (role === 'keys') {
-    if (secType === 'intro') return (feel === 'dilla' || feel === 'jazzy') ? 'Sustained Rhodes pad in ' + keyName + '. Set the warmth.' : (feel === 'gfunk') ? 'Synth pad with portamento. Smooth and wide.' : 'Single chord stab on beat 1. Establish ' + keyName + '.';
-    if (secType === 'verse') return (feel === 'dilla') ? 'Rhodes comping — stab on the "and" of 2 and 4. Let notes ring.' : (feel === 'jazzy' || feel === 'nujabes') ? 'Walking voicings — move the top note while the root stays.' : (feel === 'gfunk') ? 'Min7 pad sustained under the groove. Add a 9th for color.' : 'Stab on beat 1 of each chord change. Keep it simple.';
-    if (secType === 'pre') return 'Shorter notes, more movement. 8th note comping building to the chorus.';
-    if (secType === 'chorus') return 'Full voicings in ' + keyName + '. ' + (feel === 'dilla' ? '9th chords, let them ring.' : 'Layer a pad under the stab for width.');
-    if (secType === 'breakdown') return (feel === 'jazzy') ? 'Single high register tinkle.' : 'Strip to one sustained note or silence.';
-    if (secType === 'lastchorus') return 'Add the counter-melody. Higher register, more movement.';
-    if (secType === 'instrumental') return (feel === 'jazzy' || feel === 'nujabes') ? 'Solo time. Improvise over the changes.' : 'Feature your sound. This is your moment.';
-    if (secType === 'outro') return 'Sustain the last ' + keyName + ' chord. Let it ring and decay.';
+    var voicing = (feel === 'dilla' || feel === 'jazzy' || feel === 'nujabes') ? '7ths and 9ths' : (feel === 'gfunk') ? 'Min7 voicings' : (feel === 'lofi') ? 'Simple triads, detuned' : isMinor ? 'Minor voicings' : 'Major voicings';
+    if (secType === 'intro') return keyName + '. ' + voicing + '. ' + (hasMove ? chordCtx : 'Sustained I chord') + '.';
+    if (secType === 'verse') {
+      var t = chordCtx + '. ' + voicing + '. ';
+      if (feel === 'dilla') t += 'Comp on "and" of 2 and 4. Let notes ring.';
+      else if (feel === 'jazzy' || feel === 'nujabes') t += 'Walking voicings — move the top note.';
+      else if (feel === 'gfunk') t += modeNote + '. Sustained pad.';
+      else if (kickDense) t += 'Stab on beat 1 only — busy kick needs space.';
+      else t += hasFour ? 'Stab on I, lift on IV.' : 'Stab on chord changes.';
+      return t;
+    }
+    if (secType === 'pre') return chordCtx + '. ' + voicing + '. Shorter notes, building.';
+    if (secType === 'chorus') return chordCtx + '. Full voicings. ' + (hasFour ? 'IV lifts energy. ' : '') + 'Layer pad under stab.';
+    if (secType === 'breakdown') return chordCtx + '. One sustained note or silence.';
+    if (secType === 'lastchorus') return chordCtx + '. Counter-melody. Higher register.';
+    if (secType === 'instrumental') return chordCtx + '. ' + (feel === 'jazzy' || feel === 'nujabes' ? 'Solo — improvise.' : 'Feature your sound.');
+    if (secType === 'outro') return 'Sustain ' + keyName + '. Let it decay.';
   }
   if (role === 'bassist') {
-    if (secType === 'intro') return (feel === 'gfunk') ? 'Moog tone with portamento in ' + keyName + '.' : (feel === 'memphis' || feel === 'crunk') ? '808 sub in ' + keyName + ', let it bloom.' : 'Root note of ' + keyName + ', long sustain.';
-    if (secType === 'verse') return (feel === 'dilla') ? 'Behind the beat. Root on kick, 5th on ghost kicks. Let notes drift.' : (feel === 'gfunk') ? 'Smooth slides between chord roots. Long sustain, Moog tone.' : (feel === 'jazzy' || feel === 'nujabes') ? 'Walking line — root, 3rd, 5th, chromatic approach to next chord.' : 'Lock to the kick. Root on beat 1, 5th on the "and" of 2.';
-    if (secType === 'pre') return 'Chromatic walk-up toward the chorus root. Build momentum.';
-    if (secType === 'chorus') return (feel === 'gfunk') ? 'Slide up to the octave on beat 3.' : 'Add octave pops and passing tones. More energy than the verse.';
-    if (secType === 'breakdown') return (feel === 'memphis' || feel === 'crunk') ? 'Sustained sub. Let the 808 tail ring.' : 'Thin out to just root on beat 1. Or silence.';
-    if (secType === 'lastchorus') return 'Maximum energy. Fills, slides, octave jumps.';
-    if (secType === 'instrumental') return (feel === 'jazzy' || feel === 'nujabes') ? 'Melodic walking line. Show your chops.' : 'More movement than the verse.';
-    if (secType === 'outro') return 'Sustained root of ' + keyName + '. Fade with the drums.';
+    var tone = (feel === 'gfunk') ? 'Moog, long sustain' : (feel === 'memphis' || feel === 'crunk' || feel === 'phonk') ? '808 sub' : (feel === 'jazzy' || feel === 'nujabes') ? 'Upright/finger bass' : (feel === 'lofi') ? 'Muted, compressed' : 'Punchy, short';
+    if (secType === 'intro') return tone + '. Root of ' + keyName + '. ' + (hasMove ? chordCtx : 'Sustain on I') + '.';
+    if (secType === 'verse') {
+      var t = chordCtx + '. ' + tone + '. ';
+      if (feel === 'dilla') t += 'Behind the beat. Root on kick, 5th on ghosts.';
+      else if (feel === 'gfunk') t += 'Slides between roots. ' + modeNote + '.';
+      else if (feel === 'jazzy' || feel === 'nujabes') t += 'Walking — root, 3rd, 5th, chromatic approach.';
+      else t += 'Root on beat 1. ' + (hasFour ? 'Walk to IV root. ' : '') + 'Lock to ' + kickCount + ' kicks.';
+      return t;
+    }
+    if (secType === 'pre') return chordCtx + '. Chromatic walk-up to chorus root.';
+    if (secType === 'chorus') return chordCtx + '. ' + tone + '. ' + (kickDense ? 'Add octave pops.' : 'Passing tones between roots.');
+    if (secType === 'breakdown') return chordCtx + '. ' + (feel === 'memphis' || feel === 'crunk' ? 'Let 808 tail ring.' : 'Just root on beat 1.');
+    if (secType === 'lastchorus') return chordCtx + '. Maximum energy. Fills, slides, octave jumps.';
+    if (secType === 'instrumental') return chordCtx + '. ' + (feel === 'jazzy' || feel === 'nujabes' ? 'Melodic walking line.' : 'More movement than verse.');
+    if (secType === 'outro') return 'Sustained root of ' + keyName + '. Fade out.';
   }
   if (role === 'guitarist') {
-    if (secType === 'intro') return (feel === 'lofi' || feel === 'nujabes') ? 'Clean arpeggiated ' + keyName + '. Soft and atmospheric.' : (feel === 'chopbreak') ? 'Muted wah scratches on the kick pattern.' : 'Single clean notes or muted scratches.';
-    if (secType === 'verse') return (feel === 'gfunk') ? 'Clean funk rhythm on 2 and 4. Wah pedal optional.' : (feel === 'chopbreak') ? 'Muted 16th note scratches following the hat pattern.' : (feel === 'jazzy') ? 'Jazz voicings — Freddie Green style comping on 2 and 4.' : 'Rhythm on 2 and 4 with the snare. Keep it tight and muted.';
-    if (secType === 'pre') return 'Open up the voicing. Unmute, let the strings ring.';
-    if (secType === 'chorus') return 'Full chords in ' + keyName + '. ' + (feel === 'big' ? 'Power chords, maximum energy.' : 'Strum or arpeggiate.');
-    if (secType === 'breakdown') return (feel === 'dark') ? 'Eerie, dissonant single notes.' : 'Single notes or harmonics. Less is more.';
-    if (secType === 'lastchorus') return (feel === 'hard' || feel === 'big') ? 'Power chords, full strums.' : 'Open chords with extra movement.';
-    if (secType === 'instrumental') return 'Solo or melodic lead over ' + keyName + '. This is your moment.';
-    if (secType === 'outro') return 'Let the last ' + keyName + ' chord ring out.';
+    if (secType === 'intro') return keyName + '. ' + (feel === 'lofi' || feel === 'nujabes' ? 'Clean arpeggiated.' : feel === 'chopbreak' ? 'Muted wah scratches.' : 'Single clean notes.') + (hasMove ? ' ' + chordCtx : '');
+    if (secType === 'verse') {
+      var t = chordCtx + '. ';
+      if (feel === 'gfunk') t += 'Clean funk on 2 and 4. Wah optional. ' + modeNote + '.';
+      else if (feel === 'chopbreak') t += 'Muted 16th scratches following hats.';
+      else if (feel === 'jazzy') t += 'Freddie Green comping on 2 and 4.';
+      else t += 'Rhythm on 2 and 4. ' + (kickDense ? 'Tight and muted.' : 'Room for open voicings.');
+      return t;
+    }
+    if (secType === 'pre') return chordCtx + '. Open voicings. Let strings ring.';
+    if (secType === 'chorus') return chordCtx + '. Full chords. ' + (feel === 'big' ? 'Power chords.' : 'Strum or arpeggiate.') + (hasBorrowed ? ' Borrowed chords add color.' : '');
+    if (secType === 'breakdown') return chordCtx + '. ' + (feel === 'dark' ? 'Eerie single notes.' : 'Harmonics. Less is more.');
+    if (secType === 'lastchorus') return chordCtx + '. ' + (feel === 'hard' || feel === 'big' ? 'Power chords, full strums.' : 'Open chords, extra movement.');
+    if (secType === 'instrumental') return chordCtx + '. Solo or melodic lead. ' + bars + ' bars.';
+    if (secType === 'outro') return 'Let ' + keyName + ' ring out.';
   }
   if (role === 'dj') {
-    if (secType === 'intro') return 'Blend in from your previous track. Match ' + bpm + ' BPM.';
-    if (secType === 'verse') return (feel === 'chopbreak') ? 'The break energy is perfect for riding.' : 'Let it ride. Save your cuts for the breakdown.';
-    if (secType === 'pre') return 'Prepare your next record or effect. The chorus is coming.';
-    if (secType === 'chorus') return (feel === 'crunk') ? 'Maximum impact — air horn territory.' : 'Drop it. Full energy.';
-    if (secType === 'breakdown') return (feel === 'memphis' || feel === 'dark') ? 'Dark scratches over the sparse drums.' : 'Scratch, cut, transform. The drums give you space.';
-    if (secType === 'lastchorus') return 'Ride it out. Energy peak of the set.';
-    if (secType === 'instrumental') return (feel === 'jazzy') ? 'Jazz scratches.' : 'Cut over this. The drums give you room.';
-    if (secType === 'outro') return 'Transition to next track. Match the next BPM.';
+    if (secType === 'intro') return bpm + ' BPM, ' + keyName + '. ' + bars + ' bars to blend in.';
+    if (secType === 'verse') return bpm + ' BPM ' + feel + '. ' + (kickDense ? 'Busy groove — let it ride.' : 'Save cuts for breakdown.');
+    if (secType === 'pre') return bars + ' bars to chorus. Prepare your next record.';
+    if (secType === 'chorus') return (hasCrash ? 'Crash drops. ' : '') + (feel === 'crunk' ? 'Air horn territory.' : 'Full energy. Drop it.');
+    if (secType === 'breakdown') return bars + ' bars stripped. ' + (feel === 'memphis' || feel === 'dark' ? 'Dark scratches.' : 'Scratch, cut, transform.');
+    if (secType === 'lastchorus') return 'Energy peak. ' + bars + ' bars.';
+    if (secType === 'instrumental') return bars + ' bars at ' + bpm + '. Cut over this.';
+    if (secType === 'outro') return bpm + ' BPM. ' + bars + ' bars to transition out.';
   }
   if (role === 'drummer') {
-    if (secType === 'intro') return (feel === 'dilla') ? 'Notice the loose timing. The kick drifts behind the grid.' : 'Establish the pocket at ' + bpm + ' BPM.';
-    if (secType === 'verse') return (feel === 'gfunk') ? 'Study the 3-level hat dynamic: quarter notes loud, 8ths medium, 16ths soft.' : (feel === 'dilla') ? 'Ghost notes everywhere. Notice how they cluster in pairs.' : (feel === 'crunk') ? 'Flat dynamics. Everything at maximum. No ghost notes.' : 'Study the ghost notes and accent curve. Click cells to hear velocities.';
-    if (secType === 'pre') return 'Watch the density build in the last bar. Extra kicks and ghost snares.';
-    if (secType === 'chorus') return 'Bigger kick pattern. Crash on beat 1. ' + (feel === 'big' ? 'Open hats for extra energy.' : 'Notice the energy lift.');
-    if (secType === 'breakdown') return 'Watch the strip-down: bar 1 drops ghosts, bar 2 drops claps, bar 3 is just kick on 1.';
-    if (secType === 'lastchorus') return 'Loudest section. Compare velocities to the verse — the arc pushed everything up.';
-    if (secType === 'instrumental') return (feel === 'nujabes') ? 'Ride cymbal carries the time here.' : 'Notice what\'s removed to make space.';
-    if (secType === 'outro') return (feel === 'crunk') ? 'One big hit on the last downbeat.' : 'Fade or hard stop? Listen for which ending.';
+    if (secType === 'intro') return bpm + ' BPM, ' + swing + '% swing. ' + kickCount + ' kicks. Set the pocket.';
+    if (secType === 'verse') {
+      var t = kickCount + ' kicks, ' + (ghostCount >= 4 ? 'dense ghosts' : ghostCount <= 1 ? 'minimal ghosts' : 'moderate ghosts') + ', ' + (hats16 ? '16th' : '8th') + ' hats. ';
+      if (feel === 'gfunk') t += '3-level hat dynamic.';
+      else if (feel === 'dilla') t += 'Ghost pairs cluster. Soft backbeat. ' + swing + '% swing.';
+      else if (feel === 'crunk') t += 'Flat dynamics. Everything at max.';
+      else t += swingHeavy ? 'Heavy swing (' + swing + '%).' : swing + '% swing.';
+      return t;
+    }
+    if (secType === 'pre') return kickCount + ' kicks. Density builds last bar. ' + bars + ' bars.';
+    if (secType === 'chorus') return (hasCrash ? 'Crash on 1. ' : '') + kickCount + ' kicks. ' + (kickDense ? 'Busier than verse.' : 'Energy lift.');
+    if (secType === 'breakdown') return kickCount + ' kicks — stripped over ' + bars + ' bars.';
+    if (secType === 'lastchorus') return 'Loudest. ' + kickCount + ' kicks. ' + (hasCrash ? 'Crash. ' : '') + 'Compare to verse.';
+    if (secType === 'instrumental') return (hasRide ? 'Ride carries time. ' : '') + kickCount + ' kicks. Space for melody.';
+    if (secType === 'outro') return bars + ' bars. ' + kickCount + ' kicks fading.';
   }
   if (role === 'learner') {
-    if (secType === 'intro') return 'Notice how the intro builds — it doesn\'t start with everything.';
-    if (secType === 'verse') return (feel === 'gfunk') ? 'The hat has 3 velocity levels — that\'s the G-Funk signature.' : (feel === 'dilla') ? 'The ghost snares are louder than usual — that\'s Dilla\'s touch.' : 'Click each cell to hear the velocity. Study the ghost notes.';
-    if (secType === 'pre') return 'Watch how density builds in the last bar. This is how producers create anticipation.';
-    if (secType === 'chorus') return 'Compare this kick pattern to the verse — it\'s busier. That lifts energy for a hook.';
-    if (secType === 'breakdown') return 'Most important section to study. Watch how elements disappear bar by bar.';
-    if (secType === 'lastchorus') return 'Compare velocities to the first chorus. The arrangement arc made this louder.';
-    if (secType === 'instrumental') return (feel === 'nujabes') ? 'The ride cymbal replaces the hat — a jazz technique.' : 'Notice what was removed to make space for melody.';
-    if (secType === 'outro') return (feel === 'lofi') ? 'Lo-fi beats often just... stop.' : 'Listen for the fade or the final hit.';
+    if (secType === 'intro') return bars + ' bars in ' + keyName + '. ' + kickCount + ' kicks. Notice how it builds.';
+    if (secType === 'verse') {
+      var t = chordCtx + '. ' + kickCount + ' kicks, ' + ghostCount + ' ghosts. ';
+      if (feel === 'gfunk') t += 'Hat has 3 velocity levels.';
+      else if (feel === 'dilla') t += 'Ghost snares louder than usual.';
+      else if (hasMove) t += 'Bass follows the chord changes.';
+      else t += 'Click cells to hear velocities.';
+      return t;
+    }
+    if (secType === 'pre') return chordCtx + '. ' + bars + ' bars. Density builds — creates anticipation.';
+    if (secType === 'chorus') return chordCtx + '. ' + kickCount + ' kicks' + (hasCrash ? ' + crash' : '') + '. Compare to verse.';
+    if (secType === 'breakdown') return chordCtx + '. Study this — ' + kickCount + ' kicks. Watch elements disappear.';
+    if (secType === 'lastchorus') return chordCtx + '. Compare to first chorus — arrangement arc made this louder.';
+    if (secType === 'instrumental') return chordCtx + '. ' + (hasRide ? 'Ride replaces hat. ' : '') + 'Notice what was removed.';
+    if (secType === 'outro') return keyName + '. ' + bars + ' bars. Listen for fade or final hit.';
   }
   return '';
 }
