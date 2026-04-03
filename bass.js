@@ -212,44 +212,44 @@ var BASS_STYLES = {
  * @type {Object.<string, Array.<string[]>>}
  */
 var CHORD_PROGRESSIONS = {
-  // Boom bap: mostly stays on root, occasional IV movement
-  normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv']],
-  // Hard: stays on root — aggression doesn't need harmonic movement
-  hard:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','v']],
-  // Jazzy: ii-V movement, more harmonic variety
-  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','iv','ii','v']],
-  // Dark: Phrygian bII movement, root-heavy with sinister half-step tension
-  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i']],
-  // Bounce: danceable, simple but with movement
-  bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','v']],
-  // Halftime: slow, stays on root mostly
-  halftime:  [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv']],
-  // Dilla: often sits on one chord for 8 bars, or uses a 2-bar loop
-  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv']],
-  // Lo-fi: sample-based, often one chord or simple 2-bar loop
-  lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i']],
-  // G-Funk: chromatic movement, uses IV and V more freely
-  gfunk:     [['i','iv','v','iv'], ['i','iv','i','v'], ['i','i','iv','v'], ['i','v','iv','i'], ['i','iv','v','i']],
-  // Chopbreak: follows the sample, usually i-iv or i-v
-  chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i']],
-  // Crunk: stays on root — 808 sub doesn't move much
-  crunk:     [['i','i','i','i'], ['i','i','i','iv'], ['i','i','iv','i']],
-  // Memphis: Phrygian bII, root-heavy, dark, minimal movement
-  memphis:   [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv']],
-  // Griselda: Phrygian bII for sinister tension, sample-based i-iv with occasional V
-  griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v']],
-  // Phonk: Phrygian bII, root-heavy, 808 sub stays low
-  phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv']],
-  // Nujabes: jazz-influenced, ii-V movement, more harmonic variety
-  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv']],
-  // Old school: simple, drum-machine era — root and IV
-  oldschool: [['i','i','iv','i'], ['i','i','i','i'], ['i','i','iv','iv']],
+  // Boom bap: mostly stays on root, occasional IV, bVI lift on bar 4
+  normal:    [['i','i','iv','i'], ['i','i','iv','v'], ['i','iv','i','v'], ['i','i','i','iv'], ['i','iv','i','bVI']],
+  // Hard: stays on root — occasional bVI for tension
+  hard:      [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','v'], ['i','i','bVI','i']],
+  // Jazzy: ii-V movement, neo-soul turnarounds with bIII and bVI
+  jazzy:     [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
+  // Dark: Phrygian bII, Andalusian cadence (i-bVII-bVI-V)
+  dark:      [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','iv'], ['i','i','bII','i'], ['i','bVII','bVI','v']],
+  // Bounce: Soul Loop (I-bVII-IV-I), danceable movement
+  bounce:    [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','bVII','iv','i'], ['i','iv','iv','v']],
+  // Halftime: Andalusian cadence, root-heavy
+  halftime:  [['i','i','i','i'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','bVI','v']],
+  // Dilla: one chord or 2-bar loops, occasional bVII warmth
+  dilla:     [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','i','i','iv'], ['i','bVII','i','iv']],
+  // Lo-fi: sample-based, simple loops, occasional bVII
+  lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','bVII','bVI','i']],
+  // G-Funk: West Coast borrowed chords (bIII, bVII), chromatic movement
+  gfunk:     [['i','iv','v','iv'], ['i','iv','i','v'], ['i','i','iv','v'], ['i','v','iv','i'], ['i','bIII','bVII','iv'], ['i','bVII','iv','i']],
+  // Chopbreak: follows the sample, bVI lift
+  chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i'], ['i','iv','i','bVI']],
+  // Crunk: stays on root — occasional bVI for dark tension
+  crunk:     [['i','i','i','i'], ['i','i','i','iv'], ['i','i','iv','i'], ['i','i','bVI','bVII']],
+  // Memphis: Phrygian bII, Andalusian, dark borrowed chords
+  memphis:   [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv'], ['i','bVII','bVI','v']],
+  // Griselda: Phrygian bII, bVI tension
+  griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v'], ['i','i','bVI','i']],
+  // Phonk: Phrygian bII, dark borrowed chords
+  phonk:     [['i','i','i','i'], ['i','i','iv','i'], ['i','bII','i','i'], ['i','i','bII','iv'], ['i','bVI','bVII','i']],
+  // Nujabes: jazz-influenced, ii-V, neo-soul with bIII
+  nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii']],
+  // Old school: simple, drum-machine era — root and IV, occasional bVII
+  oldschool: [['i','i','iv','i'], ['i','i','i','i'], ['i','i','iv','iv'], ['i','bVII','i','i']],
   // Sparse: minimal, stays on root
   sparse:    [['i','i','i','i'], ['i','i','iv','i']],
-  // Driving: forward momentum, uses V for push
-  driving:   [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','v','iv']],
-  // Big: anthem, uses IV and V for lift
-  big:       [['i','iv','i','v'], ['i','i','iv','v'], ['i','iv','v','i'], ['i','iv','iv','v']]
+  // Driving: forward momentum, bVII push
+  driving:   [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','v','iv'], ['i','bVII','iv','v']],
+  // Big: anthem, Soul Loop, bVI lift
+  big:       [['i','iv','i','v'], ['i','i','iv','v'], ['i','iv','v','i'], ['i','iv','iv','v'], ['i','bVII','iv','i'], ['i','iv','i','bVI']]
 };
 
 /**
@@ -320,6 +320,15 @@ function generateBassPattern(sec) {
   // bII = root + 1 semitone (Phrygian flat second) — sinister half-step
   var bIINote = keyData.bII ? noteToMidi(bassChordRoot(keyData.bII)) : (rootNote + 1);
   if (bIINote > 48) bIINote -= 12;
+  // bIII = root + 3 semitones (minor third / relative major root)
+  var bIIINote = rootNote + 3;
+  if (bIIINote > 48) bIIINote -= 12;
+  // bVI = root + 8 semitones (flat sixth — borrowed from parallel major)
+  var bVINote = rootNote + 8;
+  if (bVINote > 48) bVINote -= 12;
+  // bVII = root + 10 semitones (flat seventh — borrowed from parallel major)
+  var bVIINote = rootNote + 10;
+  if (bVIINote > 48) bVIINote -= 12;
 
   /**
    * Get the MIDI root note for a chord degree symbol.
@@ -329,6 +338,9 @@ function generateBassPattern(sec) {
     if (deg === 'v') return vChordRoot;
     if (deg === 'ii') return iiNote;
     if (deg === 'bII') return bIINote;
+    if (deg === 'bIII') return bIIINote;
+    if (deg === 'bVI') return bVINote;
+    if (deg === 'bVII') return bVIINote;
     return rootNote; // 'i' or default
   }
 
