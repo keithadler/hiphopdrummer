@@ -208,6 +208,17 @@ document.getElementById('exportGo').onclick = function() {
 /** Preferences button: show the dialog */
 document.getElementById('btnPrefs').onclick = showPrefsDialog;
 
+/** About button: show the about dialog */
+document.getElementById('btnAbout').onclick = function() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
+};
+document.getElementById('aboutClose').onclick = function() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+};
+document.getElementById('aboutOverlay').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
+};
+
 function showPrefsDialog() {
   // Restore saved drumkit preference (now a GM program number)
   var saved = '0';
@@ -268,6 +279,7 @@ document.addEventListener('keydown', function(e) {
     hideRegenDialog();
     hideExportDialog();
     hidePrefsDialog();
+    document.getElementById('aboutOverlay').style.display = 'none';
   }
   if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
     e.preventDefault();
