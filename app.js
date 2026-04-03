@@ -510,11 +510,12 @@ function initPlaybackTracking() {
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
-      // Show section name toast
+      // Show section name toast with bar count
       var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
+      var barCount = Math.ceil((secSteps[curSec] || 32) / 16);
       var toast = document.getElementById('sectionToast');
       if (toast) {
-        toast.textContent = sectionName;
+        toast.innerHTML = sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span>';
         toast.classList.add('show');
         if (toast._hideTimer) clearTimeout(toast._hideTimer);
         toast._hideTimer = setTimeout(function() { toast.classList.remove('show'); }, 1200);
