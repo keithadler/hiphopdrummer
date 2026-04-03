@@ -20,6 +20,10 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .btn:active{transform:scale(.97)}
 .btn-gen{color:var(--accent-red);border-color:rgba(224,72,72,.3);background:rgba(224,72,72,.06)}
 .btn-gen:hover{background:var(--accent-red);color:#fff;border-color:var(--accent-red)}
+.btn-play-header{color:#4caf50;border-color:rgba(76,175,80,.3);background:rgba(76,175,80,.06);font-size:14px;padding:0 16px;min-width:90px;letter-spacing:1px}
+.btn-play-header:hover{background:#4caf50;color:#fff;border-color:#4caf50}
+.btn-play-header.playing{color:var(--accent-red);border-color:rgba(224,72,72,.3);background:rgba(224,72,72,.06)}
+.btn-play-header.playing:hover{background:var(--accent-red);color:#fff;border-color:var(--accent-red)}
 .btn-export{color:var(--accent-blue);border-color:rgba(80,160,255,.3);background:rgba(80,160,255,.06);margin-left:auto}
 .btn-export:hover{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
 .btn-prefs{color:var(--text-muted);border-color:var(--border);padding:0 10px;font-size:18px;margin-left:0}
