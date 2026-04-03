@@ -511,11 +511,15 @@ function initPlaybackTracking() {
     var toast = document.getElementById('sectionToast');
     if (!toast) return;
     var items = toast.querySelectorAll('.chord-toast-item');
-    for (var i = 0; i < items.length; i++) {
+    var totalItems = items.length;
+    for (var i = 0; i < totalItems; i++) {
       var start = parseInt(items[i].dataset.start);
       var end = parseInt(items[i].dataset.end);
       if (barIdx >= start && barIdx <= end) {
         items[i].classList.add('active');
+      } else if (barIdx > end && i < totalItems - 1) {
+        // Past this chord and it's not the last one — remove it
+        items[i].style.display = 'none';
       } else {
         items[i].classList.remove('active');
       }
