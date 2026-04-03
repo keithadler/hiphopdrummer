@@ -87,8 +87,12 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
   var eventMap = {};
 
   // Swing: read from UI and apply unless noSwing is true
+  // Uses a slightly exponential curve to match real MPC swing feel —
+  // the jump from 62% to 66% feels bigger than 54% to 58%
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var swingNorm = (swing - 50) / 50; // 0 = straight, 0.4 = heavy
+  var swingCurved = swingNorm * (1 + swingNorm * 0.5); // gentle exponential
+  var baseSwingAmount = noSwing ? 0 : Math.round(swingCurved * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var pat = patterns[sec];
@@ -539,7 +543,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
 
   // Swing from UI — per-instrument swing multipliers applied below
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var baseSwingAmount = Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var swingNorm = (swing - 50) / 50;
+  var swingCurved = swingNorm * (1 + swingNorm * 0.5);
+  var baseSwingAmount = Math.round(swingCurved * ticksPerStep * 0.5);
 
   // Determine the song feel for per-instrument swing lookup
   var combinedFeel = songFeel || 'normal';
