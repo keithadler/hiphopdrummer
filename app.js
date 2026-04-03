@@ -784,6 +784,26 @@ function initPlayerControls() {
     };
   }
   connectCallbacks();
+
+  // Failsafe: poll synthBridge.isPlaying every 500ms to keep the button
+  // in sync. On iPhone, callbacks can be missed during the first-play
+  // SoundFont load race. This ensures the button ALWAYS reflects reality.
+  setInterval(function() {
+    if (!window.synthBridge || !headerPlayBtn) return;
+    var playing = window.synthBridge.isPlaying;
+    var showsStop = headerPlayBtn.classList.contains('playing');
+    var isLoading = headerPlayBtn.textContent.indexOf('LOADING') >= 0;
+    if (isLoading) return; // don't interfere during SoundFont load
+    if (playing && !showsStop) {
+      headerPlayBtn.textContent = '■ STOP';
+      headerPlayBtn.classList.add('playing');
+      headerPlayBtn.disabled = false;
+    } else if (!playing && showsStop) {
+      headerPlayBtn.textContent = '▶ PLAY';
+      headerPlayBtn.classList.remove('playing');
+      headerPlayBtn.disabled = false;
+    }
+  }, 500);
 }
 
 // ── Guitar Chord Diagrams ──
