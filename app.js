@@ -208,8 +208,8 @@ document.getElementById('exportGo').onclick = function() {
 /** Preferences button: show the dialog */
 document.getElementById('btnPrefs').onclick = showPrefsDialog;
 
-/** About button: show the about dialog */
-document.getElementById('btnAbout').onclick = function() {
+/** About: clicking the brand name opens the about dialog */
+document.getElementById('brandAbout').onclick = function() {
   document.getElementById('aboutOverlay').style.display = 'flex';
 };
 document.getElementById('aboutClose').onclick = function() {
