@@ -105,12 +105,14 @@ function exportPDF(returnBlob) {
   // which would pick a new random key and produce inconsistent output.
   var aboutHtml = '';
   try {
-    var aboutEl = document.getElementById('aboutBeat');
-    if (aboutEl) aboutHtml = aboutEl.innerHTML;
+    // Call analyzeBeat with the current key forced to prevent re-randomization
+    var savedForced = (typeof _forcedKey !== 'undefined') ? _forcedKey : null;
+    if (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.root) {
+      _forcedKey = _lastChosenKey.root;
+    }
+    aboutHtml = analyzeBeat();
+    _forcedKey = savedForced;
   } catch(e) {}
-  if (!aboutHtml) {
-    try { aboutHtml = analyzeBeat(); } catch(e) {}
-  }
   if (aboutHtml) {
     var aboutLines = aboutHtml.split(/<br\s*\/?>/gi);
     for (var i = 0; i < aboutLines.length; i++) {

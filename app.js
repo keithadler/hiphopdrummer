@@ -1374,8 +1374,9 @@ function initPlaybackTracking() {
       if (_chordToastVisible) updateChordHighlight(currentBar);
     }
 
-    // Query once and cache the result
-    var els = document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]');
+    // Query from grid container (not full DOM) and cache the result
+    var gridR = document.getElementById('gridR');
+    var els = gridR ? gridR.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]') : [];
     for (var i = 0; i < els.length; i++) {
       els[i].classList.add('playback-cursor');
       _cachedCursorEls.push(els[i]);

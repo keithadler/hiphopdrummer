@@ -1766,28 +1766,28 @@ function generateAll(opts) {
 
   // Keep generating until song is 2:45–3:30 (165–210 seconds).
   // Retries up to 60 times, keeping the longest attempt as fallback.
-  var bestArr = null, bestPat = null, bestSteps = null, bestSec = null;
+  var bestArr = null, bestPat = null, bestSteps = null, bestSec = null, bestFeels = null;
   for (var attempt = 0; attempt < 60; attempt++) {
     genBasePatterns();
     var arr = buildArrangement();
-    var pat = {}, sec = {};
+    var pat = {}, sec = {}, feels = {};
     SECTIONS.forEach(function(s) {
       var p = generatePattern(s);
-      pat[s] = p; sec[s] = secSteps[s];
+      pat[s] = p; sec[s] = secSteps[s]; feels[s] = secFeels[s];
     });
     var totalSteps = 0;
     arr.forEach(function(s) { totalSteps += sec[s] || 32; });
     var totalSec = totalSteps * (60 / bpm / 4);
     // Accept if within target range
-    if (totalSec >= 165 && totalSec <= 210) { bestArr = arr; bestPat = pat; bestSteps = sec; break; }
+    if (totalSec >= 165 && totalSec <= 210) { bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels; break; }
     // Keep the longest attempt as fallback
     if (!bestArr || totalSteps > (bestSteps ? Object.keys(bestSteps).reduce(function(a,s){return a+(bestSteps[s]||0)},0) : 0)) {
-      bestArr = arr; bestPat = pat; bestSteps = sec;
+      bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels;
     }
   }
   arrangement = bestArr;
   patterns = bestPat;
-  SECTIONS.forEach(function(s) { secSteps[s] = bestSteps[s]; });
+  SECTIONS.forEach(function(s) { secSteps[s] = bestSteps[s]; secFeels[s] = bestFeels[s]; });
   // Clear stored bass progressions so new ones are picked for the new beat
   if (typeof _sectionProgressions !== 'undefined') {
     for (var sp in _sectionProgressions) { delete _sectionProgressions[sp]; }
