@@ -752,7 +752,7 @@ function initPlayerControls() {
         var bpm = document.getElementById('bpm').textContent || '90';
         a.download = 'hiphop_beat_' + bpm + 'bpm.wav';
         a.click();
-        URL.revokeObjectURL(url);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
         wavBtn.textContent = '⬇';
         wavBtn.disabled = false;
       }).catch(function(err) {

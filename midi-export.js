@@ -354,8 +354,8 @@ function exportMIDI(opts) {
   }
 
   // Individual section MIDIs + MPC patterns
-  var midiFolder = opts.sections ? folder.folder('MIDI Patterns') : null;
-  var mpcFolder  = opts.mpc      ? folder.folder('MPC')           : null;
+  var midiFolder = (opts.sections || opts.bassMidi || (opts.daws && opts.daws.length > 0)) ? folder.folder('MIDI Patterns') : null;
+  var mpcFolder  = (opts.mpc || opts.bassMpc) ? folder.folder('MPC') : null;
 
   if (opts.sections || opts.mpc) {
     var exported = {};
@@ -437,9 +437,10 @@ function exportMIDI(opts) {
     studioone: function() { return midiFolder && midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal, noSwing)); },
     maschine:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); }
   };
-  // Always include the general overview and MPC guide if those folders exist
-  if (opts.daws && opts.daws.length > 0) {
-    folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal, noSwing));
+  // Always include the general overview
+  folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal, noSwing));
+  // DAW-specific help files — only include selected DAWs
+  if (opts.daws && opts.daws.length > 0 && midiFolder) {
     opts.daws.forEach(function(daw) { if (dawMap[daw]) dawMap[daw](); });
   }
   if (opts.mpc) {
@@ -493,7 +494,8 @@ function exportMIDI(opts) {
       a.href = u;
       a.download = folderName + '.zip';
       a.click();
-      URL.revokeObjectURL(u);
+      // Delay URL revocation to ensure download starts (mobile Safari needs time)
+      setTimeout(function() { URL.revokeObjectURL(u); }, 5000);
       
       // Hide progress and show success
       if (toast) {
