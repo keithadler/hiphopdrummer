@@ -89,8 +89,8 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .top-left{display:flex;flex-direction:column;gap:10px}
 .top-left .panel{margin-bottom:0}
 .top-left .panel:last-child{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto}
-.top-right-wrap{display:flex;flex-direction:column}
-#aboutBeatPanel{margin-bottom:0;display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
+.top-right-wrap{position:relative}
+#aboutBeatPanel{margin-bottom:0;display:flex;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden}
 #aboutBeatPanel .panel-title{flex-shrink:0}
 #aboutSummary{flex-shrink:0}
 midi-player{--primary-color:var(--accent-red);--background:var(--bg-surface);--foreground:var(--text-primary);--accent-color:var(--accent-blue);display:block;width:100%}
@@ -106,8 +106,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .player-seek::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent-blue);cursor:pointer}
 .player-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent-blue);cursor:pointer;border:none}
 .pattern-info{margin-left:auto;font-family:var(--mono);font-size:18px;color:var(--text-dim);font-weight:500;letter-spacing:.5px}
-#aboutBeat{font-family:var(--mono);font-size:16px;color:var(--text-secondary);line-height:1.7;flex:1;overflow-y:auto;padding-right:4px;max-height:195px}
-#aboutBeat.expanded{max-height:none}
+#aboutBeat{font-family:var(--mono);font-size:16px;color:var(--text-secondary);line-height:1.7;flex:1;overflow-y:auto;padding-right:4px;min-height:0}
 #aboutBeat::-webkit-scrollbar{width:4px}
 #aboutBeat::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .about-summary{font-family:var(--mono);font-size:13px;color:var(--text-secondary);line-height:1.6;padding:0 2px}
@@ -255,7 +254,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .header-bar{position:sticky;top:0;z-index:100;flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
-  #aboutBeatPanel{max-height:none}
+  #aboutBeatPanel{position:static;max-height:none}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
   .controls-bar{flex-wrap:wrap;gap:6px}
