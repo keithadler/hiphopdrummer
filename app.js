@@ -1040,6 +1040,7 @@ function initPlaybackTracking() {
         if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
         toastHtml += '<div class="toast-divider"></div>';
         toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
+        toastHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
         toast.innerHTML = toastHtml;
         toast.classList.add('show');
         if (toast._hideTimer) clearTimeout(toast._hideTimer);
@@ -1130,6 +1131,7 @@ function initPlaybackTracking() {
             var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
             if (initTip) initHtml += '<div class="toast-tip">' + initTip + '</div>';
             initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+            initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
             t.innerHTML = initHtml;
             t.classList.add('show');
             _chordToastVisible = true;
