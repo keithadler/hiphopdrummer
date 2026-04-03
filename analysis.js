@@ -286,8 +286,20 @@ function analyzeBeat() {
   var feelKeys = keyData[songFeelBase] || keyData.normal;
   var chosenKey = feelKeys.keys[0];
   if (typeof _forcedKey !== 'undefined' && _forcedKey) {
+    // Search current feel's pool first
+    var found = false;
     for (var fki = 0; fki < feelKeys.keys.length; fki++) {
-      if (feelKeys.keys[fki].root === _forcedKey) { chosenKey = feelKeys.keys[fki]; break; }
+      if (feelKeys.keys[fki].root === _forcedKey) { chosenKey = feelKeys.keys[fki]; found = true; break; }
+    }
+    // If not found in current feel, search ALL feels' pools
+    if (!found) {
+      var allFeelNames = Object.keys(keyData);
+      for (var fi = 0; fi < allFeelNames.length && !found; fi++) {
+        var pool = keyData[allFeelNames[fi]].keys;
+        for (var fki = 0; fki < pool.length; fki++) {
+          if (pool[fki].root === _forcedKey) { chosenKey = pool[fki]; found = true; break; }
+        }
+      }
     }
   } else {
     chosenKey = pick(feelKeys.keys);

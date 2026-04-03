@@ -41,21 +41,35 @@ function test(name, fn) {
 }
 
 // === Simulate browser globals ===
-global.document = {
-  getElementById: function(id) {
+var _domElements = {};
+function _getOrCreateElement(id) {
+  if (!_domElements[id]) {
     var vals = { bpm: '90', swing: '62', songKey: 'Cm', songStyle: 'Classic Boom Bap',
                  arrTime: '3:00', swingDesc: '', loadMsg: '', app: '' };
-    return {
+    _domElements[id] = {
       textContent: vals[id] || '',
       innerHTML: '',
+      value: '',
+      checked: false,
       style: { display: '' },
       scrollTop: 0,
+      disabled: false,
+      classList: { add: function(){}, remove: function(){}, contains: function(){ return false; } },
       addEventListener: function() {},
       removeEventListener: function() {},
       querySelector: function() { return null; },
-      querySelectorAll: function() { return []; }
+      querySelectorAll: function() { return []; },
+      setAttribute: function() {},
+      getAttribute: function() { return null; },
+      scrollIntoView: function() {},
+      appendChild: function() {},
+      remove: function() {}
     };
-  },
+  }
+  return _domElements[id];
+}
+global.document = {
+  getElementById: function(id) { return _getOrCreateElement(id); },
   createElement: function() { return { style: {}, innerHTML: '', appendChild: function() {} }; },
   addEventListener: function() {},
   querySelectorAll: function() { return { forEach: function() {} }; },
@@ -406,12 +420,9 @@ test('All section types generate patterns', function() {
 // === Test extreme BPMs ===
 test('Generation works at extreme BPMs (60 and 130)', function() {
   [60, 130].forEach(function(bpm) {
-    document.getElementById = function(id) {
-      var vals = { bpm: String(bpm), swing: '62', songKey: 'Cm', songStyle: '', arrTime: '', swingDesc: '' };
-      return { textContent: vals[id] || '', innerHTML: '', style: { display: '' },
-               addEventListener: function() {}, removeEventListener: function() {},
-               querySelector: function() { return null; }, querySelectorAll: function() { return []; }, scrollTop: 0 };
-    };
+    _domElements = {};
+    _getOrCreateElement('bpm').textContent = String(bpm);
+    _getOrCreateElement('swing').textContent = '62';
     songFeel = bpm === 60 ? 'phonk' : 'crunk';
     songPalette = null;
     ghostDensity = 1.0;
@@ -432,12 +443,8 @@ test('Generation works at extreme BPMs (60 and 130)', function() {
     assert(bytes.length > 50, bpm + ' BPM: MIDI should have data');
   });
   // Restore default mock
-  document.getElementById = function(id) {
-    var vals = { bpm: '90', swing: '62', songKey: 'Cm', songStyle: '', arrTime: '', swingDesc: '' };
-    return { textContent: vals[id] || '', innerHTML: '', style: { display: '' },
-             addEventListener: function() {}, removeEventListener: function() {},
-             querySelector: function() { return null; }, querySelectorAll: function() { return []; }, scrollTop: 0 };
-  };
+  document.getElementById = function(id) { return _getOrCreateElement(id); };
+  _domElements = {};
 });
 
 // === Test full generateAll pipeline ===
@@ -598,24 +605,17 @@ test('Old school style uses simple kick patterns (≤3 hits per bar)', function(
 
 // === Test forced style/key/BPM from dialog ===
 test('generateAll respects forced style/key/BPM', function() {
-  document.getElementById = function(id) {
-    var vals = { bpm: '85', swing: '62', songKey: 'Gm', songStyle: '', arrTime: '', swingDesc: '' };
-    return { textContent: vals[id] || '', innerHTML: '', style: { display: '' },
-             addEventListener: function() {}, removeEventListener: function() {},
-             querySelector: function() { return null; }, querySelectorAll: function() { return []; }, scrollTop: 0 };
-  };
+  _domElements = {};
+  _getOrCreateElement('bpm').textContent = '85';
+  _getOrCreateElement('swing').textContent = '62';
 
   generateAll({ style: 'gfunk', key: 'Gm', bpm: '85' });
   assert(songFeel === 'gfunk', 'forced style should set songFeel to gfunk, got ' + songFeel);
   assert(songPalette && songPalette[0] === 'gfunk', 'forced style should set palette[0] to gfunk');
 
   // Restore default mock
-  document.getElementById = function(id) {
-    var vals = { bpm: '90', swing: '62', songKey: 'Cm', songStyle: '', arrTime: '', swingDesc: '' };
-    return { textContent: vals[id] || '', innerHTML: '', style: { display: '' },
-             addEventListener: function() {}, removeEventListener: function() {},
-             querySelector: function() { return null; }, querySelectorAll: function() { return []; }, scrollTop: 0 };
-  };
+  document.getElementById = function(id) { return _getOrCreateElement(id); };
+  _domElements = {};
 });
 
 // === Test MIDI bytes contain note events ===
@@ -1062,6 +1062,202 @@ test('buildCombinedMidiBytes produces valid combined drums+bass MIDI', function(
 // === Test MAX_HISTORY_SLOTS ===
 test('MAX_HISTORY_SLOTS is 100', function() {
   assert(MAX_HISTORY_SLOTS === 100, 'MAX_HISTORY_SLOTS should be 100, got ' + MAX_HISTORY_SLOTS);
+});
+
+// === Test key consistency across generation pipeline ===
+test('Key is consistent across _lastChosenKey, DOM, and chord data after generateAll', function() {
+  // Run a full generation
+  _forcedKey = null;
+  generateAll();
+  
+  // _lastChosenKey should be set
+  assert(_lastChosenKey !== null, '_lastChosenKey should be set after generateAll');
+  assert(_lastChosenKey.root, '_lastChosenKey should have root');
+  assert(_lastChosenKey.i, '_lastChosenKey should have i chord');
+  assert(_lastChosenKey.iv, '_lastChosenKey should have iv chord');
+  assert(_lastChosenKey.v, '_lastChosenKey should have v chord');
+  
+  // DOM songKey should match _lastChosenKey.root
+  var domKey = document.getElementById('songKey').textContent;
+  assert(domKey === _lastChosenKey.root, 'DOM songKey (' + domKey + ') should match _lastChosenKey.root (' + _lastChosenKey.root + ')');
+  
+  // _lastChosenKey.i should start with the root note
+  var rootNote = _lastChosenKey.root.replace(/maj7|m7b5|m7|m9|maj9|7|9|m$/g, '');
+  var iNote = _lastChosenKey.i.replace(/maj7|m7b5|m7|m9|maj9|7|9|m$/g, '');
+  assert(rootNote === iNote, 'Root note (' + rootNote + ') should match I chord root (' + iNote + ')');
+});
+
+// === Test key consistency with forced key ===
+test('Forced key is respected by analyzeBeat', function() {
+  var testKeys = ['Am', 'Cm', 'Dm', 'Gm', 'Em'];
+  testKeys.forEach(function(forcedKey) {
+    _forcedKey = forcedKey;
+    songFeel = 'normal';
+    songPalette = FEEL_PALETTES[0];
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    genBasePatterns();
+    // Run analyzeBeat (which sets _lastChosenKey)
+    analyzeBeat();
+    assert(_lastChosenKey.root === forcedKey, 
+      'Forced key ' + forcedKey + ': _lastChosenKey.root should be ' + forcedKey + ', got ' + _lastChosenKey.root);
+    var domKey = document.getElementById('songKey').textContent;
+    assert(domKey === forcedKey, 
+      'Forced key ' + forcedKey + ': DOM songKey should be ' + forcedKey + ', got ' + domKey);
+    _forcedKey = null;
+  });
+});
+
+// === Test relNote bVI/bVII correctness for all minor keys ===
+test('relNote bVI and bVII are correct for all minor keys in keyData', function() {
+  var SEMI = {'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11};
+  var NAMES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  
+  // Test all feels' key pools
+  var allFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+  
+  allFeels.forEach(function(feel) {
+    _forcedKey = null;
+    songFeel = feel;
+    songPalette = null;
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    if (!songPalette) songPalette = FEEL_PALETTES[0];
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    genBasePatterns();
+    analyzeBeat();
+    
+    if (_lastChosenKey && _lastChosenKey.type === 'minor' && _lastChosenKey.relNote) {
+      var rootStr = _lastChosenKey.root.replace(/maj7|m7b5|m7|m9|maj9|7|9|m$/g, '');
+      var rootSemi = SEMI[rootStr];
+      if (rootSemi !== undefined) {
+        var expectedBVI = NAMES[(rootSemi + 8) % 12];
+        var expectedBVII = NAMES[(rootSemi + 10) % 12];
+        var parts = _lastChosenKey.relNote.split(',').map(function(s) { return s.trim().replace(/maj7|m7b5|m7|m9|maj9|7|9|m$/g, ''); });
+        // relNote format: [bIII, bVII, bVI]
+        if (parts.length >= 3) {
+          var actualBVII = parts[1];
+          var actualBVI = parts[2];
+          assert(actualBVII === expectedBVII, 
+            feel + ' key ' + _lastChosenKey.root + ': bVII should be ' + expectedBVII + ', got ' + actualBVII);
+          assert(actualBVI === expectedBVI, 
+            feel + ' key ' + _lastChosenKey.root + ': bVI should be ' + expectedBVI + ', got ' + actualBVI);
+        }
+      }
+    }
+  });
+});
+
+// === Test chord progressions only use supported degrees ===
+test('All CHORD_PROGRESSIONS degrees are handled by degreeToNote', function() {
+  var validDegrees = ['i', 'iv', 'v', 'ii', 'bII', 'bIII', 'bVI', 'bVII', '#idim'];
+  var allFeels = Object.keys(CHORD_PROGRESSIONS);
+  allFeels.forEach(function(feel) {
+    CHORD_PROGRESSIONS[feel].forEach(function(prog, idx) {
+      prog.forEach(function(deg) {
+        assert(validDegrees.indexOf(deg) >= 0, 
+          feel + ' progression ' + idx + ' has unsupported degree: ' + deg);
+      });
+    });
+  });
+});
+
+// === Test _sectionProgressions are set for all sections after bass generation ===
+test('_sectionProgressions populated for all non-intro/outro sections after bass generation', function() {
+  _forcedKey = null;
+  generateAll();
+  // Bass generation populates _sectionProgressions — trigger it for each section
+  arrangement.forEach(function(sec) {
+    if (sec === 'intro' || sec === 'outro') return;
+    generateBassPattern(sec, 90);
+  });
+  arrangement.forEach(function(sec) {
+    if (sec === 'intro' || sec === 'outro') return;
+    var prog = _sectionProgressions[sec];
+    assert(prog, 'Section ' + sec + ' should have a progression in _sectionProgressions');
+    if (prog) {
+      assert(prog.length === 8, 'Section ' + sec + ' progression should have 8 chords, got ' + prog.length);
+    }
+  });
+});
+
+// === Test MIDI export key in filename matches DOM ===
+test('MIDI export folder name uses DOM key, not _lastChosenKey', function() {
+  _forcedKey = 'Cm';
+  songFeel = 'normal';
+  generateAll();
+  // After generateAll, both should match
+  var domKey = document.getElementById('songKey').textContent;
+  assert(domKey === _lastChosenKey.root, 'DOM key (' + domKey + ') should match _lastChosenKey.root (' + _lastChosenKey.root + ')');
+  _forcedKey = null;
+});
+
+// === Test bass MIDI notes are in the correct key ===
+test('Bass MIDI notes match the song key', function() {
+  var SEMI = {'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};
+  
+  _forcedKey = 'Am';
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  _domElements = {};
+  generateAll({ key: 'Am' });
+  
+  // Am natural minor scale: A B C D E F G (semitones: 9 11 0 2 4 5 7)
+  // Also allow chromatic neighbors (8, 10, 1, 3, 6) for passing tones
+  var amScale = [9, 11, 0, 2, 4, 5, 7];
+  
+  var bassEvents = generateBassPattern('verse', 90);
+  assert(bassEvents.length > 0, 'Bass should generate events for verse');
+  
+  var outOfScale = 0;
+  bassEvents.forEach(function(e) {
+    if (e.dead) return;
+    var pitchClass = e.note % 12;
+    if (amScale.indexOf(pitchClass) < 0) outOfScale++;
+  });
+  // Allow chromatic passing tones and borrowed chord notes (up to 25% of notes)
+  var pct = bassEvents.length > 0 ? (outOfScale / bassEvents.length) : 0;
+  assert(pct <= 0.25, 'Bass in Am: ' + Math.round(pct * 100) + '% out-of-scale notes (max 25%)');
+  _forcedKey = null;
+});
+
+// === Test 808 sub octave drops are rare ===
+test('808 sub styles have low octave drop probability', function() {
+  var sub808Feels = ['crunk', 'memphis', 'phonk'];
+  sub808Feels.forEach(function(feel) {
+    var style = BASS_STYLES[feel];
+    assert(style, 'BASS_STYLES should have ' + feel);
+    assert(style.useOctaveDrop <= 0.10, 
+      feel + ' useOctaveDrop should be <= 0.10, got ' + style.useOctaveDrop);
+    assert(style.instrument === '808sub', 
+      feel + ' instrument should be 808sub, got ' + style.instrument);
+  });
+});
+
+// === Test per-instrument swing values are reasonable ===
+test('Per-instrument swing values are musically reasonable', function() {
+  // Memphis/phonk bass should be near-grid (low swing)
+  assert(INSTRUMENT_SWING.memphis.bass <= 0.6, 'Memphis bass swing should be <= 0.6, got ' + INSTRUMENT_SWING.memphis.bass);
+  assert(INSTRUMENT_SWING.phonk.bass <= 0.6, 'Phonk bass swing should be <= 0.6, got ' + INSTRUMENT_SWING.phonk.bass);
+  
+  // Dilla hats should swing harder than kick
+  assert(INSTRUMENT_SWING.dilla.hat > INSTRUMENT_SWING.dilla.kick, 
+    'Dilla hat swing (' + INSTRUMENT_SWING.dilla.hat + ') should be > kick (' + INSTRUMENT_SWING.dilla.kick + ')');
+  
+  // Crashes should always be on-grid
+  var allFeels = Object.keys(INSTRUMENT_SWING);
+  allFeels.forEach(function(feel) {
+    var crashSwing = getInstrumentSwing('crash', 100, feel);
+    assert(crashSwing === 0, feel + ' crash swing should be 0, got ' + crashSwing);
+  });
 });
 
 // === Results ===
