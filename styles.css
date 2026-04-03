@@ -54,7 +54,7 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .prefs-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.4;padding-top:4px}
 
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 16px}
-.section-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(21,21,28,0.92);border:1px solid var(--border-light);border-radius:8px;padding:10px 24px;font-family:var(--mono);font-size:16px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase;z-index:200;pointer-events:none;opacity:0;transition:opacity 0.2s ease,transform 0.2s ease;backdrop-filter:blur(6px)}
+.section-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(80,160,255,0.15);border:2px solid var(--accent-blue);border-radius:12px;padding:16px 40px;font-family:var(--mono);font-size:28px;font-weight:700;color:var(--accent-blue);letter-spacing:3px;text-transform:uppercase;z-index:200;pointer-events:none;opacity:0;transition:opacity 0.25s ease,transform 0.25s ease;backdrop-filter:blur(10px);text-shadow:0 0 20px rgba(80,160,255,0.4)}
 .section-toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .scroll-area::-webkit-scrollbar{width:5px}
 .scroll-area::-webkit-scrollbar-track{background:transparent}
