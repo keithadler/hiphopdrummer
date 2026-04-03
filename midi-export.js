@@ -634,7 +634,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     bassEvents.forEach(function(e) {
       var stepInBar = e.step % 16;
       var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
-      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset;
+      var timingOff = (e.timingOffset || 0);
+      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset + timingOff;
+      if (stepTick < 0) stepTick = 0;
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
       events.push({ tick: stepTick + durTicks, type: 'off', ch: bassCh, note: e.note });
