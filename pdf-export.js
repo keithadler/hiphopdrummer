@@ -101,11 +101,16 @@ function exportPDF(returnBlob) {
   addLine();
 
   // === ABOUT THIS BEAT ===
-  // Call analyzeBeat() directly to get the raw <br>-separated HTML,
-  // rather than reading from the DOM where the collapsible accordion
-  // may have restructured the content into <div> wrappers.
+  // Read the existing analysis from the DOM rather than re-running analyzeBeat(),
+  // which would pick a new random key and produce inconsistent output.
   var aboutHtml = '';
-  try { aboutHtml = analyzeBeat(); } catch(e) {}
+  try {
+    var aboutEl = document.getElementById('aboutBeat');
+    if (aboutEl) aboutHtml = aboutEl.innerHTML;
+  } catch(e) {}
+  if (!aboutHtml) {
+    try { aboutHtml = analyzeBeat(); } catch(e) {}
+  }
   if (aboutHtml) {
     var aboutLines = aboutHtml.split(/<br\s*\/?>/gi);
     for (var i = 0; i < aboutLines.length; i++) {

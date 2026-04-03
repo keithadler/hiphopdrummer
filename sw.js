@@ -5,7 +5,7 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-20260402d';
+var CACHE_NAME = 'hiphopdrummer-v1.1';
 
 var ASSETS = [
   './',
@@ -22,6 +22,7 @@ var ASSETS = [
   './midi-export.js',
   './pdf-export.js',
   './app.js',
+  './beat-history.js',
   './synth.js',
   './spessasynth_processor.min.js',
   './GeneralUserGS.sf3',
