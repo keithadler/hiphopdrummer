@@ -413,6 +413,7 @@ function initPlaybackTracking() {
   var _playerSeekEl = null;
   var _playerPlayBtn = null;
   var _followPlayhead = false;
+  var _lastActiveBar = -1;
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -449,6 +450,22 @@ function initPlaybackTracking() {
     _cachedCursorEls = [];
     lastHighlightedStep = stepIdx;
     if (stepIdx < 0) return;
+
+    // Auto-select the bar tab for the current step
+    var currentBar = Math.floor(stepIdx / 16);
+    if (currentBar !== _lastActiveBar) {
+      _lastActiveBar = currentBar;
+      var barTabs = document.getElementById('barTabs');
+      if (barTabs) {
+        barTabs.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+        var activeTab = document.getElementById('bar-tab-' + currentBar);
+        if (activeTab) activeTab.classList.add('bar-btn-active');
+      }
+      // Scroll the bar's grid page into view
+      var gridPage = document.getElementById('grid-page-' + currentBar);
+      if (gridPage) gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     // Query once and cache the result
     var els = document.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]');
     for (var i = 0; i < els.length; i++) {
@@ -456,7 +473,6 @@ function initPlaybackTracking() {
       _cachedCursorEls.push(els[i]);
     }
     // Follow playhead: scroll the last (bottom) cursor element into view
-    // so the full column of cells is visible, not just the top row
     if (_followPlayhead && _cachedCursorEls.length > 0) {
       _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
@@ -480,6 +496,7 @@ function initPlaybackTracking() {
       renderGrid();
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
+      _lastActiveBar = -1; // reset bar tracking for new section
       // Follow playhead: scroll the current section into view
       if (_followPlayhead) {
         var activeCard = document.querySelector('.arr-item.playing');
@@ -526,6 +543,7 @@ function initPlaybackTracking() {
       if (playing) {
         lastTrackedSection = -1;
         lastHighlightedStep = -1;
+        _lastActiveBar = -1;
         buildSectionTimeMap();
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
