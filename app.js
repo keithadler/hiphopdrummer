@@ -504,16 +504,13 @@ function initPlayerControls() {
       toast.classList.add('show', 'countdown-mode');
     }
     
-    headerPlayBtn.textContent = '3';
     headerPlayBtn.disabled = true;
     
     setTimeout(function() {
       if (toast) toast.innerHTML = '<div class="countdown-display">2</div>';
-      headerPlayBtn.textContent = '2';
       
       setTimeout(function() {
         if (toast) toast.innerHTML = '<div class="countdown-display">1</div>';
-        headerPlayBtn.textContent = '1';
         
         setTimeout(function() {
           if (toast) {
