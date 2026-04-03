@@ -1085,11 +1085,12 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
         if (turnType === 'root_fifth_oct') {
           // root → 5th → octave
           events.push({ step: turnStart, note: Math.min(48, Math.max(24, rootNote)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          events.push({ step: turnStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          events.push({ step: turnStart + 3, note: Math.min(48, Math.max(24, rootNote + 12 > 48 ? rootNote : rootNote + 12)), vel: v(turnVel, 6), dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 1 < len) events.push({ step: turnStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 3 < len) events.push({ step: turnStart + 3, note: Math.min(48, Math.max(24, rootNote + 12 > 48 ? rootNote : rootNote + 12)), vel: v(turnVel, 6), dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
         } else if (turnType === 'chromatic_walk') {
           // chromatic walk up to next section root
           for (var tw = 0; tw < 3; tw++) {
+            if (turnStart + tw >= len) break;
             var walkNote = rootNote - 3 + tw;
             walkNote = Math.min(48, Math.max(24, walkNote));
             events.push({ step: turnStart + tw, note: walkNote, vel: v(turnVel - 5 + tw * 5, 6), dur: 0.4, slide: tw > 0, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
@@ -1097,7 +1098,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
         } else {
           // 5th → root drop
           events.push({ step: turnStart, note: Math.min(48, Math.max(24, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          events.push({ step: turnStart + 2, note: Math.min(48, Math.max(24, rootLow)), vel: v(turnVel + 5, 6), dur: Math.max(turnDur, 0.7), slide: true, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 2 < len) events.push({ step: turnStart + 2, note: Math.min(48, Math.max(24, rootLow)), vel: v(turnVel + 5, 6), dur: Math.max(turnDur, 0.7), slide: true, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
         }
       }
     }

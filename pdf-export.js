@@ -400,20 +400,29 @@ function exportChordSheetPDF(returnBlob) {
         if (/maj7|m7b5|m7|7/.test(q)) return root + q.replace(/maj7/,'').replace(/m7b5/,'m').replace(/m7/,'m').replace(/7/,'');
         return rawChord;
       case 'jazzy': case 'dilla': case 'nujabes':
+        if (/dim/.test(q)) return /dim7/.test(q) ? rawChord : root + 'dim7';
         if (/9/.test(q)) return rawChord;
         if (/7/.test(q)) { if (/^m7$/.test(q)) return root+'m9'; if (/^maj7$/.test(q)) return root+'maj9'; return rawChord; }
         if (/^m$/.test(q)) return root+'m9';
         if (q === '') return root+'maj9';
         return rawChord;
       case 'lofi':
-        if (/maj7/.test(q)) return root+'7';
         if (/^m$/.test(q)) return root+'m7';
-        if (q === '') return root+'7';
+        if (q === '') return root+'maj7';
         return rawChord;
       case 'gfunk':
         if (/7/.test(q)) return rawChord;
         if (/^m$/.test(q)) return root+'m7';
         if (q === '') return root+'7';
+        return rawChord;
+      case 'bounce':
+        if (q === '') return root+'maj7';
+        if (/^m$/.test(q)) return rawChord;
+        return rawChord;
+      case 'halftime':
+        if (/7|9|dim|6/.test(q)) return rawChord;
+        if (/^m$/.test(q)) return root+'m(add9)';
+        if (q === '') return root+'(add9)';
         return rawChord;
       default: return rawChord;
     }
