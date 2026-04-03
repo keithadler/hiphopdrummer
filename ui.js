@@ -1033,13 +1033,14 @@ function explainCell(instrument, step, velocity) {
   var pct = Math.round(velocity / 127 * 100);
   var beatNames = ['beat 1','e-of-1','&-of-1','ah-of-1','beat 2','e-of-2','&-of-2','ah-of-2','beat 3','e-of-3','&-of-3','ah-of-3','beat 4','e-of-4','&-of-4','ah-of-4'];
   var posName = beatNames[pos] || ('step ' + (pos + 1));
+  var stepNum = (pos + 1); // 1-indexed step number as shown in the grid header
 
   if (velocity === 0) {
-    return '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · ' + posName + '</span>'
+    return '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · Step ' + stepNum + ' (' + posName + ')</span>'
       + 'Empty — no hit on this step. The space is intentional. In hip hop drumming, where you DON\'T play is as important as where you do.';
   }
 
-  var lines = '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · ' + posName + ' · ' + pct + '%</span>';
+  var lines = '<span class="tip-label">' + RN[instrument] + ' · Bar ' + bar + ' · Step ' + stepNum + ' (' + posName + ') · ' + pct + '%</span>';
 
   // Instrument + position specific explanations
   if (instrument === 'kick') {
