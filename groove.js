@@ -62,17 +62,19 @@ function applyGroove(p, len, feel) {
       p.rimshot[i] = rimVel;
     }
     // Ride: upbeat accents (jazz feel), downbeats pulled back
+    // FIX #1: Corrected ride accent curve — upbeats louder, downbeats softer
     if (p.ride[i] > 0) {
-      if (pos % 4 === 2) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (e, a)
+      if (pos % 2 === 1) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (all "and" positions)
       else if (pos % 4 === 0) p.ride[i] = Math.max(35, p.ride[i] - 2); // downbeats (1, 2, 3, 4)
-      else p.ride[i] = Math.max(35, p.ride[i] - 3); // 16th notes
+      else p.ride[i] = Math.max(35, p.ride[i]); // even 16ths: neutral
     }
-    // Shaker: upbeat accent — "and" positions slightly louder, downbeats softer
+    // Shaker: continuous shake feel — less swing than hats (0.4-0.5× hat swing)
+    // FIX #2: Reduced shaker swing to 0.4× hat swing for natural continuous shake
     // Stays in a narrow band (35-70%) — it's texture, not a lead voice
     if (p.shaker[i] > 0) {
-      if (pos % 4 === 2) p.shaker[i] = Math.min(70, p.shaker[i] + 4);  // "and" positions: slight boost
-      else if (pos % 2 === 0) p.shaker[i] = Math.max(35, p.shaker[i] - 3); // downbeats: pull back
-      else p.shaker[i] = Math.max(30, p.shaker[i] - 5); // 16th positions: softest
+      if (pos % 4 === 2) p.shaker[i] = Math.min(70, p.shaker[i] + 2);  // "and" positions: minimal boost
+      else if (pos % 2 === 0) p.shaker[i] = Math.max(35, p.shaker[i] - 2); // downbeats: slight pull back
+      else p.shaker[i] = Math.max(30, p.shaker[i] - 3); // 16th positions: softer
     }
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
@@ -223,13 +225,14 @@ function humanizeVelocities(p, len, feel) {
  */
 function postProcessPattern(p, len, isCh, feel) {
   // Get BPM for tempo-aware open hat choke duration
+  // FIX #9: Added BPM-aware hat choke duration
   var bpm = 90;
   try {
     bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   } catch(e) {}
   
   // Tempo-aware choke duration: slower = longer choke
-  var chokeDuration = (bpm <= 80) ? 4 : (bpm <= 100) ? 3 : 2;
+  var chokeDuration = (bpm <= 80) ? 4 : (bpm <= 95) ? 3 : 2;
   
   for (var i = 0; i < len; i++) {
     var pos = i % 16;
@@ -249,10 +252,11 @@ function postProcessPattern(p, len, isCh, feel) {
     }
   }
   // Pass 3: Ghost note clustering — feel-aware probability and spacing
+  // FIX #7: Adjusted ghost clustering to be less aggressive and more feel-dependent
   // Chopbreak: higher clustering (dense diddle patterns from real breaks)
-  // Lo-fi: lower clustering (sparse aesthetic)
+  // Lo-fi/dark: lower clustering (sparse aesthetic)
   // Dilla: moderate clustering with wider spacing (3 steps instead of 2)
-  var clusterProb = (feel === 'chopbreak') ? 0.50 : (feel === 'lofi') ? 0.15 : (feel === 'dilla') ? 0.30 : (feel === 'memphis') ? 0.12 : (feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') ? 0 : (feel === 'griselda') ? 0.10 : (feel === 'nujabes') ? 0.40 : 0.35;
+  var clusterProb = (feel === 'chopbreak') ? 0.40 : (feel === 'dilla') ? 0.25 : (feel === 'lofi') ? 0.10 : (feel === 'dark') ? 0.10 : (feel === 'memphis') ? 0.10 : (feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') ? 0 : (feel === 'griselda') ? 0.10 : (feel === 'nujabes') ? 0.35 : 0.25;
   var clusterSpacing = (feel === 'dilla') ? 3 : 2;
   clusterProb *= ghostDensity;
   for (var i = 0; i < len; i++) {
