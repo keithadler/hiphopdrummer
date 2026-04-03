@@ -209,7 +209,7 @@ Jazzy: ghost-level snare roll. Hard: kick+snare unisons. Dark: single snare hit.
 
 Organized into collapsible accordion sections. All sections collapsed by default.
 
-Includes: Flow Guide (rapper-focused BPM/feel delivery tips), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Song Elements (with fill and strip-down notes per section), Start Here (beginner orientation).
+Includes: Flow Guide (rapper-focused BPM/feel delivery tips with syllable counts per bar based on kick density and BPM), Key/Scale Suggestion (feel-specific musical key recommendations with I/IV/V chords, 3-chord combos, style-matched alternate progressions with actual chord names, relative companions, section-by-section melodic arrangement guide), What's In The Export (itemized list of every file in the ZIP), Reference Tracks (3 specific songs per feel), Technique Spotlight (16 rotating deep dives), Did You Know (21 entries), History (11 entries), Common Mistakes (13 entries), Equipment Context (6 gear types), Difficulty Rating (accounts for all sections in the arrangement), Try This (beat-specific exercises), Listen For (ear training prompts), Compare Sections (kick count analysis with navigation instructions), Song Elements (with fill and strip-down notes per section), Start Here (beginner orientation), Drum Machine Workflow (MIDI import + hand-programming instructions), Quick Start (3 most important settings).
 
 ### Alternate Progressions
 The key section shows style-matched alternate progressions with actual chord names computed for the chosen key. Progressions covered:
@@ -262,7 +262,36 @@ Bass reacts to drum context: snare deference (drops/softens on loud backbeats), 
 
 Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.15, breakdown 0.6, instrumental 0.8, lastchorus 1.25, outro 0.5.
 
-## Export
+## UI & Playback
+
+### Grid Interaction
+- Click any filled grid cell to hear that drum hit at its programmed velocity through the SoundFont synth (when not playing)
+- Click any row label (Kick, Snare, Hat, etc.) to audition that instrument at velocity 100
+- Click any cell to see a tooltip explaining why that hit is at that velocity
+
+### Playback Features
+- Play/Stop button in the header — green "▶ PLAY" turns red "■ STOP" during playback
+- Section toast notifications — blue overlay shows section name and bar count as each section begins
+- Auto-select bar tabs — bar tabs highlight the current bar during playback
+- Follow playhead preference (off by default) — auto-scrolls page to track playback, pauses on touch for mobile
+- Playback cursor at 50ms polling with cached DOM references (zero scans per frame)
+- IntersectionObserver disabled during playback to prevent bar tab conflicts
+
+### Header & Mobile
+- Sticky header on mobile — controls stay visible while scrolling
+- Brand name clickable — opens About dialog
+- Mobile: PLAY + NEW BEAT on one row, EXPORT + Preferences on one row
+
+### New Beat Dialog
+- Key and BPM lock to Auto when style is Auto
+- Key and BPM reset when style changes
+- Only shows style-appropriate key and BPM options
+
+### About Dialog
+- Opens from brand name click
+- Unique generation explanation, drums+bass cohesion, itemized export list, audience sections, technical depth
+
+## Export — MIDI
 
 ### MIDI
 Standard MIDI Format 0, GM Channel 10. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
@@ -323,12 +352,12 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 
 ## Tech Stack
 
-- **Audio** — html-midi-player with SoundFont for GM drum playback
-- **Rendering** — Vanilla DOM, CSS flexbox, responsive layout
-- **Export** — JSZip for MIDI bundles, jsPDF for beat sheets
+- **Audio** — SpessaSynth (SoundFont2/SF3 synthesizer) for GM drum kit and bass playback, WAV rendering, and cell audition. GeneralUser GS SoundFont.
+- **Rendering** — Vanilla DOM, CSS flexbox/grid, responsive layout with sticky mobile header
+- **Export** — JSZip for MIDI/MPC bundles, jsPDF for beat sheets and chord sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
 - **Testing** — Node.js test suite (9500+ assertions, zero dependencies)
-- **Dependencies** — JSZip, jsPDF, html-midi-player (all via CDN)
+- **Dependencies** — JSZip, jsPDF, SpessaSynth (bundled via esbuild)
 
 ## Testing
 

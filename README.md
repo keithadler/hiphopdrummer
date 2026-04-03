@@ -104,10 +104,19 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
   - Chord Sheet — visual piano keyboards with feel-aware voicings, bar counts, rhythm suggestions
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements, Reference Tracks, Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
-- **Click any grid cell** for an explanation of why that hit is at that velocity
+- **Click any grid cell** to hear that drum hit at its velocity and see an explanation of why it's there
+- **Click any row label** (Kick, Snare, Hat, etc.) to audition that instrument sound
+- **Section toast notifications** — blue overlay shows the section name and bar count as each section begins during playback
+- **Auto-select bar tabs** — bar tabs highlight and scroll to the current bar during playback
+- **Follow playhead** — optional preference that auto-scrolls the page to track playback (pauses on touch so you can scroll freely on mobile)
+- **Sticky header on mobile** — PLAY/STOP, NEW BEAT, and stats stay visible while scrolling
+- **Play/Stop in header** — green PLAY button turns red STOP during playback, always visible
+- **Smart New Beat dialog** — key and BPM lock to Auto when style is Auto; reset to Auto when style changes so the generator picks style-appropriate values
+- **About dialog** — click the brand name to see what the tool does, who it's for, and what's in every export
+- **What's In The Export** section in About This Beat — itemized list of everything in the ZIP (MIDI, MPC patterns, bass, WAV, PDFs, DAW guides)
 - **Glossary tooltips** — hover over drum terms in the About panel for instant definitions
 - **Keyboard shortcuts** — R to open the New Beat dialog, Escape to cancel, Enter to confirm
-- **Responsive** — works on desktop and mobile
+- **Responsive** — works on desktop and mobile with sticky header and touch-aware scrolling
 
 ## Quick Start
 
