@@ -124,6 +124,8 @@ document.getElementById('regenGo').onclick = function() {
   hideRegenDialog();
   generateAll({ style: style, key: key, bpm: bpm });
   updateMidiPlayer();
+  // Rebuild chord sheet after MIDI build so it picks up bass progressions
+  if (typeof buildChordSheet === 'function') buildChordSheet();
 };
 
 /** New Beat button: show the dialog */
@@ -270,6 +272,7 @@ document.getElementById('prefsSave').onclick = function() {
   }
   // Rebuild the MIDI player
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  if (typeof buildChordSheet === 'function') buildChordSheet();
   hidePrefsDialog();
 };
 
@@ -315,6 +318,8 @@ document.addEventListener('keydown', function(e) {
 (function() {
   generateAll();
   updateMidiPlayer();
+  // Rebuild chord sheet after MIDI build so it picks up bass progressions
+  if (typeof buildChordSheet === 'function') buildChordSheet();
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
   initPlayerControls();
