@@ -375,6 +375,15 @@ function generateBassPattern(sec) {
       if (!isIntroOutro) {
         // Use the progression table for this bar's chord
         var progDegree = progression[barInPhrase % progression.length];
+        // Turnaround: last bar of sections > 4 bars gets V (or ii for jazz)
+        // to create resolution back to the I for the next section/repeat
+        if (barIdx === totalBars - 1 && totalBars > 4) {
+          if (bassFeel === 'jazzy' || bassFeel === 'nujabes' || bassFeel === 'dilla') {
+            progDegree = 'v'; // ii-V implied by the preceding bar
+          } else if (bassFeel !== 'crunk' && bassFeel !== 'oldschool' && bassFeel !== 'memphis') {
+            progDegree = 'v';
+          }
+        }
         currentRoot = degreeToNote(progDegree);
         currentRootLow = currentRoot - 12;
         // Chord anticipation: on the last beat of a bar, sometimes jump to next chord early
