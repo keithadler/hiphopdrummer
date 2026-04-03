@@ -32,6 +32,7 @@ function applyGroove(p, len, feel) {
     }
     // Hat velocity arc — suppress on last bar, and skip for G-Funk (would break 3-level dynamic)
     var isLastBar = (i >= len - 16);
+    // FIX #5: Skip hat velocity arc for G-Funk to preserve 3-level dynamics
     if (p.hat[i] > 0 && pos >= 12 && !isLastBar && feel !== 'gfunk') p.hat[i] = Math.min(127, p.hat[i] + Math.floor((pos - 11) * 2));
     // Open hat: custom accent — &4 (step 14) and &2 (step 6) get neutral/boosted treatment
     if (p.openhat[i] > 0) {
@@ -62,11 +63,11 @@ function applyGroove(p, len, feel) {
       p.rimshot[i] = rimVel;
     }
     // Ride: upbeat accents (jazz feel), downbeats pulled back
-    // FIX #6: Feel-aware ride accent — flat for lofi/nujabes (hypnotic wash)
+    // FIX #8: Lofi/nujabes ride uses grooveVel for bar-position feel without accent curve
     if (p.ride[i] > 0) {
       if (feel === 'lofi' || feel === 'nujabes') {
-        // Flat ride — no accent curve, hypnotic wash
-        p.ride[i] = Math.max(35, p.ride[i]);
+        // Flat ride — use grooveVel for bar-position micro-adjustments, no accent curve
+        p.ride[i] = grooveVel(i, p.ride[i]);
       } else {
         // Jazz ride accent: upbeats louder, downbeats softer
         if (pos % 2 === 1) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (all "and" positions)
@@ -75,15 +76,15 @@ function applyGroove(p, len, feel) {
       }
     }
     // Shaker: continuous shake feel — less swing than hats (0.4-0.5× hat swing)
-    // FIX #2: Reduced shaker swing to 0.4× hat swing for natural continuous shake
+    // FIX #7: Skip accent curve for shaker — sine wave already provides dynamic shape
     // Stays in a narrow band (35-70%) — it's texture, not a lead voice
     if (p.shaker[i] > 0) {
-      if (pos % 4 === 2) p.shaker[i] = Math.min(70, p.shaker[i] + 2);  // "and" positions: minimal boost
-      else if (pos % 2 === 0) p.shaker[i] = Math.max(35, p.shaker[i] - 2); // downbeats: slight pull back
-      else p.shaker[i] = Math.max(30, p.shaker[i] - 3); // 16th positions: softer
+      // No accent curve — sine wave from writeShaker provides all dynamic shaping
+      p.shaker[i] = Math.max(30, p.shaker[i]);
     }
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
+  // FIX #1: Changed from additive to multiplicative scaling to work with feel-specific velocities
   // Crunk: flat kick — all four beats equal, no accent curve
   for (var i = 0; i < len; i++) {
     if (p.kick[i] > 0) {
@@ -93,13 +94,14 @@ function applyGroove(p, len, feel) {
         // Just clamp to valid range
         p.kick[i] = Math.min(127, Math.max(100, p.kick[i]));
       } else {
-        if (pos === 0) p.kick[i] = Math.min(127, p.kick[i] + 8);
-        else if (pos === 8) p.kick[i] = Math.min(127, p.kick[i] + 3);
-        else if (pos === 6) p.kick[i] = Math.min(127, p.kick[i] + 4);
+        // Multiplicative accent scaling preserves feel-specific velocity ranges
+        if (pos === 0) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.08));
+        else if (pos === 8) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.03));
+        else if (pos === 6) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.04));
         else if (pos === 4 || pos === 12) p.kick[i] = p.kick[i];
-        else if (pos % 2 === 0) p.kick[i] = Math.max(50, p.kick[i] - 5);
-        else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, p.kick[i] - 5);
-        else p.kick[i] = Math.max(45, p.kick[i] - 10);
+        else if (pos % 2 === 0) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
+        else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
+        else p.kick[i] = Math.max(45, Math.round(p.kick[i] * 0.85));
       }
     }
   }
@@ -266,7 +268,7 @@ function postProcessPattern(p, len, isCh, feel) {
     }
   }
   // Pass 3: Ghost note clustering — feel-aware probability and spacing
-  // FIX #10: Feel-aware ghost snare clustering probability
+  // FIX #10: Check for kick collisions across ALL bars, not just current position
   var clusterProb = 0.25; // default
   if (feel === 'dilla' || feel === 'nujabes') clusterProb = 0.55; // dense brush feel
   else if (feel === 'chopbreak') clusterProb = 0.40; // dense diddle patterns
@@ -280,8 +282,22 @@ function postProcessPattern(p, len, isCh, feel) {
   
   for (var i = 0; i < len; i++) {
     if (p.snare[i] > 0 && p.snare[i] < 80) {
-      if (i + clusterSpacing < len && p.snare[i + clusterSpacing] === 0 && p.kick[i + clusterSpacing] === 0 && maybe(clusterProb)) {
-        p.snare[i + clusterSpacing] = Math.max(30, p.snare[i] - pick([5, 8, 12]));
+      var targetStep = i + clusterSpacing;
+      if (targetStep < len && p.snare[targetStep] === 0) {
+        // FIX #10: Check for kick collision at target step across all copied bars
+        var hasKickCollision = false;
+        var targetPos = targetStep % 16;
+        // Check if any bar has a kick at this position
+        for (var checkBar = 0; checkBar < Math.ceil(len / 16); checkBar++) {
+          var checkStep = checkBar * 16 + targetPos;
+          if (checkStep < len && p.kick[checkStep] > 0) {
+            hasKickCollision = true;
+            break;
+          }
+        }
+        if (!hasKickCollision && maybe(clusterProb)) {
+          p.snare[targetStep] = Math.max(30, p.snare[i] - pick([5, 8, 12]));
+        }
       }
     }
   }

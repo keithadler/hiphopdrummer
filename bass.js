@@ -62,6 +62,13 @@ var _lastChosenKey = null;
 var _sectionProgressions = {};
 
 /**
+ * FIX #9: Section-level octave drop storage — ensures consistent octave drop
+ * behavior across pattern regenerations for the same section.
+ * @type {Object.<string, boolean>}
+ */
+var _sectionOctaveDrops = {};
+
+/**
  * Bass style definitions per feel.
  *
  * Round 1 params: rhythm, density, velBase, velRange, noteDur, useFifth,
@@ -454,8 +461,11 @@ function generateBassPattern(sec, bpm) {
   var motifChordRoot = rootNote; // chord root the motif was recorded against
   var totalBars = Math.ceil(len / 16);
   
-  // FIX #1: Bass octave drops - section-level probability, not per-note
-  var sectionAllowsOctaveDrop = maybe(0.08);
+  // FIX #9: Bass octave drops - section-level probability stored for consistency
+  if (!_sectionOctaveDrops.hasOwnProperty(sec)) {
+    _sectionOctaveDrops[sec] = maybe(0.08);
+  }
+  var sectionAllowsOctaveDrop = _sectionOctaveDrops[sec];
 
   /**
    * Get the chord root for a given bar position in the phrase.
@@ -747,16 +757,19 @@ function generateBassPattern(sec, bpm) {
 
   for (var e = 0; e < events.length; e++) {
     var pos = events[e].step % 16;
+    
+    // FIX #2: Apply backbeat accent BEFORE humanization jitter
+    // Backbeat accent establishes the baseline, then jitter varies around it
+    if ((pos === 4 || pos === 12) && style.backbeatAccent > 0 && !events[e].dead) {
+      events[e].vel = Math.min(127, events[e].vel + style.backbeatAccent);
+    }
+    
+    // Now apply humanization jitter
     var jitter;
     if (pos === 0 || pos === 8) jitter = Math.floor((rnd() - 0.5) * 6 * bassJitter);
     else if (pos % 2 === 1) jitter = Math.floor((rnd() - 0.5) * 12 * bassJitter);
     else jitter = Math.floor((rnd() - 0.5) * 8 * bassJitter);
     events[e].vel = Math.min(127, Math.max(30, events[e].vel + jitter));
-
-    // Backbeat accent
-    if ((pos === 4 || pos === 12) && style.backbeatAccent > 0 && !events[e].dead) {
-      events[e].vel = Math.min(127, events[e].vel + style.backbeatAccent);
-    }
   }
 
   // ── Fix #8: Velocity compression for lo-fi / Memphis ──
@@ -879,9 +892,10 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
     var ctx = stepCtx[s];
 
     // ── Snare deference: drop or soften bass on loud backbeats ──
-    // FIX #3: REVERSED - bass should EMPHASIZE backbeats, not drop out
-    // Real bassists play THROUGH the snare, boosting on 2 and 4
-    if (ctx.hasSnare && !evt.dead) {
+    // FIX #6: Only boost on BACKBEAT snares (beats 2 and 4), not ghost snares
+    // Real bassists emphasize the backbeat, not every ghost snare
+    var isBackbeat = (ctx.hasSnare && (s % 16 === 4 || s % 16 === 12));
+    if (isBackbeat && !evt.dead) {
       // 70% chance to boost velocity on backbeat — lock with the snare
       if (maybe(0.7)) {
         evt.vel = Math.min(127, evt.vel + 12);
