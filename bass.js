@@ -453,6 +453,9 @@ function generateBassPattern(sec, bpm) {
   var motifIntervals = null; // [{relStep, interval, vel, dur, slide, dead}]
   var motifChordRoot = rootNote; // chord root the motif was recorded against
   var totalBars = Math.ceil(len / 16);
+  
+  // FIX #1: Bass octave drops - section-level probability, not per-note
+  var sectionAllowsOctaveDrop = maybe(0.08);
 
   /**
    * Get the chord root for a given bar position in the phrase.
@@ -519,7 +522,7 @@ function generateBassPattern(sec, bpm) {
         continue; // skip this step entirely — let the groove breathe
       }
 
-      // ── Fix #3: Motif repetition with interval transposition ──
+      // ── Fix #7: Motif repetition with interval transposition ──
       if (isRepeatBar && motifIntervals) {
         var motifStep = motifBarIdx * 16 + pos;
         var motifEvt = null;
@@ -528,8 +531,24 @@ function generateBassPattern(sec, bpm) {
         }
         if (motifEvt) {
           shouldPlay = true;
-          // Transpose: apply stored interval to current chord root
-          midiNote = currentRoot + motifEvt.interval;
+          // FIX #7: Adjust interval based on chord quality
+          // Motif was recorded on I (minor), transposing to IV (major) or V (major)
+          var transposedInterval = motifEvt.interval;
+          var currentDegree = progression[barInPhrase % progression.length];
+          
+          // If motif uses minor 7th (10 semitones) and we're on a major chord (IV or V),
+          // adjust to major 7th (11 semitones) to match chord quality
+          if ((currentDegree === 'iv' || currentDegree === 'v') && motifEvt.interval === 10) {
+            transposedInterval = 11; // major 7th instead of minor 7th
+          }
+          // If motif uses minor 3rd (3 semitones) and we're on a major chord,
+          // adjust to major 3rd (4 semitones)
+          else if ((currentDegree === 'iv' || currentDegree === 'v') && motifEvt.interval === 3) {
+            transposedInterval = 4; // major 3rd instead of minor 3rd
+          }
+          
+          // Transpose: apply adjusted interval to current chord root
+          midiNote = currentRoot + transposedInterval;
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
           noteVel = motifEvt.vel;
@@ -618,8 +637,12 @@ function generateBassPattern(sec, bpm) {
         if (midiNote > 48) midiNote = currentRoot;
       }
 
+      // FIX #1: Bass octave drops - section-level probability, not per-note
+      // Declare at section start (outside the step loop)
+      // 8% chance per section to enable octave drops, then 30% per eligible note
+      
       // Octave drop on beat 1
-      if (pos === 0 && maybe(style.useOctaveDrop) && !isDead) {
+      if (pos === 0 && !isDead && sectionAllowsOctaveDrop && maybe(0.3)) {
         midiNote = currentRootLow;
       }
 
@@ -667,7 +690,8 @@ function generateBassPattern(sec, bpm) {
 
       // Clamp
       noteVel = Math.min(127, Math.max(30, noteVel));
-      var noteDur = isDead ? 0.1 : (style.noteDur * durationMult);
+      // FIX #9: Apply BPM duration multiplier to ALL note durations
+      var noteDur = isDead ? (0.1 * durationMult) : (style.noteDur * durationMult);
       midiNote = Math.min(48, Math.max(24, midiNote));
 
       // ── Fix #9: Per-note timing jitter (fluctuating, not static) ──
@@ -855,15 +879,18 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
     var ctx = stepCtx[s];
 
     // ── Snare deference: drop or soften bass on loud backbeats ──
-    // FIX #9: Reduced from 25% to 8% - real bassists play THROUGH the snare most of the time
-    if (ctx.hasSnare && !evt.dead && maybe(0.08)) {
-      // 8% chance to drop the note entirely — only on climactic hits
-      continue;
-    }
-    if (ctx.hasSnare && !evt.dead && maybe(0.3)) {
-      // 30% chance to soften — play quieter under the snare
-      evt.vel = Math.max(30, evt.vel - 15);
-      evt.dur = Math.min(evt.dur, 0.3); // shorten
+    // FIX #3: REVERSED - bass should EMPHASIZE backbeats, not drop out
+    // Real bassists play THROUGH the snare, boosting on 2 and 4
+    if (ctx.hasSnare && !evt.dead) {
+      // 70% chance to boost velocity on backbeat — lock with the snare
+      if (maybe(0.7)) {
+        evt.vel = Math.min(127, evt.vel + 12);
+        evt.dur = Math.max(evt.dur, 0.5); // longer sustain on backbeat
+      }
+      // Only 5% chance to drop (climactic hits only)
+      else if (maybe(0.05)) {
+        continue;
+      }
     }
 
     // ── Density mirroring: simplify in busy bars ──
