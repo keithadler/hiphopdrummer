@@ -246,13 +246,14 @@ function postProcessPattern(p, len, isCh, feel) {
     // Pass 1b: Remove ghost snare where kick is playing (can't accent both)
     if (p.snare[i] > 0 && p.snare[i] < 85 && p.kick[i] > 0) p.snare[i] = 0;
     // Pass 2: Hat choke — open hat kills closed hat on same step and reduces velocity for next 1-2 steps
-    // FIX #8: Changed from zeroing to velocity reduction (30-40%) for more natural choke
+    // FIX #8: Changed from zeroing to velocity reduction for more natural choke
+    // FIX #6: Adjusted reduction from 35% to 55% (was too aggressive, hat went nearly silent)
     if (p.openhat[i] > 0) {
       p.hat[i] = 0;
       var reducedChokeDuration = (bpm <= 80) ? 2 : 1;
       for (var j = 1; j <= reducedChokeDuration && i + j < len; j++) {
         if (p.openhat[i + j] === 0 && p.hat[i + j] > 0) {
-          p.hat[i + j] = Math.floor(p.hat[i + j] * 0.35);
+          p.hat[i + j] = Math.floor(p.hat[i + j] * 0.55);
         } else if (p.openhat[i + j] > 0) {
           break; // another open hat starts, stop choking
         }

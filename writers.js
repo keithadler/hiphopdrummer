@@ -257,9 +257,10 @@ function writeBarK(p, feel, off, kickPat) {
   }
   if (feel === 'oldschool') {
     // Old School: clean, punchy drum machine kick — LinnDrum/808 style
-    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(115, 5);
+    // FIX #8: Drum machines have zero velocity variation - tightened from v(115,5) to v(115,2)
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(115, 2);
     // Beat 1 always hardest
-    if (p.kick[off] > 0) p.kick[off] = v(120, 4);
+    if (p.kick[off] > 0) p.kick[off] = v(120, 2);
   }
   if (feel === 'nujabes') {
     // Nujabes: softer kicks with WIDE dynamic range — live jazz drummer feel (75-115)
@@ -513,6 +514,7 @@ function writeSnB(p, feel, off) {
   }
   if (feel === 'crunk') {
     // FIX #4: Crunk snare changed from v(127,2) to v(125,4) to avoid constant clipping
+    // FIX #5: Consistent with writeSnA - both bars use same backbeat velocity
     p.snare[off + 4] = v(125, 4); p.snare[off + 12] = v(125, 4);
   }
   if (feel === 'memphis') {
@@ -535,12 +537,7 @@ function writeSnB(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
     }
   }
-  // FIX #3: Cap all ghost snare velocities at 65 max (ghost snares should never be louder than 65)
-  for (var i = 0; i < 16; i++) {
-    if (p.snare[off + i] > 0 && p.snare[off + i] < 85 && p.snare[off + i] > 65) {
-      p.snare[off + i] = 65;
-    }
-  }
+  // FIX #4: Removed redundant ghost snare velocity cap loop (already capped in writeSnA)
 }
 
 /**
@@ -1050,7 +1047,9 @@ function writeOpenHat(p, feel, off) {
  */
 function writeRide(p, feel, off) {
   if (!useRide) return;
-  if (feel === 'hard' || feel === 'sparse' || feel === 'lofi' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
+  // FIX #9: Removed lofi from exclusion list - ride is core to lo-fi (Madlib, Knxwledge)
+  // FIX #9: Dilla already has ride support below, removed from exclusion
+  if (feel === 'hard' || feel === 'sparse' || feel === 'chopbreak' || feel === 'crunk' || feel === 'memphis' || feel === 'griselda' || feel === 'phonk' || feel === 'oldschool') return;
   if (feel === 'jazzy' || feel === 'dilla') {
     // Jazz ride: quarter notes accented + ghost taps on "ah" positions (steps 3, 7, 11, 15)
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(90, 12);
@@ -1058,6 +1057,15 @@ function writeRide(p, feel, off) {
     if (maybe(.5)) p.ride[off + 7] = v(48, 10);
     if (maybe(.6)) p.ride[off + 11] = v(50, 10);
     if (maybe(.4)) p.ride[off + 15] = v(45, 10);
+    return;
+  }
+  if (feel === 'lofi') {
+    // Lo-fi: dusty ride pattern — quarter notes with occasional ghost taps, compressed dynamics
+    for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(75, 10);
+    if (maybe(.4)) p.ride[off + 3] = v(42, 8);
+    if (maybe(.3)) p.ride[off + 7] = v(40, 8);
+    if (maybe(.4)) p.ride[off + 11] = v(42, 8);
+    if (maybe(.25)) p.ride[off + 15] = v(38, 8);
     return;
   }
   if (feel === 'gfunk') {
