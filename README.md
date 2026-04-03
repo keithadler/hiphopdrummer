@@ -10,6 +10,20 @@ I grew up on KRS-One and LL Cool J. I'm a musician, and one thing that's always 
 
 So I built Hip Hop Drummer as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop beats. Every beat it generates comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs.
 
+## Who This Is For
+
+This tool meets you where you are. Whether you've never programmed a drum pattern or you've been making beats for 20 years, there's something here.
+
+**If you're learning to produce** — hit New Beat, study the pattern grid, and read the About This Beat breakdown. It tells you exactly why every kick, snare, and ghost note is where it is. Click any cell to understand its velocity. The flow guide tells you how many syllables fit per bar. The chord sheet shows you what to play on keys. Export the MIDI, load it into your DAW or MPC, and reverse-engineer it. Every generation is a free lesson from a producer who's studied Premier, Dilla, Dre, and RZA so you don't have to figure it out alone.
+
+**If you're a working producer** — use it as a starting point. Generate a beat in the style you want, export the MIDI, and customize it. Swap the kick samples, adjust the ghost note velocities, add your own fills. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid. The bass MIDI gives you a locked-in bass line you can re-voice with your own synth or 808. The chord recommendations give you harmonic direction. It's a co-pilot, not a replacement.
+
+**If you're a rapper** — just rap over it. Hit play, open the mic, and go. The flow guide gives you syllable counts per bar based on the actual kick pattern density. It tells you where the landing points are — which beats to hit with your hardest syllables. The BPM and swing are already set for the style. Export the WAV and you've got a practice beat, a demo backing track, or a freestyle session ready to go.
+
+**If you're a DJ** — these are scratch-ready. The arrangements have intros, breakdowns, and outros built in. Export the WAV, load it on your deck, and cut over it. The drum patterns are authentic enough to blend with real records. Use the breakdown sections for scratching — the drums thin out and give you space. Layer it with your crate finds.
+
+**If you're a musician** — the chord sheet and key suggestions give you everything you need to jam along. The bass MIDI shows you what a session bassist would play. The modal harmony (Dorian for G-Funk, Phrygian for dark styles) gives you the actual theory behind why these progressions work. Play keys over it, add guitar, lay down a horn line. The beat is the foundation — build on it.
+
 ## 40+ Years of Drum & Bass Knowledge, Encoded
 
 This isn't a random pattern generator. Every line of code in the generation engine encodes specific production knowledge spanning four decades of hip hop — from the Oberheim DMX patterns on Run-DMC's debut (1984) through DJ Premier's SP-1200 chops, Dilla's MPC3000 swing experiments, Dr. Dre's G-Funk Minimoog bass, Three 6 Mafia's sparse Memphis 808s, and Daringer's modern Griselda revival.
