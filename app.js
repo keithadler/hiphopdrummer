@@ -277,8 +277,22 @@ document.getElementById('prefsSave').onclick = function() {
   var oldRole = '';
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
   try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
-  // Show role tips if role changed
+  // If role changed, stop playback and regenerate role-specific content
   if (newRole !== oldRole) {
+    // Stop playback if playing
+    if (window.synthBridge && window.synthBridge.isPlaying) {
+      window.synthBridge.stop();
+    }
+    // Regenerate About This Beat content with new role
+    var aboutEl = document.getElementById('aboutBeat');
+    if (aboutEl && typeof analyzeBeat === 'function') {
+      aboutEl.innerHTML = analyzeBeat();
+      // Rebuild collapsible sections, glossary, summary, and chord sheet
+      if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+      if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+      if (typeof buildAboutSummary === 'function') buildAboutSummary();
+      if (typeof buildChordSheet === 'function') buildChordSheet();
+    }
     hidePrefsDialog();
     showRoleTips(newRole);
     return; // skip the rest — tips overlay is showing
