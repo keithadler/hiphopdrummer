@@ -155,6 +155,7 @@ function writeOutro(p, feel, len) {
  * @param {number[]} kickPat - 16-element binary kick pattern to use
  */
 function writeBarK(p, feel, off, kickPat) {
+  // FIX #1: Wider kick velocity ranges per feel for authentic dynamics
   if (feel === 'sparse') {
     // Sparse: use the kick library pattern (now sparse-specific), apply minimal velocity
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(108, 12);
@@ -172,17 +173,18 @@ function writeBarK(p, feel, off, kickPat) {
     if (p.kick[off] > 0) p.kick[off] = v(122, 8);
     return;
   }
-  for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(110, 15);
+  // Default: wider range for expressive dynamics (Premier-style)
+  for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(110, 20);
   if (feel === 'hard') {
-    // Mobb Deep/Onyx: full velocity, extra hits for aggression
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(125, 5);
+    // Mobb Deep/Onyx: full velocity, tight range, extra hits for aggression
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(120, 10);
     // Extra kicks — check they don't land adjacent to the snare (would muddy the backbeat)
     if (maybe(.5) && !p.snare[off + 3] && !p.snare[off + 4]) p.kick[off + 3] = v(100, 8);
     if (maybe(.4) && !p.snare[off + 11] && !p.snare[off + 12]) p.kick[off + 11] = v(100, 8);
   }
   if (feel === 'jazzy') {
-    // Tribe/Pete Rock: softer kicks, more dynamic range
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(100, 20);
+    // Tribe/Pete Rock: softer kicks, WIDE dynamic range (70-110)
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(90, 30);
   }
   if (feel === 'bounce') {
     // Biggie/Puff: busier kick, danceable — check total density after adding
@@ -202,26 +204,27 @@ function writeBarK(p, feel, off, kickPat) {
     // Never exceed 5 total hits for bounce
   }
   if (feel === 'big') {
-    // Big: extra syncopated kicks for anthem energy
+    // Big: extra syncopated kicks for anthem energy, wider range
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(108, 18);
     if (maybe(.4)) p.kick[off + 3] = v(75, 15);
     if (maybe(.3)) p.kick[off + 11] = v(75, 15);
   }
   if (feel === 'dilla') {
-    // Dilla: use the full kick pattern but soften everything, add extra off-grid hits
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(95, 20);
+    // Dilla: WIDE range (70-110), loose and behind the beat
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(90, 30);
     // Extra off-grid kicks that make the pattern feel loose and behind the beat
-    if (maybe(.4)) p.kick[off + 3] = v(80, 18);
-    if (maybe(.35)) p.kick[off + 7] = v(75, 18);
-    if (maybe(.3)) p.kick[off + 11] = v(78, 18);
-    if (maybe(.25)) p.kick[off + 15] = v(70, 15);
+    if (maybe(.4)) p.kick[off + 3] = v(75, 20);
+    if (maybe(.35)) p.kick[off + 7] = v(70, 20);
+    if (maybe(.3)) p.kick[off + 11] = v(73, 20);
+    if (maybe(.25)) p.kick[off + 15] = v(68, 18);
   }
   if (feel === 'lofi') {
     // Lo-fi: narrow velocity band (75-95), everything muted and compressed
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(85, 10);
   }
   if (feel === 'chopbreak') {
-    // Chopped break: full pattern at strong velocity + extra syncopations from break phrasing
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(112, 12);
+    // Chopped break: full pattern at strong velocity + extra syncopations, wider range
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(110, 18);
     // Break-style extra hits — the busy, funky kick patterns from real drum breaks
     if (!kickPat[2] && maybe(.4)) p.kick[off + 2] = v(95, 12);
     if (!kickPat[10] && maybe(.4)) p.kick[off + 10] = v(95, 12);
@@ -259,8 +262,8 @@ function writeBarK(p, feel, off, kickPat) {
     if (p.kick[off] > 0) p.kick[off] = v(120, 4);
   }
   if (feel === 'nujabes') {
-    // Nujabes: softer kicks with wider dynamic range — live jazz drummer feel
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(98, 20);
+    // Nujabes: softer kicks with WIDE dynamic range — live jazz drummer feel (75-115)
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(95, 30);
   }
 }
 
@@ -277,6 +280,7 @@ function writeBarK(p, feel, off, kickPat) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeSnA(p, feel, off) {
+  // FIX #2: More feel-specific snare backbeat velocities for authentic dynamics
   if (feel === 'sparse') {
     if (maybe(.6)) p.snare[off + 12] = v(113, 10);
     // Sparse still gets one ghost element for character
@@ -288,18 +292,19 @@ function writeSnA(p, feel, off) {
     if (maybe(.15)) p.snare[off + 10] = v(120, 10); // dragged halftime — and-of-3
     else p.snare[off + 8] = v(125, 8);
     // Ghost on e-of-1 or and-of-1 — common in Havoc/RZA halftime
-    if (maybe(.45 * ghostDensity)) p.snare[off + 2] = v(55, 12);
-    if (maybe(.35 * ghostDensity)) p.snare[off + 7] = v(72, 12);
+    if (maybe(.45 * ghostDensity)) p.snare[off + 2] = v(55, 10);
+    if (maybe(.35 * ghostDensity)) p.snare[off + 7] = v(60, 10);
     if (maybe(.25 * ghostDensity) && !p.kick[off + 9]) p.snare[off + 9] = v(48, 10);
     return;
   }
   if (feel === 'dark') {
     p.snare[off + 4] = v(118, 6); p.snare[off + 12] = v(122, 6);
     // Dark still gets ghost activity, just sparser and quieter (C.R.E.A.M. style)
+    // FIX #3: Ghost snares capped at 65 velocity max
     if (baseSnareGhostA && maybe(0.4 * ghostDensity)) {
       var gPick = pick(baseSnareGhostA);
       if (gPick && off + gPick[0] < STEPS && !p.kick[off + gPick[0]]) {
-        p.snare[off + gPick[0]] = v(Math.max(45, gPick[1] - 15), 8);
+        p.snare[off + gPick[0]] = v(Math.min(50, Math.max(35, gPick[1] - 15)), 8);
       }
     }
     return;
@@ -311,11 +316,17 @@ function writeSnA(p, feel, off) {
   }
   // Backbeat on 2 and 4 — beat 4 (step 12) slightly harder than beat 2 (step 4)
   // because it resolves the bar and pulls into the next downbeat
-  p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+  // FIX #2: Feel-specific backbeat velocities
+  if (feel === 'normal' || feel === 'chopbreak' || feel === 'bounce' || feel === 'driving') {
+    p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+  } else {
+    p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
+  }
   if (feel === 'hard') {
-    p.snare[off + 4] = v(124, 3); p.snare[off + 12] = v(127, 3);
+    // Premier/Havoc: maximum crack (120-127)
+    p.snare[off + 4] = v(123, 6); p.snare[off + 12] = v(125, 4);
     // Hard: only one possible ghost, low probability
-    if (maybe(.2 * ghostDensity)) p.snare[off + 8] = v(85, 8);
+    if (maybe(.2 * ghostDensity)) p.snare[off + 8] = v(65, 8);
     return;
   }
   // Flam: grace note one step before the backbeat (~35% velocity)
@@ -325,6 +336,7 @@ function writeSnA(p, feel, off) {
   if (flamProb > 0 && maybe(flamProb * ghostDensity) && !p.kick[off + 3] && !p.snare[off + 3]) p.snare[off + 3] = v(40, 8);
   if (flamProb > 0 && maybe((flamProb * 0.75) * ghostDensity) && !p.kick[off + 11] && !p.snare[off + 11]) p.snare[off + 11] = v(38, 8);
   // Apply ghost pattern from library, scaled by ghostDensity
+  // FIX #3: Ghost snares capped at 65 velocity max
   if (baseSnareGhostA) {
     var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
     for (var g = 0; g < baseSnareGhostA.length; g++) {
@@ -332,22 +344,23 @@ function writeSnA(p, feel, off) {
       // Crunk: ghost snares are aggressive accent hits, not subtle ghosts
       // Memphis: ghost snares are barely audible — very quiet
       // Jazzy: ghost snares are whispers — softer than standard boom bap
-      var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
+      var adjVel = (feel === 'crunk') ? Math.min(65, gVel + 10) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
+      adjVel = Math.min(65, adjVel); // Cap at 65
       if (off + gPos < STEPS && !p.kick[off + gPos] && maybe(0.6 * ghostDensity * ghMult)) {
-        p.snare[off + gPos] = v(adjVel, 10);
+        p.snare[off + gPos] = v(adjVel, 8);
       }
     }
   }
-  if (feel === 'big' && maybe(.4 * ghostDensity)) p.snare[off + 8] = v(75, 15);
+  if (feel === 'big' && maybe(.4 * ghostDensity)) p.snare[off + 8] = v(65, 10);
   // Big: snare strong but not as aggressive as hard — energy comes from hat and kick
   if (feel === 'big') { p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(124, 6); }
-  // Dilla: soften the backbeat, add extra ghost snares everywhere
+  // Dilla: soften the backbeat (95-115 range), add extra ghost snares everywhere
   if (feel === 'dilla') {
-    p.snare[off + 4] = v(105, 18); p.snare[off + 12] = v(110, 18);
+    p.snare[off + 4] = v(105, 15); p.snare[off + 12] = v(110, 15);
     var dillaGhosts = [1, 3, 5, 7, 9, 11, 13, 15];
     for (var d = 0; d < dillaGhosts.length; d++) {
       var dp = dillaGhosts[d];
-      if (!p.snare[off+dp] && !p.kick[off+dp] && maybe(.25 * ghostDensity)) p.snare[off+dp] = v(52, 15);
+      if (!p.snare[off+dp] && !p.kick[off+dp] && maybe(.25 * ghostDensity)) p.snare[off+dp] = v(48, 12);
     }
   }
   // Lo-fi: compress backbeat into narrow band, minimal ghosts
@@ -357,22 +370,22 @@ function writeSnA(p, feel, off) {
   // Chopped break: strong backbeat + dense ghost snares mimicking break phrasing
   if (feel === 'chopbreak') {
     p.snare[off + 4] = v(120, 8); p.snare[off + 12] = v(124, 8);
-    // Extra break-style ghosts on "e" and "ah" positions
-    if (maybe(.5 * ghostDensity) && !p.kick[off+5]) p.snare[off+5] = v(62, 10);
-    if (maybe(.4 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(58, 10);
-    if (maybe(.5 * ghostDensity) && !p.kick[off+15]) p.snare[off+15] = v(65, 10);
-    if (maybe(.3 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(55, 10);
+    // Extra break-style ghosts on "e" and "ah" positions, capped at 65
+    if (maybe(.5 * ghostDensity) && !p.kick[off+5]) p.snare[off+5] = v(58, 8);
+    if (maybe(.4 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(55, 8);
+    if (maybe(.5 * ghostDensity) && !p.kick[off+15]) p.snare[off+15] = v(60, 8);
+    if (maybe(.3 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(52, 8);
   }
   // G-Funk: snare on 2 and 4, laid back, slightly softer — Dr. Dre "The Chronic" feel
   // &2 ghost is the West Coast signature — higher probability than other feels
   if (feel === 'gfunk') {
     p.snare[off + 4] = v(110, 12); p.snare[off + 12] = v(115, 12);
-    if (maybe(.65) && !p.kick[off+6]) p.snare[off+6] = v(58, 10);  // &2 ghost — almost always
-    if (maybe(.3) && !p.kick[off+14]) p.snare[off+14] = v(52, 10); // &4 ghost — occasional
+    if (maybe(.65) && !p.kick[off+6]) p.snare[off+6] = v(55, 8);  // &2 ghost — almost always
+    if (maybe(.3) && !p.kick[off+14]) p.snare[off+14] = v(50, 8); // &4 ghost — occasional
   }
-  // Crunk: snare at maximum velocity, no ghosts — Lil Jon "Get Low" crack
+  // FIX #4: Crunk snare velocity reduced from clipping (127) to 123-127 range
   if (feel === 'crunk') {
-    p.snare[off + 4] = v(127, 2); p.snare[off + 12] = v(127, 2);
+    p.snare[off + 4] = v(125, 4); p.snare[off + 12] = v(125, 4);
   }
   if (feel === 'memphis') {
     // Memphis: hard crack on 2 and 4, almost zero ghosts — Three 6 Mafia skeletal
@@ -391,14 +404,18 @@ function writeSnA(p, feel, off) {
     p.snare[off + 4] = v(115, 8); p.snare[off + 12] = v(120, 8);
   }
   if (feel === 'nujabes') {
-    // Nujabes: soft backbeat with dense brush-like ghosts
-    p.snare[off + 4] = v(105, 15); p.snare[off + 12] = v(110, 15);
-    // Dense brush ghosts — the Nujabes signature
+    // Nujabes: soft backbeat (95-120 range) with dense brush-like ghosts
+    p.snare[off + 4] = v(105, 18); p.snare[off + 12] = v(112, 18);
+    // Dense brush ghosts — the Nujabes signature, capped at 65
     var nujabesGhosts = [1, 3, 5, 7, 9, 11, 13, 15];
     for (var ng = 0; ng < nujabesGhosts.length; ng++) {
       var ngp = nujabesGhosts[ng];
-      if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 12);
+      if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 10);
     }
+  }
+  // Jazzy: Pete Rock softer backbeat (100-120 range)
+  if (feel === 'jazzy') {
+    p.snare[off + 4] = v(110, 15); p.snare[off + 12] = v(115, 15);
   }
 }
 
@@ -495,7 +512,8 @@ function writeSnB(p, feel, off) {
     if (maybe(.25) && !p.kick[off+6]) p.snare[off+6] = v(50, 10);   // &2 ghost sometimes
   }
   if (feel === 'crunk') {
-    p.snare[off + 4] = v(127, 2); p.snare[off + 12] = v(127, 2);
+    // FIX #4: Crunk snare changed from v(127,2) to v(125,4) to avoid constant clipping
+    p.snare[off + 4] = v(125, 4); p.snare[off + 12] = v(125, 4);
   }
   if (feel === 'memphis') {
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
@@ -515,6 +533,12 @@ function writeSnB(p, feel, off) {
     for (var ng = 0; ng < nujabesGhostsB.length; ng++) {
       var ngp = nujabesGhostsB[ng];
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
+    }
+  }
+  // FIX #3: Cap all ghost snare velocities at 65 max (ghost snares should never be louder than 65)
+  for (var i = 0; i < 16; i++) {
+    if (p.snare[off + i] > 0 && p.snare[off + i] < 85 && p.snare[off + i] > 65) {
+      p.snare[off + i] = 65;
     }
   }
 }
@@ -1175,7 +1199,8 @@ function writeRimshot(p, feel, off) {
   positions.forEach(function(i) {
     if (off + i >= STEPS) return;
     if (p.snare[off + i] > 0 || p.kick[off + i] > 0) return;
-    if (maybe(chance)) p.rimshot[off + i] = v(60, 12);
+    // FIX #7: Rimshot velocity adjusted from v(60,12) to v(50,12) for 40-60 range
+    if (maybe(chance)) p.rimshot[off + i] = v(50, 12);
   });
 }
 

@@ -237,17 +237,25 @@ function postProcessPattern(p, len, isCh, feel) {
   for (var i = 0; i < len; i++) {
     var pos = i % 16;
     // Pass 1: Remove kick on backbeat positions where snare lives
+    // FIX #9: Made kick-snare interlock feel-aware — skip for crunk/oldschool (they layer)
     if ((pos === 4 || pos === 12) && p.kick[i] > 0 && p.snare[i] > 0) {
-      p.kick[i] = 0;
+      if (feel !== 'crunk' && feel !== 'oldschool') {
+        p.kick[i] = 0;
+      }
     }
     // Pass 1b: Remove ghost snare where kick is playing (can't accent both)
     if (p.snare[i] > 0 && p.snare[i] < 85 && p.kick[i] > 0) p.snare[i] = 0;
-    // Pass 2: Hat choke — open hat kills closed hat on same step and next 2-4 steps (tempo-aware)
+    // Pass 2: Hat choke — open hat kills closed hat on same step and reduces velocity for next 1-2 steps
+    // FIX #8: Changed from zeroing to velocity reduction (30-40%) for more natural choke
     if (p.openhat[i] > 0) {
       p.hat[i] = 0;
-      for (var j = 1; j <= chokeDuration && i + j < len; j++) {
-        if (p.openhat[i + j] === 0) p.hat[i + j] = 0;
-        else break; // another open hat starts, stop choking
+      var reducedChokeDuration = (bpm <= 80) ? 2 : 1;
+      for (var j = 1; j <= reducedChokeDuration && i + j < len; j++) {
+        if (p.openhat[i + j] === 0 && p.hat[i + j] > 0) {
+          p.hat[i + j] = Math.floor(p.hat[i + j] * 0.35);
+        } else if (p.openhat[i + j] > 0) {
+          break; // another open hat starts, stop choking
+        }
       }
     }
   }

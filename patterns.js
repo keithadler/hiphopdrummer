@@ -158,7 +158,7 @@ var STYLE_DATA = {
   normal_bronx: { label: 'Boom Bap — Bronx', bpmRange: [88, 98], keys: ['Cm','Dm','Am','Gm','Fm'],            artists: 'DJ Premier, Gangstarr, KRS-One, Buckwild — tight, minimal, punchy' },
   normal_queens: { label: 'Boom Bap — Queens', bpmRange: [85, 98], keys: ['Am','Dm','Em','Cm','Gm'],           artists: 'Large Professor, Nas, Marley Marl, MC Shan — jazzy, sample-heavy' },
   normal_li: { label: 'Boom Bap — Long Island', bpmRange: [85, 100], keys: ['Fmaj7','Dm','Am','Gm','Dm7'],      artists: 'De La Soul, A Tribe Called Quest, Leaders of the New School — playful, loose' },
-  halftime:  { label: 'Halftime',          bpmRange: [75, 95],  keys: ['Cm','Fm','Bbm','Gm','Am','Dm'],              artists: 'Havoc (Mobb Deep), RZA (Wu-Tang), Alchemist' },
+  halftime:  { label: 'Halftime',          bpmRange: [70, 90],  keys: ['Cm','Fm','Bbm','Gm','Am','Dm'],              artists: 'Havoc (Mobb Deep), RZA (Wu-Tang), Alchemist' },
   hard:      { label: 'Hard / Aggressive', bpmRange: [88, 100], keys: ['Cm','Bbm','Dm','Am','Fm','Gm','Em'],         artists: 'Havoc, DJ Premier, Onyx, M.O.P., early Mobb Deep' },
   jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 98], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7','Am7','Gm7','Em7','Cm7'], artists: 'Q-Tip, Pete Rock, De La Soul, Guru (Jazzmatazz), Buckwild' },
   dark:      { label: 'Dark Minimal',      bpmRange: [68, 88],  keys: ['Cm','Abm','Fm','Bbm','Gm','Ebm','Dbm'],        artists: 'RZA, Daringer, Havoc, Griselda, Westside Gunn' },
@@ -176,8 +176,9 @@ var STYLE_DATA = {
   crunk:     { label: 'Crunk',             bpmRange: [135, 150],  keys: ['Am','Dm','Em','Cm','Gm'],               artists: 'Lil Jon, Ying Yang Twins, Three 6 Mafia, Trillville' },
   memphis:   { label: 'Memphis',           bpmRange: [68, 85],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm','Abm'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca' },
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 92],  keys: ['Cm','Dm','Am','Fm','Gm','Bbm','Ebm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway' },
-  phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 160],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp' },
+  phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 140],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp' },
   nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 95],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto' },
+  oldschool: { label: 'Old School',        bpmRange: [95, 120], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Beastie Boys, Public Enemy, Eric B. & Rakim' },
   oldschool: { label: 'Old School',        bpmRange: [95, 110], keys: ['Am','Dm','Em','Cm','Gm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO' }
 };
 

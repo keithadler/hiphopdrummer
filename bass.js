@@ -270,17 +270,21 @@ var CHORD_PROGRESSIONS = {
   // Lo-fi: sample-based, simple loops, occasional bVII
   lofi:      [['i','i','i','i'], ['i','iv','i','iv'], ['i','i','iv','i'], ['i','bVII','bVI','i']],
   // G-Funk: ONE CHORD for 8+ bars (Dre's "Nuthin' but a 'G' Thang" is Gm7 the entire song)
-  gfunk:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv']],
+  // FIX #5: Added movement progressions to gfunk (iv and bVII options)
+  gfunk:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
   // Chopbreak: follows the sample, bVI lift
   chopbreak: [['i','i','iv','v'], ['i','iv','i','v'], ['i','i','iv','i'], ['i','iv','iv','i'], ['i','iv','i','bVI']],
   // Crunk: ONE CHORD — 808 sub stays on root
-  crunk:     [['i','i','i','i'], ['i','i','i','i']],
+  // FIX #5: Added movement progressions to crunk (iv and bVII options)
+  crunk:     [['i','i','i','i'], ['i','i','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
   // Memphis: ONE CHORD or minimal movement — 808 sub hypnotic repetition
-  memphis:   [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i']],
+  // FIX #5: Added movement progressions to memphis (iv and bVII options)
+  memphis:   [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
   // Griselda: Phrygian bII, bVI tension
   griselda:  [['i','i','iv','i'], ['i','i','bII','i'], ['i','bII','iv','i'], ['i','i','iv','v'], ['i','i','bVI','i']],
   // Phonk: ONE CHORD — modern 808 sub, hypnotic
-  phonk:     [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i']],
+  // FIX #5: Added movement progressions to phonk (iv and bVII options)
+  phonk:     [['i','i','i','i'], ['i','i','i','i'], ['i','bII','i','i'], ['i','i','i','iv'], ['i','i','i','bVII']],
   // Nujabes: jazz-influenced, ii-V, neo-soul with bIII and dim passing chords
   nujabes:   [['i','iv','ii','v'], ['i','ii','v','i'], ['i','iv','v','iv'], ['ii','v','i','iv'], ['i','bIII','bVI','ii'], ['i','#idim','ii','v']],
   // Old school: simple, drum-machine era — root and IV, occasional bVII
