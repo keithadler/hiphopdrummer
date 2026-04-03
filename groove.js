@@ -91,8 +91,7 @@ function applyGroove(p, len, feel) {
       var pos = i % 16;
       if (feel === 'crunk') {
         // Crunk: keep all kicks at their written velocity — the 4-on-the-floor is the point
-        // Just clamp to valid range
-        p.kick[i] = Math.min(127, Math.max(100, p.kick[i]));
+        p.kick[i] = Math.min(127, p.kick[i]);
       } else {
         // Multiplicative accent scaling preserves feel-specific velocity ranges
         // FIX #3 (Round 10): Syncopated kick (pos 6 = and-of-2) should be SOFTER, not louder

@@ -231,10 +231,8 @@ function writeBarK(p, feel, off, kickPat) {
     if (!kickPat[6] && maybe(.3)) p.kick[off + 6] = v(100, 10);
   }
   if (feel === 'gfunk') {
-    // G-Funk: use the kick library pattern (now gfunk-specific), apply West Coast velocity shaping
-    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(108, 12);
-    // Soften everything slightly — the West Coast pocket is laid back
-    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = Math.max(85, p.kick[off + i] - 8);
+    // G-Funk: laid-back West Coast pocket — slightly softer than boom bap
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(100, 12);
   }
   if (feel === 'crunk') {
     // Crunk: use the kick library pattern, boost to maximum — no extra syncopation
@@ -420,7 +418,7 @@ function writeSnA(p, feel, off) {
     var nujabesGhosts = [1, 3, 5, 7, 9, 11, 13, 15];
     for (var ng = 0; ng < nujabesGhosts.length; ng++) {
       var ngp = nujabesGhosts[ng];
-      if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(38, 10);
+      if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(45, 10);
     }
   }
   // Jazzy: Pete Rock softer backbeat (100-120 range)
@@ -514,15 +512,15 @@ function writeSnB(p, feel, off) {
   // Chopped break: dense break-style ghosts
   if (feel === 'chopbreak') {
     p.snare[off + 4] = v(120, 8); p.snare[off + 12] = v(124, 8);
-    if (maybe(.5 * ghostDensity) && !p.kick[off+1]) p.snare[off+1] = v(60, 10);
+    if (maybe(.5 * ghostDensity) && !p.kick[off+3]) p.snare[off+3] = v(60, 10);
     if (maybe(.4 * ghostDensity) && !p.kick[off+11]) p.snare[off+11] = v(62, 10);
-    if (maybe(.5 * ghostDensity) && !p.kick[off+13]) p.snare[off+13] = v(58, 10);
-    if (maybe(.3 * ghostDensity) && !p.kick[off+3]) p.snare[off+3] = v(55, 10);
+    if (maybe(.5 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(58, 10);
+    if (maybe(.3 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(55, 10);
   }
   if (feel === 'gfunk') {
     p.snare[off + 4] = v(110, 12); p.snare[off + 12] = v(115, 12);
-    // Bar B: ghost on &3 instead of &2 for A/B variation
-    if (maybe(.55) && !p.kick[off+10]) p.snare[off+10] = v(55, 10); // &3 ghost
+    // Bar B: ghost on &4 instead of &2 for A/B variation (West Coast signature)
+    if (maybe(.55) && !p.kick[off+14]) p.snare[off+14] = v(50, 10); // &4 ghost
     if (maybe(.25) && !p.kick[off+6]) p.snare[off+6] = v(50, 10);   // &2 ghost sometimes
   }
   if (feel === 'crunk') {
@@ -547,7 +545,7 @@ function writeSnB(p, feel, off) {
     var nujabesGhostsB = [1, 3, 5, 7, 9, 11, 13, 15];
     for (var ng = 0; ng < nujabesGhostsB.length; ng++) {
       var ngp = nujabesGhostsB[ng];
-      if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(36, 12);
+      if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(45, 10);
     }
   }
   // FIX #4: Removed redundant ghost snare velocity cap loop (already capped in writeSnA)
@@ -852,8 +850,8 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'memphis') {
-    // Memphis: sparse, dark 8ths — quieter than standard, skip on backbeat positions
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(62,8):v(50,10);
+    // Memphis: sparse, dark 8ths — audible but understated
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(78,8):v(68,10);
     // Skip on beat 2 or 4 occasionally — creates unsettling, incomplete feel
     if (maybe(.3)) p.hat[off+4]=0;
     if (maybe(.25)) p.hat[off+12]=0;
@@ -967,9 +965,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'lofi') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,6):v(60,8);
-    // Bar B: skip a different hat position than A for variation
-    if (maybe(.3)) { var skip=pick([2,6,12]); p.hat[off+skip]=0; }
+    // Lo-fi B: slightly different accent curve than A for subtle variation
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(70,6):v(62,8);
+    // Bar B: skip on a different position than A, and add a ghost 16th
+    if (maybe(.35)) { var skip=pick([2,6,10]); p.hat[off+skip]=0; }
+    if (maybe(.3)) { var ghost=pick([1,5,9,13]); p.hat[off+ghost]=v(38,8); }
     return;
   }
   if (feel === 'chopbreak') {
@@ -1011,7 +1011,7 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'memphis') {
-    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(62,8):v(50,10);
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(78,8):v(68,10);
     // Bar B: skip on different backbeat position than A
     if (maybe(.3)) p.hat[off+12]=0;
     if (maybe(.25)) p.hat[off+4]=0;

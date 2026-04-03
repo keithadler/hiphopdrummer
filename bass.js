@@ -656,30 +656,32 @@ function generateBassPattern(sec, bpm) {
         var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
-          // Diatonic walk: 9→10→11→12→13→14→15 walks up scale degrees
+          // Diatonic walk: uses minor scale intervals (root, b3, 4, 5, b7) for minor keys
           if (pos === 9) { midiNote = currentRoot - 2; }
           else if (pos === 10) { midiNote = currentRoot; }
-          else if (pos === 11) { midiNote = currentRoot + 2; }
-          else if (pos === 12) { midiNote = currentRoot + 3; }
-          else if (pos === 13) { midiNote = currentRoot + 5; }
-          else if (pos === 14) { midiNote = currentRoot + 7; }
-          else if (pos === 15) { midiNote = nextRoot - 1; }
+          else if (pos === 11) { midiNote = currentRoot + 3; }  // minor 3rd
+          else if (pos === 12) { midiNote = currentRoot + 5; }  // perfect 4th
+          else if (pos === 13) { midiNote = currentRoot + 7; }  // perfect 5th
+          else if (pos === 14) { midiNote = currentRoot + 10; } // minor 7th
+          else if (pos === 15) { midiNote = nextRoot - 1; }     // chromatic approach
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
         } else if (pos >= 11) {
           // Chromatic walk: 11→12→13→14→15 walks chromatically to next root
           if (style.walkDirection === 'above' || (style.walkDirection === 'both' && maybe(0.5))) {
+            // Walk UP from below the next root
             if (pos === 11) midiNote = nextRoot - 5;
             else if (pos === 12) midiNote = nextRoot - 4;
             else if (pos === 13) midiNote = nextRoot - 3;
             else if (pos === 14) midiNote = nextRoot - 2;
             else if (pos === 15) midiNote = nextRoot - 1;
           } else {
-            if (pos === 11) midiNote = nextRoot - 5;
-            else if (pos === 12) midiNote = nextRoot - 4;
-            else if (pos === 13) midiNote = nextRoot - 3;
-            else if (pos === 14) midiNote = nextRoot - 2;
-            else if (pos === 15) midiNote = nextRoot - 1;
+            // Walk DOWN from above the next root
+            if (pos === 11) midiNote = nextRoot + 5;
+            else if (pos === 12) midiNote = nextRoot + 4;
+            else if (pos === 13) midiNote = nextRoot + 3;
+            else if (pos === 14) midiNote = nextRoot + 2;
+            else if (pos === 15) midiNote = nextRoot + 1;
           }
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
