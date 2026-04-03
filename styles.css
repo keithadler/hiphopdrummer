@@ -64,6 +64,9 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .chord-toast-item.active{color:#fff;background:rgba(80,160,255,0.15);border-color:var(--accent-blue);text-shadow:0 0 12px rgba(80,160,255,0.3)}
 .chord-toast-item .chord-fn{font-size:12px;color:var(--text-muted);margin-left:8px;font-weight:400}
 .chord-toast-item.active .chord-fn{color:var(--accent-blue)}
+.chord-toast-label{display:flex;align-items:baseline;justify-content:center;gap:4px}
+.chord-toast-piano{transform:scale(0.55);transform-origin:top center;margin:-10px 0 -20px;pointer-events:none}
+.chord-toast-item:not(.active) .chord-toast-piano{opacity:0.3}
 .scroll-area::-webkit-scrollbar{width:5px}
 .scroll-area::-webkit-scrollbar-track{background:transparent}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}

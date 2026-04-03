@@ -476,25 +476,23 @@ function initPlaybackTracking() {
     var chordData = (window._chordSheetData && window._chordSheetData[sec]) ? window._chordSheetData[sec] : null;
 
     if (!chordData || chordData.length === 0) {
-      // Fallback: try raw key data
-      var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
-      if (!key || !key.i) { if (toast) toast._chordHtml = ''; return; }
-      var bars = Math.ceil((secSteps[sec] || 32) / 16);
-      for (var b = 0; b < bars; b++) { _sectionChords.push({ name: key.i, fn: 'I' }); }
+      var key2 = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
+      if (!key2 || !key2.i) { if (toast) toast._chordHtml = ''; return; }
+      var bars2 = Math.ceil((secSteps[sec] || 32) / 16);
+      for (var b2 = 0; b2 < bars2; b2++) { _sectionChords.push({ name: key2.i, fn: 'I', pianoHtml: '' }); }
     } else {
-      for (var b = 0; b < chordData.length; b++) {
-        _sectionChords.push({ name: chordData[b].name, fn: chordData[b].fn });
+      for (var b2 = 0; b2 < chordData.length; b2++) {
+        _sectionChords.push({ name: chordData[b2].name, fn: chordData[b2].fn, pianoHtml: chordData[b2].pianoHtml || '' });
       }
     }
 
-    // Group consecutive same chords
     var groups = [];
     for (var c = 0; c < _sectionChords.length; c++) {
       if (groups.length > 0 && groups[groups.length - 1].name === _sectionChords[c].name) {
         groups[groups.length - 1].endBar = c;
         groups[groups.length - 1].barCount++;
       } else {
-        groups.push({ name: _sectionChords[c].name, fn: _sectionChords[c].fn, startBar: c, endBar: c, barCount: 1 });
+        groups.push({ name: _sectionChords[c].name, fn: _sectionChords[c].fn, pianoHtml: _sectionChords[c].pianoHtml, startBar: c, endBar: c, barCount: 1 });
       }
     }
 
@@ -502,7 +500,9 @@ function initPlaybackTracking() {
     for (var g = 0; g < groups.length; g++) {
       var barLabel = groups[g].barCount > 1 ? ' \u00d7 ' + groups[g].barCount : '';
       html += '<div class="chord-toast-item" data-start="' + groups[g].startBar + '" data-end="' + groups[g].endBar + '">';
-      html += groups[g].name + '<span class="chord-fn">' + groups[g].fn + barLabel + '</span></div>';
+      html += '<div class="chord-toast-label">' + groups[g].name + '<span class="chord-fn">' + groups[g].fn + barLabel + '</span></div>';
+      if (groups[g].pianoHtml) html += '<div class="chord-toast-piano">' + groups[g].pianoHtml + '</div>';
+      html += '</div>';
     }
     if (toast) toast._chordHtml = html;
   }
