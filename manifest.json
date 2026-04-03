@@ -1,7 +1,7 @@
 {
   "name": "Hip Hop Drummer",
   "short_name": "HH Drummer",
-  "description": "Generate authentic hip hop drum patterns. Learn the art of hip hop drum programming.",
+  "description": "Generate unique hip hop drum and bass arrangements from scratch — 25 styles, chord sheets, MIDI/MPC export, and production education.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -5,7 +5,7 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-v1.3';
+var CACHE_NAME = 'hiphopdrummer-v1.4';
 
 var ASSETS = [
   './',
@@ -74,6 +74,8 @@ self.addEventListener('activate', function(e) {
 // Background refresh keeps local assets fresh; CDN assets are versioned
 // so the cached copy is always correct.
 self.addEventListener('fetch', function(e) {
+  // Only handle GET requests — POST/PUT/etc should go straight to network
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       if (cached) {
