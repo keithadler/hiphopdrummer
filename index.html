@@ -267,8 +267,16 @@
           <div class="prefs-hint">When enabled, the page scrolls to keep the current section visible during playback.</div>
           <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsShowChords" checked> Show section &amp; chords during playback</label>
           <div class="prefs-hint">Displays the current section name and chord progression as an overlay while playing.</div>
-          <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsCountdown"> Count in before playback (3-2-1)</label>
+          <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsCountdown" checked> Count in before playback (3-2-1)</label>
           <div class="prefs-hint">Plays a 3-2-1 countdown at the song's BPM before starting playback.</div>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">Velocity Indicator</label>
+          <select id="prefsVelocity" class="regen-select">
+            <option value="percent">0-100%</option>
+            <option value="midi">0-127 (MIDI)</option>
+          </select>
+          <div class="prefs-hint">How velocity values are displayed in the grid cells.</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Your Role</label>
