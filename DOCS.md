@@ -4,7 +4,7 @@ Full technical breakdown of every feature, technique, and design decision in the
 
 ## Hip Hop Styles
 
-Eighteen feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants and a 19th style (Old School):
+Twenty-five feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
@@ -230,7 +230,17 @@ The key section shows style-matched alternate progressions with actual chord nam
 
 ## Bass Line Generator
 
-19 style-matched bass patterns with 24 parameters per style. The bass locks to the kick drum pattern and follows the key with style-specific chord progressions.
+25 style-matched bass patterns with 24 parameters per style. The bass locks to the kick drum pattern and follows the key with style-specific chord progressions.
+
+### Tempo-Aware Generation
+The bass generator adjusts density, ghost notes, and note durations based on BPM:
+- **68-75 BPM (slow)**: +15% density, +30% ghost notes, +10% duration — Memphis and Phonk get expressive, breathing bass lines
+- **76-85 BPM (mid-slow)**: +8% density, +15% ghost notes, +5% duration — slight boost for groove
+- **86-95 BPM (sweet spot)**: No adjustment — the natural balance point
+- **96-105 BPM (mid-fast)**: -8% density, -15% ghost notes, -5% duration — tightening for clarity
+- **106-110 BPM (fast)**: -15% density, -30% ghost notes, -10% duration — Old School and Driving stay punchy without clutter
+
+This ensures bass patterns feel right at every tempo — busier and more expressive at slow tempos, tighter and more direct at fast tempos.
 
 ### Bass Articulation
 Slides/portamento (G-Funk, phonk, memphis), ghost notes (chromatic approach on off-beat 16ths), dead notes (percussive muted hits), hammer-on grace notes (gfunk, bounce, chopbreak), octave drops on beat 1, octave pops on beats 2/3/4, sub swell (808 reinforcement note for sub bloom).
