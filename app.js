@@ -418,9 +418,15 @@ function initWelcome() {
   document.getElementById('app').style.display = '';
   initPlayerControls();
   initPlaybackTracking();
-  // Beat is fully rendered — enable the play button
-  var playBtn = document.getElementById('headerPlayBtn');
-  if (playBtn) playBtn.disabled = false;
+  // Enable play button once synth bridge module is loaded and MIDI is built
+  (function waitForReady() {
+    if (window.synthBridge && window._currentMidiBytes) {
+      var playBtn = document.getElementById('headerPlayBtn');
+      if (playBtn) playBtn.disabled = false;
+    } else {
+      setTimeout(waitForReady, 100);
+    }
+  })();
   // Show welcome screen on first visit
   initWelcome();
 })();
@@ -449,9 +455,17 @@ function initPlayerControls() {
       headerPlayBtn.textContent = '▶ PLAY';
       headerPlayBtn.classList.remove('playing');
     } else if (window._currentMidiBytes) {
-      window.synthBridge.play(window._currentMidiBytes);
-      headerPlayBtn.textContent = '■ STOP';
-      headerPlayBtn.classList.add('playing');
+      // Disable button while synth initializes (SoundFont load on first play)
+      headerPlayBtn.disabled = true;
+      headerPlayBtn.textContent = '⏳ LOADING';
+      window.synthBridge.play(window._currentMidiBytes).then(function() {
+        headerPlayBtn.disabled = false;
+        headerPlayBtn.textContent = '■ STOP';
+        headerPlayBtn.classList.add('playing');
+      }).catch(function() {
+        headerPlayBtn.disabled = false;
+        headerPlayBtn.textContent = '▶ PLAY';
+      });
     }
   };
 
