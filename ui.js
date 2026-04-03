@@ -932,19 +932,26 @@ function buildChordSheet() {
   body.innerHTML = html;
 }
 
-// Wire the toggle button once on boot
+// Wire the toggle button once on boot (mobile only)
 (function() {
   var toggleEl = document.getElementById('aboutToggle');
   if (!toggleEl) return;
   var detailEl = document.getElementById('aboutBeat');
   if (!detailEl) return;
-  // Default to visible (analysis fills the panel)
-  var isHidden = false;
+  var isMobileExpanded = false;
+
+  // Hide toggle on desktop, show on mobile
+  function syncToggleVisibility() {
+    toggleEl.style.display = window.innerWidth <= 600 ? '' : 'none';
+  }
+  syncToggleVisibility();
+  window.addEventListener('resize', syncToggleVisibility);
+
   toggleEl.onclick = function() {
-    isHidden = !isHidden;
-    detailEl.style.display = isHidden ? 'none' : '';
-    toggleEl.textContent = isHidden ? 'Show full analysis' : 'Hide full analysis';
-    toggleEl.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+    isMobileExpanded = !isMobileExpanded;
+    detailEl.classList.toggle('mobile-expanded', isMobileExpanded);
+    toggleEl.textContent = isMobileExpanded ? 'Hide full analysis' : 'Show full analysis';
+    toggleEl.setAttribute('aria-expanded', isMobileExpanded ? 'true' : 'false');
   };
 })();
 
