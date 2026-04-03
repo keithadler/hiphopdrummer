@@ -778,7 +778,7 @@ function initPlaybackTracking() {
     // Check if user role wants guitar chords
     var chordRole = '';
     try { chordRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-    var showGuitar = (chordRole === 'bassist' || chordRole === 'guitarist');
+    var showGuitar = false; // Guitar chord diagrams temporarily disabled — needs verified chord data
 
     var html = '';
     for (var c = 0; c < _sectionChords.length; c++) {
