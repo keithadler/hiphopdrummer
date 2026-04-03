@@ -329,17 +329,29 @@ document.getElementById('prefsSave').onclick = function() {
   var oldRole = '';
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
   try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
-  // If role changed, stop playback and regenerate role-specific content
+
+  // Always apply drum kit and bass sound via synth bridge
+  if (window.synthBridge) {
+    window.synthBridge.setDrumKit(parseInt(kit) || 0);
+    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
+  }
+  // Always rebuild the MIDI player (picks up bass on/off, drum kit, bass sound)
+  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  // Always rebuild chord sheet
+  if (typeof buildChordSheet === 'function') buildChordSheet();
+  // Re-render grid if velocity mode changed
+  if (velocityMode !== oldVelocityMode && typeof renderGrid === 'function') {
+    renderGrid();
+  }
+
+  // If role changed, regenerate role-specific content and show tips
   if (newRole !== oldRole) {
-    // Stop playback if playing
     if (window.synthBridge && window.synthBridge.isPlaying) {
       window.synthBridge.stop();
     }
-    // Regenerate About This Beat content with new role
     var aboutEl = document.getElementById('aboutBeat');
     if (aboutEl && typeof analyzeBeat === 'function') {
       aboutEl.innerHTML = analyzeBeat();
-      // Rebuild collapsible sections, glossary, summary, and chord sheet
       if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
       if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
       if (typeof buildAboutSummary === 'function') buildAboutSummary();
@@ -347,20 +359,9 @@ document.getElementById('prefsSave').onclick = function() {
     }
     hidePrefsDialog();
     showRoleTips(newRole);
-    return; // skip the rest — tips overlay is showing
+    return;
   }
-  // Apply drum kit and bass via synth bridge
-  if (window.synthBridge) {
-    window.synthBridge.setDrumKit(parseInt(kit) || 0);
-    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
-  }
-  // Rebuild the MIDI player
-  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
-  if (typeof buildChordSheet === 'function') buildChordSheet();
-  // Re-render grid if velocity mode changed (to update cell displays)
-  if (velocityMode !== oldVelocityMode && typeof renderGrid === 'function') {
-    renderGrid();
-  }
+
   hidePrefsDialog();
 };
 
@@ -599,6 +600,13 @@ function initBeatHistoryHandlers() {
       setTimeout(function() {
         var playBtn = document.getElementById('headerPlayBtn');
         if (playBtn) playBtn.disabled = false;
+        // Apply saved drum kit and bass sound preferences on startup
+        try {
+          var savedKit = localStorage.getItem('hhd_drumkit');
+          if (savedKit) window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
+          var savedBass = localStorage.getItem('hhd_bass_sound');
+          if (savedBass) window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
+        } catch(e) {}
       }, remaining);
     } else if (_bootAttempts >= _maxBootAttempts) {
       // SpessaSynth failed to load after 5 seconds
