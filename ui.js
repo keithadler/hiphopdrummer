@@ -673,6 +673,10 @@ function buildChordSheet() {
       third = 3; fifth = 6; seventh = 9; // fully diminished 7th
     } else if (/^dim/.test(quality)) {
       third = 3; fifth = 6; seventh = -1; // diminished triad
+    } else if (/^m\(add9\)/.test(quality)) {
+      third = 3; fifth = 7; seventh = -1; ninth = 14; // minor add9 (triad + 9th, no 7th)
+    } else if (/^\(add9\)/.test(quality)) {
+      third = 4; fifth = 7; seventh = -1; ninth = 14; // major add9 (triad + 9th, no 7th)
     } else if (/^m6/.test(quality)) {
       third = 3; fifth = 7; seventh = 9; // minor 6th (6th = major 6th interval)
     } else if (/^6$/.test(quality)) {
@@ -703,6 +707,8 @@ function buildChordSheet() {
   // Render a full-octave piano keyboard with highlighted chord notes and labels
   function renderPiano(chordName) {
     var notes = chordNotes(chordName);
+    // Apply voice leading — reorder notes for minimum movement from previous chord
+    notes = voiceLead(notes);
     // White keys: C=0, D=2, E=4, F=5, G=7, A=9, B=11
     // Black keys sit between: C#=1, D#=3, F#=6, G#=8, A#=10
     var whites = [0, 2, 4, 5, 7, 9, 11];
@@ -741,7 +747,7 @@ function buildChordSheet() {
   // Voice leading: find the inversion of the next chord closest to the previous voicing
   // Returns the same set of pitch classes but reordered for display
   var _lastVoicing = null;
-  var _voicingSeed = 0;
+  var _voicingSeed = Math.floor(Math.random() * 5);
   function voiceLead(notes) {
     if (!_lastVoicing || _lastVoicing.length === 0) {
       _lastVoicing = notes.slice();
@@ -792,8 +798,8 @@ function buildChordSheet() {
 
       // 7th, 9th, and 6th chords — jazz, dilla, nujabes want extensions
       case 'jazzy': case 'dilla': case 'nujabes':
-        // Diminished chords pass through as-is
-        if (/dim/.test(rawQuality)) return rawChord;
+        // Diminished chords: upgrade to dim7 for proper chromatic voice leading
+        if (/dim/.test(rawQuality)) return /dim7/.test(rawQuality) ? rawChord : root + 'dim7';
         // If it's already extended, keep it. Otherwise add 9th (jazzy/dilla) or 7th.
         if (/9/.test(rawQuality)) return rawChord;
         if (/7/.test(rawQuality)) {
@@ -809,10 +815,9 @@ function buildChordSheet() {
         return rawChord;
 
       case 'lofi':
-        // Lo-fi: add minor 7ths to minor chords, dominant 7ths to major. Keep quality intact.
-        if (/maj7/.test(rawQuality)) return root + '7'; // maj7 → dom7 (warmer, dustier)
+        // Lo-fi: add minor 7ths to minor chords, keep maj7 (dusty warmth, not bluesy dom7)
         if (/^m$/.test(rawQuality)) return root + 'm7';
-        if (rawQuality === '') return root + '7';
+        if (rawQuality === '') return root + 'maj7';
         return rawChord;
 
       // G-Funk: min7 voicings (already handled by keyData, but enforce)
@@ -822,8 +827,17 @@ function buildChordSheet() {
         if (rawQuality === '') return root + '7';
         return rawChord;
 
-      // Bounce: mix of simple and 7ths — keep what keyData gives
-      case 'bounce': case 'halftime':
+      // Bounce: add 7ths to major chords for warmth, keep minor as-is
+      case 'bounce':
+        if (rawQuality === '') return root + 'maj7';
+        if (/^m$/.test(rawQuality)) return rawChord; // minor triads stay simple for bounce
+        return rawChord;
+
+      // Halftime: add9 for atmospheric weight
+      case 'halftime':
+        if (/7|9|dim|6/.test(rawQuality)) return rawChord; // already extended
+        if (/^m$/.test(rawQuality)) return root + 'm(add9)';
+        if (rawQuality === '') return root + '(add9)';
         return rawChord;
 
       default:
@@ -845,6 +859,7 @@ function buildChordSheet() {
     var sec = arrangement[a];
     if (rendered[sec]) continue;
     rendered[sec] = true;
+    _lastVoicing = null; // Reset voice leading per section
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var feel = secFeel(sec);
 
@@ -866,11 +881,11 @@ function buildChordSheet() {
       }
       else if (deg === 'bVI') {
         var parts = (key.relNote || '').split(',');
-        raw = (parts[1] || key.iv).trim(); fn = 'bVI'; cls = 'chord-four';
+        raw = (parts[2] || key.iv).trim(); fn = 'bVI'; cls = 'chord-four';
       }
       else if (deg === 'bVII') {
         var parts = (key.relNote || '').split(',');
-        raw = (parts[2] || key.v).trim(); fn = 'bVII'; cls = 'chord-five';
+        raw = (parts[1] || key.v).trim(); fn = 'bVII'; cls = 'chord-five';
       }
       else if (deg === '#idim') {
         // Chromatic passing diminished: half step above the root
@@ -952,31 +967,55 @@ function buildChordSheet() {
   html += '<span style="color:var(--accent-green)">■</span> V (resolution)';
   html += '</div>';
 
-  // Rhythm suggestion based on feel
+  // Rhythm suggestion based on feel — adapted to actual pattern
+  var verseKicks = 0, verseHats16 = false;
+  var versePat = (typeof patterns !== 'undefined') ? patterns.verse : null;
+  if (versePat) {
+    for (var rk = 0; rk < 16; rk++) { if (versePat.kick && versePat.kick[rk]) verseKicks++; }
+    var hh16 = 0; for (var rh = 0; rh < 16; rh++) { if (versePat.hat && versePat.hat[rh]) hh16++; }
+    verseHats16 = hh16 >= 12;
+  }
+  var kickCtx = verseKicks >= 5 ? 'Busy kick (' + verseKicks + ' hits) — keep comping sparse, stab on beat 1 only.' :
+                verseKicks >= 3 ? verseKicks + ' kicks — comp on the kicks, rest on the gaps.' :
+                'Sparse kick (' + verseKicks + ' hits) — room for rhythmic comping between hits.';
+  var hatCtx = verseHats16 ? ' 16th hats are driving — play sustained notes, don\'t compete.' : '';
   var rhythmTips = {
-    normal: 'Stab on beats 2 & 4 with the snare, or sustained whole-note pads.',
-    hard: 'Short, aggressive stabs on beat 1. Let the drums dominate.',
-    jazzy: 'Comp on the "and" positions (upbeats). Rhodes or Wurlitzer.',
-    dark: 'Sustained pads, one chord per 2-4 bars. Sparse and atmospheric.',
-    bounce: 'Quarter-note stabs, rhythmic and danceable. Piano or clav.',
+    normal: kickCtx + hatCtx + ' Stab on beats 2 & 4 with the snare, or sustained whole-note pads.',
+    hard: kickCtx + ' Short, aggressive stabs on beat 1. Let the drums dominate.',
+    jazzy: kickCtx + ' Comp on the "and" positions (upbeats). Rhodes or Wurlitzer.',
+    dark: 'Sustained pads, one chord per 2-4 bars. Sparse and atmospheric.' + hatCtx,
+    bounce: kickCtx + ' Quarter-note stabs, rhythmic and danceable. Piano or clav.',
     halftime: 'Slow whole-note pads. Let each chord breathe for 2 bars.',
-    dilla: 'Behind-the-beat Rhodes stabs. Loose, not quantized. Add 9ths.',
-    lofi: 'Detuned piano, whole notes. Muted and dusty. Less is more.',
-    gfunk: 'Sustained synth pads with slow filter sweeps. Smooth and hypnotic.',
-    chopbreak: 'Staccato stabs on the kick hits. Funky and tight.',
+    dilla: kickCtx + ' Behind-the-beat Rhodes stabs. Loose, not quantized. Add 9ths.',
+    lofi: 'Detuned piano, whole notes. Muted and dusty. Less is more.' + hatCtx,
+    gfunk: 'Sustained synth pads with slow filter sweeps. Smooth and hypnotic.' + hatCtx,
+    chopbreak: kickCtx + ' Staccato stabs on the kick hits. Funky and tight.',
     crunk: 'Simple synth stabs on beat 1. Big and aggressive.',
     memphis: 'Dark sustained pads or eerie piano. Minimal movement.',
-    griselda: 'Sample chops or piano stabs on beat 1. Raw and direct.',
+    griselda: kickCtx + ' Sample chops or piano stabs on beat 1. Raw and direct.',
     phonk: 'Dark pads, slow and hypnotic. Detuned synth.',
-    nujabes: 'Warm Rhodes, gentle comping. Let the ride cymbal lead.',
+    nujabes: kickCtx + ' Warm Rhodes, gentle comping. Let the ride cymbal lead.',
     oldschool: 'Simple synth stabs on beats 1 and 3. Clean and mechanical.',
     sparse: 'One sustained pad. Let the space do the work.',
-    driving: 'Rhythmic stabs following the kick. Forward momentum.',
-    big: 'Full chords, sustained. Layer pad + stab for maximum energy.'
+    driving: kickCtx + ' Rhythmic stabs following the kick. Forward momentum.',
+    big: kickCtx + ' Full chords, sustained. Layer pad + stab for maximum energy.'
   };
   var feel = songFeel || 'normal';
   var tip = rhythmTips[feel] || rhythmTips.normal;
-  html += '<div class="chord-sheet-hint" style="border-top:none;margin-top:2px"><b>Playing tip:</b> ' + tip + ' <b>Octave 3-4</b> (middle C area) for Rhodes/piano, <b>octave 2-3</b> for synth pads.</div>';
+  // Hand split guidance based on feel
+  var handSplit;
+  if (feel === 'dilla' || feel === 'jazzy' || feel === 'nujabes') {
+    handSplit = '<b>Hand split:</b> LH: root + 5th (octave 2-3, lock to kick). RH: 3rd + 7th + 9th (octave 3-4).';
+  } else if (feel === 'dark' || feel === 'memphis' || feel === 'phonk' || feel === 'sparse') {
+    handSplit = '<b>Hand split:</b> LH: sustain root (octave 2). RH: single melody notes (octave 4-5). Space between hands.';
+  } else if (feel === 'gfunk') {
+    handSplit = '<b>Hand split:</b> LH: root + 7th (octave 2-3). RH: sustained pad voicing (octave 3-4). Smooth and legato.';
+  } else {
+    handSplit = '<b>Hand split:</b> LH: root note (octave 2-3, hit with the kick). RH: chord voicing (octave 3-4).';
+  }
+  html += '<div class="chord-sheet-hint" style="border-top:none;margin-top:2px">' + handSplit + '</div>';
+
+  html += '<div class="chord-sheet-hint" style="border-top:none;margin-top:2px"><b>Playing tip:</b> ' + tip + ' <b>Inversions:</b> When moving between chords, keep common tones in place — if two chords share a note, hold it and move the others. The note order below each keyboard shows the voice-led voicing.</div>';
 
   body.innerHTML = html;
 }
