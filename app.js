@@ -505,6 +505,142 @@ function initPlayerControls() {
   connectCallbacks();
 }
 
+// ── Guitar Chord Diagrams ──
+
+/**
+ * Simple guitar chord fretboard diagram renderer.
+ * Returns an HTML string showing a 4-fret chord box with dot markers.
+ */
+var GUITAR_CHORDS = {
+  'C':    { frets: [0,3,2,0,1,0], barr: 0 },
+  'Cm':   { frets: [-1,3,1,0,1,3], barr: 3 },
+  'C7':   { frets: [0,3,2,3,1,0], barr: 0 },
+  'Cm7':  { frets: [-1,3,1,3,1,3], barr: 3 },
+  'Cmaj7':{ frets: [0,3,2,0,0,0], barr: 0 },
+  'Cm9':  { frets: [-1,3,1,3,3,3], barr: 3 },
+  'D':    { frets: [-1,-1,0,2,3,2], barr: 0 },
+  'Dm':   { frets: [-1,-1,0,2,3,1], barr: 0 },
+  'D7':   { frets: [-1,-1,0,2,1,2], barr: 0 },
+  'Dm7':  { frets: [-1,-1,0,2,1,1], barr: 0 },
+  'Dm9':  { frets: [-1,-1,0,2,1,0], barr: 0 },
+  'E':    { frets: [0,2,2,1,0,0], barr: 0 },
+  'Em':   { frets: [0,2,2,0,0,0], barr: 0 },
+  'Em7':  { frets: [0,2,0,0,0,0], barr: 0 },
+  'Em9':  { frets: [0,2,0,0,0,2], barr: 0 },
+  'F':    { frets: [1,3,3,2,1,1], barr: 1 },
+  'Fm':   { frets: [1,3,3,1,1,1], barr: 1 },
+  'F7':   { frets: [1,3,1,2,1,1], barr: 1 },
+  'Fm7':  { frets: [1,3,1,1,1,1], barr: 1 },
+  'Fmaj7':{ frets: [-1,-1,3,2,1,0], barr: 0 },
+  'G':    { frets: [3,2,0,0,0,3], barr: 0 },
+  'Gm':   { frets: [3,5,5,3,3,3], barr: 3 },
+  'Gm7':  { frets: [3,5,3,3,3,3], barr: 3 },
+  'A':    { frets: [-1,0,2,2,2,0], barr: 0 },
+  'Am':   { frets: [-1,0,2,2,1,0], barr: 0 },
+  'Am7':  { frets: [-1,0,2,0,1,0], barr: 0 },
+  'Am9':  { frets: [-1,0,2,4,1,0], barr: 0 },
+  'A7':   { frets: [-1,0,2,0,2,0], barr: 0 },
+  'Bb':   { frets: [-1,1,3,3,3,1], barr: 1 },
+  'Bbm':  { frets: [-1,1,3,3,2,1], barr: 1 },
+  'Bbmaj7':{ frets: [-1,1,3,2,3,1], barr: 1 },
+  'Bm':   { frets: [-1,2,4,4,3,2], barr: 2 },
+  'Bm7':  { frets: [-1,2,0,2,0,2], barr: 0 },
+  'Bm7b5':{ frets: [-1,2,3,2,3,0], barr: 0 },
+  'B7':   { frets: [-1,2,1,2,0,2], barr: 0 },
+  'Eb':   { frets: [-1,-1,1,3,4,3], barr: 0 },
+  'Ebm':  { frets: [-1,-1,1,3,4,2], barr: 0 },
+  'Ebmaj7':{ frets: [-1,-1,1,3,3,3], barr: 0 },
+  'Ab':   { frets: [4,6,6,5,4,4], barr: 4 },
+  'Abm':  { frets: [4,6,6,4,4,4], barr: 4 },
+  'Db':   { frets: [-1,-1,3,1,2,1], barr: 0 },
+  'Gb':   { frets: [2,4,4,3,2,2], barr: 2 },
+  'F#m':  { frets: [2,4,4,2,2,2], barr: 2 }
+};
+
+function renderGuitarChord(chordName) {
+  // Strip 9 → 7 for lookup, strip maj9 → maj7
+  var lookup = chordName.replace(/9$/, '7').replace(/maj9/, 'maj7');
+  var data = GUITAR_CHORDS[lookup] || GUITAR_CHORDS[chordName];
+  if (!data) return '<div class="guitar-chord-na">' + chordName + '</div>';
+  var f = data.frets;
+  var html = '<div class="guitar-chord"><div class="guitar-name">' + chordName + '</div><div class="guitar-grid">';
+  // 6 strings, 4 frets
+  for (var s = 0; s < 6; s++) {
+    var fret = f[s];
+    html += '<div class="guitar-string">';
+    if (fret === -1) html += '<span class="guitar-mute">×</span>';
+    else if (fret === 0) html += '<span class="guitar-open">○</span>';
+    for (var fr = 1; fr <= 4; fr++) {
+      var isFretted = (fret === fr + (data.barr > 0 ? data.barr - 1 : 0));
+      html += '<div class="guitar-fret' + (isFretted ? ' guitar-dot' : '') + '"></div>';
+    }
+    html += '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+/**
+ * Get role-aware section tip for the chord overlay.
+ */
+function getRoleSectionTip(sec, role) {
+  var secType = sec.replace(/2$/, ''); // verse2 → verse, chorus2 → chorus
+  var tips = {
+    rapper: {
+      intro: 'Let the beat breathe. Come in on the verse.',
+      verse: 'Lock to the kick. Land hard syllables on beats 1 and 3.',
+      pre: 'Build energy. Shorter phrases, more urgency.',
+      chorus: 'Hook time. Catchy, memorable, singable.',
+      breakdown: 'Drop out or go half-speed. Let the tension build.',
+      lastchorus: 'Maximum energy. Ad-libs, doubles, go all out.',
+      instrumental: 'Rest or ad-lib. Let the beat speak.',
+      outro: 'Wind down. Last words.'
+    },
+    producer: {
+      intro: 'Filter sweep or stripped arrangement. Build anticipation.',
+      verse: 'Core groove. Keep the melody simple — leave room for vocals.',
+      pre: 'Add layers. Build toward the chorus.',
+      chorus: 'Full arrangement. All elements at maximum.',
+      breakdown: 'Strip layers one by one. Create tension through absence.',
+      lastchorus: 'Everything plus extras. Counter-melody, ad-libs, crashes.',
+      instrumental: 'Feature your sample or lead sound. The beat breathes here.',
+      outro: 'Fade layers out. End where you started.'
+    },
+    keys: {
+      intro: 'Sustained pad or single chord stab. Set the mood.',
+      verse: 'Rhodes stab on beat 1, or comping on 2 and 4 with the snare.',
+      pre: 'Shorter notes, more movement. Build urgency.',
+      chorus: 'Full voicings. Layer a pad under the stab.',
+      breakdown: 'Strip to one note or silence. Let the drums carry it.',
+      lastchorus: 'Add the counter-melody you\'ve been holding back.',
+      instrumental: 'Solo or feature. This is your moment.',
+      outro: 'Sustain the last chord. Let it ring.'
+    },
+    bassist: {
+      intro: 'Root note, long sustain. Establish the key.',
+      verse: 'Lock to the kick. Root on beat 1, 5th on ghost kicks.',
+      pre: 'Walk up chromatically toward the chorus root.',
+      chorus: 'Busier line. Add octave pops and passing tones.',
+      breakdown: 'Thin out. Sustained root or silence.',
+      lastchorus: 'Maximum energy. Fills, slides, octave jumps.',
+      instrumental: 'Melodic bass line. Show off.',
+      outro: 'Sustained root. Fade with the drums.'
+    },
+    dj: {
+      intro: 'Blend in. Match the tempo.',
+      verse: 'Let it ride. Save your cuts for the breakdown.',
+      pre: 'Prepare your next record.',
+      chorus: 'Drop it. Maximum impact.',
+      breakdown: 'This is your window. Scratch, cut, transform.',
+      lastchorus: 'Ride it out. Energy peak.',
+      instrumental: 'Cut over this. The drums give you space.',
+      outro: 'Transition to next track.'
+    }
+  };
+  var roleTips = tips[role] || tips.producer || {};
+  return roleTips[secType] || '';
+}
+
 // ── Playback Tracking ──
 
 /**
@@ -580,12 +716,21 @@ function initPlaybackTracking() {
     }
 
     // One item per bar — no grouping. Each bar is its own chord entry.
+    // Check if user role wants guitar chords
+    var chordRole = '';
+    try { chordRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+    var showGuitar = (chordRole === 'bassist' || chordRole === 'keys');
+
     var html = '';
     for (var c = 0; c < _sectionChords.length; c++) {
       var barNum = c + 1;
       html += '<div class="chord-toast-item" data-start="' + c + '" data-end="' + c + '">';
       html += '<div class="chord-toast-label">' + _sectionChords[c].name + '<span class="chord-fn">' + _sectionChords[c].fn + ' · bar ' + barNum + '</span></div>';
-      if (_sectionChords[c].pianoHtml) html += '<div class="chord-toast-piano">' + _sectionChords[c].pianoHtml + '</div>';
+      if (showGuitar) {
+        html += '<div class="chord-toast-guitar">' + renderGuitarChord(_sectionChords[c].name) + '</div>';
+      } else if (_sectionChords[c].pianoHtml) {
+        html += '<div class="chord-toast-piano">' + _sectionChords[c].pianoHtml + '</div>';
+      }
       html += '</div>';
     }
     if (toast) toast._chordHtml = html;
@@ -675,8 +820,13 @@ function initPlaybackTracking() {
       if (toast && _showChordsOverlay) {
         // Build chord list for this section
         buildChordToast(curSec);
-        // Build combined HTML: section header + divider + chords
+        // Get role-aware section tip
+        var userRole = '';
+        try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+        var sectionTip = getRoleSectionTip(curSec, userRole);
+        // Build combined HTML: section header + tip + divider + chords
         var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
+        if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
         toastHtml += '<div class="toast-divider"></div>';
         toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
         toast.innerHTML = toastHtml;
@@ -763,7 +913,13 @@ function initPlaybackTracking() {
           var t = document.getElementById('sectionToast');
           if (t) {
             buildChordToast(curSec);
-            t.innerHTML = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div><div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+            var initRole = '';
+            try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+            var initTip = getRoleSectionTip(curSec, initRole);
+            var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
+            if (initTip) initHtml += '<div class="toast-tip">' + initTip + '</div>';
+            initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+            t.innerHTML = initHtml;
             t.classList.add('show');
             _chordToastVisible = true;
             updateChordHighlight(0);

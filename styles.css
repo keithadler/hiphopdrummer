@@ -73,6 +73,18 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .chord-toast-label{display:flex;align-items:baseline;justify-content:center;gap:10px}
 .chord-toast-piano{transform:scale(1.0);transform-origin:top center;margin:0;pointer-events:none}
 .chord-toast-item:not(.active) .chord-toast-piano{opacity:0.3}
+.chord-toast-item:not(.active) .chord-toast-guitar{opacity:0.3}
+.toast-tip{font-family:var(--mono);font-size:13px;color:var(--accent-green);text-align:center;padding:0 8px;font-style:italic;line-height:1.4}
+.guitar-chord{display:flex;flex-direction:column;align-items:center;gap:2px}
+.guitar-name{display:none}
+.guitar-grid{display:flex;flex-direction:row;gap:1px}
+.guitar-string{display:flex;flex-direction:column;align-items:center;width:16px}
+.guitar-mute{font-size:11px;color:var(--text-dim);height:14px;line-height:14px}
+.guitar-open{font-size:11px;color:var(--text-muted);height:14px;line-height:14px}
+.guitar-fret{width:14px;height:14px;border:1px solid var(--border);border-radius:1px}
+.guitar-dot{background:var(--accent-blue);border-color:var(--accent-blue)}
+.guitar-chord-na{font-size:12px;color:var(--text-dim);font-style:italic}
+.chord-toast-guitar{margin:4px 0;pointer-events:none}
 .scroll-area::-webkit-scrollbar{width:5px}
 .scroll-area::-webkit-scrollbar-track{background:transparent}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
