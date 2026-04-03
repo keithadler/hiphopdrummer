@@ -645,8 +645,8 @@ function initPlayerControls() {
 
   // Countdown function - plays 3-2-1 at the current BPM
   function playCountdown(callback) {
-    var countdownEnabled = false;
-    try { countdownEnabled = localStorage.getItem('hhd_countdown') === 'true'; } catch(e) {}
+    var countdownEnabled = true;
+    try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownEnabled = (cd !== 'false'); } catch(e) {}
     
     if (!countdownEnabled) {
       callback();
