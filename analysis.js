@@ -483,112 +483,18 @@ function analyzeBeat() {
   // Role-specific per-section tips
   var userRole = '';
   try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-  var roleSectionTips = {
-    rapper: {
-      intro: '🎤 Let the beat breathe. Come in on the verse.',
-      verse: '🎤 Lock to the kick. Land hard syllables on beats 1 and 3. ~' + suggestedSyllables + ' syllables/bar.',
-      verse2: '🎤 Switch up your flow from verse 1. New cadence, same energy.',
-      pre: '🎤 Build urgency. Shorter phrases, more intensity.',
-      chorus: '🎤 Hook time. Catchy, memorable, singable. Repeat it.',
-      chorus2: '🎤 Same hook, maybe add ad-libs or doubles.',
-      breakdown: '🎤 Drop out or go half-speed. Let the tension build.',
-      instrumental: '🎤 Rest or ad-lib. Let the beat speak.',
-      lastchorus: '🎤 Maximum energy. Ad-libs, doubles, go all out.',
-      outro: '🎤 Last words. Wind it down.'
-    },
-    producer: {
-      intro: '🎛 Filter sweep or stripped arrangement. Build anticipation.',
-      verse: '🎛 Core groove. Keep the melody simple — leave room for vocals.',
-      verse2: '🎛 Add a subtle new element — counter-melody, extra percussion.',
-      pre: '🎛 Add layers. Risers, extra hats, building energy.',
-      chorus: '🎛 Full arrangement. All elements at maximum.',
-      chorus2: '🎛 Same as chorus 1 but consider a variation — new sample chop or filter.',
-      breakdown: '🎛 Strip layers one by one. Create tension through absence.',
-      instrumental: '🎛 Feature your sample or lead sound. The beat breathes here.',
-      lastchorus: '🎛 Everything plus extras. Counter-melody, ad-libs, crashes.',
-      outro: '🎛 Fade layers out. End where you started.'
-    },
-    keys: {
-      intro: '🎹 Sustained pad or single chord stab. Set the mood.',
-      verse: '🎹 Rhodes stab on beat 1, or comping on 2 and 4 with the snare.',
-      verse2: '🎹 Add a counter-melody or change the voicing from verse 1.',
-      pre: '🎹 Shorter notes, more movement. Build urgency.',
-      chorus: '🎹 Full voicings. Layer a pad under the stab.',
-      chorus2: '🎹 Same voicings, maybe add a high register melody.',
-      breakdown: '🎹 Strip to one note or silence. Let the drums carry it.',
-      instrumental: '🎹 Solo or feature. This is your moment.',
-      lastchorus: '🎹 Add the counter-melody you\'ve been holding back.',
-      outro: '🎹 Sustain the last chord. Let it ring.'
-    },
-    bassist: {
-      intro: '🎸 Root note, long sustain. Establish the key.',
-      verse: '🎸 Lock to the kick. Root on beat 1, 5th on ghost kicks.',
-      verse2: '🎸 Vary the line from verse 1. Add a passing tone or octave pop.',
-      pre: '🎸 Walk up chromatically toward the chorus root.',
-      chorus: '🎸 Busier line. Add octave pops and passing tones.',
-      chorus2: '🎸 Same as chorus 1 with a slight variation.',
-      breakdown: '🎸 Thin out. Sustained root or silence.',
-      instrumental: '🎸 Melodic bass line. Show off.',
-      lastchorus: '🎸 Maximum energy. Fills, slides, octave jumps.',
-      outro: '🎸 Sustained root. Fade with the drums.'
-    },
-    guitarist: {
-      intro: '🎸 Muted scratches or single clean notes. Set the vibe.',
-      verse: '🎸 Rhythm on 2 and 4 with the snare. Keep it tight.',
-      verse2: '🎸 Change the voicing or add a riff from verse 1.',
-      pre: '🎸 Open up the voicing. Build toward the chorus.',
-      chorus: '🎸 Full chords, let them ring. Strum or arpeggiate.',
-      chorus2: '🎸 Same chords, maybe add a melodic fill between changes.',
-      breakdown: '🎸 Single notes or harmonics. Less is more.',
-      instrumental: '🎸 Solo or melodic lead. This is your moment.',
-      lastchorus: '🎸 Maximum energy. Power chords or full strums.',
-      outro: '🎸 Let the last chord ring out.'
-    },
-    dj: {
-      intro: '🎧 Blend in. Match the tempo from your previous track.',
-      verse: '🎧 Let it ride. Save your cuts for the breakdown.',
-      verse2: '🎧 Same groove. Prepare your next move.',
-      pre: '🎧 Prepare your next record or effect.',
-      chorus: '🎧 Drop it. Maximum impact.',
-      chorus2: '🎧 Ride it. Maybe add a filter sweep.',
-      breakdown: '🎧 This is your window. Scratch, cut, transform.',
-      instrumental: '🎧 Cut over this. The drums give you space.',
-      lastchorus: '🎧 Ride it out. Energy peak.',
-      outro: '🎧 Transition to next track.'
-    },
-    drummer: {
-      intro: '🥁 Simple groove. Establish the pocket.',
-      verse: '🥁 Study the ghost notes and accent curve. Match the dynamics.',
-      verse2: '🥁 Notice the different kick pattern from verse 1.',
-      pre: '🥁 Build density. Add ghost snares in the last bar.',
-      chorus: '🥁 Bigger pattern. Crash on beat 1. Open hats.',
-      chorus2: '🥁 Same energy, watch for the fill at the end.',
-      breakdown: '🥁 Strip down. Just kick on 1 and sparse hats by bar 3.',
-      instrumental: '🥁 Simpler pattern. Let the melody breathe.',
-      lastchorus: '🥁 Maximum energy. Extra open hats, hardest fill.',
-      outro: '🥁 Ride out or one big hit on the last downbeat.'
-    },
-    learner: {
-      intro: '🎓 Notice how the intro builds — it doesn\'t start with everything.',
-      verse: '🎓 Click each cell to hear the velocity. Study the ghost notes.',
-      verse2: '🎓 Compare this kick pattern to verse 1 — what changed?',
-      pre: '🎓 Watch how density builds in the last bar before the chorus.',
-      chorus: '🎓 Notice the crash on beat 1 and the busier kick pattern.',
-      chorus2: '🎓 Compare to chorus 1 — the arrangement arc makes this slightly louder.',
-      breakdown: '🎓 Watch the strip-down: ghosts drop, then claps, then everything.',
-      instrumental: '🎓 This section has fewer drums — space for the melody.',
-      lastchorus: '🎓 This is the loudest section. Compare velocities to verse.',
-      outro: '🎓 Notice how it ends — fade or hard stop?'
-    }
-  };
-
   var shownSecs = {};
   arrangement.forEach(function(s) {
     if (shownSecs[s]) return;
     shownSecs[s] = true;
     var desc = '• <b>' + SL[s] + '</b> — ' + (secDescs[s] || '');
-    if (userRole && roleSectionTips[userRole] && roleSectionTips[userRole][s]) {
-      desc += '<br><span style="color:var(--accent-green);font-size:0.9em">' + roleSectionTips[userRole][s] + '</span>';
+    // Use style-aware role tips from getRoleSectionTip if available (defined in app.js)
+    var roleTip = '';
+    if (userRole && typeof getRoleSectionTip === 'function') {
+      roleTip = getRoleSectionTip(s, userRole);
+    }
+    if (roleTip) {
+      desc += '<br><span style="color:var(--accent-green);font-size:0.9em">' + roleTip + '</span>';
     }
     lines.push(desc);
   });
