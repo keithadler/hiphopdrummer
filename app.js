@@ -80,7 +80,7 @@ function showRegenDialog() {
 
     // BPM — only show BPMs in the style's range
     bpmEl.innerHTML = '<option value="">Auto</option>';
-    var allBpms = [68,72,75,78,80,83,85,88,90,92,95,98,100,105,108,110,115,118,120,125,128,130];
+    var allBpms = [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110];
     var bpms = data
       ? allBpms.filter(function(b) { return b >= data.bpmRange[0] && b <= data.bpmRange[1]; })
       : allBpms;
