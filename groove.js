@@ -54,17 +54,18 @@ function applyGroove(p, len, feel) {
       if (pos === 4 || pos === 12) p.clap[i] = Math.min(127, p.clap[i] + 4);
     }
     // Ghost kick: intentional hits stay strong — only soften ghost kicks
-    if (p.ghostkick[i] > 0) p.ghostkick[i] = Math.max(40, p.ghostkick[i] - 5);
+    if (p.ghostkick[i] > 0) p.ghostkick[i] = Math.max(55, p.ghostkick[i] - 3);
     // Rimshot: subtle groove — halftime boosts beat 3 (the halftime backbeat)
     if (p.rimshot[i] > 0) {
       var rimVel = grooveVel(i, p.rimshot[i]);
       if (feel === 'halftime' && pos === 8) rimVel = Math.min(127, p.rimshot[i] + 5); // beat 3 is the backbeat in halftime
       p.rimshot[i] = rimVel;
     }
-    // Ride: quarter note accents, ghost taps stay low
+    // Ride: upbeat accents (jazz feel), downbeats pulled back
     if (p.ride[i] > 0) {
-      if (pos % 4 === 0) p.ride[i] = Math.min(127, p.ride[i] + 5);
-      else p.ride[i] = Math.max(35, p.ride[i] - 3);
+      if (pos % 4 === 2) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (e, a)
+      else if (pos % 4 === 0) p.ride[i] = Math.max(35, p.ride[i] - 2); // downbeats (1, 2, 3, 4)
+      else p.ride[i] = Math.max(35, p.ride[i] - 3); // 16th notes
     }
     // Shaker: upbeat accent — "and" positions slightly louder, downbeats softer
     // Stays in a narrow band (35-70%) — it's texture, not a lead voice
@@ -209,7 +210,7 @@ function humanizeVelocities(p, len, feel) {
  *      Exception: chorus beat 1 allows kick+snare unison for impact.
  *      Also removes ghost snares where kick is playing.
  *   2. Hat choke enforcement: When open hat plays, closed hat is removed
- *      on that step AND the next step (simulates the physical hi-hat stand).
+ *      on that step AND the next 2-4 steps (tempo-aware choke duration).
  *   3. Ghost note clustering: If a ghost snare exists, there's a 35% chance
  *      (scaled by ghostDensity) of adding another 2 steps later, creating
  *      the "diddle" patterns characteristic of skilled drumming.
@@ -218,8 +219,18 @@ function humanizeVelocities(p, len, feel) {
  * @param {number} len - Active step count for this section
  * @param {boolean} isCh - Whether this is a chorus section (affects
  *   kick-snare interlock exception on beat 1)
+ * @param {string} feel - Current feel name
  */
 function postProcessPattern(p, len, isCh, feel) {
+  // Get BPM for tempo-aware open hat choke duration
+  var bpm = 90;
+  try {
+    bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  } catch(e) {}
+  
+  // Tempo-aware choke duration: slower = longer choke
+  var chokeDuration = (bpm <= 80) ? 4 : (bpm <= 100) ? 3 : 2;
+  
   for (var i = 0; i < len; i++) {
     var pos = i % 16;
     // Pass 1: Remove kick on backbeat positions where snare lives
@@ -228,10 +239,13 @@ function postProcessPattern(p, len, isCh, feel) {
     }
     // Pass 1b: Remove ghost snare where kick is playing (can't accent both)
     if (p.snare[i] > 0 && p.snare[i] < 85 && p.kick[i] > 0) p.snare[i] = 0;
-    // Pass 2: Hat choke — open hat kills closed hat on same step and next
+    // Pass 2: Hat choke — open hat kills closed hat on same step and next 2-4 steps (tempo-aware)
     if (p.openhat[i] > 0) {
       p.hat[i] = 0;
-      if (i + 1 < len && p.openhat[i + 1] === 0) p.hat[i + 1] = 0;
+      for (var j = 1; j <= chokeDuration && i + j < len; j++) {
+        if (p.openhat[i + j] === 0) p.hat[i + j] = 0;
+        else break; // another open hat starts, stop choking
+      }
     }
   }
   // Pass 3: Ghost note clustering — feel-aware probability and spacing
