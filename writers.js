@@ -612,7 +612,9 @@ function writeGKA(p, feel, off) {
       var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
       if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8); // near main kick: softer
       else baseVel = Math.min(85, baseVel + 4); // no nearby kick: slightly louder, carrying the low end
-      p.ghostkick[off+i] = v(baseVel, 10);
+      // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
+      var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
+      p.ghostkick[off+i] = v(finalVel, 10);
     }
   });
 }
@@ -682,7 +684,9 @@ function writeGKB(p, feel, off) {
       var nextKick = (i < 15 && p.kick[off+i+1] > 0) ? p.kick[off+i+1] : 0;
       if (prevKick > 0 || nextKick > 0) baseVel = Math.max(40, baseVel - 8);
       else baseVel = Math.min(85, baseVel + 4);
-      p.ghostkick[off+i] = v(baseVel, 10);
+      // FIX #4: Clamp FINAL velocity after all adjustments to maintain 40-45% ratio
+      var finalVel = Math.max(55, Math.min(Math.floor(avgKickVel * 0.45), baseVel));
+      p.ghostkick[off+i] = v(finalVel, 10);
     }
   });
 }
@@ -1184,19 +1188,10 @@ function writeClap(p, feel, off) {
   var isBarB = (off === 16);
   var clapVelBase = isBarB ? 96 : 100;
   
-  // FIX #7: Loose styles (dilla, lofi, nujabes) offset clap from snare for double-clap effect
-  var isLooseStyle = (feel === 'dilla' || feel === 'lofi' || feel === 'nujabes');
-  var offsetClap = isLooseStyle && maybe(.30);
-  
-  if (offsetClap) {
-    // Offset clap by 1 step after snare for loose, double-clap feel
-    if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 5] = v(clapVelBase - 10, 12);
-    if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 13] = v(clapVelBase - 10, 12);
-  } else {
-    // Normal: clap layers with snare on backbeat
-    if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 4] = v(clapVelBase, 10);
-    if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 12] = v(clapVelBase, 10);
-  }
+  // FIX #3: Clap offset for loose styles uses timing offset, not grid position
+  // Normal: clap layers with snare on backbeat
+  if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 4] = v(clapVelBase, 10);
+  if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 12] = v(clapVelBase, 10);
   
   if (feel === 'hard') {
     // Mobb Deep/Onyx: louder claps
