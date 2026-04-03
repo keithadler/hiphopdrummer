@@ -463,9 +463,11 @@ function initPlaybackTracking() {
         var activeTab = document.getElementById('bar-tab-' + currentBar);
         if (activeTab) activeTab.classList.add('bar-btn-active');
       }
-      // Scroll the bar's grid page into view
-      var gridPage = document.getElementById('grid-page-' + currentBar);
-      if (gridPage) gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll the bar's grid page into view (only if follow playhead is on)
+      if (_followPlayhead) {
+        var gridPage = document.getElementById('grid-page-' + currentBar);
+        if (gridPage) gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // Query once and cache the result
