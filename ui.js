@@ -798,22 +798,46 @@ function buildChordSheet() {
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var feel = secFeel(sec);
 
-    // Section-specific harmonic rhythm
+    // Section-specific harmonic rhythm — uses the bass progression if available
     var allChords = [];
+    var prog = (typeof _sectionProgressions !== 'undefined' && _sectionProgressions[sec])
+      ? _sectionProgressions[sec] : null;
+
+    // Degree-to-chord mapping with voicing
+    function degreeChord(deg) {
+      var raw, fn, cls;
+      if (deg === 'iv') { raw = key.iv; fn = 'IV'; cls = 'chord-four'; }
+      else if (deg === 'v') { raw = key.v; fn = 'V'; cls = 'chord-five'; }
+      else if (deg === 'ii') { raw = key.ii || key.i; fn = 'ii'; cls = 'chord-four'; }
+      else if (deg === 'bII') { raw = key.bII || key.i; fn = 'bII'; cls = 'chord-five'; }
+      else if (deg === 'bIII') {
+        var r = (key.rel || '').split(' ')[0] || key.i;
+        raw = r; fn = 'bIII'; cls = 'chord-four';
+      }
+      else if (deg === 'bVI') {
+        var parts = (key.relNote || '').split(',');
+        raw = (parts[1] || key.iv).trim(); fn = 'bVI'; cls = 'chord-four';
+      }
+      else if (deg === 'bVII') {
+        var parts = (key.relNote || '').split(',');
+        raw = (parts[2] || key.v).trim(); fn = 'bVII'; cls = 'chord-five';
+      }
+      else { raw = key.i; fn = 'I'; cls = 'chord-root'; }
+      return { name: voiceChord(raw, feel), fn: fn, cls: cls };
+    }
+
     for (var b = 0; b < bars; b++) {
-      var barInPhrase = b % 4;
       var isIntro = (sec === 'intro');
       var isOutro = (sec === 'outro');
-      var isBreakdown = (sec === 'breakdown');
       if (isIntro || isOutro) {
-        // Intro/outro: stay on I
         allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
-      } else if (isBreakdown) {
-        // Breakdown: I and IV only, no V
-        if (barInPhrase === 2 || barInPhrase === 3) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
-        else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
+      } else if (prog) {
+        // Use the actual bass progression
+        var deg = prog[b % prog.length];
+        allChords.push(degreeChord(deg));
       } else {
-        // Standard: I-I-IV-V
+        // Fallback: I-I-IV-V
+        var barInPhrase = b % 4;
         if (barInPhrase === 2) allChords.push({ name: voiceChord(key.iv, feel), fn: 'IV', cls: 'chord-four' });
         else if (barInPhrase === 3 && bars > 2) allChords.push({ name: voiceChord(key.v, feel), fn: 'V', cls: 'chord-five' });
         else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
