@@ -135,6 +135,16 @@ document.getElementById('regenGo').onclick = function() {
       var scrollArea = document.querySelector('.scroll-area');
       if (scrollArea) scrollArea.scrollTop = 0;
       else window.scrollTo(0, 0);
+      
+      // Save the newly generated beat to history
+      setTimeout(function() {
+        if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+          var beatData = captureBeatState();
+          var history = loadBeatHistory();
+          history.unshift(beatData);
+          saveBeatHistory(history);
+        }
+      }, 100);
     });
   } else {
     // Fallback if history not loaded
