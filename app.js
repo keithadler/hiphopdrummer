@@ -585,7 +585,10 @@ function initBeatHistoryHandlers() {
   // Enable play button once synth bridge module is loaded, MIDI is built,
   // and a minimum 2-second delay has passed (ensures everything is settled)
   var _bootTime = Date.now();
+  var _bootAttempts = 0;
+  var _maxBootAttempts = 50; // 5 seconds max wait
   (function waitForReady() {
+    _bootAttempts++;
     if (window.synthBridge && window._currentMidiBytes) {
       var elapsed = Date.now() - _bootTime;
       var remaining = Math.max(0, 2000 - elapsed);
@@ -593,6 +596,22 @@ function initBeatHistoryHandlers() {
         var playBtn = document.getElementById('headerPlayBtn');
         if (playBtn) playBtn.disabled = false;
       }, remaining);
+    } else if (_bootAttempts >= _maxBootAttempts) {
+      // SpessaSynth failed to load after 5 seconds
+      console.error('SpessaSynth failed to initialize');
+      var playBtn = document.getElementById('headerPlayBtn');
+      if (playBtn) {
+        playBtn.textContent = '⚠ AUDIO ERROR';
+        playBtn.disabled = true;
+        playBtn.title = 'Audio playback failed to initialize. Try refreshing the page.';
+      }
+      // Show user-friendly error toast
+      var toast = document.getElementById('sectionToast');
+      if (toast) {
+        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⚠ Audio Playback Error</strong><br><br>The audio engine failed to load. You can still export MIDI files, but playback is unavailable.<br><br>Try refreshing the page or using a different browser.</div>';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 8000);
+      }
     } else {
       setTimeout(waitForReady, 100);
     }

@@ -448,17 +448,44 @@ function exportMIDI(opts) {
   // WAV audio export (async — render before generating ZIP)
   var wavPromise = null;
   if (opts.wav && window.synthBridge && window._currentMidiBytes) {
+    // Show progress toast
+    var toast = document.getElementById('sectionToast');
+    if (toast) {
+      toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Audio...</strong><br><br>Generating WAV file. This may take a moment for longer beats.<br><br><div class="progress-spinner"></div></div>';
+      toast.classList.add('show');
+    }
+    
     wavPromise = window.synthBridge.renderToWav(window._currentMidiBytes).then(function(wavBlob) {
+      // Update progress: WAV complete, now adding to ZIP
+      if (toast) {
+        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>✓ Audio Rendered</strong><br><br>Adding files to ZIP archive...<br><br><div class="progress-spinner"></div></div>';
+      }
       return wavBlob.arrayBuffer();
     }).then(function(wavBuffer) {
       folder.file('hiphop_beat_' + bpm + 'bpm.wav', new Uint8Array(wavBuffer));
+      // Hide progress toast
+      if (toast) {
+        toast.classList.remove('show');
+      }
     }).catch(function(err) {
       console.warn('WAV render failed:', err);
+      // Show error toast
+      if (toast) {
+        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⚠ WAV Export Failed</strong><br><br>Audio rendering failed, but MIDI files will still be exported.</div>';
+        setTimeout(function() { toast.classList.remove('show'); }, 4000);
+      }
     });
   }
 
   // Generate and trigger download (wait for WAV if needed)
   var generateZip = function() {
+    // Show final progress
+    var toast = document.getElementById('sectionToast');
+    if (toast && !opts.wav) {
+      toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Creating ZIP...</strong><br><br>Packaging your files...<br><br><div class="progress-spinner"></div></div>';
+      toast.classList.add('show');
+    }
+    
     zip.generateAsync({ type: 'blob' }).then(function(blob) {
       var u = URL.createObjectURL(blob);
       var a = document.createElement('a');
@@ -466,6 +493,18 @@ function exportMIDI(opts) {
       a.download = folderName + '.zip';
       a.click();
       URL.revokeObjectURL(u);
+      
+      // Hide progress and show success
+      if (toast) {
+        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>✓ Export Complete!</strong><br><br>Your beat has been downloaded.</div>';
+        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+      }
+    }).catch(function(err) {
+      console.error('ZIP generation failed:', err);
+      if (toast) {
+        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⚠ Export Failed</strong><br><br>Could not create ZIP file. Please try again.</div>';
+        setTimeout(function() { toast.classList.remove('show'); }, 4000);
+      }
     });
   };
   if (wavPromise) { wavPromise.then(generateZip); }
