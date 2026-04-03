@@ -234,11 +234,9 @@ function writeBarK(p, feel, off, kickPat) {
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = Math.max(85, p.kick[off + i] - 8);
   }
   if (feel === 'crunk') {
-    // Crunk: use the kick library pattern (now crunk-specific), boost to maximum
+    // Crunk: use the kick library pattern, boost to maximum — no extra syncopation
+    // Real Lil Jon beats are 4-on-the-floor or simple 1-and-3, not syncopated
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(127, 3);
-    // Occasional extra syncopation
-    if (maybe(.5) && !kickPat[6]) p.kick[off + 6] = v(115, 8);
-    if (maybe(.4) && !kickPat[14]) p.kick[off + 14] = v(112, 8);
   }
   if (feel === 'memphis') {
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(118, 10);
@@ -285,7 +283,16 @@ function writeSnA(p, feel, off) {
     if (maybe(.3 * ghostDensity)) { var sp = pick([5, 9, 15]); p.snare[off + sp] = v(48, 10); }
     return;
   }
-  if (feel === 'halftime') { p.snare[off + 8] = v(125, 8); if (maybe(.4)) p.snare[off + 7] = v(72, 12); return; }
+  if (feel === 'halftime') {
+    // Halftime: snare on beat 3, occasionally dragged to and-of-3
+    if (maybe(.15)) p.snare[off + 10] = v(120, 10); // dragged halftime — and-of-3
+    else p.snare[off + 8] = v(125, 8);
+    // Ghost on e-of-1 or and-of-1 — common in Havoc/RZA halftime
+    if (maybe(.45 * ghostDensity)) p.snare[off + 2] = v(55, 12);
+    if (maybe(.35 * ghostDensity)) p.snare[off + 7] = v(72, 12);
+    if (maybe(.25 * ghostDensity) && !p.kick[off + 9]) p.snare[off + 9] = v(48, 10);
+    return;
+  }
   if (feel === 'dark') {
     p.snare[off + 4] = v(118, 6); p.snare[off + 12] = v(122, 6);
     // Dark still gets ghost activity, just sparser and quieter (C.R.E.A.M. style)
@@ -319,7 +326,7 @@ function writeSnA(p, feel, off) {
   if (flamProb > 0 && maybe((flamProb * 0.75) * ghostDensity) && !p.kick[off + 11] && !p.snare[off + 11]) p.snare[off + 11] = v(38, 8);
   // Apply ghost pattern from library, scaled by ghostDensity
   if (baseSnareGhostA) {
-    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : 1.0;
+    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
     for (var g = 0; g < baseSnareGhostA.length; g++) {
       var gPos = baseSnareGhostA[g][0], gVel = baseSnareGhostA[g][1];
       // Crunk: ghost snares are aggressive accent hits, not subtle ghosts
@@ -368,7 +375,10 @@ function writeSnA(p, feel, off) {
     p.snare[off + 4] = v(127, 2); p.snare[off + 12] = v(127, 2);
   }
   if (feel === 'memphis') {
+    // Memphis: hard crack on 2 and 4, almost zero ghosts — Three 6 Mafia skeletal
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
+    // Very rare ghost — Memphis is defined by absence
+    if (maybe(.08 * ghostDensity) && !p.kick[off + 7]) p.snare[off + 7] = v(38, 8);
   }
   if (feel === 'griselda') {
     // Griselda: hard snare crack with wider dynamics than 90s dark
@@ -409,7 +419,14 @@ function writeSnB(p, feel, off) {
     if (maybe(.3 * ghostDensity)) { var sp = pick([3, 7, 11]); p.snare[off + sp] = v(45, 10); }
     return;
   }
-  if (feel === 'halftime') { p.snare[off + 8] = v(123, 8); if (maybe(.4)) p.snare[off + 6] = v(70, 12); return; }
+  if (feel === 'halftime') {
+    if (maybe(.15)) p.snare[off + 10] = v(118, 10);
+    else p.snare[off + 8] = v(123, 8);
+    if (maybe(.4 * ghostDensity)) p.snare[off + 6] = v(70, 12);
+    if (maybe(.3 * ghostDensity) && !p.kick[off + 3]) p.snare[off + 3] = v(50, 10);
+    if (maybe(.2 * ghostDensity) && !p.kick[off + 11]) p.snare[off + 11] = v(45, 10);
+    return;
+  }
   if (feel === 'dark') {
     p.snare[off + 4] = v(118, 6); p.snare[off + 12] = v(122, 6);
     // Dark B bar: use B ghost library for variation
@@ -439,7 +456,7 @@ function writeSnB(p, feel, off) {
   if (flamProb > 0 && maybe(flamProb * ghostDensity) && !p.kick[off + 11] && !p.snare[off + 11]) p.snare[off + 11] = v(40, 8);
   // Apply ghost pattern from library (B variant), scaled by ghostDensity
   if (baseSnareGhostB) {
-    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : 1.0;
+    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
     for (var g = 0; g < baseSnareGhostB.length; g++) {
       var gPos = baseSnareGhostB[g][0], gVel = baseSnareGhostB[g][1];
       var adjVel = (feel === 'crunk') ? Math.min(80, gVel + 20) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
@@ -482,7 +499,8 @@ function writeSnB(p, feel, off) {
   }
   if (feel === 'memphis') {
     p.snare[off + 4] = v(118, 8); p.snare[off + 12] = v(122, 8);
-    if (maybe(.2 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(42, 8);
+    // Very rare ghost — Memphis is skeletal
+    if (maybe(.08 * ghostDensity) && !p.kick[off+9]) p.snare[off+9] = v(38, 8);
   }
   if (feel === 'griselda') {
     p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(125, 4);
@@ -928,7 +946,16 @@ function writeHB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeOpenHat(p, feel, off) {
-  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi' || feel === 'oldschool') return;
+  if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
+  if (feel === 'oldschool') {
+    // Old school: 808 open hat on the "and" of 4 — defining element of early hip hop
+    if (maybe(.7)) {
+      p.openhat[off + 14] = v(85, 8);
+      p.hat[off + 14] = 0;
+      if (off + 15 < STEPS) p.hat[off + 15] = 0; // choke next step
+    }
+    return;
+  }
   if (feel === 'memphis' || feel === 'phonk') {
     // Memphis: sparse open hat — 50/50 &2 vs &4, skips more bars than other feels
     if (maybe(.35)) {
@@ -1026,6 +1053,19 @@ function writeRide(p, feel, off) {
     for (var i = 0; i < 16; i += 4) p.ride[off + i] = v(85, 10);
     if (maybe(.4)) p.ride[off + 2] = v(60, 12);
     if (maybe(.3)) p.ride[off + 10] = v(58, 12);
+    return;
+  }
+  if (feel === 'nujabes') {
+    // Nujabes: jazz ride pattern — beats 2 and 4 accented (jazz convention),
+    // beats 1 and 3 lighter, ghost taps on "ah" positions for swing
+    p.ride[off] = v(72, 12);      // beat 1 — lighter
+    p.ride[off + 4] = v(92, 10);  // beat 2 — accented (jazz ride)
+    p.ride[off + 8] = v(70, 12);  // beat 3 — lighter
+    p.ride[off + 12] = v(95, 10); // beat 4 — strongest accent
+    if (maybe(.55)) p.ride[off + 3] = v(42, 10);  // ah-of-1 ghost
+    if (maybe(.45)) p.ride[off + 7] = v(40, 10);  // ah-of-2 ghost
+    if (maybe(.55)) p.ride[off + 11] = v(42, 10); // ah-of-3 ghost
+    if (maybe(.4)) p.ride[off + 15] = v(38, 10);  // ah-of-4 ghost
     return;
   }
   // Default: straight quarter note ride

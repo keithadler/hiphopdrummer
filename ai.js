@@ -487,16 +487,18 @@ function genBasePatterns() {
     baseKick = pick(oldschoolKickLib);
   }
 
-  // B variant — guaranteed to differ from A in the second half of the bar.
-  // Tries to toggle one existing hit; if no change was made, forces a toggle
-  // at a random position in the second half.
+  // B variant — guaranteed to differ from A. Usually second half, occasionally first half.
+  // Real drummers vary both halves — a kick might shift from "and" of 1 to "e" of 1.
   baseKickB = baseKick.slice();
   var changed = false;
-  for (var i = 8; i < 16; i++) {
+  // 25% chance to vary the first half instead of second
+  var varStart = maybe(.25) ? 2 : 8;
+  var varEnd = varStart === 2 ? 8 : 16;
+  for (var i = varStart; i < varEnd; i++) {
     if (baseKickB[i] && maybe(.4)) { baseKickB[i] = 0; changed = true; break; }
     if (!baseKickB[i] && maybe(.35)) { baseKickB[i] = 1; changed = true; break; }
   }
-  if (!changed) { var pos = pick([8,9,10,11,14]); baseKickB[pos] = baseKickB[pos] ? 0 : 1; }
+  if (!changed) { var pos = varStart === 2 ? pick([2,3,6,7]) : pick([8,9,10,11,14]); baseKickB[pos] = baseKickB[pos] ? 0 : 1; }
 
   // Chorus kick — busier patterns with more energy, distinct from verse
   var chorusLib = [
@@ -622,6 +624,8 @@ function genBasePatterns() {
   if (paletteFeel === 'gfunk') useRide = maybe(.5);
   if (paletteFeel === 'nujabes') useRide = true; // Nujabes: ride cymbal is the primary timekeeper
   if (paletteFeel === 'oldschool') useRide = false; // Old School: no ride, drum machines only
+  // Phonk: triplet hats are the defining element — override hat pattern
+  if (paletteFeel === 'phonk') hatPatternType = maybe(.85) ? 'triplet' : '8th';
 }
 
 // =============================================
