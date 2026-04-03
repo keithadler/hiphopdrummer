@@ -451,7 +451,7 @@ function exportMIDI(opts) {
   var wavPromise = null;
   if (opts.wav && window.synthBridge && window._currentMidiBytes) {
     // Show progress toast
-    var toast = document.getElementById('sectionToast');
+    var toast = document.getElementById('exportToast');
     if (toast) {
       toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Audio...</strong><br><br>Generating WAV file. This may take a moment for longer beats.<br><br><div class="progress-spinner"></div></div>';
       toast.classList.add('show');
@@ -482,7 +482,7 @@ function exportMIDI(opts) {
   // Generate and trigger download (wait for WAV if needed)
   var generateZip = function() {
     // Show final progress
-    var toast = document.getElementById('sectionToast');
+    var toast = document.getElementById('exportToast');
     if (toast && !opts.wav) {
       toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Creating ZIP...</strong><br><br>Packaging your files...<br><br><div class="progress-spinner"></div></div>';
       toast.classList.add('show');
