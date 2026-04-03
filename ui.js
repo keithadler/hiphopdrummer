@@ -912,6 +912,26 @@ function buildChordSheet() {
   body.innerHTML = html;
 }
 
+// Wire the toggle button once on boot
+(function() {
+  var toggleEl = document.getElementById('aboutToggle');
+  if (!toggleEl) return;
+  toggleEl.onclick = function() {
+    var detailEl = document.getElementById('aboutBeat');
+    if (!detailEl) return;
+    var isExpanded = detailEl.classList.contains('expanded');
+    if (isExpanded) {
+      detailEl.classList.remove('expanded');
+      toggleEl.textContent = 'Show full analysis';
+      toggleEl.setAttribute('aria-expanded', 'false');
+    } else {
+      detailEl.classList.add('expanded');
+      toggleEl.textContent = 'Hide full analysis';
+      toggleEl.setAttribute('aria-expanded', 'true');
+    }
+  };
+})();
+
 // =============================================
 // Glossary — Hover definitions for drum programming terms
 // =============================================
