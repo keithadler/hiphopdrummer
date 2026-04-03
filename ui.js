@@ -1066,6 +1066,8 @@ function explainCell(instrument, step, velocity) {
  * @param {HTMLElement} cell - The .cell element
  */
 function _showCellTooltip(cell) {
+  // Don't show tooltips during playback — they obscure the chord overlay
+  if (window.synthBridge && window.synthBridge.isPlaying) return;
   var step = parseInt(cell.dataset.step);
   if (isNaN(step)) return;
   var row = cell.parentElement;
