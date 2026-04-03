@@ -403,6 +403,11 @@ function initWelcome() {
 (function() {
   generateAll();
   updateMidiPlayer();
+  // Ensure About panel is fully built (collapsible sections + summary)
+  // Must run BEFORE buildChordSheet which appends to #aboutBeat
+  if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+  if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+  if (typeof buildAboutSummary === 'function') buildAboutSummary();
   // Rebuild chord sheet after MIDI build so it picks up bass progressions
   if (typeof buildChordSheet === 'function') buildChordSheet();
   document.getElementById('loadMsg').style.display = 'none';

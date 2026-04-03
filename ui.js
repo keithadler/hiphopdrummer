@@ -488,7 +488,7 @@ function makeAboutCollapsible() {
  */
 var _aboutObserver = new MutationObserver(function() {
   var el = document.getElementById('aboutBeat');
-  if (el && !el.querySelector('.about-section')) {
+  if (el && !el.querySelector('.about-section:not(.chord-sheet-section-wrap)')) {
     _aboutObserver.disconnect();
     makeAboutCollapsible();
     applyGlossaryHighlights();
@@ -555,15 +555,6 @@ function buildAboutSummary() {
   html += '</div>';
 
   summaryEl.innerHTML = html;
-
-  // Sync toggle button text with current visibility
-  var toggleEl = document.getElementById('aboutToggle');
-  var detailEl = document.getElementById('aboutBeat');
-  if (toggleEl && detailEl) {
-    var isHidden = window.getComputedStyle(detailEl).display === 'none';
-    toggleEl.textContent = isHidden ? 'Show full analysis' : 'Hide full analysis';
-    toggleEl.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
-  }
 }
 
 /**
@@ -586,7 +577,7 @@ function buildChordSheet() {
 
   // Collapsible wrapper
   var section = document.createElement('div');
-  section.className = 'about-section';
+  section.className = 'about-section chord-sheet-section-wrap';
   var header = document.createElement('div');
   header.className = 'about-header';
   header.setAttribute('tabindex', '0');
@@ -920,20 +911,6 @@ function buildChordSheet() {
 
   body.innerHTML = html;
 }
-
-// Wire the toggle button once on boot
-(function() {
-  var toggleEl = document.getElementById('aboutToggle');
-  if (!toggleEl) return;
-  toggleEl.onclick = function() {
-    var detailEl = document.getElementById('aboutBeat');
-    if (!detailEl) return;
-    var isHidden = window.getComputedStyle(detailEl).display === 'none';
-    detailEl.style.display = isHidden ? 'block' : 'none';
-    toggleEl.textContent = isHidden ? 'Hide full analysis' : 'Show full analysis';
-    toggleEl.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-  };
-})();
 
 // =============================================
 // Glossary — Hover definitions for drum programming terms
