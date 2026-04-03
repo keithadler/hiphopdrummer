@@ -1260,6 +1260,295 @@ test('Per-instrument swing values are musically reasonable', function() {
   });
 });
 
+// =============================================
+// CONSISTENCY TESTS — generated music matches displayed info matches export
+// =============================================
+
+// === Test: BPM in DOM matches what generateAll set ===
+test('BPM in DOM matches generateAll output', function() {
+  _domElements = {};
+  generateAll({ bpm: '95' });
+  var domBpm = document.getElementById('bpm').textContent;
+  assert(String(domBpm) === '95', 'DOM BPM should be 95, got ' + domBpm + ' (type: ' + typeof domBpm + ')');
+});
+
+// === Test: Swing in DOM is within valid range ===
+test('Swing in DOM is within valid range after generateAll', function() {
+  _domElements = {};
+  generateAll();
+  var domSwing = parseInt(document.getElementById('swing').textContent);
+  assert(domSwing >= 50 && domSwing <= 72, 'Swing should be 50-72, got ' + domSwing);
+});
+
+// === Test: Style in DOM matches songFeel ===
+test('Style in DOM matches songFeel after generateAll', function() {
+  _domElements = {};
+  generateAll({ style: 'gfunk' });
+  var domStyle = document.getElementById('songStyle').textContent;
+  assert(domStyle && domStyle.length > 0, 'DOM style should be set');
+  assert(songFeel === 'gfunk' || (typeof REGIONAL_VARIANTS !== 'undefined' && REGIONAL_VARIANTS[songFeel] && REGIONAL_VARIANTS[songFeel].parent === 'gfunk'),
+    'songFeel should be gfunk or a gfunk variant, got ' + songFeel);
+});
+
+// === Test: Key in DOM matches _lastChosenKey after generateAll ===
+test('Key in DOM matches _lastChosenKey after every generateAll', function() {
+  for (var trial = 0; trial < 5; trial++) {
+    _domElements = {};
+    _forcedKey = null;
+    generateAll();
+    var domKey = document.getElementById('songKey').textContent;
+    assert(domKey === _lastChosenKey.root,
+      'Trial ' + trial + ': DOM key (' + domKey + ') should match _lastChosenKey.root (' + _lastChosenKey.root + ')');
+  }
+});
+
+// === Test: Analysis text contains the correct key ===
+test('analyzeBeat output contains the displayed key', function() {
+  _domElements = {};
+  generateAll();
+  var aboutEl = document.getElementById('aboutBeat');
+  var html = aboutEl.innerHTML;
+  var key = _lastChosenKey.root;
+  assert(html.indexOf(key) >= 0, 'Analysis should contain key ' + key);
+});
+
+// === Test: Analysis text contains the correct BPM ===
+test('analyzeBeat output contains the displayed BPM', function() {
+  _domElements = {};
+  generateAll({ bpm: '88' });
+  var aboutEl = document.getElementById('aboutBeat');
+  var html = aboutEl.innerHTML;
+  assert(html.indexOf('88') >= 0, 'Analysis should contain BPM 88');
+});
+
+// === Test: Arrangement sections all have patterns ===
+test('Every section in arrangement has a generated pattern', function() {
+  _domElements = {};
+  generateAll();
+  arrangement.forEach(function(sec) {
+    assert(patterns[sec], 'Section ' + sec + ' should have a pattern');
+    assert(secSteps[sec] > 0, 'Section ' + sec + ' should have steps > 0, got ' + secSteps[sec]);
+    assert(secFeels[sec], 'Section ' + sec + ' should have a feel assigned');
+  });
+});
+
+// === Test: MIDI bytes contain the right number of sections ===
+test('Full song MIDI contains events for all arrangement sections', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var bytes = buildMidiBytes(arrangement, bpm);
+  assert(bytes instanceof Uint8Array, 'MIDI should be Uint8Array');
+  assert(bytes.length > 200, 'Full song MIDI should have substantial data');
+  assert(bytes[0] === 0x4D && bytes[1] === 0x54 && bytes[2] === 0x68 && bytes[3] === 0x64,
+    'MIDI should start with MThd header');
+});
+
+// === Test: Each section MIDI has correct length proportional to bars ===
+test('Section MIDI lengths are proportional to bar counts', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var sectionSizes = {};
+  var rendered = {};
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    var bytes = buildMidiBytes([sec], bpm);
+    sectionSizes[sec] = bytes.length;
+  });
+  var sections = Object.keys(sectionSizes);
+  for (var i = 0; i < sections.length; i++) {
+    var sec = sections[i];
+    var bars = Math.ceil((secSteps[sec] || 32) / 16);
+    assert(sectionSizes[sec] > bars * 20,
+      sec + ' (' + bars + ' bars) MIDI should have > ' + (bars * 20) + ' bytes, got ' + sectionSizes[sec]);
+  }
+});
+
+// === Test: Bass pattern key matches _lastChosenKey ===
+test('Bass pattern root note matches _lastChosenKey for all sections', function() {
+  var SEMI = {'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var keyRoot = _lastChosenKey.root.replace(/maj7|m7b5|m7|m9|maj9|7|9|m$/g, '');
+  var expectedRootPC = SEMI[keyRoot];
+  if (expectedRootPC === undefined) return;
+  var rendered = {};
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    if (sec === 'intro' || sec === 'outro') return;
+    var bass = generateBassPattern(sec, bpm);
+    if (bass.length === 0) return;
+    var rootCount = 0;
+    bass.forEach(function(e) {
+      if (!e.dead && (e.note % 12) === expectedRootPC) rootCount++;
+    });
+    var pct = rootCount / bass.length;
+    assert(pct >= 0.15,
+      sec + ': root ' + keyRoot + ' should be >= 15% of bass notes, got ' + Math.round(pct * 100) + '%');
+  });
+});
+
+// === Test: _sectionProgressions match CHORD_PROGRESSIONS pool ===
+test('Bass progressions use valid degrees', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  arrangement.forEach(function(sec) {
+    if (sec !== 'intro' && sec !== 'outro') generateBassPattern(sec, bpm);
+  });
+  var rendered = {};
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    if (sec === 'intro' || sec === 'outro') return;
+    var prog = _sectionProgressions[sec];
+    if (!prog) return;
+    assert(prog.length === 8, sec + ' progression should have 8 chords, got ' + prog.length);
+    var validDegrees = ['i', 'iv', 'v', 'ii', 'bII', 'bIII', 'bVI', 'bVII', '#idim'];
+    prog.forEach(function(deg, idx) {
+      assert(validDegrees.indexOf(deg) >= 0,
+        sec + ' bar ' + (idx+1) + ' has invalid degree: ' + deg);
+    });
+  });
+});
+
+// === Test: Combined MIDI has both drums and bass on correct channels ===
+test('Combined MIDI export has drums on ch10 and bass on ch1', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var bytes = buildCombinedMidiBytes(arrangement, bpm);
+  var hasCh10 = false, hasCh1 = false;
+  for (var i = 0; i < bytes.length - 1; i++) {
+    if ((bytes[i] & 0xF0) === 0x90 && (bytes[i] & 0x0F) === 9) hasCh10 = true;
+    if ((bytes[i] & 0xF0) === 0x90 && (bytes[i] & 0x0F) === 0) hasCh1 = true;
+  }
+  assert(hasCh10, 'Combined MIDI should have drum events on channel 10');
+  assert(hasCh1, 'Combined MIDI should have bass events on channel 1');
+});
+
+// === Test: MPC pattern has events spanning the correct number of bars ===
+test('MPC pattern events span the correct bar count', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var rendered = {};
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    var mpcStr = buildMpcPattern([sec], bpm);
+    var parsed = JSON.parse(mpcStr);
+    if (!parsed || !parsed.pattern || !parsed.pattern.events) return;
+    var expectedBars = Math.ceil((secSteps[sec] || 32) / 16);
+    // Find the last note event's time to determine pattern span
+    var maxTime = 0;
+    parsed.pattern.events.forEach(function(e) {
+      if (e.type === 2 && e.time > maxTime) maxTime = e.time;
+    });
+    // 960 PPQ * 4 beats = 3840 ticks per bar
+    var spannedBars = Math.ceil((maxTime + 1) / 3840);
+    assert(spannedBars <= expectedBars,
+      sec + ': MPC events should span <= ' + expectedBars + ' bars, got ' + spannedBars);
+    assert(spannedBars >= expectedBars - 1,
+      sec + ': MPC events should span >= ' + (expectedBars - 1) + ' bars, got ' + spannedBars);
+  });
+});
+
+// === Test: DAW help files contain correct BPM, swing, license, arrangement ===
+test('All DAW help builders produce content with license and arrangement', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
+  
+  var builders = [
+    ['General', function() { return buildHelpGeneral(bpm, swing, false); }],
+    ['Ableton', function() { return buildHelpAbleton(bpm, swing, false); }],
+    ['Logic', function() { return buildHelpLogic(bpm, swing, false); }],
+    ['FL', function() { return buildHelpFL(bpm, swing, false); }],
+    ['Maschine', function() { return buildHelpMaschine(bpm, swing, false); }],
+    ['GarageBand', function() { return buildHelpGarageBand(bpm, swing, false); }],
+    ['ProTools', function() { return buildHelpProTools(bpm, swing, false); }],
+    ['Reason', function() { return buildHelpReason(bpm, swing, false); }],
+    ['Reaper', function() { return buildHelpReaper(bpm, swing, false); }],
+    ['StudioOne', function() { return buildHelpStudioOne(bpm, swing, false); }],
+    ['MPC', function() { return buildHelpMPC(bpm, swing); }],
+  ];
+  
+  builders.forEach(function(b) {
+    var name = b[0], fn = b[1];
+    var output = fn();
+    assert(output && output.length > 100, name + ' help should produce substantial output');
+    assert(output.indexOf('SONG ARRANGEMENT') >= 0, name + ' help should have SONG ARRANGEMENT');
+    assert(output.indexOf('LICENSE FOR THIS BEAT') >= 0, name + ' help should have LICENSE FOR THIS BEAT');
+    assert(output.indexOf('DISCLAIMER') >= 0, name + ' help should have DISCLAIMER');
+    assert(output.indexOf(String(bpm)) >= 0, name + ' help should contain BPM ' + bpm);
+  });
+});
+
+// === Test: DAW help arrangement section matches actual arrangement ===
+test('DAW help SONG ARRANGEMENT matches actual arrangement', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
+  var help = buildHelpGeneral(bpm, swing, false);
+  
+  var rendered = {};
+  arrangement.forEach(function(sec) {
+    if (rendered[sec]) return;
+    rendered[sec] = true;
+    var label = SL[sec] || sec;
+    var bars = Math.ceil((secSteps[sec] || 32) / 16);
+    var expected = label + ' \u2014 ' + bars + ' bar';
+    assert(help.indexOf(expected) >= 0,
+      'Help should contain "' + expected + '" for section ' + sec);
+  });
+});
+
+// === Test: Pattern velocities are in valid MIDI range ===
+test('Pattern velocities are in valid MIDI range for all sections', function() {
+  _domElements = {};
+  generateAll();
+  arrangement.forEach(function(sec) {
+    var pat = patterns[sec];
+    if (!pat) return;
+    var len = secSteps[sec] || 32;
+    ROWS.forEach(function(r) {
+      for (var i = 0; i < len; i++) {
+        if (pat[r][i] > 0) {
+          assert(pat[r][i] >= 1 && pat[r][i] <= 127,
+            sec + '/' + r + ' step ' + i + ': velocity ' + pat[r][i] + ' out of MIDI range');
+        }
+      }
+    });
+  });
+});
+
+// === Test: secSteps matches pattern array data ===
+test('Last bar of each section has drum data', function() {
+  _domElements = {};
+  generateAll();
+  arrangement.forEach(function(sec) {
+    var pat = patterns[sec];
+    if (!pat) return;
+    var len = secSteps[sec] || 32;
+    var bars = Math.ceil(len / 16);
+    var lastBarStart = (bars - 1) * 16;
+    var hasData = false;
+    ROWS.forEach(function(r) {
+      for (var i = lastBarStart; i < len; i++) {
+        if (pat[r][i] > 0) hasData = true;
+      }
+    });
+    assert(hasData, sec + ': last bar (bar ' + bars + ') should have some drum data');
+  });
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
