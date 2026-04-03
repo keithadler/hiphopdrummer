@@ -1181,6 +1181,11 @@ function generatePattern(sec) {
       p.kick[off] = v(110, 10); // add the expected downbeat kick
     }
 
+    // FIX #2: Mid-section crash cymbal — 5-10% chance on bar 7 of 8-bar sections
+    if (bars >= 8 && bar === 6 && maybe(0.08)) {
+      p.crash[off] = v(100, 10);
+    }
+
     if (is4bar) {
       // === 4-BAR VARIATIONS (feel-aware) ===
       if (bar === 2) {
