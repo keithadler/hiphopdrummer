@@ -504,17 +504,20 @@ function initBeatHistoryHandlers() {
  *   4. Start playback tracking
  */
 (function() {
-  // Try to load last beat from history, otherwise generate new
+  // Try to load last beat from history
   var historyLoaded = false;
-  if (typeof loadLastBeat === 'function') {
+  if (typeof loadBeatHistory === 'function') {
     var history = loadBeatHistory();
     if (history && history.length > 0) {
-      loadLastBeat();
-      historyLoaded = true;
+      // History exists - always load the last beat
+      if (typeof loadLastBeat === 'function') {
+        loadLastBeat();
+        historyLoaded = true;
+      }
     }
   }
   
-  // If no history, generate a new beat
+  // Only generate a new beat if there's no history (first time user)
   if (!historyLoaded) {
     generateAll();
   }
