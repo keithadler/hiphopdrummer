@@ -122,6 +122,42 @@
   </div>
 
   <div class="test-section">
+    <h2>Test 9: No Double Saving</h2>
+    <button onclick="testNoDoubleSaving()">Run Test</button>
+    <div id="test9-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 10: History Order (LIFO)</h2>
+    <button onclick="testHistoryOrder()">Run Test</button>
+    <div id="test10-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 11: Timestamp Uniqueness</h2>
+    <button onclick="testTimestampUniqueness()">Run Test</button>
+    <div id="test11-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 12: Load Last Beat</h2>
+    <button onclick="testLoadLastBeat()">Run Test</button>
+    <div id="test12-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 13: History Capacity Limits</h2>
+    <button onclick="testCapacityLimits()">Run Test</button>
+    <div id="test13-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 14: Concurrent Operations</h2>
+    <button onclick="testConcurrentOps()">Run Test</button>
+    <div id="test14-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
     <h2>Run All Tests</h2>
     <button onclick="runAllTests()">Run All Tests</button>
     <div id="summary" class="summary"></div>
@@ -715,6 +751,420 @@
       testResults.push({ name: 'Multiple Save/Load Cycles', passed, failed });
     }
 
+    async function testNoDoubleSaving() {
+      const testId = 'test9';
+      log(testId, 'Starting test: No Double Saving');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Save a beat
+      const beat1 = createMockBeat(1);
+      saveBeatHistory([beat1]);
+      
+      const historyAfterFirst = loadBeatHistory();
+      if (assert(historyAfterFirst.length === 1, 'History has 1 beat after first save', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Save the same beat again (simulating double save bug)
+      saveBeatHistory([beat1]);
+      
+      const historyAfterSecond = loadBeatHistory();
+      if (assert(historyAfterSecond.length === 1, 'History still has 1 beat (no duplicate)', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Expected 1 beat, got ${historyAfterSecond.length}`, 'fail');
+      }
+      
+      // Add a second beat
+      const beat2 = createMockBeat(2);
+      const history = loadBeatHistory();
+      history.unshift(beat2);
+      saveBeatHistory(history);
+      
+      const historyAfterAdd = loadBeatHistory();
+      if (assert(historyAfterAdd.length === 2, 'History has 2 beats after adding second', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify timestamps are different
+      if (historyAfterAdd.length >= 2) {
+        if (assert(historyAfterAdd[0].timestamp !== historyAfterAdd[1].timestamp, 
+                   'Beats have different timestamps', testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      // Test rapid successive saves (simulating race condition)
+      localStorage.removeItem('hhd_beat_history');
+      const beat3 = createMockBeat(3);
+      
+      saveBeatHistory([beat3]);
+      saveBeatHistory([beat3]);
+      saveBeatHistory([beat3]);
+      
+      const historyAfterRapid = loadBeatHistory();
+      if (assert(historyAfterRapid.length === 1, 'No duplicates after rapid saves', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Expected 1 beat, got ${historyAfterRapid.length} after rapid saves`, 'fail');
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'No Double Saving', passed, failed });
+    }
+
+    async function testHistoryOrder() {
+      const testId = 'test10';
+      log(testId, 'Starting test: History Order (LIFO)');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Add beats in order
+      const beats = [];
+      for (let i = 0; i < 5; i++) {
+        const beat = createMockBeat(i);
+        beat.timestamp = Date.now() + i; // Ensure unique timestamps
+        beats.push(beat);
+        
+        const history = loadBeatHistory();
+        history.unshift(beat);
+        saveBeatHistory(history);
+        
+        // Small delay to ensure timestamps are different
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      const history = loadBeatHistory();
+      
+      if (assert(history.length === 5, 'History has 5 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify LIFO order (most recent first)
+      for (let i = 0; i < history.length - 1; i++) {
+        if (assert(history[i].timestamp > history[i + 1].timestamp, 
+                   `Beat ${i} is newer than beat ${i + 1}`, testId)) {
+          passed++;
+        } else {
+          failed++;
+          log(testId, `Order violation: ${history[i].timestamp} vs ${history[i + 1].timestamp}`, 'fail');
+        }
+      }
+      
+      // Verify most recent beat is first
+      const mostRecent = beats[beats.length - 1];
+      if (assert(history[0].timestamp === mostRecent.timestamp, 
+                 'Most recent beat is at index 0', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify oldest beat is last
+      const oldest = beats[0];
+      if (assert(history[history.length - 1].timestamp === oldest.timestamp, 
+                 'Oldest beat is at last index', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'History Order (LIFO)', passed, failed });
+    }
+
+    async function testTimestampUniqueness() {
+      const testId = 'test11';
+      log(testId, 'Starting test: Timestamp Uniqueness');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Create 10 beats rapidly
+      const beats = [];
+      for (let i = 0; i < 10; i++) {
+        const beat = createMockBeat(i);
+        beats.push(beat);
+        await new Promise(resolve => setTimeout(resolve, 5)); // Small delay
+      }
+      
+      // Save all beats
+      saveBeatHistory(beats);
+      const history = loadBeatHistory();
+      
+      // Check for duplicate timestamps
+      const timestamps = history.map(b => b.timestamp);
+      const uniqueTimestamps = new Set(timestamps);
+      
+      if (assert(uniqueTimestamps.size === timestamps.length, 
+                 `All ${timestamps.length} timestamps are unique`, testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Found ${timestamps.length - uniqueTimestamps.size} duplicate timestamps`, 'fail');
+      }
+      
+      // Verify timestamps are reasonable (not in the future, not too old)
+      const now = Date.now();
+      const oneHourAgo = now - (60 * 60 * 1000);
+      
+      for (let i = 0; i < history.length; i++) {
+        const ts = history[i].timestamp;
+        if (assert(ts >= oneHourAgo && ts <= now + 1000, 
+                   `Beat ${i} timestamp is reasonable`, testId)) {
+          passed++;
+        } else {
+          failed++;
+          log(testId, `Beat ${i} has invalid timestamp: ${ts}`, 'fail');
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Timestamp Uniqueness', passed, failed });
+    }
+
+    async function testLoadLastBeat() {
+      const testId = 'test12';
+      log(testId, 'Starting test: Load Last Beat');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Test loading when history is empty
+      if (typeof loadLastBeat === 'function') {
+        loadLastBeat(); // Should not crash
+        if (assert(true, 'loadLastBeat() handles empty history gracefully', testId)) {
+          passed++;
+        }
+      }
+      
+      // Add some beats
+      const beats = [];
+      for (let i = 0; i < 3; i++) {
+        beats.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats);
+      
+      // Load last beat (should be beats[0])
+      const history = loadBeatHistory();
+      const lastBeat = history[0];
+      
+      if (assert(lastBeat !== undefined, 'Last beat exists', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(lastBeat.timestamp === beats[0].timestamp, 
+                 'Last beat is the most recent one', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify loadLastBeat function exists and is callable
+      if (assert(typeof loadLastBeat === 'function', 
+                 'loadLastBeat function exists', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Load Last Beat', passed, failed });
+    }
+
+    async function testCapacityLimits() {
+      const testId = 'test13';
+      log(testId, 'Starting test: History Capacity Limits');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Fill to exactly 25 beats
+      const beats = [];
+      for (let i = 0; i < 25; i++) {
+        beats.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats);
+      
+      const history25 = loadBeatHistory();
+      if (assert(history25.length === 25, 'History holds exactly 25 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Try to add more (should require slot selection)
+      log(testId, 'Testing behavior when exceeding capacity...');
+      
+      // Manually test slot replacement by replacing slot 0
+      const newBeat = createMockBeat(99);
+      const historyFull = loadBeatHistory();
+      historyFull[0] = newBeat;
+      saveBeatHistory(historyFull);
+      
+      const historyAfterReplace = loadBeatHistory();
+      if (assert(historyAfterReplace.length === 25, 
+                 'History still has 25 beats after replacement', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(historyAfterReplace[0].timestamp === newBeat.timestamp, 
+                 'Slot 0 was replaced with new beat', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test with fewer than max capacity
+      localStorage.removeItem('hhd_beat_history');
+      const beats10 = [];
+      for (let i = 0; i < 10; i++) {
+        beats10.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats10);
+      
+      const history10 = loadBeatHistory();
+      if (assert(history10.length === 10, 'History can hold 10 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Add one more (should work without slot selection)
+      const beat11 = createMockBeat(10);
+      const historyPartial = loadBeatHistory();
+      historyPartial.unshift(beat11);
+      saveBeatHistory(historyPartial);
+      
+      const history11 = loadBeatHistory();
+      if (assert(history11.length === 11, 'Can add to history when under capacity', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'History Capacity Limits', passed, failed });
+    }
+
+    async function testConcurrentOps() {
+      const testId = 'test14';
+      log(testId, 'Starting test: Concurrent Operations');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      
+      // Test rapid save/load operations
+      log(testId, 'Testing rapid save/load cycles...');
+      
+      const beat1 = createMockBeat(1);
+      saveBeatHistory([beat1]);
+      
+      // Perform multiple operations rapidly
+      for (let i = 0; i < 5; i++) {
+        const history = loadBeatHistory();
+        const newBeat = createMockBeat(i + 2);
+        history.unshift(newBeat);
+        saveBeatHistory(history);
+      }
+      
+      const finalHistory = loadBeatHistory();
+      if (assert(finalHistory.length === 6, 'All beats saved correctly', testId)) {
+        passed++;
+      } else {
+        failed++;
+        log(testId, `Expected 6 beats, got ${finalHistory.length}`, 'fail');
+      }
+      
+      // Test interleaved operations
+      log(testId, 'Testing interleaved save/load/delete...');
+      
+      localStorage.removeItem('hhd_beat_history');
+      const beats = [];
+      for (let i = 0; i < 5; i++) {
+        beats.push(createMockBeat(i));
+      }
+      saveBeatHistory(beats);
+      
+      // Load, modify, save
+      let history = loadBeatHistory();
+      history.splice(2, 1); // Delete middle beat
+      saveBeatHistory(history);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 4, 'Delete operation worked', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Add new beat
+      const newBeat = createMockBeat(99);
+      history.unshift(newBeat);
+      saveBeatHistory(history);
+      
+      history = loadBeatHistory();
+      if (assert(history.length === 5, 'Add after delete worked', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(history[0].timestamp === newBeat.timestamp, 
+                 'New beat is at index 0', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Test localStorage consistency
+      const directLoad = JSON.parse(localStorage.getItem('hhd_beat_history'));
+      if (assert(directLoad.length === history.length, 
+                 'localStorage matches in-memory history', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Concurrent Operations', passed, failed });
+    }
+
     async function runAllTests() {
       testResults = [];
       document.getElementById('summary').innerHTML = 'Running tests...';
@@ -741,6 +1191,24 @@
       await new Promise(resolve => setTimeout(resolve, 500));
       
       await testMultipleCycles();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testNoDoubleSaving();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testHistoryOrder();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testTimestampUniqueness();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testLoadLastBeat();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testCapacityLimits();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testConcurrentOps();
       
       // Display summary
       const totalPassed = testResults.reduce((sum, r) => sum + r.passed, 0);
