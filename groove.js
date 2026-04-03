@@ -62,11 +62,17 @@ function applyGroove(p, len, feel) {
       p.rimshot[i] = rimVel;
     }
     // Ride: upbeat accents (jazz feel), downbeats pulled back
-    // FIX #1: Corrected ride accent curve — upbeats louder, downbeats softer
+    // FIX #6: Feel-aware ride accent — flat for lofi/nujabes (hypnotic wash)
     if (p.ride[i] > 0) {
-      if (pos % 2 === 1) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (all "and" positions)
-      else if (pos % 4 === 0) p.ride[i] = Math.max(35, p.ride[i] - 2); // downbeats (1, 2, 3, 4)
-      else p.ride[i] = Math.max(35, p.ride[i]); // even 16ths: neutral
+      if (feel === 'lofi' || feel === 'nujabes') {
+        // Flat ride — no accent curve, hypnotic wash
+        p.ride[i] = Math.max(35, p.ride[i]);
+      } else {
+        // Jazz ride accent: upbeats louder, downbeats softer
+        if (pos % 2 === 1) p.ride[i] = Math.min(127, p.ride[i] + 5); // upbeats (all "and" positions)
+        else if (pos % 4 === 0) p.ride[i] = Math.max(35, p.ride[i] - 2); // downbeats (1, 2, 3, 4)
+        else p.ride[i] = Math.max(35, p.ride[i]); // even 16ths: neutral
+      }
     }
     // Shaker: continuous shake feel — less swing than hats (0.4-0.5× hat swing)
     // FIX #2: Reduced shaker swing to 0.4× hat swing for natural continuous shake
@@ -246,14 +252,13 @@ function postProcessPattern(p, len, isCh, feel) {
     // Pass 1b: Remove ghost snare where kick is playing (can't accent both)
     if (p.snare[i] > 0 && p.snare[i] < 85 && p.kick[i] > 0) p.snare[i] = 0;
     // Pass 2: Hat choke — open hat kills closed hat on same step and reduces velocity for next 1-2 steps
-    // FIX #8: Changed from zeroing to velocity reduction for more natural choke
-    // FIX #6: Adjusted reduction from 35% to 55% (was too aggressive, hat went nearly silent)
+    // FIX #5: Adjusted hat choke to 70-75% (25-30% reduction) for natural choke sound
     if (p.openhat[i] > 0) {
       p.hat[i] = 0;
       var reducedChokeDuration = (bpm <= 80) ? 2 : 1;
       for (var j = 1; j <= reducedChokeDuration && i + j < len; j++) {
         if (p.openhat[i + j] === 0 && p.hat[i + j] > 0) {
-          p.hat[i + j] = Math.floor(p.hat[i + j] * 0.55);
+          p.hat[i + j] = Math.floor(p.hat[i + j] * 0.72); // 28% reduction (72% of original)
         } else if (p.openhat[i + j] > 0) {
           break; // another open hat starts, stop choking
         }
@@ -261,13 +266,18 @@ function postProcessPattern(p, len, isCh, feel) {
     }
   }
   // Pass 3: Ghost note clustering — feel-aware probability and spacing
-  // FIX #7: Adjusted ghost clustering to be less aggressive and more feel-dependent
-  // Chopbreak: higher clustering (dense diddle patterns from real breaks)
-  // Lo-fi/dark: lower clustering (sparse aesthetic)
-  // Dilla: moderate clustering with wider spacing (3 steps instead of 2)
-  var clusterProb = (feel === 'chopbreak') ? 0.40 : (feel === 'dilla') ? 0.25 : (feel === 'lofi') ? 0.10 : (feel === 'dark') ? 0.10 : (feel === 'memphis') ? 0.10 : (feel === 'crunk' || feel === 'phonk' || feel === 'oldschool') ? 0 : (feel === 'griselda') ? 0.10 : (feel === 'nujabes') ? 0.35 : 0.25;
+  // FIX #10: Feel-aware ghost snare clustering probability
+  var clusterProb = 0.25; // default
+  if (feel === 'dilla' || feel === 'nujabes') clusterProb = 0.55; // dense brush feel
+  else if (feel === 'chopbreak') clusterProb = 0.40; // dense diddle patterns
+  else if (feel === 'jazzy') clusterProb = 0.35;
+  else if (feel === 'memphis' || feel === 'phonk') clusterProb = 0.08; // sparse, isolated
+  else if (feel === 'lofi' || feel === 'dark' || feel === 'griselda') clusterProb = 0.12;
+  else if (feel === 'crunk' || feel === 'oldschool') clusterProb = 0; // no clustering
+  
   var clusterSpacing = (feel === 'dilla') ? 3 : 2;
   clusterProb *= ghostDensity;
+  
   for (var i = 0; i < len; i++) {
     if (p.snare[i] > 0 && p.snare[i] < 80) {
       if (i + clusterSpacing < len && p.snare[i + clusterSpacing] === 0 && p.kick[i + clusterSpacing] === 0 && maybe(clusterProb)) {
