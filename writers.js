@@ -568,7 +568,7 @@ function writeSnB(p, feel, off) {
  * @param {string} feel - Current section feel
  * @param {number} off - Step offset (start of bar)
  */
-function writeGKA(p, feel, off) {
+function writeGKA(p, feel, off, sec) {
   if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
@@ -593,6 +593,15 @@ function writeGKA(p, feel, off) {
   // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
   var is808Feel = (feel === 'memphis' || feel === 'griselda');
   
+  // FIX #9 (Round 10): 808 ghost kick velocity varies with section energy
+  // verse: 60-62, chorus: 63-65, lastchorus: 65-67
+  var sectionEnergyBoost = 0;
+  if (typeof sec !== 'undefined' && sec) {
+    if (sec === 'chorus' || sec === 'chorus2') sectionEnergyBoost = 3;
+    else if (sec === 'lastchorus') sectionEnergyBoost = 5;
+    else if (sec === 'pre') sectionEnergyBoost = 2;
+  }
+  
   // FIX #4: Calculate average main kick velocity and scale ghost kicks to 40-45% ratio
   var kickVelSum = 0, kickCount = 0;
   for (var k = 0; k < 16; k++) {
@@ -602,14 +611,15 @@ function writeGKA(p, feel, off) {
   
   // Target 42.5% ratio (midpoint of 40-45%), then clamp to 55-75 range
   // FIX #6: 808 feels use fixed velocity instead
-  var ghostKickBase = is808Feel ? 62 : Math.floor(avgKickVel * 0.425);
+  var ghostKickBase = is808Feel ? (62 + sectionEnergyBoost) : Math.floor(avgKickVel * 0.425);
   ghostKickBase = is808Feel ? ghostKickBase : Math.max(55, Math.min(75, ghostKickBase));
   
   // Ghost kick velocity curve: scaled to main kick velocity
   // Softer leading into snare (steps 3,11), firmer after snare rebound (steps 5,13)
   // FIX #6: 808 feels use fixed velocity curve instead of scaled
   var gkVel = is808Feel ? {
-    1: 62, 3: 60, 5: 65, 9: 62, 11: 60, 13: 65
+    1: 62 + sectionEnergyBoost, 3: 60 + sectionEnergyBoost, 5: 65 + sectionEnergyBoost, 
+    9: 62 + sectionEnergyBoost, 11: 60 + sectionEnergyBoost, 13: 65 + sectionEnergyBoost
   } : {
     1: ghostKickBase,
     3: ghostKickBase - 5,
@@ -653,7 +663,7 @@ function writeGKA(p, feel, off) {
  * @param {string} feel - Current section feel
  * @param {number} off - Step offset (start of bar)
  */
-function writeGKB(p, feel, off) {
+function writeGKB(p, feel, off, sec) {
   if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
@@ -681,6 +691,15 @@ function writeGKB(p, feel, off) {
   // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
   var is808Feel = (feel === 'memphis' || feel === 'griselda');
   
+  // FIX #9 (Round 10): 808 ghost kick velocity varies with section energy
+  // verse: 60-62, chorus: 63-65, lastchorus: 65-67
+  var sectionEnergyBoost = 0;
+  if (typeof sec !== 'undefined' && sec) {
+    if (sec === 'chorus' || sec === 'chorus2') sectionEnergyBoost = 3;
+    else if (sec === 'lastchorus') sectionEnergyBoost = 5;
+    else if (sec === 'pre') sectionEnergyBoost = 2;
+  }
+  
   // FIX #4: Calculate average main kick velocity and scale ghost kicks to 40-45% ratio
   var kickVelSum = 0, kickCount = 0;
   for (var k = 0; k < 16; k++) {
@@ -690,13 +709,14 @@ function writeGKB(p, feel, off) {
   
   // Target 42.5% ratio (midpoint of 40-45%), then clamp to 55-75 range
   // FIX #6: 808 feels use fixed velocity instead
-  var ghostKickBase = is808Feel ? 62 : Math.floor(avgKickVel * 0.425);
+  var ghostKickBase = is808Feel ? (62 + sectionEnergyBoost) : Math.floor(avgKickVel * 0.425);
   ghostKickBase = is808Feel ? ghostKickBase : Math.max(55, Math.min(75, ghostKickBase));
   
   // Ghost kick velocity curve: scaled to main kick velocity
   // FIX #6: 808 feels use fixed velocity curve instead of scaled
   var gkVel = is808Feel ? {
-    1: 62, 5: 65, 7: 60, 13: 65, 15: 63
+    1: 62 + sectionEnergyBoost, 5: 65 + sectionEnergyBoost, 7: 60 + sectionEnergyBoost, 
+    13: 65 + sectionEnergyBoost, 15: 63 + sectionEnergyBoost
   } : {
     1: ghostKickBase,
     5: ghostKickBase + 5,

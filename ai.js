@@ -1158,12 +1158,12 @@ function generatePattern(sec) {
   // Write the 2-bar A/B phrase — bar A (offset 0) and bar B (offset 16)
   // Each instrument has its own writer that respects the current feel
   // Regional variants resolved above: feel = baseFeel at this point
-  writeBarK(p, feel, 0, kick); writeSnA(p, feel, 0); writeClap(p, feel, 0); writeGKA(p, feel, 0); writeHA(p, feel, 0);
+  writeBarK(p, feel, 0, kick); writeSnA(p, feel, 0); writeClap(p, feel, 0); writeGKA(p, feel, 0, sec); writeHA(p, feel, 0);
   writeRimshot(p, feel, 0); writeRide(p, feel, 0); writeShaker(p, feel, 0, sec);
   if (feel !== 'sparse' && feel !== 'dark') writeOpenHat(p, feel, 0);
   writeCR(p, sec, 0, feel);
   if (bars >= 2) {
-    writeBarK(p, feel, 16, kickB); writeSnB(p, feel, 16); writeClap(p, feel, 16); writeGKB(p, feel, 16); writeHB(p, feel, 16);
+    writeBarK(p, feel, 16, kickB); writeSnB(p, feel, 16); writeClap(p, feel, 16); writeGKB(p, feel, 16, sec); writeHB(p, feel, 16);
     writeRimshot(p, feel, 16); writeRide(p, feel, 16); writeShaker(p, feel, 16, sec);
     if (feel !== 'sparse' && feel !== 'dark') writeOpenHat(p, feel, 16);
     writeCR(p, sec, 16, baseFeel);
