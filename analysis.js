@@ -401,7 +401,8 @@ function analyzeBeat() {
     lines.push('<b>Jazz bass note:</b> Use an upright bass or electric bass (finger) sample. The walking pattern uses 5ths and passing tones between chord roots — it breathes like a live player.');
   }
 
-  // === MELODIC ARRANGEMENT ===  lines.push('');
+  // === MELODIC ARRANGEMENT ===
+  lines.push('');
   lines.push('🎼 <b>MELODIC ARRANGEMENT</b>');
   lines.push('How to use these chords across your song. This is about <b>melodic parts, samples, and chops</b> — not the bass. Think Rhodes piano, synth pads, horn stabs, vocal chops, guitar loops.');
   lines.push('');
