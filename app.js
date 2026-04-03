@@ -704,6 +704,14 @@ function initPlayerControls() {
           headerPlayBtn.classList.add('playing');
           // Brief cooldown before allowing stop
           setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
+          // Ensure chord toast is shown (fallback for first-play race on iOS)
+          var toast = document.getElementById('sectionToast');
+          if (toast && !toast.classList.contains('show') && arrangement.length > 0) {
+            // Force the tracking onPlayStateChange if it hasn't fired yet
+            if (window.synthBridge.onPlayStateChange) {
+              window.synthBridge.onPlayStateChange(true);
+            }
+          }
         }).catch(function() {
           headerPlayBtn.disabled = false;
           headerPlayBtn.textContent = '▶ PLAY';
@@ -1419,7 +1427,7 @@ function initPlaybackTracking() {
   var _trackingConnected = false;
   function connectTracking() {
     if (!window.synthBridge) {
-      setTimeout(connectTracking, 200);
+      setTimeout(connectTracking, 50);
       return;
     }
     _trackingConnected = true;
