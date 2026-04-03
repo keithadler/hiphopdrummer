@@ -39,23 +39,23 @@ function captureBeatState() {
     swing: parseInt(document.getElementById('swing').textContent) || 62,
     songStyle: document.getElementById('songStyle').textContent,
     songKey: document.getElementById('songKey').textContent,
-    songFeel: songFeel,
-    songPalette: songPalette,
+    songFeel: typeof songFeel !== 'undefined' ? songFeel : null,
+    songPalette: typeof songPalette !== 'undefined' ? songPalette : null,
     patterns: JSON.parse(JSON.stringify(patterns)),
     arrangement: arrangement.slice(),
     secSteps: JSON.parse(JSON.stringify(secSteps)),
     secFeels: JSON.parse(JSON.stringify(secFeels)),
-    baseKick: baseKick,
-    baseKickB: baseKickB,
-    baseKickChorus: baseKickChorus,
-    baseKickV2: baseKickV2,
-    baseSnareGhostA: baseSnareGhostA,
-    baseSnareGhostB: baseSnareGhostB,
-    hatPatternType: hatPatternType,
-    ghostDensity: ghostDensity,
-    useRide: useRide,
-    _lastChosenKey: _lastChosenKey,
-    _sectionProgressions: _sectionProgressions
+    baseKick: typeof baseKick !== 'undefined' ? baseKick : null,
+    baseKickB: typeof baseKickB !== 'undefined' ? baseKickB : null,
+    baseKickChorus: typeof baseKickChorus !== 'undefined' ? baseKickChorus : null,
+    baseKickV2: typeof baseKickV2 !== 'undefined' ? baseKickV2 : null,
+    baseSnareGhostA: typeof baseSnareGhostA !== 'undefined' ? baseSnareGhostA : null,
+    baseSnareGhostB: typeof baseSnareGhostB !== 'undefined' ? baseSnareGhostB : null,
+    hatPatternType: typeof hatPatternType !== 'undefined' ? hatPatternType : null,
+    ghostDensity: typeof ghostDensity !== 'undefined' ? ghostDensity : 1,
+    useRide: typeof useRide !== 'undefined' ? useRide : false,
+    _lastChosenKey: typeof _lastChosenKey !== 'undefined' ? JSON.parse(JSON.stringify(_lastChosenKey)) : null,
+    _sectionProgressions: typeof _sectionProgressions !== 'undefined' ? JSON.parse(JSON.stringify(_sectionProgressions)) : null
   };
 }
 
@@ -73,23 +73,26 @@ function restoreBeatState(beatData) {
   document.getElementById('swing').textContent = beatData.swing;
   document.getElementById('songStyle').textContent = beatData.songStyle;
   document.getElementById('songKey').textContent = beatData.songKey;
-  songFeel = beatData.songFeel;
-  songPalette = beatData.songPalette;
+  
+  if (beatData.songFeel) songFeel = beatData.songFeel;
+  if (beatData.songPalette) songPalette = beatData.songPalette;
+  
   patterns = JSON.parse(JSON.stringify(beatData.patterns));
   arrangement = beatData.arrangement.slice();
   secSteps = JSON.parse(JSON.stringify(beatData.secSteps));
   secFeels = JSON.parse(JSON.stringify(beatData.secFeels));
-  baseKick = beatData.baseKick;
-  baseKickB = beatData.baseKickB;
-  baseKickChorus = beatData.baseKickChorus;
-  baseKickV2 = beatData.baseKickV2;
-  baseSnareGhostA = beatData.baseSnareGhostA;
-  baseSnareGhostB = beatData.baseSnareGhostB;
-  hatPatternType = beatData.hatPatternType;
-  ghostDensity = beatData.ghostDensity;
-  useRide = beatData.useRide;
-  _lastChosenKey = beatData._lastChosenKey;
-  _sectionProgressions = beatData._sectionProgressions;
+  
+  if (beatData.baseKick !== null) baseKick = beatData.baseKick;
+  if (beatData.baseKickB !== null) baseKickB = beatData.baseKickB;
+  if (beatData.baseKickChorus !== null) baseKickChorus = beatData.baseKickChorus;
+  if (beatData.baseKickV2 !== null) baseKickV2 = beatData.baseKickV2;
+  if (beatData.baseSnareGhostA !== null) baseSnareGhostA = beatData.baseSnareGhostA;
+  if (beatData.baseSnareGhostB !== null) baseSnareGhostB = beatData.baseSnareGhostB;
+  if (beatData.hatPatternType !== null) hatPatternType = beatData.hatPatternType;
+  if (beatData.ghostDensity !== null) ghostDensity = beatData.ghostDensity;
+  if (beatData.useRide !== null) useRide = beatData.useRide;
+  if (beatData._lastChosenKey !== null) _lastChosenKey = JSON.parse(JSON.stringify(beatData._lastChosenKey));
+  if (beatData._sectionProgressions !== null) _sectionProgressions = JSON.parse(JSON.stringify(beatData._sectionProgressions));
   
   // Update UI
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
