@@ -123,33 +123,18 @@ document.getElementById('regenGo').onclick = function() {
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
   
-  // Capture the current beat state BEFORE generating new one
-  var oldBeatData = null;
-  if (typeof captureBeatState === 'function') {
-    oldBeatData = captureBeatState();
-  }
-  
-  // Generate new beat
-  generateAll({ style: style, key: key, bpm: bpm });
-  updateMidiPlayer();
-  // Rebuild chord sheet after MIDI build so it picks up bass progressions
-  if (typeof buildChordSheet === 'function') buildChordSheet();
-  // Scroll to top of the page so the user sees the new beat
-  var scrollArea = document.querySelector('.scroll-area');
-  if (scrollArea) scrollArea.scrollTop = 0;
-  else window.scrollTo(0, 0);
-  
-  // Save the OLD beat to history (after generation is complete)
-  if (oldBeatData && typeof saveBeatHistory === 'function') {
+  // Save the current beat to history BEFORE generating new one
+  if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+    var currentBeatData = captureBeatState();
     var history = loadBeatHistory();
     
     // Check if this beat is already in history (prevent duplicates)
     var isDuplicate = history.some(function(beat) {
-      return beat.timestamp === oldBeatData.timestamp;
+      return beat.timestamp === currentBeatData.timestamp;
     });
     
     if (!isDuplicate) {
-      history.unshift(oldBeatData);
+      history.unshift(currentBeatData);
       
       // Trim to max capacity if needed
       if (history.length > 25) {
@@ -157,8 +142,23 @@ document.getElementById('regenGo').onclick = function() {
       }
       
       saveBeatHistory(history);
+      console.log('Saved beat to history:', currentBeatData.songStyle, 'at', currentBeatData.bpm, 'BPM');
+    } else {
+      console.log('Beat already in history, skipping duplicate');
     }
   }
+  
+  // NOW generate the new beat (after saving the old one)
+  generateAll({ style: style, key: key, bpm: bpm });
+  updateMidiPlayer();
+  
+  // Rebuild chord sheet after MIDI build so it picks up bass progressions
+  if (typeof buildChordSheet === 'function') buildChordSheet();
+  
+  // Scroll to top of the page so the user sees the new beat
+  var scrollArea = document.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
+  else window.scrollTo(0, 0);
 };
 
 /** New Beat button: show the dialog */
