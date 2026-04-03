@@ -189,7 +189,7 @@ function analyzeBeat() {
       { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Warm and full. Great for soul sample chops and horn stabs. Craig Mack, early Bad Boy energy.' }
     ]},
     dilla: { keys: [
-      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'G7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Dorian — the IV is G7 (major), not Gm7. That raised 6th is the warm, soulful sound of "Donuts." Rhodes and Wurlitzer live here.' },
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'G7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Dilla key. Dorian — the IV is G7 (major), not Gm7. The natural 6th (B natural in Dm) makes the IV chord major, giving it that warm, soulful sound of "Donuts." Rhodes and Wurlitzer live here.' },
       { root: 'Am7', type: 'minor', i: 'Am7', iv: 'D7', v: 'Em7', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Neo-soul Dorian. The IV is D7 (major). Add a 9th for extra color. Slum Village territory.' },
       { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'C7', v: 'Dm7', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Deep Dorian pocket. The IV is C7 (major). Perfect for bass-heavy Dilla-style grooves.' },
       { root: 'Em7', type: 'minor', i: 'Em7', iv: 'A7', v: 'Bm7', ii: 'F#m7b5', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Introspective Dorian. The IV is A7 (major). Madlib, Kaytranada territory.' },
@@ -234,7 +234,7 @@ function analyzeBeat() {
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, F', context: 'Dark and spacious. Sparse beats in Cm feel cinematic. Wu-Tang instrumental energy.' }
     ]},
     gfunk: { keys: [
-      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'C7', v: 'Dm7', ii: 'Am7b5', bII: 'Ab7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'The G-Funk key. Dorian mode — the IV is C7 (major), not Cm7. That raised 6th is the warm, funky sound of Dr. Dre "Nuthin\' But a G Thang." P-Funk DNA.' },
+      { root: 'Gm7', type: 'minor', i: 'Gm7', iv: 'C7', v: 'Dm7', ii: 'Am7b5', bII: 'Ab7', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'The G-Funk key. Dorian mode — the IV is C7 (major), not Cm7. The natural 6th (E natural in Gm) makes the IV major, giving it that warm, funky sound of Dr. Dre "Nuthin\' But a G Thang." P-Funk DNA.' },
       { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'G7', v: 'Am7', ii: 'Em7b5', bII: 'Eb7', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'West Coast smooth. Dorian — the IV is G7 (major). Warren G "Regulate" energy. Synth bass and Rhodes over Dorian changes.' },
       { root: 'Cm7', type: 'minor', i: 'Cm7', iv: 'F7', v: 'Gm7', ii: 'Dm7b5', bII: 'Db7', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Deeper G-Funk. Dorian — the IV is F7 (major). DJ Quik territory. The Dorian color gives it warmth even in a minor key.' },
       { root: 'Am7', type: 'minor', i: 'Am7', iv: 'D7', v: 'Em7', ii: 'Bm7b5', bII: 'Bb7', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Lighter West Coast. Dorian — the IV is D7 (major). Snoop Dogg "Gin and Juice" energy. The major IV lifts the groove.' },
