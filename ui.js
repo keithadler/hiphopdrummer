@@ -832,8 +832,11 @@ function buildChordSheet() {
       if (isIntro || isOutro) {
         allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
       } else if (prog) {
-        // Use the actual bass progression
         var deg = prog[b % prog.length];
+        // Turnaround: last bar of sections > 4 bars gets V
+        if (b === bars - 1 && bars > 4 && feel !== 'crunk' && feel !== 'oldschool' && feel !== 'memphis') {
+          deg = 'v';
+        }
         allChords.push(degreeChord(deg));
       } else {
         // Fallback: I-I-IV-V
