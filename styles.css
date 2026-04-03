@@ -153,7 +153,8 @@ midi-player::part(play-button){color:var(--accent-green)}
 .beat-num{flex:1;text-align:center;min-width:0;font-family:var(--mono);font-size:18px;color:var(--text-dim);font-weight:500;padding:2px 0}
 .beat-num.db{color:var(--accent-red);font-weight:700}
 .grid-row{display:flex;align-items:center;margin-bottom:1px}
-.row-label{width:90px;flex-shrink:0;font-family:var(--mono);font-size:18px;color:var(--text-muted);text-align:right;padding-right:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:500;cursor:help}
+.row-label{width:90px;flex-shrink:0;font-family:var(--mono);font-size:18px;color:var(--text-muted);text-align:right;padding-right:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:500;cursor:pointer}
+.row-label:hover{color:var(--accent-blue)}
 .cell{flex:1;height:28px;margin:1px;border-radius:3px;min-width:0;border:1px solid transparent;background:var(--bg-deep);font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.9);font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none}
 .cell.kick.on{background:#d04040}
 .cell.snare.on{background:#e8a020}
