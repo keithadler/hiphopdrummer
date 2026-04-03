@@ -428,6 +428,10 @@ var ROLE_TIPS = {
   learner: {
     title: '🎓 Learning Production',
     html: '<p>Every beat is a free lesson. The tool doesn\'t just generate patterns — it explains <em>why</em> every hit is where it is.</p><h3>Your Workflow</h3><p>Generate a beat, then read <b>About This Beat</b>. It covers tempo, swing, style, key, chord progressions, flow guide, reference tracks, technique spotlights, and more. Click any grid cell to understand its velocity. The <b>Sample Hunting Guide</b> tells you exactly what to search for on Splice or Tracklib.</p><h3>How to Learn</h3><p>Generate 10 beats in the same style. Compare the kick patterns, ghost placements, fills, and bass lines. That\'s how you internalize a style deeply enough to program it yourself. Then try hand-programming from the grid using the Drum Machine Workflow section.</p><h3>What You Get</h3><p>MIDI files for any DAW, MPC patterns for Akai hardware, WAV audio, chord sheets, beat sheet PDFs, and setup guides for 9 DAWs. Your beats are yours — commercial releases, demos, anything.</p>'
+  },
+  samplehead: {
+    title: '💿 Sample Head / Digger',
+    html: '<p>Every beat tells you exactly what to dig for, what key to filter by, and where to chop — section by section.</p><h3>Your Workflow</h3><p>Generate a beat, check the <b>key</b> and <b>style</b> in the header, then read the <b>Sample Hunting Guide</b> in About This Beat. It names specific genres, decades, and artists to dig through based on the feel. The section tips (visible during playback and in Song Elements) tell you what type of sample to use in each section — intro texture, verse loop, chorus counter-melody, breakdown flip.</p><h3>Digging by Key</h3><p>Filter Splice or Tracklib by the displayed key. Samples in the <b>relative major/minor</b> (shown in About This Beat) use the same notes but sound brighter or darker — try both. When the chord changes to IV, pitch your root sample up 5 semitones or chop to a different section of the same record.</p><h3>Section Strategy</h3><p><b>Verse:</b> Your main 2-4 bar loop. Chop on chord changes. <b>Chorus:</b> Layer a counter-melody or vocal chop from the same record or a record in the relative key. <b>Breakdown:</b> Strip to the raw uncut sample — reverse it, half-speed it, or filter it. <b>Last Chorus:</b> Everything at once. The element you held back all song goes here.</p><h3>Style-Specific Digging</h3><p>Boom bap: 60s-70s soul and jazz. Dilla: neo-soul, Brazilian. G-Funk: P-Funk, Zapp. Memphis: horror soundtracks, dark soul. Griselda: obscure soul with maximum vinyl grit. The tool matches the source material to the style automatically.</p>'
   }
 };
 
@@ -1087,6 +1091,104 @@ function getRoleSectionTip(sec, role) {
     if (secType === 'lastchorus') return chordCtx + '. Compare to first chorus — arrangement arc made this louder.';
     if (secType === 'instrumental') return chordCtx + '. ' + (hasRide ? 'Ride replaces hat. ' : '') + 'Notice what was removed.';
     if (secType === 'outro') return keyName + '. ' + bars + ' bars. Listen for fade or final hit.';
+  }
+  if (role === 'samplehead') {
+    // Build sample source descriptor based on feel
+    var srcMap = {
+      normal: '60s-70s soul/jazz', hard: 'dark jazz or film scores', jazzy: 'Blue Note jazz, 55-70',
+      dark: 'horror soundtracks, dark soul', bounce: 'disco, R&B, 78-85', dilla: 'neo-soul, Brazilian, broken beat',
+      lofi: 'library music, easy listening, lo-fi vinyl', gfunk: 'P-Funk, 75-83', chopbreak: 'funk breaks, 69-76',
+      crunk: 'synth presets — not vinyl', memphis: 'horror OSTs, Isaac Hayes, dark soul',
+      griselda: 'obscure soul/jazz with vinyl grit', phonk: '90s Memphis rap vocals, cowbell loops',
+      nujabes: 'Japanese jazz, bossa nova, Euro film scores', oldschool: 'electro, early 80s funk',
+      halftime: 'dark jazz, atmospheric film scores', sparse: 'ambient, single-instrument recordings',
+      driving: 'uptempo funk, 72-80', big: '70s soul with full arrangements, gospel'
+    };
+    var src = srcMap[feel] || srcMap.normal;
+    // Key root without chord quality suffix for search filters
+    var keyRoot = keyName.replace(/maj7|m7|7|m$/g, '');
+    var relKey = key ? key.rel : '';
+    // Semitone interval to IV chord for pitch-shifting advice
+    var ivSemi = 5; // default perfect 4th
+    var vSemi = 7;  // default perfect 5th
+    // Describe the chop texture
+    var chopStyle = (feel === 'dilla' || feel === 'lofi' || feel === 'nujabes') ? 'Detune ±5 cents for warmth. ' :
+                    (feel === 'griselda' || feel === 'chopbreak') ? 'Leave the vinyl noise. ' :
+                    (feel === 'memphis' || feel === 'phonk') ? 'Slow it down, add distortion. ' :
+                    (feel === 'gfunk') ? 'Clean and bright — no lo-fi processing. ' : '';
+
+    if (secType === 'intro') {
+      var t = bars + ' bars. Dig in ' + keyRoot + ' ' + (isMinor ? 'minor' : 'major') + '. ';
+      if (feel === 'lofi' || feel === 'dilla' || feel === 'nujabes') t += 'Vinyl intro — needle drop, room tone, or isolated instrument. Let it breathe before drums.';
+      else if (feel === 'dark' || feel === 'memphis' || feel === 'phonk') t += 'Eerie texture — reversed pad, horror string swell, or dialogue sample. Set the mood dark.';
+      else if (feel === 'gfunk') t += 'Clean synth pad or talk box intro. One sustained chord.';
+      else t += 'Isolated instrument or ambient section of your main sample. One chord, no chops yet.';
+      return t;
+    }
+    if (secType === 'verse') {
+      var t = 'Main loop in ' + keyRoot + ' ' + (isMinor ? 'min' : 'maj') + '. Source: ' + src + '. ';
+      if (hasMove) {
+        t += 'Chop on changes: ' + chordCtx + '. ';
+        if (hasFour) t += 'IV bars — pitch up ' + ivSemi + ' semitones or chop to a brighter section of the same record. ';
+      } else {
+        t += 'One loop, ' + bars + ' bars. ';
+      }
+      if (feel === 'dilla' || feel === 'lofi') t += 'Don\'t time-stretch — let the sample drift against ' + swing + '% swing.';
+      else if (feel === 'chopbreak') t += 'Chop tight — 1/8 or 1/16 slices. Rearrange the phrase, keep the grit.';
+      else if (feel === 'griselda') t += 'Loop 2-4 bars of the dirtiest section. Vinyl crackle is the texture.';
+      else if (feel === 'gfunk') t += 'Clean loop or sustained pad. Layer a counter-melody from the same record.';
+      else if (feel === 'memphis' || feel === 'phonk') t += 'Slow the sample to half speed. The pitch drop IS the sound.';
+      else if (feel === 'nujabes') t += 'Acoustic source — piano, guitar, or strings. Keep it warm and melodic.';
+      else t += kickDense ? 'Simple chop — busy kick needs a clean loop.' : 'Room for complex chops between the ' + kickCount + ' kicks.';
+      return t;
+    }
+    if (secType === 'pre') {
+      var t = chordCtx + '. ' + bars + ' bars to chorus. ';
+      t += 'Filter sweep your main loop, or flip to the bridge of the same record. ';
+      if (hasBorrowed) t += 'Borrowed chord (' + chordList + ') — try a sample from ' + relKey + ' here.';
+      else t += 'Build tension: high-pass filter opening, or layer a rising texture.';
+      return t;
+    }
+    if (secType === 'chorus') {
+      var t = chordCtx + '. ';
+      if (numChords > 2) t += 'Most movement — ' + numChords + ' chords across ' + bars + ' bars. ';
+      else t += bars + ' bars. ';
+      t += 'Layer a counter-melody or vocal chop over the main loop. ';
+      if (isMinor && relKey) t += 'Try a sample from ' + relKey + ' (same notes, brighter mood) for the hook lift. ';
+      else t += 'Brighter register than verse. ';
+      if (feel === 'big') t += 'Add strings or choir from a different record in ' + keyRoot + '.';
+      else if (feel === 'bounce') t += 'Vocal hook sample — R&B or disco in ' + keyRoot + '.';
+      else if (feel === 'gfunk') t += 'Talk box or synth lead over the pad.';
+      else t += 'The element you held back from the verse goes here.';
+      return t;
+    }
+    if (secType === 'breakdown') {
+      var t = bars + ' bars. ';
+      if (feel === 'dark' || feel === 'memphis' || feel === 'phonk') t += 'Raw sample only — no chops. Reverse it, half-speed it, or let it play uncut. Emptiness is the point.';
+      else t += 'Strip to just the sample — no chops, no layers. Or flip it: reverse, pitch down ' + vSemi + ' semitones to the V, or isolate one instrument from the loop.';
+      return t;
+    }
+    if (secType === 'lastchorus') {
+      var t = chordCtx + '. Peak energy. ';
+      t += 'Everything at once — main loop + counter-melody + the vocal chop you saved. ';
+      if (hasBorrowed) t += 'Lean into the borrowed chords (' + chordList + ') — they hit hardest here.';
+      else t += 'Add the element you\'ve been holding back all song.';
+      return t;
+    }
+    if (secType === 'instrumental') {
+      var t = chordCtx + '. ' + bars + ' bars. ';
+      t += 'Let the sample shine — play the full uncut loop, or showcase your most complex chop sequence. ';
+      if (feel === 'jazzy' || feel === 'nujabes') t += 'Solo section of the source record works here.';
+      else t += 'This is your production showcase.';
+      return t;
+    }
+    if (secType === 'outro') {
+      var t = bars + ' bars in ' + keyRoot + '. ';
+      t += 'Return to the intro sample, or let the main loop ride out uncut. ';
+      if (feel === 'lofi' || feel === 'dilla') t += 'Vinyl runout groove. Let the crackle fade.';
+      else t += 'Fade the sample or end on a hard chop to silence.';
+      return t;
+    }
   }
   return '';
 }
