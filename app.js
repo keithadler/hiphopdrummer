@@ -418,11 +418,17 @@ function initWelcome() {
   document.getElementById('app').style.display = '';
   initPlayerControls();
   initPlaybackTracking();
-  // Enable play button once synth bridge module is loaded and MIDI is built
+  // Enable play button once synth bridge module is loaded, MIDI is built,
+  // and a minimum 2-second delay has passed (ensures everything is settled)
+  var _bootTime = Date.now();
   (function waitForReady() {
     if (window.synthBridge && window._currentMidiBytes) {
-      var playBtn = document.getElementById('headerPlayBtn');
-      if (playBtn) playBtn.disabled = false;
+      var elapsed = Date.now() - _bootTime;
+      var remaining = Math.max(0, 2000 - elapsed);
+      setTimeout(function() {
+        var playBtn = document.getElementById('headerPlayBtn');
+        if (playBtn) playBtn.disabled = false;
+      }, remaining);
     } else {
       setTimeout(waitForReady, 100);
     }
@@ -1033,24 +1039,31 @@ function initPlaybackTracking() {
       var barCount = Math.ceil((secSteps[curSec] || 32) / 16);
       var toast = document.getElementById('sectionToast');
       if (toast && _showChordsOverlay) {
-        // Build chord list for this section
-        buildChordToast(curSec);
-        // Get role-aware section tip
-        var userRole = '';
-        try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-        var sectionTip = getRoleSectionTip(curSec, userRole);
-        // Build combined HTML: section header + tip + divider + chords
-        var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
-        if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
-        toastHtml += '<div class="toast-divider"></div>';
-        toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
-        toastHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
-        toast.innerHTML = toastHtml;
-        toast.classList.add('show');
-        if (toast._hideTimer) clearTimeout(toast._hideTimer);
-        _chordToastVisible = true;
-        // Highlight first bar's chord immediately
-        updateChordHighlight(0);
+        // Ensure chord sheet data exists
+        if (!window._chordSheetData || !window._chordSheetData[curSec]) {
+          if (typeof buildChordSheet === 'function') buildChordSheet();
+        }
+        // Only proceed if chord data is now available
+        if (window._chordSheetData && window._chordSheetData[curSec]) {
+          // Build chord list for this section
+          buildChordToast(curSec);
+          // Get role-aware section tip
+          var userRole = '';
+          try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+          var sectionTip = getRoleSectionTip(curSec, userRole);
+          // Build combined HTML: section header + tip + divider + chords
+          var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
+          if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
+          toastHtml += '<div class="toast-divider"></div>';
+          toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
+          toastHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
+          toast.innerHTML = toastHtml;
+          toast.classList.add('show');
+          if (toast._hideTimer) clearTimeout(toast._hideTimer);
+          _chordToastVisible = true;
+          // Highlight first bar's chord immediately
+          updateChordHighlight(0);
+        }
       }
       renderGrid();
       renderArr(true);
@@ -1128,18 +1141,25 @@ function initPlaybackTracking() {
           var barCt = Math.ceil((secSteps[curSec] || 32) / 16);
           var t = document.getElementById('sectionToast');
           if (t) {
-            buildChordToast(curSec);
-            var initRole = '';
-            try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-            var initTip = getRoleSectionTip(curSec, initRole);
-            var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
-            if (initTip) initHtml += '<div class="toast-tip">' + initTip + '</div>';
-            initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
-            initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
-            t.innerHTML = initHtml;
-            t.classList.add('show');
-            _chordToastVisible = true;
-            updateChordHighlight(0);
+            // Ensure chord sheet data exists (may be missing on first cold load)
+            if (!window._chordSheetData || !window._chordSheetData[curSec]) {
+              if (typeof buildChordSheet === 'function') buildChordSheet();
+            }
+            // Only proceed if chord data is now available
+            if (window._chordSheetData && window._chordSheetData[curSec]) {
+              buildChordToast(curSec);
+              var initRole = '';
+              try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+              var initTip = getRoleSectionTip(curSec, initRole);
+              var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
+              if (initTip) initHtml += '<div class="toast-tip">' + initTip + '</div>';
+              initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+              initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
+              t.innerHTML = initHtml;
+              t.classList.add('show');
+              _chordToastVisible = true;
+              updateChordHighlight(0);
+            }
           }
         }
       }
