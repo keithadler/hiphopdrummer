@@ -423,6 +423,45 @@ function analyzeBeat() {
   lines.push('<b>Tempo of melodic parts:</b> A pad that changes every 4 bars feels slow and hypnotic. A sample chop every bar feels medium. A stab on every beat feels fast. Mix these — a slow pad under a fast stab creates depth.');
   lines.push('<b>The one-chord trick:</b> Some of the greatest hip hop beats never leave the I chord. If your ' + root + ' loop is right, you don\'t need to go anywhere. Movement is a choice, not a requirement.');
 
+  // === SAMPLE HUNTING GUIDE ===
+  lines.push('');
+  lines.push('🔍 <b>SAMPLE HUNTING GUIDE</b>');
+  lines.push('Looking for samples on Splice, Tracklib, or in your crate? Here\'s exactly what to search for to match this beat.');
+  lines.push('');
+  lines.push('<b>Key to search:</b> <b>' + chosenKey.root.replace(/maj7|m7|7|m$/g, '') + ' ' + (isMinor ? 'minor' : 'major') + '</b> — filter by this key on Splice or Tracklib. Samples in the relative ' + (isMinor ? 'major' : 'minor') + ' (<b>' + chosenKey.rel + '</b>) also work — same notes, different mood.');
+  lines.push('<b>BPM to search:</b> <b>' + bpm + ' BPM</b> (or half-time: ' + Math.round(bpm / 2) + ' BPM, double-time: ' + (bpm * 2) + ' BPM). Most sample platforms let you filter by tempo.');
+  lines.push('');
+
+  // Style-specific sample suggestions
+  var sampleTips = {
+    normal: 'Search for: <b>soul, jazz, funk</b> samples. Piano chords, horn stabs, string loops, vocal chops. The golden era sound comes from 60s-70s soul and jazz records — think Al Green, Roy Ayers, Ahmad Jamal. On Tracklib, filter by soul/jazz from 1968-1978.',
+    hard: 'Search for: <b>dark piano, orchestral hits, horror strings</b>. Minor key stabs, aggressive brass, distorted loops. Mobb Deep sampled dark jazz and film scores. On Splice, try "dark piano loop" or "cinematic strings."',
+    jazzy: 'Search for: <b>jazz piano, Rhodes, vibraphone, upright bass, brushed drums</b>. Blue Note-era jazz is the source — Herbie Hancock, Horace Silver, Art Blakey. On Tracklib, filter by jazz from 1955-1970. On Splice, search "jazz Rhodes" or "vibraphone loop."',
+    dark: 'Search for: <b>dark ambient, horror soundtrack, minor key piano, eerie strings</b>. RZA sampled kung fu movies and dark soul. On Splice, try "dark ambient pad" or "horror piano." Detuned and lo-fi textures work well.',
+    bounce: 'Search for: <b>soul, disco, R&B</b> samples. Bright, catchy, hook-friendly. Bad Boy era sampled Diana Ross, Mtume, DeBarge. On Tracklib, filter by disco/R&B from 1978-1985. On Splice, search "soul vocal chop" or "disco strings."',
+    dilla: 'Search for: <b>neo-soul, Brazilian, broken beat</b> samples. Warm Rhodes, Wurlitzer, Fender bass, soft vocals. Dilla sampled Slum Village sessions, Brazilian bossa nova, and obscure soul. On Splice, search "neo-soul Rhodes" or "lo-fi keys." Detune slightly for that warped feel.',
+    lofi: 'Search for: <b>dusty vinyl, lo-fi piano, jazz guitar, ambient pads</b>. The more degraded the better — tape hiss, vinyl crackle, bit-crushed textures. On Splice, filter by "lo-fi" or "vintage." On Tracklib, look for obscure 70s easy listening and library music.',
+    chopbreak: 'Search for: <b>funk breaks, soul loops, horn stabs, wah guitar</b>. The source material is 70s funk — James Brown, The Meters, Skull Snaps. On Tracklib, filter by funk from 1969-1976. On Splice, search "funk break" or "soul horn stab."',
+    gfunk: 'Search for: <b>P-Funk, synth bass, talk box, smooth pads</b>. Parliament, Zapp & Roger, Roger Troutman. On Splice, search "G-Funk synth" or "talk box." On Tracklib, filter by funk from 1975-1983. Moog bass and portamento synths are the signature sound.',
+    crunk: 'Search for: <b>synth stabs, horn hits, chant vocals, 808 kits</b>. Crunk uses simple, aggressive sounds — not samples from records. On Splice, search "crunk horn" or "trap brass." Short, punchy, maximum impact.',
+    memphis: 'Search for: <b>horror soundtrack, dark soul, eerie vocal samples, lo-fi synth</b>. Three 6 Mafia sampled horror movies, Isaac Hayes, and obscure Memphis soul. On Tracklib, filter by soul from Memphis labels (Hi Records, Stax). On Splice, search "dark Memphis" or "horror vocal."',
+    griselda: 'Search for: <b>soul, jazz, film score, vinyl texture</b>. Daringer samples obscure soul and jazz with heavy vinyl noise. On Tracklib, filter by soul/jazz from 1965-1975. On Splice, search "vintage soul loop" or "dusty piano." The grittier the source, the better.',
+    phonk: 'Search for: <b>Memphis rap vocals, cowbell, distorted 808, dark synth</b>. Phonk resamples 90s Memphis rap itself — Three 6 Mafia vocals, DJ Paul ad-libs. On Splice, search "phonk vocal" or "cowbell loop." Heavy distortion and lo-fi processing.',
+    nujabes: 'Search for: <b>jazz piano, acoustic guitar, strings, soft vocals</b>. Nujabes sampled Japanese jazz, Brazilian bossa nova, and European film scores. On Tracklib, filter by jazz from 1960-1975. On Splice, search "jazz hop piano" or "acoustic guitar loop." Warm, melodic, beautiful.',
+    oldschool: 'Search for: <b>funk breaks, electro, early hip hop vocals</b>. The source is 70s-80s funk and early electro — Kraftwerk, Afrika Bambaataa, Grandmaster Flash. On Tracklib, filter by electro/funk from 1980-1986. On Splice, search "old school break" or "electro funk."',
+    halftime: 'Search for: <b>dark jazz, minor key piano, atmospheric pads</b>. Halftime beats need weight — heavy, slow samples. On Splice, search "dark jazz piano" or "atmospheric pad." Film score samples work well at this tempo.',
+    sparse: 'Search for: <b>ambient, minimal, single instrument loops</b>. Less is more — one piano note, one guitar phrase, one vocal sample. The space in the drums needs space in the melody. On Splice, search "minimal piano" or "ambient texture."',
+    driving: 'Search for: <b>funk guitar, bass riffs, horn loops</b>. Driving beats need forward-moving samples. On Tracklib, filter by funk from 1972-1980. On Splice, search "funk guitar loop" or "bass riff."',
+    big: 'Search for: <b>orchestral, choir, anthem pads, soul vocals</b>. Big beats need big sounds — strings, brass sections, gospel choirs. On Splice, search "orchestral hit" or "gospel choir." On Tracklib, look for 70s soul with full arrangements.'
+  };
+  var sampleTip = sampleTips[songFeelBase] || sampleTips.normal;
+  lines.push(sampleTip);
+  lines.push('');
+  lines.push('<b>Pro tip:</b> When searching Splice or Tracklib, always filter by key (<b>' + chosenKey.root.replace(/maj7|m7|7|m$/g, '') + '</b>) first, then by BPM range (<b>' + Math.max(60, bpm - 10) + '–' + Math.min(140, bpm + 10) + '</b>). A sample that\'s in key and close to tempo needs minimal processing — just chop and drop.');
+  if (isMinor) {
+    lines.push('<b>Key trick:</b> Samples in <b>' + chosenKey.rel + '</b> (the relative major) use the exact same notes as ' + chosenKey.root + ' — they\'ll fit perfectly but sound brighter. Try both when searching.');
+  }
+
 
   // === SONG ELEMENTS ===
   lines.push('');
