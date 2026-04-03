@@ -618,10 +618,46 @@ function buildChordSheet() {
   var SEMI = { 'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11 };
   var NAMES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   var NAMES_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-  // Use flats if the key root contains a flat, or is in a flat key (F, Bb, Eb, Ab, Db, Gb, Gm, Cm, Fm, Bbm, Ebm)
+  
+  // Get user role to determine sharp/flat preference
+  var userRole = '';
+  try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+  var isGuitaristOrBassist = (userRole === 'guitarist' || userRole === 'bassist');
+  
+  // Circle of fifths: keys with flats in their signature
+  // Major keys with flats: F(1♭), Bb(2♭), Eb(3♭), Ab(4♭), Db(5♭), Gb(6♭), Cb(7♭)
+  // Minor keys with flats: Dm(1♭), Gm(2♭), Cm(3♭), Fm(4♭), Bbm(5♭), Ebm(6♭), Abm(7♭)
   var keyRoot = key.root || '';
-  var useFlats = /b/.test(keyRoot) || /^[FCGA]$/.test(keyRoot.replace(/m.*/, '')) || /^(Gm|Cm|Fm|Dm|Bbm|Ebm|Abm)/.test(key.i || '');
+  var keySignature = key.i || '';
+  var flatKeys = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm', 'Abm'];
+  var keyHasFlats = flatKeys.indexOf(keySignature) >= 0 || /b/.test(keyRoot);
+  
+  // For guitarists/bassists: use sharps unless the key signature contains flats
+  // For other roles: use flats if key root contains flat or is a flat key
+  var useFlats;
+  if (isGuitaristOrBassist) {
+    useFlats = keyHasFlats; // Only use flats if the key signature naturally has them
+  } else {
+    useFlats = /b/.test(keyRoot) || /^[FCGA]$/.test(keyRoot.replace(/m.*/, '')) || /^(Gm|Cm|Fm|Dm|Bbm|Ebm|Abm)/.test(keySignature);
+  }
+  
   var NOTE_NAMES = useFlats ? NAMES_FLAT : NAMES_SHARP;
+  
+  // Convert chord name to use the correct accidentals (sharp or flat)
+  function normalizeChordName(chordName) {
+    var rootMatch = chordName.match(/^([A-G][#b]?)/);
+    if (!rootMatch) return chordName;
+    var root = rootMatch[1];
+    var quality = chordName.substring(root.length);
+    
+    // Get the semitone value
+    var semi = SEMI[root];
+    if (semi === undefined) return chordName;
+    
+    // Convert to the correct notation
+    var newRoot = NOTE_NAMES[semi];
+    return newRoot + quality;
+  }
 
   function chordRootSemi(chord) {
     var m = chord.match(/^([A-G][#b]?)/);
@@ -870,6 +906,8 @@ function buildChordSheet() {
     }
     // Store per-bar chord data for the playback overlay (include piano HTML)
     for (var ac = 0; ac < allChords.length; ac++) {
+      // Normalize chord name to use correct accidentals (sharp/flat) based on role
+      allChords[ac].name = normalizeChordName(allChords[ac].name);
       allChords[ac].pianoHtml = renderPiano(allChords[ac].name);
     }
     window._chordSheetData[sec] = allChords;
