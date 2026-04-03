@@ -143,8 +143,11 @@ function renderGrid() {
   }
 
   // IntersectionObserver: highlight the bar tab matching the bar currently in view
+  // Disabled during playback — playback tracking controls bar tabs instead
   if (window.IntersectionObserver && totalPages > 1) {
     var barObserver = new IntersectionObserver(function(entries) {
+      // Skip if playback is controlling bar tabs
+      if (window._playbackControlsBarTabs) return;
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
           var barIdx = entry.target.id.replace('grid-page-', '');
