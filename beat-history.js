@@ -45,15 +45,27 @@ function captureBeatState() {
     arrangement: arrangement.slice(),
     secSteps: JSON.parse(JSON.stringify(secSteps)),
     secFeels: JSON.parse(JSON.stringify(secFeels)),
+    // Kick patterns
     baseKick: typeof baseKick !== 'undefined' ? baseKick : null,
     baseKickB: typeof baseKickB !== 'undefined' ? baseKickB : null,
     baseKickChorus: typeof baseKickChorus !== 'undefined' ? baseKickChorus : null,
+    baseKickChorusB: typeof baseKickChorusB !== 'undefined' ? baseKickChorusB : null,
     baseKickV2: typeof baseKickV2 !== 'undefined' ? baseKickV2 : null,
+    baseKickV2B: typeof baseKickV2B !== 'undefined' ? baseKickV2B : null,
+    // Snare ghost patterns
     baseSnareGhostA: typeof baseSnareGhostA !== 'undefined' ? baseSnareGhostA : null,
     baseSnareGhostB: typeof baseSnareGhostB !== 'undefined' ? baseSnareGhostB : null,
+    baseSnareGhostV2A: typeof baseSnareGhostV2A !== 'undefined' ? baseSnareGhostV2A : null,
+    baseSnareGhostV2B: typeof baseSnareGhostV2B !== 'undefined' ? baseSnareGhostV2B : null,
+    baseSnareGhostChorusA: typeof baseSnareGhostChorusA !== 'undefined' ? baseSnareGhostChorusA : null,
+    baseSnareGhostChorusB: typeof baseSnareGhostChorusB !== 'undefined' ? baseSnareGhostChorusB : null,
+    // Hat and ride settings
     hatPatternType: typeof hatPatternType !== 'undefined' ? hatPatternType : null,
-    ghostDensity: typeof ghostDensity !== 'undefined' ? ghostDensity : 1,
     useRide: typeof useRide !== 'undefined' ? useRide : false,
+    // Ghost density and player profile
+    ghostDensity: typeof ghostDensity !== 'undefined' ? ghostDensity : 1,
+    activePlayerProfile: typeof activePlayerProfile !== 'undefined' ? activePlayerProfile : null,
+    // Chord progressions and key data
     _lastChosenKey: typeof _lastChosenKey !== 'undefined' ? JSON.parse(JSON.stringify(_lastChosenKey)) : null,
     _sectionProgressions: typeof _sectionProgressions !== 'undefined' ? JSON.parse(JSON.stringify(_sectionProgressions)) : null
   };
@@ -82,15 +94,31 @@ function restoreBeatState(beatData) {
   secSteps = JSON.parse(JSON.stringify(beatData.secSteps));
   secFeels = JSON.parse(JSON.stringify(beatData.secFeels));
   
+  // Restore kick patterns
   if (beatData.baseKick !== null) baseKick = beatData.baseKick;
   if (beatData.baseKickB !== null) baseKickB = beatData.baseKickB;
   if (beatData.baseKickChorus !== null) baseKickChorus = beatData.baseKickChorus;
+  if (beatData.baseKickChorusB !== null && typeof baseKickChorusB !== 'undefined') baseKickChorusB = beatData.baseKickChorusB;
   if (beatData.baseKickV2 !== null) baseKickV2 = beatData.baseKickV2;
+  if (beatData.baseKickV2B !== null && typeof baseKickV2B !== 'undefined') baseKickV2B = beatData.baseKickV2B;
+  
+  // Restore snare ghost patterns
   if (beatData.baseSnareGhostA !== null) baseSnareGhostA = beatData.baseSnareGhostA;
   if (beatData.baseSnareGhostB !== null) baseSnareGhostB = beatData.baseSnareGhostB;
+  if (beatData.baseSnareGhostV2A !== null && typeof baseSnareGhostV2A !== 'undefined') baseSnareGhostV2A = beatData.baseSnareGhostV2A;
+  if (beatData.baseSnareGhostV2B !== null && typeof baseSnareGhostV2B !== 'undefined') baseSnareGhostV2B = beatData.baseSnareGhostV2B;
+  if (beatData.baseSnareGhostChorusA !== null && typeof baseSnareGhostChorusA !== 'undefined') baseSnareGhostChorusA = beatData.baseSnareGhostChorusA;
+  if (beatData.baseSnareGhostChorusB !== null && typeof baseSnareGhostChorusB !== 'undefined') baseSnareGhostChorusB = beatData.baseSnareGhostChorusB;
+  
+  // Restore hat and ride settings
   if (beatData.hatPatternType !== null) hatPatternType = beatData.hatPatternType;
-  if (beatData.ghostDensity !== null) ghostDensity = beatData.ghostDensity;
   if (beatData.useRide !== null) useRide = beatData.useRide;
+  
+  // Restore ghost density and player profile
+  if (beatData.ghostDensity !== null) ghostDensity = beatData.ghostDensity;
+  if (beatData.activePlayerProfile !== null && typeof activePlayerProfile !== 'undefined') activePlayerProfile = beatData.activePlayerProfile;
+  
+  // Restore chord progressions and key data
   if (beatData._lastChosenKey !== null) _lastChosenKey = JSON.parse(JSON.stringify(beatData._lastChosenKey));
   if (beatData._sectionProgressions !== null) _sectionProgressions = JSON.parse(JSON.stringify(beatData._sectionProgressions));
   
