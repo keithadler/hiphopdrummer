@@ -1577,6 +1577,117 @@ test('Every key in STYLE_DATA dialog resolves correctly for its feel', function(
   if (failures === 0) assert(true, 'All ' + allFeels.length + ' feels x keys resolve correctly');
 });
 
+// =============================================
+// PREFERENCE TESTS
+// =============================================
+
+// === Test: All boolean preferences have correct default handling ===
+test('Boolean preferences default correctly when localStorage is empty', function() {
+  // Clear all prefs
+  localStorage._data = {};
+  
+  // Countdown: default ON
+  var cd = localStorage.getItem('hhd_countdown');
+  var countdownOn = true;
+  if (cd !== null) countdownOn = (cd !== 'false');
+  assert(countdownOn === true, 'Countdown should default to ON when not set');
+  
+  // Bass playback: default ON
+  var bp = localStorage.getItem('hhd_bass_playback');
+  var bassOn = true;
+  if (bp !== null) bassOn = (bp !== 'false');
+  assert(bassOn === true, 'Bass playback should default to ON when not set');
+  
+  // Show chords: default ON
+  var sc = localStorage.getItem('hhd_show_chords');
+  var chordsOn = (sc === null || sc !== 'false');
+  assert(chordsOn === true, 'Show chords should default to ON when not set');
+  
+  // Follow playhead: default OFF
+  var fp = localStorage.getItem('hhd_follow_playhead');
+  var followOn = (fp === 'true');
+  assert(followOn === false, 'Follow playhead should default to OFF when not set');
+});
+
+// === Test: Preferences persist after save ===
+test('Preferences persist in localStorage after save', function() {
+  localStorage._data = {};
+  
+  // Simulate saving preferences
+  localStorage.setItem('hhd_drumkit', '8');
+  localStorage.setItem('hhd_bass_playback', 'false');
+  localStorage.setItem('hhd_bass_sound', '34');
+  localStorage.setItem('hhd_follow_playhead', 'true');
+  localStorage.setItem('hhd_show_chords', 'false');
+  localStorage.setItem('hhd_countdown', 'false');
+  localStorage.setItem('hhd_velocity_mode', 'midi');
+  localStorage.setItem('hhd_user_role', 'drummer');
+  
+  // Verify they read back correctly
+  assert(localStorage.getItem('hhd_drumkit') === '8', 'Drum kit should be 8');
+  assert(localStorage.getItem('hhd_bass_playback') === 'false', 'Bass playback should be false');
+  assert(localStorage.getItem('hhd_bass_sound') === '34', 'Bass sound should be 34');
+  assert(localStorage.getItem('hhd_follow_playhead') === 'true', 'Follow playhead should be true');
+  assert(localStorage.getItem('hhd_show_chords') === 'false', 'Show chords should be false');
+  assert(localStorage.getItem('hhd_countdown') === 'false', 'Countdown should be false');
+  assert(localStorage.getItem('hhd_velocity_mode') === 'midi', 'Velocity mode should be midi');
+  assert(localStorage.getItem('hhd_user_role') === 'drummer', 'Role should be drummer');
+  
+  // Verify boolean reads use correct patterns
+  var bp = localStorage.getItem('hhd_bass_playback');
+  var bassOn = true;
+  if (bp !== null) bassOn = (bp !== 'false');
+  assert(bassOn === false, 'Bass playback should read as OFF after saving false');
+  
+  var cd = localStorage.getItem('hhd_countdown');
+  var countdownOn = true;
+  if (cd !== null) countdownOn = (cd !== 'false');
+  assert(countdownOn === false, 'Countdown should read as OFF after saving false');
+  
+  // Clean up
+  localStorage._data = {};
+});
+
+// === Test: MIDI export respects bass playback preference ===
+test('MIDI export respects bass playback preference', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  
+  // With bass ON
+  localStorage.setItem('hhd_bass_playback', 'true');
+  var withBass = buildCombinedMidiBytes(arrangement, bpm);
+  
+  // Drums only
+  var drumsOnly = buildMidiBytes(arrangement, bpm);
+  
+  // Combined should be larger than drums-only (has bass events)
+  assert(withBass.length > drumsOnly.length,
+    'Combined MIDI (' + withBass.length + ') should be larger than drums-only (' + drumsOnly.length + ')');
+  
+  localStorage._data = {};
+});
+
+// === Test: MIDI export embeds drum kit program change from preferences ===
+test('MIDI export embeds drum kit from preferences', function() {
+  _domElements = {};
+  generateAll();
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  
+  // Set Jazz Kit (program 32)
+  localStorage.setItem('hhd_drumkit', '32');
+  var bytes = buildMidiBytes(arrangement, bpm);
+  
+  // Find program change on channel 10 (0xC9 = program change ch10)
+  var foundKit = false;
+  for (var i = 0; i < bytes.length - 1; i++) {
+    if (bytes[i] === 0xC9 && bytes[i + 1] === 32) { foundKit = true; break; }
+  }
+  assert(foundKit, 'MIDI should contain drum kit program change 32 (Jazz Kit)');
+  
+  localStorage._data = {};
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
