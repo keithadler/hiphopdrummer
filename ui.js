@@ -1091,6 +1091,13 @@ function explainCell(instrument, step, velocity) {
   else if (instrument === 'crash') {
     lines += 'Crash cymbal — marks a section boundary. Tells the listener "something new is starting." Placed on beat 1 of the first bar of a new section.';
   }
+  else if (instrument === 'shaker') {
+    if (pos % 4 === 2) lines += 'Shaker on the "and" — upbeat shimmer above the hi-hat. Sampled from soul records by producers like Pete Rock, Large Professor, and Buckwild. The shaker should be felt, not heard — keep it under 55%.';
+    else if (pos % 2 === 1) lines += 'Shaker on a 16th-note position at ' + pct + '% — the softest layer of high-frequency texture. Adds organic movement without competing with the hat.';
+    else lines += 'Shaker at ' + pct + '% — high-frequency shimmer layered above the hi-hat. The "secret ingredient" in a lot of golden era boom bap. If you can clearly hear it as a separate element, it\'s too loud.';
+    if (pct <= 35) lines += ' This hit is barely audible — it\'s texture, not rhythm. Your ear registers it as "warmth" rather than a distinct sound.';
+    else if (pct >= 55) lines += ' This is on the louder side for a shaker — it\'s adding rhythmic energy, not just texture.';
+  }
 
   return lines;
 }
