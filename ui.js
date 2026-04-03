@@ -936,19 +936,15 @@ function buildChordSheet() {
 (function() {
   var toggleEl = document.getElementById('aboutToggle');
   if (!toggleEl) return;
+  var detailEl = document.getElementById('aboutBeat');
+  if (!detailEl) return;
+  // Default to visible (analysis fills the panel)
+  var isHidden = false;
   toggleEl.onclick = function() {
-    var detailEl = document.getElementById('aboutBeat');
-    if (!detailEl) return;
-    var isExpanded = detailEl.classList.contains('expanded');
-    if (isExpanded) {
-      detailEl.classList.remove('expanded');
-      toggleEl.textContent = 'Show full analysis';
-      toggleEl.setAttribute('aria-expanded', 'false');
-    } else {
-      detailEl.classList.add('expanded');
-      toggleEl.textContent = 'Hide full analysis';
-      toggleEl.setAttribute('aria-expanded', 'true');
-    }
+    isHidden = !isHidden;
+    detailEl.style.display = isHidden ? 'none' : '';
+    toggleEl.textContent = isHidden ? 'Show full analysis' : 'Hide full analysis';
+    toggleEl.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
   };
 })();
 
