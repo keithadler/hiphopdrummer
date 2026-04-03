@@ -12,21 +12,22 @@ var MAX_HISTORY_SLOTS = 25;
 
 /**
  * Save current beat to history.
- * If slots are full, shows a dialog to choose which slot to replace.
+ * Automatically keeps the last 25 beats, dropping the oldest when full.
  */
 function saveBeatToHistory(callback) {
   var beatData = captureBeatState();
   var history = loadBeatHistory();
   
-  if (history.length < MAX_HISTORY_SLOTS) {
-    // Slots available - auto-save
-    history.unshift(beatData);
-    saveBeatHistory(history);
-    if (callback) callback();
-  } else {
-    // Slots full - show replacement dialog
-    showSlotReplacementDialog(beatData, callback);
+  // Add new beat to the front
+  history.unshift(beatData);
+  
+  // Trim to max capacity (keep only the most recent 25)
+  if (history.length > MAX_HISTORY_SLOTS) {
+    history = history.slice(0, MAX_HISTORY_SLOTS);
   }
+  
+  saveBeatHistory(history);
+  if (callback) callback();
 }
 
 /**
