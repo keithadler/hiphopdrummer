@@ -863,7 +863,7 @@ function buildChordSheet() {
     // Check if user role wants guitar chords instead of piano
     var chordSheetRole = '';
     try { chordSheetRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-    var useGuitar = (chordSheetRole === 'guitarist' || chordSheetRole === 'bassist') && (typeof renderGuitarChord === 'function');
+    var useGuitar = false; // Guitar chord diagrams temporarily disabled — needs verified chord data
 
     html += '<div class="chord-sheet-row">';
     html += '<div class="chord-sheet-section">' + (SL[sec] || sec) + '</div>';
