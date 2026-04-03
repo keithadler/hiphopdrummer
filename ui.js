@@ -215,9 +215,13 @@ function renderGrid() {
  */
 function calcArrTime() {
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
   var totalSteps = 0;
   arrangement.forEach(function(s) { totalSteps += secSteps[s] || 32; });
   var totalSec = totalSteps * (60 / bpm / 4);
+  // Swing delays every other 16th note — adds ~1-3% to total duration
+  var swingPct = (swing - 50) / 50; // 0 = straight, 0.4 = heavy
+  totalSec *= (1 + swingPct * 0.03);
   var min = Math.floor(totalSec / 60), sec = Math.floor(totalSec % 60);
   return min + ':' + (sec < 10 ? '0' : '') + sec;
 }
@@ -246,13 +250,9 @@ function _selectArrItem(idx) {
     for (var si = 0; si < arrIdx; si++) {
       t += (secSteps[arrangement[si]] || 32) * secPerStep;
     }
-    // If already playing, just seek. If stopped, start and seek.
+    // Only seek if already playing — don't auto-start playback on section click
     if (window.synthBridge.isPlaying) {
       window.synthBridge.seek(t);
-    } else {
-      window.synthBridge.play(window._currentMidiBytes);
-      // Small delay to let playback initialize before seeking
-      setTimeout(function() { window.synthBridge.seek(t); }, 100);
     }
   }
 }
