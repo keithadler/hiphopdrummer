@@ -670,6 +670,22 @@ function initPlaybackTracking() {
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
         try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc === null || sc !== 'false'); } catch(e) { _showChordsOverlay = true; }
         _touchPauseFollow = false;
+        // Immediately show the first section's overlay (don't wait for onTimeUpdate)
+        if (_showChordsOverlay && arrangement.length > 0) {
+          lastTrackedSection = 0;
+          arrIdx = 0;
+          curSec = arrangement[0];
+          var secName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
+          var barCt = Math.ceil((secSteps[curSec] || 32) / 16);
+          var t = document.getElementById('sectionToast');
+          if (t) {
+            buildChordToast(curSec);
+            t.innerHTML = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div><div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+            t.classList.add('show');
+            _chordToastVisible = true;
+            updateChordHighlight(0);
+          }
+        }
       }
     };
 
