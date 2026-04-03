@@ -84,13 +84,14 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:10px}
 .panel-title{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.top-row{display:grid;grid-template-columns:2fr 3fr;gap:10px;margin-bottom:10px}
+.top-row{display:grid;grid-template-columns:2fr 3fr;gap:10px;margin-bottom:10px;align-items:start}
 .top-left{display:flex;flex-direction:column;gap:10px}
 .top-left .panel{margin-bottom:0}
 .top-left .panel:last-child{display:flex;flex-direction:column}
-.top-right-wrap{position:relative}
-#aboutBeatPanel{margin-bottom:0;display:flex;flex-direction:column;position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden}
+.top-right-wrap{display:flex;flex-direction:column}
+#aboutBeatPanel{margin-bottom:0;display:flex;flex-direction:column;max-height:80vh;overflow:hidden}
 #aboutBeatPanel .panel-title{flex-shrink:0}
+#aboutSummary{flex-shrink:0}
 midi-player{--primary-color:var(--accent-red);--background:var(--bg-surface);--foreground:var(--text-primary);--accent-color:var(--accent-blue);display:block;width:100%}
 midi-player::part(control-panel){background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px}
 midi-player::part(play-button){color:var(--accent-green)}
@@ -116,10 +117,6 @@ midi-player::part(play-button){color:var(--accent-green)}
 .about-stat-value .accent-blue{color:var(--accent-blue)}
 .about-stat-value .accent-red{color:var(--accent-red)}
 .about-stat-value .accent-green{color:var(--accent-green)}
-.about-toggle{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:var(--mono);font-size:11px;cursor:pointer;padding:5px 10px;border-radius:var(--radius-sm);letter-spacing:.5px;transition:all .15s;width:100%;text-align:center;margin-bottom:6px}
-.about-toggle:hover{color:var(--accent-blue);border-color:rgba(80,160,255,.3)}
-.about-toggle:focus{outline:2px solid var(--accent-blue);outline-offset:1px}
-.about-toggle:focus:not(:focus-visible){outline:none}
 
 /* ── Chord Sheet ── */
 .chord-sheet{font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
@@ -149,7 +146,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .chord-sheet-hint{font-size:10px;color:var(--text-dim);line-height:1.3;margin-top:4px}
 .arr-time{font-family:var(--mono);font-size:16px;color:var(--accent-blue);font-weight:600}
 .arr-hint{font-family:var(--mono);font-size:18px;color:var(--text-dim);margin-bottom:8px;line-height:1.5}
-.arr-flow{display:flex;flex-wrap:wrap;gap:5px;min-height:120px;padding:6px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-deep);margin-bottom:8px;align-items:flex-start}
+.arr-flow{display:flex;flex-wrap:wrap;gap:5px;min-height:180px;padding:6px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-deep);margin-bottom:8px;align-items:flex-start}
 .arr-item{background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border);padding:5px 12px;border-radius:var(--radius-sm);cursor:grab;font-family:var(--mono);font-size:15px;font-weight:600;user-select:none;display:flex;align-items:center;gap:8px;transition:all .12s ease;letter-spacing:.3px}
 .arr-item:hover{border-color:var(--border-light);background:var(--border)}
 .arr-item:active{cursor:grabbing}
@@ -253,7 +250,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .header-bar{position:sticky;top:0;z-index:100;flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
-  #aboutBeatPanel{position:static;max-height:none}
+  #aboutBeatPanel{max-height:none}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
   .controls-bar{flex-wrap:wrap;gap:6px}
@@ -364,7 +361,6 @@ midi-player::part(play-button){color:var(--accent-green)}
   .about-stat-label{font-size:9px}
   .about-stat-value{font-size:12px}
   .about-stat-hint{font-size:9px}
-  .about-toggle{font-size:10px;padding:4px 8px}
   .chord-sheet-section{font-size:9px}
   .chord-bar{padding:6px;min-width:70px;max-width:140px}
   .chord-bar-name{font-size:15px}
@@ -374,8 +370,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .chord-piano-black{width:8px;height:22px}
   .chord-sheet-notes{font-size:9px}
   .chord-sheet-hint{font-size:8px}
-  #aboutBeat{display:none}
-  #aboutToggle{display:block}
+  #aboutBeat{font-size:12px;line-height:1.5}
   .about-arrow{font-size:14px}
 
   /* Bar tabs */
