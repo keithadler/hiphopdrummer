@@ -289,7 +289,9 @@ function renderArr(skipMidiUpdate) {
     var timeStr = secMin > 0 ? secMin + ':' + (secSec < 10 ? '0' : '') + secSec : secSec + 's';
     var feelTag = secFeels[s] ? '<span class="feel-tag">' + (STYLE_DATA[secFeels[s]] ? STYLE_DATA[secFeels[s]].label : secFeels[s]) + '</span>' : '';
     return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + '" draggable="true" data-i="' + i + '" tabindex="0" role="button" aria-label="' + SL[s] + ', ' + bars + ' bars. Arrow keys to reorder, Enter to select, Delete to remove.">'
+      + '<span class="arr-move" data-dir="left" data-i="' + i + '"' + (i === 0 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move left">◀</span>'
       + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>'
+      + '<span class="arr-move" data-dir="right" data-i="' + i + '"' + (i === arrangement.length - 1 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move right">▶</span>'
       + '<span class="rm" data-i="' + i + '" title="Remove" role="button" tabindex="0" aria-label="Remove ' + SL[s] + '">&times;</span></div>';
   }).join('');
 
@@ -324,10 +326,28 @@ function renderArr(skipMidiUpdate) {
       arrangement.splice(toIdx, 0, item);
       renderArr();
     };
-    /** Click: select this section (or remove it if × was clicked) */
+    /** Click: select this section (or remove/move it if button was clicked) */
     el.onclick = function(e) {
       if (e.target.classList.contains('rm')) {
         arrangement.splice(parseInt(e.target.dataset.i), 1);
+        if (arrIdx >= arrangement.length) arrIdx = Math.max(0, arrangement.length - 1);
+        renderArr();
+        return;
+      }
+      if (e.target.classList.contains('arr-move')) {
+        var idx = parseInt(e.target.dataset.i);
+        var dir = e.target.dataset.dir;
+        if (dir === 'left' && idx > 0) {
+          var item = arrangement.splice(idx, 1)[0];
+          arrangement.splice(idx - 1, 0, item);
+          if (arrIdx === idx) arrIdx = idx - 1;
+          else if (arrIdx === idx - 1) arrIdx = idx;
+        } else if (dir === 'right' && idx < arrangement.length - 1) {
+          var item = arrangement.splice(idx, 1)[0];
+          arrangement.splice(idx + 1, 0, item);
+          if (arrIdx === idx) arrIdx = idx + 1;
+          else if (arrIdx === idx + 1) arrIdx = idx;
+        }
         renderArr();
         return;
       }
@@ -351,6 +371,24 @@ function renderArr(skipMidiUpdate) {
         if (dt < 300 && dx < 15 && dy < 15) {
           if (e.target.classList.contains('rm')) {
             arrangement.splice(parseInt(e.target.dataset.i), 1);
+            if (arrIdx >= arrangement.length) arrIdx = Math.max(0, arrangement.length - 1);
+            renderArr();
+            return;
+          }
+          if (e.target.classList.contains('arr-move')) {
+            var idx = parseInt(e.target.dataset.i);
+            var dir = e.target.dataset.dir;
+            if (dir === 'left' && idx > 0) {
+              var item = arrangement.splice(idx, 1)[0];
+              arrangement.splice(idx - 1, 0, item);
+              if (arrIdx === idx) arrIdx = idx - 1;
+              else if (arrIdx === idx - 1) arrIdx = idx;
+            } else if (dir === 'right' && idx < arrangement.length - 1) {
+              var item = arrangement.splice(idx, 1)[0];
+              arrangement.splice(idx + 1, 0, item);
+              if (arrIdx === idx) arrIdx = idx + 1;
+              else if (arrIdx === idx + 1) arrIdx = idx;
+            }
             renderArr();
             return;
           }
