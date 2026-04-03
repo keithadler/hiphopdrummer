@@ -1,14 +1,14 @@
 // =============================================
 // Beat History — Auto-save slots with backup/restore
 //
-// Manages 10 auto-save slots that store complete beat state.
+// Manages 25 auto-save slots that store complete beat state.
 // When slots are full, user must choose which slot to replace.
 // Last beat auto-loads on page load.
 //
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-var MAX_HISTORY_SLOTS = 10;
+var MAX_HISTORY_SLOTS = 25;
 
 /**
  * Save current beat to history.
