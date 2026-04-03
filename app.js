@@ -539,11 +539,15 @@ function initPlaybackTracking() {
     };
     window.synthBridge.onPlayStateChange = function(playing) {
       if (_playerPlayBtn) _playerPlayBtn.textContent = playing ? '⏸' : '▶';
-      if (!playing) clearCursor();
+      if (!playing) {
+        clearCursor();
+        window._playbackControlsBarTabs = false;
+      }
       if (playing) {
         lastTrackedSection = -1;
         lastHighlightedStep = -1;
         _lastActiveBar = -1;
+        window._playbackControlsBarTabs = true;
         buildSectionTimeMap();
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
