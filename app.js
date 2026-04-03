@@ -462,11 +462,10 @@ function initPlaybackTracking() {
    * Build chord list for a section and render the chord toast HTML.
    */
   function buildChordToast(sec) {
-    var chordToast = document.getElementById('chordToast');
-    if (!chordToast) return;
+    var toast = document.getElementById('sectionToast');
     _sectionChords = [];
     var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
-    if (!key || !key.i) { chordToast.innerHTML = ''; return; }
+    if (!key || !key.i) { if (toast) toast._chordHtml = ''; return; }
 
     var bars = Math.ceil((secSteps[sec] || 32) / 16);
     var isIntro = (sec === 'intro');
@@ -487,7 +486,6 @@ function initPlaybackTracking() {
       }
     }
 
-    // Group consecutive same chords but track bar ranges
     var groups = [];
     for (var c = 0; c < _sectionChords.length; c++) {
       if (groups.length > 0 && groups[groups.length - 1].name === _sectionChords[c].name) {
@@ -504,16 +502,13 @@ function initPlaybackTracking() {
       html += '<div class="chord-toast-item" data-start="' + groups[g].startBar + '" data-end="' + groups[g].endBar + '">';
       html += groups[g].name + '<span class="chord-fn">' + groups[g].fn + barLabel + '</span></div>';
     }
-    chordToast.innerHTML = html;
+    if (toast) toast._chordHtml = html;
   }
 
-  /**
-   * Highlight the active chord in the chord toast based on current bar.
-   */
   function updateChordHighlight(barIdx) {
-    var chordToast = document.getElementById('chordToast');
-    if (!chordToast) return;
-    var items = chordToast.querySelectorAll('.chord-toast-item');
+    var toast = document.getElementById('sectionToast');
+    if (!toast) return;
+    var items = toast.querySelectorAll('.chord-toast-item');
     for (var i = 0; i < items.length; i++) {
       var start = parseInt(items[i].dataset.start);
       var end = parseInt(items[i].dataset.end);
@@ -581,27 +576,23 @@ function initPlaybackTracking() {
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
-      // Show section name toast with bar count
+      // Show combined section + chord overlay (persists until next section or stop)
       var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
       var barCount = Math.ceil((secSteps[curSec] || 32) / 16);
       var toast = document.getElementById('sectionToast');
       if (toast) {
-        toast.innerHTML = sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span>';
+        // Build chord list for this section
+        buildChordToast(curSec);
+        // Build combined HTML: section header + divider + chords
+        var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
+        toastHtml += '<div class="toast-divider"></div>';
+        toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
+        toast.innerHTML = toastHtml;
         toast.classList.add('show');
         if (toast._hideTimer) clearTimeout(toast._hideTimer);
-        // Build chord toast for this section
-        buildChordToast(curSec);
-        var chordToast = document.getElementById('chordToast');
-        if (chordToast) chordToast.classList.remove('show');
-        _chordToastVisible = false;
-        toast._hideTimer = setTimeout(function() {
-          toast.classList.remove('show');
-          // After section toast fades, show chord toast
-          if (chordToast) {
-            chordToast.classList.add('show');
-            _chordToastVisible = true;
-          }
-        }, 1200);
+        _chordToastVisible = true;
+        // Highlight first bar's chord immediately
+        updateChordHighlight(0);
       }
       renderGrid();
       renderArr(true);
@@ -658,8 +649,6 @@ function initPlaybackTracking() {
         window._playbackControlsBarTabs = false;
         var toast = document.getElementById('sectionToast');
         if (toast) toast.classList.remove('show');
-        var chordToast = document.getElementById('chordToast');
-        if (chordToast) chordToast.classList.remove('show');
         _chordToastVisible = false;
       }
       if (playing) {
