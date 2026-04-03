@@ -524,6 +524,15 @@ function initBeatHistoryHandlers() {
   // Only generate a new beat if there's no history (first time user)
   if (!historyLoaded) {
     generateAll();
+    // Save the initial beat to history after generation
+    setTimeout(function() {
+      if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+        var beatData = captureBeatState();
+        var history = loadBeatHistory();
+        history.unshift(beatData);
+        saveBeatHistory(history);
+      }
+    }, 100);
   }
   
   updateMidiPlayer();
