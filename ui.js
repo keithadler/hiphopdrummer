@@ -788,7 +788,9 @@ function buildChordSheet() {
 
   // Build section-by-section chord layout
   var rendered = {};
-  _lastVoicing = null; // reset voice leading for each generation
+  _lastVoicing = null;
+  // Store per-section per-bar chord data for the playback overlay
+  window._chordSheetData = {};
   for (var a = 0; a < arrangement.length; a++) {
     var sec = arrangement[a];
     if (rendered[sec]) continue;
@@ -817,6 +819,8 @@ function buildChordSheet() {
         else allChords.push({ name: voiceChord(key.i, feel), fn: 'I', cls: 'chord-root' });
       }
     }
+    // Store per-bar chord data for the playback overlay
+    window._chordSheetData[sec] = allChords;
     var chordGroups = [];
     for (var c = 0; c < allChords.length; c++) {
       if (chordGroups.length > 0 && chordGroups[chordGroups.length - 1].name === allChords[c].name) {
