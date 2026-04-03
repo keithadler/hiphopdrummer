@@ -523,10 +523,11 @@ function initBeatHistoryHandlers() {
 
 /**
  * IIFE boot sequence:
- *   1. Generate the first beat
- *   2. Build the MIDI player blob
- *   3. Hide loading overlay, show app
- *   4. Start playback tracking
+ *   1. Try to load last beat from history
+ *   2. If no history, generate the first beat
+ *   3. Build the MIDI player blob
+ *   4. Hide loading overlay, show app
+ *   5. Start playback tracking
  */
 (function() {
   // Try to load last beat from history
@@ -538,12 +539,14 @@ function initBeatHistoryHandlers() {
       if (typeof loadLastBeat === 'function') {
         loadLastBeat();
         historyLoaded = true;
+        console.log('Loaded beat from history:', history[0].songStyle, 'at', history[0].bpm, 'BPM in', history[0].songKey);
       }
     }
   }
   
   // Only generate a new beat if there's no history (first time user)
   if (!historyLoaded) {
+    console.log('No history found - generating initial beat');
     generateAll();
     // Save the initial beat to history after generation
     setTimeout(function() {
@@ -552,22 +555,27 @@ function initBeatHistoryHandlers() {
         var history = loadBeatHistory();
         history.unshift(beatData);
         saveBeatHistory(history);
+        console.log('Saved initial beat to history');
       }
     }, 100);
+    
+    // Update MIDI player and build UI components (only needed for new generation)
+    updateMidiPlayer();
+    if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+    if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+    if (typeof buildAboutSummary === 'function') buildAboutSummary();
+    if (typeof buildChordSheet === 'function') buildChordSheet();
   }
+  // If loaded from history, restoreBeatState() already did all the UI updates
   
-  updateMidiPlayer();
-  // Ensure About panel is fully built (collapsible sections + summary)
-  // Must run BEFORE buildChordSheet which appends to #aboutBeat
-  if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
-  if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
-  if (typeof buildAboutSummary === 'function') buildAboutSummary();
-  // Rebuild chord sheet after MIDI build so it picks up bass progressions
-  if (typeof buildChordSheet === 'function') buildChordSheet();
+  // Show the app
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
+  
+  // Initialize player controls and tracking
   initPlayerControls();
   initPlaybackTracking();
+  
   // Enable play button once synth bridge module is loaded, MIDI is built,
   // and a minimum 2-second delay has passed (ensures everything is settled)
   var _bootTime = Date.now();
@@ -583,8 +591,10 @@ function initBeatHistoryHandlers() {
       setTimeout(waitForReady, 100);
     }
   })();
+  
   // Initialize beat history handlers
   initBeatHistoryHandlers();
+  
   // Show welcome screen on first visit
   initWelcome();
 })();
