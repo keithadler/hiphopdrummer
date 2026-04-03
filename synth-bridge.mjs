@@ -220,6 +220,23 @@ function setBassProgram(program) {
   }
 }
 
+/**
+ * Play a single note on a given channel.
+ * Used for auditioning drum hits when clicking grid cells.
+ * @param {number} channel - MIDI channel (9 for drums, 0 for bass)
+ * @param {number} note - MIDI note number
+ * @param {number} velocity - Velocity 1-127
+ * @param {number} duration - Duration in milliseconds
+ */
+async function playNote(channel, note, velocity, duration) {
+  await initSynth();
+  if (audioContext && audioContext.state === "suspended") await audioContext.resume();
+  synth.noteOn(channel, note, velocity);
+  setTimeout(function() {
+    synth.noteOff(channel, note);
+  }, duration || 200);
+}
+
 // Expose to global scope for vanilla JS access
 window.synthBridge = {
   init: initSynth,
@@ -232,6 +249,7 @@ window.synthBridge = {
   renderToWav: renderToWav,
   setDrumKit: setDrumKit,
   setBassProgram: setBassProgram,
+  playNote: playNote,
   set onTimeUpdate(fn) { onTimeUpdate = fn; },
   set onPlayStateChange(fn) { onPlayStateChange = fn; },
   get isPlaying() { return isPlaying; }

@@ -1020,6 +1020,21 @@ function _showCellTooltip(cell) {
     var cell = e.target.closest('.cell');
     if (!cell) { hideTooltip(); return; }
     _showCellTooltip(cell);
+    // Play the drum sound when clicking a filled cell (only when not playing)
+    if (window.synthBridge && !window.synthBridge.isPlaying && cell.classList.contains('on')) {
+      // Determine instrument from cell classes
+      var row = null;
+      for (var ri = 0; ri < ROWS.length; ri++) {
+        if (cell.classList.contains(ROWS[ri])) { row = ROWS[ri]; break; }
+      }
+      if (row && MIDI_NOTE_MAP[row] !== undefined) {
+        var step = parseInt(cell.dataset.step);
+        var pat = patterns[curSec];
+        var vel = (pat && pat[row]) ? pat[row][step] : 80;
+        vel = Math.min(127, Math.max(1, vel || 80));
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], vel, 200);
+      }
+    }
   });
   gridR.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
