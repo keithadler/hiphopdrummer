@@ -999,8 +999,9 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.9)) { p.openhat[off + 14] = v(95, 8); p.hat[off + 14] = 0; if (off + 15 < STEPS) p.hat[off + 15] = 0; }
     return;
   }
-  // Open hat on &4 (step 14) — 75% chance (85% for bounce, 90% for big), the B-Boy signature
-  var oh4chance = (feel === 'big') ? .90 : (feel === 'bounce') ? .85 : .75;
+  // FIX #1: Open hat placement variation - not always step 14
+  // Primary: &4 (step 14) — 70% chance (80% for bounce, 85% for big)
+  var oh4chance = (feel === 'big') ? .85 : (feel === 'bounce') ? .80 : .70;
   if (maybe(oh4chance)) {
     p.openhat[off + 14] = v(85, 10);
     p.hat[off + 14] = 0;  // choke: open hat kills closed hat on same step
@@ -1015,15 +1016,16 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.7)) { p.openhat[off + 6] = v(82, 10); p.hat[off + 6] = 0; }
     return;
   }
-  // Sometimes on &2 (step 6) — 25% chance (higher for jazzy/bounce/dilla)
-  var oh2chance = (feel === 'big') ? .5 : (feel === 'bounce') ? .5 : (feel === 'jazzy') ? .4 : (feel === 'dilla') ? .5 : (feel === 'chopbreak') ? .35 : .25;
+  // FIX #1: &2 (step 6) — 20% chance (higher for jazzy/bounce/dilla)
+  var oh2chance = (feel === 'big') ? .4 : (feel === 'bounce') ? .4 : (feel === 'jazzy') ? .35 : (feel === 'dilla') ? .4 : .20;
   if (maybe(oh2chance)) {
     p.openhat[off + 6] = v(80, 10);
     p.hat[off + 6] = 0;
   }
-  // Dilla: extra open hat on &3 (step 10) for that loose, breathing feel
-  if (feel === 'dilla' && maybe(.3)) {
-    p.openhat[off + 10] = v(70, 12);
+  // FIX #1: &3 (step 10) — 10% chance (higher for dilla/jazzy)
+  var oh3chance = (feel === 'dilla') ? .25 : (feel === 'jazzy') ? .15 : .10;
+  if (maybe(oh3chance)) {
+    p.openhat[off + 10] = v(75, 12);
     p.hat[off + 10] = 0;
   }
 }
@@ -1139,22 +1141,41 @@ function writeClap(p, feel, off) {
   // A/B clap variation: bar B (offset 16) is slightly softer — models hand fatigue on repeat
   var isBarB = (off === 16);
   var clapVelBase = isBarB ? 96 : 100;
-  if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 4] = v(clapVelBase, 10);
-  if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 12] = v(clapVelBase, 10);
+  
+  // FIX #7: Loose styles (dilla, lofi, nujabes) offset clap from snare for double-clap effect
+  var isLooseStyle = (feel === 'dilla' || feel === 'lofi' || feel === 'nujabes');
+  var offsetClap = isLooseStyle && maybe(.30);
+  
+  if (offsetClap) {
+    // Offset clap by 1 step after snare for loose, double-clap feel
+    if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 5] = v(clapVelBase - 10, 12);
+    if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 13] = v(clapVelBase - 10, 12);
+  } else {
+    // Normal: clap layers with snare on backbeat
+    if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 4] = v(clapVelBase, 10);
+    if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 12] = v(clapVelBase, 10);
+  }
+  
   if (feel === 'hard') {
     // Mobb Deep/Onyx: louder claps
     if (p.clap[off + 4] > 0) p.clap[off + 4] = v(120, 5);
+    if (p.clap[off + 5] > 0) p.clap[off + 5] = v(115, 5);
     if (p.clap[off + 12] > 0) p.clap[off + 12] = v(120, 5);
+    if (p.clap[off + 13] > 0) p.clap[off + 13] = v(115, 5);
   }
   // Lo-fi: compress clap into narrow band
   if (feel === 'lofi') {
     if (p.clap[off + 4] > 0) p.clap[off + 4] = v(80, 6);
+    if (p.clap[off + 5] > 0) p.clap[off + 5] = v(75, 6);
     if (p.clap[off + 12] > 0) p.clap[off + 12] = v(84, 6);
+    if (p.clap[off + 13] > 0) p.clap[off + 13] = v(78, 6);
   }
   // Dilla: softer clap, wider dynamic range
   if (feel === 'dilla') {
     if (p.clap[off + 4] > 0) p.clap[off + 4] = v(90, 18);
+    if (p.clap[off + 5] > 0) p.clap[off + 5] = v(85, 18);
     if (p.clap[off + 12] > 0) p.clap[off + 12] = v(95, 18);
+    if (p.clap[off + 13] > 0) p.clap[off + 13] = v(88, 18);
   }
   // Crunk: maximum clap — Lil Jon "YEAHHH" energy
   if (feel === 'crunk') {
@@ -1170,6 +1191,13 @@ function writeClap(p, feel, off) {
   if (feel === 'memphis') {
     if (p.clap[off + 4] > 0) p.clap[off + 4] = v(105, 10);
     if (p.clap[off + 12] > 0) p.clap[off + 12] = v(110, 10);
+  }
+  // Nujabes: soft clap
+  if (feel === 'nujabes') {
+    if (p.clap[off + 4] > 0) p.clap[off + 4] = v(85, 15);
+    if (p.clap[off + 5] > 0) p.clap[off + 5] = v(78, 15);
+    if (p.clap[off + 12] > 0) p.clap[off + 12] = v(90, 15);
+    if (p.clap[off + 13] > 0) p.clap[off + 13] = v(82, 15);
   }
 }
 
@@ -1198,6 +1226,14 @@ function writeRimshot(p, feel, off) {
     if (maybe(.2 * ghostDensity)) { var rp = pick([3, 7, 11]); if (!p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(50, 8); }
     return;
   }
+  
+  // FIX #6: Jazzy/Nujabes styles use rimshot as backbeat reinforcement (Pete Rock signature)
+  if ((feel === 'jazzy' || feel === 'nujabes') && maybe(.25 * ghostDensity)) {
+    // Rimshot doubles the snare backbeat for that Pete Rock click
+    if (p.snare[off + 4] > 0) p.rimshot[off + 4] = v(55, 10);
+    if (p.snare[off + 12] > 0) p.rimshot[off + 12] = v(58, 10);
+  }
+  
   var positions = [1, 3, 5, 7, 9, 11, 13, 15];
   var chance = 0.12 * ghostDensity;
   if (feel === 'halftime') chance *= 0.5;

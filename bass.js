@@ -855,8 +855,9 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
     var ctx = stepCtx[s];
 
     // ── Snare deference: drop or soften bass on loud backbeats ──
-    if (ctx.hasSnare && !evt.dead && maybe(0.25)) {
-      // 25% chance to drop the note entirely — let the snare breathe
+    // FIX #9: Reduced from 25% to 8% - real bassists play THROUGH the snare most of the time
+    if (ctx.hasSnare && !evt.dead && maybe(0.08)) {
+      // 8% chance to drop the note entirely — only on climactic hits
       continue;
     }
     if (ctx.hasSnare && !evt.dead && maybe(0.3)) {
