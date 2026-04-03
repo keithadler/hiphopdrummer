@@ -151,8 +151,8 @@ document.getElementById('regenGo').onclick = function() {
       history.unshift(newBeatData);
       
       // Trim to max capacity if needed
-      if (history.length > 25) {
-        history = history.slice(0, 25);
+      if (typeof MAX_HISTORY_SLOTS !== 'undefined' && history.length > MAX_HISTORY_SLOTS) {
+        history = history.slice(0, MAX_HISTORY_SLOTS);
       }
       
       saveBeatHistory(history);

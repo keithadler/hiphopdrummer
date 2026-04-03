@@ -1346,7 +1346,7 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
     var bassEvents = generateBassPattern(sec, bpm);
     var len = secSteps[sec] || 32;
     // Per-instrument swing for bass
-    var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
+    var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
     var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[secFeel]) ? INSTRUMENT_SWING[secFeel].bass : 0.9;
     var bassSwing = noSwing ? 0 : Math.round(baseSwingAmount * bassSwingMult);
 
