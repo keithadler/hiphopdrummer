@@ -374,7 +374,8 @@ midi-player::part(play-button){color:var(--accent-green)}
   .chord-piano-black{width:8px;height:22px}
   .chord-sheet-notes{font-size:9px}
   .chord-sheet-hint{font-size:8px}
-  #aboutBeat{font-size:12px;line-height:1.5}
+  #aboutBeat{font-size:12px;line-height:1.5;max-height:180px;overflow-y:auto}
+  #aboutBeat.mobile-expanded{max-height:none}
   .about-arrow{font-size:14px}
 
   /* Bar tabs */
