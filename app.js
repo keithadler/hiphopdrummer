@@ -242,6 +242,10 @@ function showPrefsDialog() {
   var chordsOn = true;
   try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp !== 'false'); } catch(e) {}
   document.getElementById('prefsShowChords').checked = chordsOn;
+  // Restore role preference
+  var savedRole = '';
+  try { savedRole = localStorage.getItem('hhd_user_role') || 'producer'; } catch(e) {}
+  document.getElementById('prefsRole').value = savedRole;
   document.getElementById('prefsOverlay').style.display = 'flex';
 }
 
@@ -265,6 +269,16 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_follow_playhead', followPlayhead ? 'true' : 'false'); } catch(e) {}
   var showChords = document.getElementById('prefsShowChords').checked;
   try { localStorage.setItem('hhd_show_chords', showChords ? 'true' : 'false'); } catch(e) {}
+  var newRole = document.getElementById('prefsRole').value;
+  var oldRole = '';
+  try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+  try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
+  // Show role tips if role changed
+  if (newRole !== oldRole) {
+    hidePrefsDialog();
+    showRoleTips(newRole);
+    return; // skip the rest — tips overlay is showing
+  }
   // Apply drum kit and bass via synth bridge
   if (window.synthBridge) {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
@@ -306,6 +320,73 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// ── Role Tips ──
+
+var ROLE_TIPS = {
+  producer: {
+    title: '🎛 Producer / Beat Maker',
+    html: '<p>This tool is your co-pilot. Every beat generates a unique drum and bass arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP.</p>'
+  },
+  rapper: {
+    title: '🎤 Rapper / MC',
+    html: '<p>Hit play and rap. Full drums and bass, ready to go — no setup needed.</p><h3>Your Workflow</h3><p>Generate a beat, hit <b>Play</b> (or spacebar), and freestyle. The <b>Flow Guide</b> in About This Beat gives you syllable counts per bar based on the actual kick pattern. It names the beat positions where kicks land — those are your rhythmic anchors.</p><h3>What to Use</h3><p>Export the <b>WAV</b> for practice beats, demo sessions, or cipher backing tracks. The arrangement has intros and outros built in — press record and go. Try different styles: Dilla wants you to drift behind the pocket, G-Funk wants smooth and effortless, Memphis wants slow and deliberate.</p><h3>The Chords</h3><p>During playback, the chord overlay shows what a keyboardist would play. If you\'re writing hooks, these are your melodic anchors.</p>'
+  },
+  dj: {
+    title: '🎧 DJ / Turntablist',
+    html: '<p>These are scratch-ready productions with full song structure — not loops.</p><h3>Your Workflow</h3><p>Generate beats across styles and tempos to build a library. Export <b>WAV</b> files — they include drums and bass together. Drop them on a deck and they sound like records.</p><h3>Where to Cut</h3><p>The <b>breakdown</b> sections thin out progressively — bar 1 drops ghosts, bar 2 drops claps, bar 3 is just kick and hat. That\'s your window for scratching, drops, and transitions. The last chorus hits hardest after the breakdown — the contrast is built in.</p><h3>Building Sets</h3><p>Classic boom bap at 90 BPM for head-nod sets. G-Funk at 98 for West Coast vibes. Memphis at 72 for dark sessions. Every beat is unique — blend them with your vinyl finds.</p>'
+  },
+  keys: {
+    title: '🎹 Keys / Musician',
+    html: '<p>The chord sheet and playback overlay show you exactly what to play — with feel-aware voicings that change per style.</p><h3>Your Workflow</h3><p>Generate a beat, check the <b>chord overlay</b> during playback — it highlights the current chord with a piano diagram. The <b>chord sheet</b> in About This Beat shows voicings for every section: triads for boom bap, 9ths for Dilla, min7 for G-Funk.</p><h3>Modal Harmony</h3><p>G-Funk uses <b>Dorian</b> — the IV chord is major (C7, not Cm7). Dark styles use <b>Phrygian</b> — the bII creates sinister tension. The tool explains why each mode sounds the way it does.</p><h3>Jam Along</h3><p>Play Rhodes over a Dilla beat. Add guitar to boom bap. Lay down horns over G-Funk. The drums and bass are the foundation — everything you add makes it yours.</p>'
+  },
+  bassist: {
+    title: '🎸 Bassist',
+    html: '<p>The bass MIDI is a masterclass in hip hop bass playing — not just root notes on the kick.</p><h3>Your Workflow</h3><p>Export the <b>bass MIDI</b> and study the note choices in your DAW. The bass uses correct 5th and minor 7th intervals, chromatic approach notes, hammer-on grace notes, slides for G-Funk, and intentional rests. It generates 2-bar motifs and varies them — the way a session player develops a part.</p><h3>Call and Response</h3><p>The bass reacts to the drums: drops out on loud snare backbeats, fills gaps when the kick is sparse, simplifies when hats are busy. Study these relationships — they\'re what separates a bass player from someone who plays bass.</p><h3>Style Differences</h3><p>Boom bap: punchy, short. G-Funk: Moog slides, long sustain. Memphis: 808 sub, velocity-compressed. Jazz: walking with diatonic fills. Each style has its own articulation.</p>'
+  },
+  drummer: {
+    title: '🥁 Drummer',
+    html: '<p>218 curated kick patterns, per-instrument accent curves, ghost note clustering, and named player profiles — this is how the greats program.</p><h3>Your Workflow</h3><p>Generate a beat and study the grid. Click any cell to hear the hit at its velocity. The <b>About This Beat</b> panel explains accent curves, ghost clustering, pocket-delayed snares, and fill construction. The velocity percentages in the grid ARE the dynamics.</p><h3>Player Profiles</h3><p>Each beat uses a named player profile: Premier (mechanical kick, tight backbeat), Questlove (ghost notes at 45-55), Dilla (everything floats). The humanization isn\'t random — it models specific drummers\' touch.</p><h3>What to Practice</h3><p>Export the MIDI and load it into your e-kit or practice pad. The ghost notes, accents, and fills are all there at the right velocities. Play along and match the dynamics.</p>'
+  },
+  learner: {
+    title: '🎓 Learning Production',
+    html: '<p>Every beat is a free lesson. The tool doesn\'t just generate patterns — it explains <em>why</em> every hit is where it is.</p><h3>Your Workflow</h3><p>Generate a beat, then read <b>About This Beat</b>. It covers tempo, swing, style, key, chord progressions, flow guide, reference tracks, technique spotlights, and more. Click any grid cell to understand its velocity. The <b>Sample Hunting Guide</b> tells you exactly what to search for on Splice or Tracklib.</p><h3>How to Learn</h3><p>Generate 10 beats in the same style. Compare the kick patterns, ghost placements, fills, and bass lines. That\'s how you internalize a style deeply enough to program it yourself. Then try hand-programming from the grid using the Drum Machine Workflow section.</p><h3>What You Get</h3><p>MIDI files for any DAW, MPC patterns for Akai hardware, WAV audio, chord sheets, beat sheet PDFs, and setup guides for 9 DAWs. Your beats are yours — commercial releases, demos, anything.</p>'
+  }
+};
+
+function showRoleTips(role) {
+  var tips = ROLE_TIPS[role];
+  if (!tips) return;
+  var titleEl = document.getElementById('roleTipsTitle');
+  var contentEl = document.getElementById('roleTipsContent');
+  if (titleEl) titleEl.textContent = tips.title;
+  if (contentEl) contentEl.innerHTML = tips.html;
+  document.getElementById('roleTipsOverlay').style.display = 'flex';
+}
+
+document.getElementById('roleTipsClose').onclick = function() {
+  document.getElementById('roleTipsOverlay').style.display = 'none';
+};
+document.getElementById('roleTipsOverlay').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
+};
+
+function initWelcome() {
+  var savedRole = null;
+  try { savedRole = localStorage.getItem('hhd_user_role'); } catch(e) {}
+  if (savedRole) return; // returning user — skip welcome
+
+  // First visit — show welcome
+  document.getElementById('welcomeOverlay').style.display = 'flex';
+  document.querySelectorAll('.welcome-role').forEach(function(btn) {
+    btn.onclick = function() {
+      var role = btn.dataset.role;
+      try { localStorage.setItem('hhd_user_role', role); } catch(e) {}
+      document.getElementById('welcomeOverlay').style.display = 'none';
+      showRoleTips(role);
+    };
+  });
+}
+
 // ── Boot ──
 
 /**
@@ -324,6 +405,8 @@ document.addEventListener('keydown', function(e) {
   document.getElementById('app').style.display = '';
   initPlayerControls();
   initPlaybackTracking();
+  // Show welcome screen on first visit
+  initWelcome();
 })();
 
 // ── Player Controls ──

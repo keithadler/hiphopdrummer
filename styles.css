@@ -51,6 +51,12 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .about-footer{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim)}
 .about-footer a{color:var(--accent-blue);text-decoration:none}
 .about-footer a:hover{text-decoration:underline}
+.welcome-dialog{max-width:480px}
+.welcome-intro{font-family:var(--mono);font-size:13px;color:var(--text-muted);line-height:1.6;padding:0 20px 12px;text-align:center}
+.welcome-roles{display:flex;flex-direction:column;gap:8px;padding:0 20px 20px}
+.welcome-role{width:100%;justify-content:center;font-size:15px;height:44px;letter-spacing:0.5px}
+.welcome-role:hover{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
+.role-tips-dialog{max-width:520px;max-height:80vh;display:flex;flex-direction:column}
 .prefs-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.4;padding-top:4px}
 
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 16px}

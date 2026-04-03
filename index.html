@@ -54,6 +54,40 @@
     <div id="loadMsg" class="loading">Loading...</div>
     <div id="sectionToast" class="section-toast"></div>
 
+    <!-- Welcome / Role selector overlay -->
+    <div id="welcomeOverlay" class="regen-overlay" style="display:none">
+      <div class="regen-dialog welcome-dialog">
+        <div class="about-hero">
+          <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
+          <div class="about-hero-text">
+            <div class="about-app-name">HipHop<span>Drummer</span></div>
+            <div class="about-version">Welcome</div>
+          </div>
+        </div>
+        <p class="welcome-intro">Every beat is uniquely generated — drums, bass, chords, fills, and a full song arrangement assembled from scratch. What's your role?</p>
+        <div class="welcome-roles">
+          <button class="btn welcome-role" data-role="producer">🎛 Producer / Beat Maker</button>
+          <button class="btn welcome-role" data-role="rapper">🎤 Rapper / MC</button>
+          <button class="btn welcome-role" data-role="dj">🎧 DJ / Turntablist</button>
+          <button class="btn welcome-role" data-role="keys">🎹 Keys / Musician</button>
+          <button class="btn welcome-role" data-role="bassist">🎸 Bassist</button>
+          <button class="btn welcome-role" data-role="drummer">🥁 Drummer</button>
+          <button class="btn welcome-role" data-role="learner">🎓 Learning Production</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role tips overlay -->
+    <div id="roleTipsOverlay" class="regen-overlay" style="display:none">
+      <div class="regen-dialog role-tips-dialog">
+        <div class="regen-title" id="roleTipsTitle"></div>
+        <div class="about-scroll" id="roleTipsContent"></div>
+        <div class="regen-actions">
+          <button class="btn regen-go" id="roleTipsClose">Let's Go</button>
+        </div>
+      </div>
+    </div>
+
     <div class="scroll-area" id="app" style="display:none" role="main">
 
       <div class="top-row">
@@ -231,6 +265,19 @@
           <div class="prefs-hint">When enabled, the page scrolls to keep the current section visible during playback.</div>
           <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsShowChords" checked> Show section &amp; chords during playback</label>
           <div class="prefs-hint">Displays the current section name and chord progression as an overlay while playing.</div>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">Your Role</label>
+          <select id="prefsRole" class="regen-select">
+            <option value="producer">🎛 Producer / Beat Maker</option>
+            <option value="rapper">🎤 Rapper / MC</option>
+            <option value="dj">🎧 DJ / Turntablist</option>
+            <option value="keys">🎹 Keys / Musician</option>
+            <option value="bassist">🎸 Bassist</option>
+            <option value="drummer">🥁 Drummer</option>
+            <option value="learner">🎓 Learning Production</option>
+          </select>
+          <div class="prefs-hint">Changing your role shows tips for how this tool fits your workflow.</div>
         </div>
       </div>
       <div class="regen-actions">
