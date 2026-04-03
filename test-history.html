@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beat History Test Suite</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      border-left: 4px solid #50a0ff;
+    }
+    .test-section h2 {
+      margin-top: 0;
+      color: #50a0ff;
+    }
+    button {
+      background: #50a0ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #6ab0ff;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .pass {
+      color: #48cc68;
+      font-weight: bold;
+    }
+    .fail {
+      color: #e04848;
+      font-weight: bold;
+    }
+    .log {
+      background: #1a1a1a;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .log-entry {
+      margin: 2px 0;
+      padding: 2px 0;
+    }
+    .summary {
+      background: #3a3a3a;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 Beat History Test Suite</h1>
+  
+  <div class="test-section">
+    <h2>Test 1: Save Multiple Beats</h2>
+    <button onclick="testSaveMultipleBeats()">Run Test</button>
+    <div id="test1-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 2: Load Beats & Verify State</h2>
+    <button onclick="testLoadBeats()">Run Test</button>
+    <div id="test2-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 3: Slot Replacement (Full History)</h2>
+    <button onclick="testSlotReplacement()">Run Test</button>
+    <div id="test3-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 4: Backup & Restore</h2>
+    <button onclick="testBackupRestore()">Run Test</button>
+    <div id="test4-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 5: Delete Beats</h2>
+    <button onclick="testDeleteBeats()">Run Test</button>
+    <div id="test5-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 6: Data Integrity</h2>
+    <button onclick="testDataIntegrity()">Run Test</button>
+    <div id="test6-log" class="log"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Run All Tests</h2>
+    <button onclick="runAllTests()">Run All Tests</button>
+    <div id="summary" class="summary"></div>
+  </div>
+
+  <script src="patterns.js"></script>
+  <script src="ai.js"></script>
+  <script src="writers.js"></script>
+  <script src="groove.js"></script>
+  <script src="bass.js"></script>
+  <script src="beat-history.js"></script>
+
+  <script>
+    let testResults = [];
+
+    function log(testId, message, type = 'info') {
+      const logEl = document.getElementById(testId + '-log');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.style.color = type === 'pass' ? '#48cc68' : type === 'fail' ? '#e04848' : '#e0e0e0';
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function assert(condition, message, testId) {
+      if (condition) {
+        log(testId, `✓ ${message}`, 'pass');
+        return true;
+      } else {
+        log(testId, `✗ ${message}`, 'fail');
+        return false;
+      }
+    }
+
+    function createMockBeat(index) {
+      // Create a unique beat with different parameters
+      const styles = ['normal', 'hard', 'jazzy', 'dilla', 'gfunk', 'memphis', 'crunk'];
+      const keys = ['Cm', 'Dm', 'Am', 'Gm', 'Em', 'Fm'];
+      const bpms = [85, 90, 95, 100, 105, 110];
+      
+      return {
+        timestamp: Date.now() + index,
+        bpm: bpms[index % bpms.length],
+        swing: 60 + (index * 2),
+        songStyle: styles[index % styles.length],
+        songKey: keys[index % keys.length],
+        songFeel: styles[index % styles.length],
+        songPalette: ['soul', 'funk', 'jazz'][index % 3],
+        patterns: { intro: { kick: [100, 0, 0, 0, 80, 0, 0, 0, 100, 0, 0, 0, 80, 0, 0, 0] } },
+        arrangement: ['intro', 'verse', 'chorus'],
+        secSteps: { intro: 32, verse: 32, chorus: 32 },
+        secFeels: { intro: 'normal', verse: 'normal', chorus: 'normal' },
+        baseKick: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        baseKickB: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        baseKickChorus: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        baseKickChorusB: [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+        baseKickV2: [1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0],
+        baseKickV2B: [1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+        baseSnareGhostA: [[4, 45], [12, 50]],
+        baseSnareGhostB: [[6, 48], [14, 52]],
+        baseSnareGhostV2A: [[5, 46], [13, 51]],
+        baseSnareGhostV2B: [[7, 49], [15, 53]],
+        baseSnareGhostChorusA: [[4, 50], [8, 48], [12, 52]],
+        baseSnareGhostChorusB: [[6, 51], [10, 49], [14, 53]],
+        hatPatternType: ['8th', '16th', '16th_sparse'][index % 3],
+        useRide: index % 2 === 0,
+        ghostDensity: 0.8 + (index * 0.1),
+        activePlayerProfile: { name: 'TestProfile' + index },
+        _lastChosenKey: { root: keys[index % keys.length], type: 'minor', i: keys[index % keys.length] },
+        _sectionProgressions: { intro: ['i', 'i', 'iv', 'i'], verse: ['i', 'iv', 'i', 'v'] }
+      };
+    }
+
+    async function testSaveMultipleBeats() {
+      const testId = 'test1';
+      log(testId, 'Starting test: Save Multiple Beats');
+      
+      // Clear existing history
+      localStorage.removeItem('hhd_beat_history');
+      log(testId, 'Cleared existing history');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Save 5 beats
+      for (let i = 0; i < 5; i++) {
+        const beat = createMockBeat(i);
+        const history = loadBeatHistory();
+        history.unshift(beat);
+        saveBeatHistory(history);
+        
+        const loaded = loadBeatHistory();
+        if (assert(loaded.length === i + 1, `Beat ${i + 1} saved (total: ${loaded.length})`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+        
+        // Verify the beat data
+        if (assert(loaded[0].bpm === beat.bpm, `Beat ${i + 1} BPM matches (${beat.bpm})`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+        
+        if (assert(loaded[0].songStyle === beat.songStyle, `Beat ${i + 1} style matches (${beat.songStyle})`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Save Multiple Beats', passed, failed });
+    }
+
+    async function testLoadBeats() {
+      const testId = 'test2';
+      log(testId, 'Starting test: Load Beats & Verify State');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      const history = loadBeatHistory();
+      if (!assert(history.length > 0, `History has ${history.length} beats`, testId)) {
+        log(testId, 'No beats in history. Run Test 1 first.', 'fail');
+        testResults.push({ name: 'Load Beats', passed, failed: 1 });
+        return;
+      }
+      
+      // Test loading each beat
+      for (let i = 0; i < Math.min(history.length, 3); i++) {
+        const beat = history[i];
+        log(testId, `Loading beat ${i + 1}: ${beat.songStyle} at ${beat.bpm} BPM`);
+        
+        // Verify all critical fields exist
+        const criticalFields = [
+          'bpm', 'swing', 'songStyle', 'songKey', 'patterns', 'arrangement',
+          'baseKick', 'baseKickB', 'baseKickChorus', 'baseKickV2',
+          'baseSnareGhostA', 'baseSnareGhostB', 'hatPatternType',
+          '_lastChosenKey', '_sectionProgressions'
+        ];
+        
+        for (const field of criticalFields) {
+          if (assert(beat[field] !== undefined && beat[field] !== null, `Beat ${i + 1} has ${field}`, testId)) {
+            passed++;
+          } else {
+            failed++;
+          }
+        }
+        
+        // Verify new fields added in the fix
+        const newFields = ['baseKickChorusB', 'baseKickV2B', 'baseSnareGhostV2A', 'baseSnareGhostV2B', 
+                          'baseSnareGhostChorusA', 'baseSnareGhostChorusB', 'activePlayerProfile'];
+        
+        for (const field of newFields) {
+          if (assert(beat.hasOwnProperty(field), `Beat ${i + 1} has new field ${field}`, testId)) {
+            passed++;
+          } else {
+            failed++;
+          }
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Load Beats', passed, failed });
+    }
+
+    async function testSlotReplacement() {
+      const testId = 'test3';
+      log(testId, 'Starting test: Slot Replacement (Full History)');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Fill history to max capacity (25 slots)
+      localStorage.removeItem('hhd_beat_history');
+      const history = [];
+      
+      for (let i = 0; i < 25; i++) {
+        history.push(createMockBeat(i));
+      }
+      saveBeatHistory(history);
+      
+      const loaded = loadBeatHistory();
+      if (assert(loaded.length === 25, `History filled to max capacity (${loaded.length}/25)`, testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Try to add a 26th beat (should trigger replacement logic)
+      const newBeat = createMockBeat(25);
+      log(testId, 'Attempting to add 26th beat (should require slot selection)');
+      
+      // Manually replace slot 12
+      loaded[12] = newBeat;
+      saveBeatHistory(loaded);
+      
+      const updated = loadBeatHistory();
+      if (assert(updated.length === 25, 'History still has 25 slots after replacement', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(updated[12].bpm === newBeat.bpm, 'Slot 12 was replaced with new beat', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Slot Replacement', passed, failed });
+    }
+
+    async function testBackupRestore() {
+      const testId = 'test4';
+      log(testId, 'Starting test: Backup & Restore');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Create a known history state
+      const originalHistory = [];
+      for (let i = 0; i < 5; i++) {
+        originalHistory.push(createMockBeat(i));
+      }
+      saveBeatHistory(originalHistory);
+      
+      // Create backup
+      const backup = {
+        version: 1,
+        exportDate: new Date().toISOString(),
+        beats: originalHistory
+      };
+      
+      const backupJson = JSON.stringify(backup, null, 2);
+      if (assert(backupJson.length > 0, 'Backup JSON created', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Backup size: ${(backupJson.length / 1024).toFixed(2)} KB`);
+      
+      // Clear history
+      localStorage.removeItem('hhd_beat_history');
+      if (assert(loadBeatHistory().length === 0, 'History cleared', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Restore from backup
+      const restored = JSON.parse(backupJson);
+      if (assert(restored.version === 1, 'Backup version is valid', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      if (assert(Array.isArray(restored.beats), 'Backup contains beats array', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      saveBeatHistory(restored.beats);
+      const restoredHistory = loadBeatHistory();
+      
+      if (assert(restoredHistory.length === originalHistory.length, 
+                 `Restored ${restoredHistory.length} beats`, testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify data integrity
+      for (let i = 0; i < restoredHistory.length; i++) {
+        if (assert(restoredHistory[i].bpm === originalHistory[i].bpm, 
+                   `Beat ${i + 1} BPM matches after restore`, testId)) {
+          passed++;
+        } else {
+          failed++;
+        }
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Backup & Restore', passed, failed });
+    }
+
+    async function testDeleteBeats() {
+      const testId = 'test5';
+      log(testId, 'Starting test: Delete Beats');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Create history with 5 beats
+      const history = [];
+      for (let i = 0; i < 5; i++) {
+        history.push(createMockBeat(i));
+      }
+      saveBeatHistory(history);
+      
+      const initial = loadBeatHistory();
+      if (assert(initial.length === 5, 'Initial history has 5 beats', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Delete beat at index 2
+      const beforeDelete = loadBeatHistory();
+      const deletedBeat = beforeDelete[2];
+      beforeDelete.splice(2, 1);
+      saveBeatHistory(beforeDelete);
+      
+      const afterDelete = loadBeatHistory();
+      if (assert(afterDelete.length === 4, 'History has 4 beats after deletion', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Verify the correct beat was deleted
+      const stillExists = afterDelete.some(b => b.timestamp === deletedBeat.timestamp);
+      if (assert(!stillExists, 'Deleted beat no longer exists', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      // Delete all beats
+      saveBeatHistory([]);
+      const empty = loadBeatHistory();
+      if (assert(empty.length === 0, 'All beats deleted', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Delete Beats', passed, failed });
+    }
+
+    async function testDataIntegrity() {
+      const testId = 'test6';
+      log(testId, 'Starting test: Data Integrity');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      // Create a beat with all possible fields
+      const completeBeat = createMockBeat(0);
+      
+      // Add it to history
+      saveBeatHistory([completeBeat]);
+      
+      // Load it back
+      const loaded = loadBeatHistory()[0];
+      
+      // Verify all fields are preserved
+      const allFields = Object.keys(completeBeat);
+      log(testId, `Checking ${allFields.length} fields for data integrity`);
+      
+      for (const field of allFields) {
+        const original = completeBeat[field];
+        const restored = loaded[field];
+        
+        if (typeof original === 'object' && original !== null) {
+          const originalJson = JSON.stringify(original);
+          const restoredJson = JSON.stringify(restored);
+          if (assert(originalJson === restoredJson, `Field ${field} preserved (object)`, testId)) {
+            passed++;
+          } else {
+            failed++;
+            log(testId, `  Expected: ${originalJson.substring(0, 50)}...`, 'fail');
+            log(testId, `  Got: ${restoredJson.substring(0, 50)}...`, 'fail');
+          }
+        } else {
+          if (assert(original === restored, `Field ${field} preserved (${typeof original})`, testId)) {
+            passed++;
+          } else {
+            failed++;
+            log(testId, `  Expected: ${original}, Got: ${restored}`, 'fail');
+          }
+        }
+      }
+      
+      // Test localStorage size limits
+      const historyJson = JSON.stringify(loadBeatHistory());
+      const sizeKB = (historyJson.length / 1024).toFixed(2);
+      log(testId, `Current history size: ${sizeKB} KB`);
+      
+      if (assert(historyJson.length < 5 * 1024 * 1024, 'History size under 5MB limit', testId)) {
+        passed++;
+      } else {
+        failed++;
+      }
+      
+      log(testId, `Test complete: ${passed} passed, ${failed} failed`, failed === 0 ? 'pass' : 'fail');
+      testResults.push({ name: 'Data Integrity', passed, failed });
+    }
+
+    async function runAllTests() {
+      testResults = [];
+      document.getElementById('summary').innerHTML = 'Running tests...';
+      
+      await testSaveMultipleBeats();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testLoadBeats();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testSlotReplacement();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testBackupRestore();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testDeleteBeats();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testDataIntegrity();
+      
+      // Display summary
+      const totalPassed = testResults.reduce((sum, r) => sum + r.passed, 0);
+      const totalFailed = testResults.reduce((sum, r) => sum + r.failed, 0);
+      const totalTests = totalPassed + totalFailed;
+      const passRate = ((totalPassed / totalTests) * 100).toFixed(1);
+      
+      let summary = `<h3>Test Summary</h3>`;
+      summary += `<div style="font-size: 20px; margin: 10px 0;">`;
+      summary += `<span class="${totalFailed === 0 ? 'pass' : 'fail'}">`;
+      summary += `${totalPassed}/${totalTests} tests passed (${passRate}%)`;
+      summary += `</span></div>`;
+      
+      summary += `<div style="margin-top: 15px;">`;
+      for (const result of testResults) {
+        const status = result.failed === 0 ? 'pass' : 'fail';
+        summary += `<div class="${status}" style="margin: 5px 0;">`;
+        summary += `${result.name}: ${result.passed} passed, ${result.failed} failed`;
+        summary += `</div>`;
+      }
+      summary += `</div>`;
+      
+      document.getElementById('summary').innerHTML = summary;
+    }
+  </script>
+</body>
+</html>
