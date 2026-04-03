@@ -48,6 +48,7 @@
           <span class="ctrl-input" id="swing">62</span><span class="ctrl-swing-desc" id="swingDesc" title="Swing timing: how much even 16th-note steps are delayed"></span>
         </div>
         <button class="btn btn-export" id="btnExport">EXPORT</button>
+        <button class="btn btn-history" id="btnHistory" title="Beat History">HISTORY</button>
         <button class="btn btn-prefs" id="btnPrefs" title="Preferences"><span class="prefs-icon">⚙</span><span class="prefs-text">Preferences</span></button>
       </div>
     </div>
@@ -407,5 +408,34 @@
         .catch(function(e) { console.warn('SW registration failed:', e); });
     }
   </script>
+
+  <!-- Beat History Dialog -->
+  <div id="beatHistoryOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog history-dialog">
+      <div class="regen-title">Beat History</div>
+      <div class="history-actions">
+        <button class="btn btn-backup" id="btnBackupHistory">⬇ Backup All</button>
+        <button class="btn btn-restore" id="btnRestoreHistory">⬆ Restore Backup</button>
+      </div>
+      <div class="history-slots-container" id="beatHistorySlots"></div>
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="historyClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slot Replacement Dialog (when history is full) -->
+  <div id="slotReplacementOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog slot-replacement-dialog">
+      <div class="regen-title">History Full — Choose Slot to Replace</div>
+      <p class="slot-replacement-hint">All 10 slots are full. Select which beat to replace with the new one:</p>
+      <div class="slot-replacement-slots" id="slotReplacementSlots"></div>
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="slotReplacementCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="beat-history.js"></script>
 </body>
 </html>

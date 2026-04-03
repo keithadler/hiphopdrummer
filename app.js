@@ -122,14 +122,29 @@ document.getElementById('regenGo').onclick = function() {
   var key   = document.getElementById('regenKey').value || null;
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
-  generateAll({ style: style, key: key, bpm: bpm });
-  updateMidiPlayer();
-  // Rebuild chord sheet after MIDI build so it picks up bass progressions
-  if (typeof buildChordSheet === 'function') buildChordSheet();
-  // Scroll to top of the page so the user sees the new beat
-  var scrollArea = document.querySelector('.scroll-area');
-  if (scrollArea) scrollArea.scrollTop = 0;
-  else window.scrollTo(0, 0);
+  
+  // Save current beat to history before generating new one
+  if (typeof saveBeatToHistory === 'function') {
+    saveBeatToHistory(function() {
+      // After save (or slot selection), generate new beat
+      generateAll({ style: style, key: key, bpm: bpm });
+      updateMidiPlayer();
+      // Rebuild chord sheet after MIDI build so it picks up bass progressions
+      if (typeof buildChordSheet === 'function') buildChordSheet();
+      // Scroll to top of the page so the user sees the new beat
+      var scrollArea = document.querySelector('.scroll-area');
+      if (scrollArea) scrollArea.scrollTop = 0;
+      else window.scrollTo(0, 0);
+    });
+  } else {
+    // Fallback if history not loaded
+    generateAll({ style: style, key: key, bpm: bpm });
+    updateMidiPlayer();
+    if (typeof buildChordSheet === 'function') buildChordSheet();
+    var scrollArea = document.querySelector('.scroll-area');
+    if (scrollArea) scrollArea.scrollTop = 0;
+    else window.scrollTo(0, 0);
+  }
 };
 
 /** New Beat button: show the dialog */
@@ -137,6 +152,11 @@ document.getElementById('btnGen').onclick = showRegenDialog;
 
 /** Export button: show the export dialog */
 document.getElementById('btnExport').onclick = showExportDialog;
+
+/** History button: show beat history dialog */
+document.getElementById('btnHistory').onclick = function() {
+  if (typeof showBeatHistoryDialog === 'function') showBeatHistoryDialog();
+};
 
 // ── Export Dialog ──
 
@@ -427,6 +447,32 @@ function initWelcome() {
   });
 }
 
+// ── Beat History Dialog Handlers ──
+
+document.getElementById('historyClose').onclick = function() {
+  document.getElementById('beatHistoryOverlay').style.display = 'none';
+};
+
+document.getElementById('beatHistoryOverlay').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
+};
+
+document.getElementById('btnBackupHistory').onclick = function() {
+  if (typeof backupBeatHistory === 'function') backupBeatHistory();
+};
+
+document.getElementById('btnRestoreHistory').onclick = function() {
+  if (typeof restoreBeatHistory === 'function') restoreBeatHistory();
+};
+
+document.getElementById('slotReplacementCancel').onclick = function() {
+  document.getElementById('slotReplacementOverlay').style.display = 'none';
+};
+
+document.getElementById('slotReplacementOverlay').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
+};
+
 // ── Boot ──
 
 /**
@@ -437,7 +483,21 @@ function initWelcome() {
  *   4. Start playback tracking
  */
 (function() {
-  generateAll();
+  // Try to load last beat from history, otherwise generate new
+  var historyLoaded = false;
+  if (typeof loadLastBeat === 'function') {
+    var history = loadBeatHistory();
+    if (history && history.length > 0) {
+      loadLastBeat();
+      historyLoaded = true;
+    }
+  }
+  
+  // If no history, generate a new beat
+  if (!historyLoaded) {
+    generateAll();
+  }
+  
   updateMidiPlayer();
   // Ensure About panel is fully built (collapsible sections + summary)
   // Must run BEFORE buildChordSheet which appends to #aboutBeat
