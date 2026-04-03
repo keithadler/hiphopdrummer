@@ -246,10 +246,14 @@ function showPrefsDialog() {
   var chordsOn = true;
   try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp !== 'false'); } catch(e) {}
   document.getElementById('prefsShowChords').checked = chordsOn;
-  // Restore countdown preference (default: off)
-  var countdownOn = false;
-  try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd === 'true'); } catch(e) {}
+  // Restore countdown preference (default: on)
+  var countdownOn = true;
+  try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd !== 'false'); } catch(e) {}
   document.getElementById('prefsCountdown').checked = countdownOn;
+  // Restore velocity indicator preference (default: percent)
+  var velocityMode = 'percent';
+  try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  document.getElementById('prefsVelocity').value = velocityMode;
   // Restore role preference
   var savedRole = '';
   try { savedRole = localStorage.getItem('hhd_user_role') || 'producer'; } catch(e) {}
@@ -279,6 +283,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_show_chords', showChords ? 'true' : 'false'); } catch(e) {}
   var countdown = document.getElementById('prefsCountdown').checked;
   try { localStorage.setItem('hhd_countdown', countdown ? 'true' : 'false'); } catch(e) {}
+  var velocityMode = document.getElementById('prefsVelocity').value;
+  try { localStorage.setItem('hhd_velocity_mode', velocityMode); } catch(e) {}
   var newRole = document.getElementById('prefsRole').value;
   var oldRole = '';
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
@@ -311,6 +317,8 @@ document.getElementById('prefsSave').onclick = function() {
   // Rebuild the MIDI player
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   if (typeof buildChordSheet === 'function') buildChordSheet();
+  // Re-render grid if velocity mode changed (to update cell displays)
+  if (typeof renderGrid === 'function') renderGrid();
   hidePrefsDialog();
 };
 

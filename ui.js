@@ -128,14 +128,25 @@ function renderGrid() {
       row.className = 'grid-row';
       var rowTip = ROW_TIPS[r] ? ' title="' + ROW_TIPS[r] + '"' : '';
       var html = '<div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
+      // Get velocity display mode preference
+      var velocityMode = 'percent';
+      try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
         var pct = vel > 0 ? Math.round(vel / 127 * 100) : 0;
-        var velText = (pct > 0 && pct < 100) ? pct + '%' : '';
+        var velText = '';
+        if (vel > 0) {
+          if (velocityMode === 'midi') {
+            velText = (vel < 127) ? vel.toString() : '';
+          } else {
+            velText = (pct > 0 && pct < 100) ? pct + '%' : '';
+          }
+        }
         var stepInBar = i - barStart;
         // 'beat-start' class adds a left border at beat boundaries (steps 5, 9, 13)
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
-        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '" data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (pct > 0 ? ', ' + pct + ' percent' : ', empty') + '">' + velText + '</div>';
+        var ariaVel = velocityMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
+        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '" data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
       }
       row.innerHTML = html;
       rows.appendChild(row);
