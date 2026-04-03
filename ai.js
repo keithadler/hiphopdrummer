@@ -1773,6 +1773,10 @@ function generateAll(opts) {
   arrangement = bestArr;
   patterns = bestPat;
   SECTIONS.forEach(function(s) { secSteps[s] = bestSteps[s]; });
+  // Clear stored bass progressions so new ones are picked for the new beat
+  if (typeof _sectionProgressions !== 'undefined') {
+    for (var sp in _sectionProgressions) { delete _sectionProgressions[sp]; }
+  }
 
   // Guarantee minimum 2:45 (165 seconds) — if the best attempt is still
   // too short, pad the arrangement by duplicating verse/chorus sections.
