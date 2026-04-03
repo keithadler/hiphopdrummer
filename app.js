@@ -284,6 +284,8 @@ document.getElementById('prefsSave').onclick = function() {
   var countdown = document.getElementById('prefsCountdown').checked;
   try { localStorage.setItem('hhd_countdown', countdown ? 'true' : 'false'); } catch(e) {}
   var velocityMode = document.getElementById('prefsVelocity').value;
+  var oldVelocityMode = 'percent';
+  try { oldVelocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
   try { localStorage.setItem('hhd_velocity_mode', velocityMode); } catch(e) {}
   var newRole = document.getElementById('prefsRole').value;
   var oldRole = '';
@@ -318,7 +320,9 @@ document.getElementById('prefsSave').onclick = function() {
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   if (typeof buildChordSheet === 'function') buildChordSheet();
   // Re-render grid if velocity mode changed (to update cell displays)
-  if (typeof renderGrid === 'function') renderGrid();
+  if (velocityMode !== oldVelocityMode && typeof renderGrid === 'function') {
+    renderGrid();
+  }
   hidePrefsDialog();
 };
 

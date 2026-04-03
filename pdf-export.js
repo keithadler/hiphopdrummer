@@ -219,18 +219,24 @@ function exportPDF(returnBlob) {
         doc.setFontSize(5.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
         doc.text(RN[r], margin + 22, y + cellH * 0.65, { align: 'right' });
 
+        // Get velocity display mode preference
+        var velocityMode = 'percent';
+        try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+
         for (var s = 0; s < steps; s++) {
           var x = margin + 24 + s * cellW;
           var val = pat[r][barStart + s];
           if (val > 0) {
-            // Active cell: filled with instrument color, velocity % overlay
+            // Active cell: filled with instrument color, velocity overlay
             var c = rowColors[r] || [100, 100, 100];
             doc.setFillColor(c[0], c[1], c[2]);
             doc.rect(x + 0.2, y, cellW - 0.4, cellH - 0.4, 'F');
             var pct = Math.round(val / 127 * 100);
-            if (pct > 0 && pct < 100) {
+            var velText = velocityMode === 'midi' ? val.toString() : pct + '%';
+            var showText = velocityMode === 'midi' ? (val < 127) : (pct > 0 && pct < 100);
+            if (showText) {
               doc.setFontSize(4); doc.setTextColor(255, 255, 255);
-              doc.text(pct + '%', x + cellW / 2, y + cellH * 0.6, { align: 'center' });
+              doc.text(velText, x + cellW / 2, y + cellH * 0.6, { align: 'center' });
             }
           } else {
             // Empty cell: light gray background with border
