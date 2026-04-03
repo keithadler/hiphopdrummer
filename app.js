@@ -451,17 +451,7 @@ function initWelcome() {
 // These are wired after DOM is ready in the boot sequence
 
 function initBeatHistoryHandlers() {
-  var historyClose = document.getElementById('historyClose');
-  console.log('historyClose element:', historyClose);
-  if (historyClose) {
-    historyClose.onclick = function() {
-      console.log('Close button clicked');
-      document.getElementById('beatHistoryOverlay').style.display = 'none';
-    };
-  } else {
-    console.error('historyClose element not found!');
-  }
-
+  // Overlay click-outside-to-close handlers
   var historyOverlay = document.getElementById('beatHistoryOverlay');
   if (historyOverlay) {
     historyOverlay.onclick = function(e) {
@@ -469,31 +459,18 @@ function initBeatHistoryHandlers() {
     };
   }
 
-  var btnBackup = document.getElementById('btnBackupHistory');
-  if (btnBackup) {
-    btnBackup.onclick = function() {
-      if (typeof backupBeatHistory === 'function') backupBeatHistory();
-    };
-  }
-
-  var btnRestore = document.getElementById('btnRestoreHistory');
-  if (btnRestore) {
-    btnRestore.onclick = function() {
-      if (typeof restoreBeatHistory === 'function') restoreBeatHistory();
-    };
-  }
-
-  var slotCancel = document.getElementById('slotReplacementCancel');
-  if (slotCancel) {
-    slotCancel.onclick = function() {
-      document.getElementById('slotReplacementOverlay').style.display = 'none';
-    };
-  }
-
   var slotOverlay = document.getElementById('slotReplacementOverlay');
   if (slotOverlay) {
     slotOverlay.onclick = function(e) {
       if (e.target === this) this.style.display = 'none';
+    };
+  }
+  
+  // Slot replacement cancel button
+  var slotCancel = document.getElementById('slotReplacementCancel');
+  if (slotCancel) {
+    slotCancel.onclick = function() {
+      document.getElementById('slotReplacementOverlay').style.display = 'none';
     };
   }
 }
