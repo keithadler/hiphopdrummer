@@ -29,7 +29,7 @@
         <a href="https://keithadler.github.io/hiphopdrummer/" target="_blank" rel="noopener" class="credit-link">keithadler.github.io/hiphopdrummer</a>
       </div>
       <div class="controls-bar">
-        <button class="btn btn-play-header" id="headerPlayBtn" title="Play/Stop" disabled>▶ PLAY</button>
+        <button class="btn btn-play-header" id="headerPlayBtn" title="Play/Stop (Space)" disabled>▶ PLAY</button>
         <button class="btn btn-gen" id="btnGen" title="New Beat (R)">NEW BEAT</button>
         <div class="ctrl-group ctrl-style">
           <span class="ctrl-label">Style</span>
@@ -41,7 +41,7 @@
         </div>
         <div class="ctrl-group">
           <span class="ctrl-label">BPM</span>
-          <span class="ctrl-input" id="bpm">90</span>
+          <span class="ctrl-input" id="bpm" title="Click to adjust, double-click to tap tempo">90</span>
         </div>
         <div class="ctrl-group">
           <span class="ctrl-label">Swing</span>
@@ -64,7 +64,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.25</div>
+            <div class="about-version">Release 1.26</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — drums, bass, chords, fills, and a full song arrangement assembled from scratch. What's your role?</p>
@@ -129,9 +129,9 @@
           Pattern — <span id="patternLabel">Intro</span>
           <span class="pattern-info" id="patternInfo"></span>
           <span class="pattern-tools">
-            <button class="btn btn-tool" id="playerEditBtn" title="Edit mode — click cells to add/edit/delete hits">✏ Edit</button>
+            <button class="btn btn-tool" id="playerEditBtn" title="Edit mode — click cells to add/edit/delete hits (E)">✏ Edit</button>
             <button class="btn btn-tool" id="playerRegenSecBtn" title="Regenerate current section">🎲 Regen</button>
-            <button class="btn btn-tool" id="playerLoopBtn" title="Loop current section">🔁 Loop</button>
+            <button class="btn btn-tool" id="playerLoopBtn" title="Loop current section (L)">🔁 Loop</button>
             <button class="btn btn-tool btn-undo" id="btnUndo" title="Undo last edit" style="display:none">↩ Undo</button>
           </span>
         </div>
@@ -318,7 +318,7 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.25</div>
+          <div class="about-version">Release 1.26</div>
           <div class="about-author">by <a href="https://github.com/keithadler" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>
@@ -332,6 +332,8 @@
 
         <h3>🎓 Learn, Tweak, Create</h3>
         <p>Every beat is a lesson — and a starting point. Click any grid cell to hear that hit and understand why it's at that velocity. Toggle ✏ Edit mode to start tweaking: click empty cells to add hits, click filled cells to adjust velocity or delete. Regenerate any section with 🎲 to get a fresh pattern in the same style. Loop a section with 🔁 to practice along. Undo with ↩ if you don't like a change. Add new sections to the arrangement with the + buttons below the strip.</p>
+        <p><b>Tap Tempo:</b> Double-click the BPM display (or press T) and tap along to set the tempo from feel — the app detects your BPM from 4+ taps. <b>Swing is visible:</b> the grid offsets odd-numbered steps to show you the timing displacement. At 50% (straight) the grid is even. At 66% (heavy) you can see the shuffle.</p>
+        <p><b>Keyboard shortcuts:</b> Space = play/stop, R = new beat, T = tap tempo, E = edit mode, L = loop, ←/→ = navigate sections.</p>
         <p>The analysis explains things most tutorials skip: why Dilla's hats are always 8ths (never 16ths), why G-Funk uses a 3-level hat dynamic, why Memphis beats are defined by what's absent, why the bass uses Dorian chords for G-Funk warmth and Phrygian movement for dark menace.</p>
 
         <h3>🎛 Every Beat Is Unique</h3>

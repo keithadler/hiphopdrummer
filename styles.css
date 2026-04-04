@@ -590,3 +590,24 @@ midi-player::part(play-button){color:var(--accent-green)}
   #historyClose{min-height:44px;font-size:14px;touch-action:manipulation}
   .btn-history{min-height:36px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(80,160,255,0.3)}
 }
+
+/* ── Tap Tempo Overlay ── */
+.tap-tempo-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.tap-tempo-dialog{background:var(--bg-raised);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:32px 40px;text-align:center;min-width:260px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.tap-tempo-bpm{font-family:var(--mono);font-size:64px;font-weight:700;color:var(--accent-blue);line-height:1.1;margin-bottom:4px;transition:transform .1s}
+.tap-tempo-bpm.tap-pulse{animation:tap-pop .15s ease-out}
+@keyframes tap-pop{0%{transform:scale(1.15)}100%{transform:scale(1)}}
+.tap-tempo-hint{font-family:var(--mono);font-size:14px;color:var(--text-muted);margin-bottom:2px}
+.tap-tempo-count{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-bottom:16px}
+.tap-tempo-actions{display:flex;gap:8px;justify-content:center}
+
+/* ── Swing Visualization on Grid ── */
+/* Odd-numbered steps (the "and" positions) get a visual offset
+   proportional to the swing amount. This makes swing VISIBLE —
+   the user can see the timing displacement on the grid itself.
+   The offset is set via a CSS custom property --swing-offset
+   applied by renderGrid in ui.js. */
+.cell.swing-offset,.beat-num.swing-offset{margin-left:var(--swing-offset,0px)}
+
+/* ── Keyboard Shortcut Hints ── */
+.shortcut-hint{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-left:4px;opacity:.6}

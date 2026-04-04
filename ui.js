@@ -78,6 +78,14 @@ function renderGrid() {
   var _gridVelMode = 'percent';
   try { _gridVelMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
 
+  // Swing visualization: calculate pixel offset for odd steps
+  // Swing 50% = straight (0px offset), 66% = heavy (up to 4px offset)
+  var swing = parseInt(document.getElementById('swing').textContent) || 62;
+  var swingNorm = Math.max(0, (swing - 50) / 50); // 0 = straight, 0.32 = heavy
+  var swingPx = Math.round(swingNorm * 12); // 0-12px range
+  var swingStyle = swingPx > 0 ? ' style="--swing-offset:' + swingPx + 'px"' : '';
+  var swingClass = swingPx > 0 ? ' swing-offset' : '';
+
   // Update the section name display above the grid
   var pl = document.getElementById('patternLabel');
   if (pl) pl.textContent = SL[curSec] || curSec;
@@ -145,7 +153,8 @@ function renderGrid() {
     // Step number header
     gridHtml += '<div class="grid-header">';
     for (var i = 0; i < stepsInBar; i++) {
-      gridHtml += '<div class="beat-num' + ((i % 4 === 0) ? ' db' : '') + '" data-step="' + (barStart + i) + '">' + (i + 1) + '</div>';
+      var isOdd = (i % 2 === 1);
+      gridHtml += '<div class="beat-num' + ((i % 4 === 0) ? ' db' : '') + (isOdd ? swingClass : '') + '" data-step="' + (barStart + i) + '"' + (isOdd ? swingStyle : '') + '>' + (i + 1) + '</div>';
     }
     gridHtml += '</div>';
 
@@ -166,10 +175,15 @@ function renderGrid() {
           }
         }
         var stepInBar = i - barStart;
+        var isOddStep = (stepInBar % 2 === 1);
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
         var ariaVel = _gridVelMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
-        var velStyle = vel > 0 ? ' style="--vel-h:' + pct + '%"' : '';
-        gridHtml += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '"' + velStyle + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
+        // Combine swing offset with velocity bar into one style attribute
+        var styleStr = '';
+        if (vel > 0 && isOddStep && swingPx > 0) styleStr = ' style="--vel-h:' + pct + '%;--swing-offset:' + swingPx + 'px"';
+        else if (vel > 0) styleStr = ' style="--vel-h:' + pct + '%"';
+        else if (isOddStep && swingPx > 0) styleStr = ' style="--swing-offset:' + swingPx + 'px"';
+        gridHtml += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + (isOddStep ? swingClass : '') + '"' + styleStr + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
       }
       gridHtml += '</div>';
     }

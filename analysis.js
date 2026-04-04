@@ -84,6 +84,7 @@ function analyzeBeat() {
   // === FLOW GUIDE ===
   lines.push('');
   lines.push('🎤 <b>FLOW GUIDE</b>');
+  lines.push('<span style="font-size:0.85em;color:#606078">Tip: double-click the BPM display (or press T) to tap in your own tempo.</span>');
   var kickHitsForFlow = 0; for (var i = 0; i < 16; i++) if (baseKick[i]) kickHitsForFlow++;
 
   // Calculate syllable density suggestion based on kick pattern and BPM
