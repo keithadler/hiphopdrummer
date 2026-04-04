@@ -341,25 +341,30 @@ midi-player::part(play-button){color:var(--accent-green)}
   #aboutBeatPanel{position:static;max-height:none}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
-  /* Controls: flex-wrap into 2 rows */
+  /* Controls: 2 rows — buttons on top, info centered below */
   .controls-bar{
     display:flex;
     flex-wrap:wrap;
     gap:6px;
     align-items:center;
+    justify-content:center;
   }
-  /* Row 1: PLAY, NEW BEAT, Style, Key, BPM, Swing */
-  .btn-play-header{font-size:13px;height:36px;padding:0 14px}
-  .btn-gen{font-size:13px;height:36px;padding:0 12px}
-  .ctrl-group{height:34px;padding:3px 8px}
+  /* Row 1: all buttons via order */
+  .btn-play-header{order:1;font-size:13px;height:36px;padding:0 14px}
+  .btn-gen{order:2;font-size:13px;height:36px;padding:0 12px}
+  .btn-export{order:3;font-size:12px;height:34px;padding:0 10px;margin-left:auto}
+  .btn-share{order:4;font-size:12px;height:34px;padding:0 10px}
+  .btn-history{order:5;font-size:12px;height:34px;padding:0 10px}
+  .btn-prefs{order:6;font-size:12px;height:34px;padding:0 10px}
+  /* Row 2: info groups centered, forced to new line */
+  .ctrl-style{order:8}
+  .ctrl-group{order:9;height:34px;padding:3px 8px}
   .ctrl-label{font-size:13px}
   .ctrl-input{font-size:15px}
   .ctrl-input-wide{max-width:140px;font-size:13px}
-  /* Row 2: EXPORT, SHARE, HISTORY, PREFS pushed right */
-  .btn-export{margin-left:auto;font-size:12px;height:34px;padding:0 10px}
-  .btn-share{font-size:12px;height:34px;padding:0 10px}
-  .btn-history{font-size:12px;height:34px;padding:0 10px}
-  .btn-prefs{font-size:12px;height:34px;padding:0 10px}
+  /* Force line break before info row */
+  .ctrl-style::before{content:'';width:0;order:7}
+  .controls-bar::before{content:'';flex-basis:100%;height:0;order:7}
   .grid-row{overflow-x:hidden}
   .cell{flex:1;min-width:0}
   .row-label{width:70px;font-size:13px;padding-right:4px}
