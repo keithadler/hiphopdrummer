@@ -233,6 +233,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.crash.on{background:#c0b030}
 .cell.shaker.on{background:#70b870}
 .cell.beat-start{margin-left:3px}
+/* Edit mode: cells get a subtle border and pointer cursor to indicate they're clickable */
+.grid-edit-mode .cell{cursor:pointer;border-color:rgba(224,72,72,.15)}
+.grid-edit-mode .cell:hover{border-color:rgba(224,72,72,.5)}
 .cell.playback-cursor{box-shadow:inset 0 0 0 2px var(--accent-green);border-color:var(--accent-green)}
 /* FX: Cursor trail — fading ghost on previous steps */
 .cell.cursor-trail{box-shadow:inset 0 0 0 1px rgba(80,255,160,.25);border-color:rgba(80,255,160,.15);transition:box-shadow .3s ease-out,border-color .3s ease-out}
@@ -501,9 +504,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 
   /* Panels */
   .panel{padding:8px 8px}
-  .panel-title{font-size:13px;letter-spacing:.8px}
-  .pattern-info{font-size:12px}
-  .pattern-tools{gap:3px}
+  .panel-title{font-size:13px;letter-spacing:.8px;flex-wrap:wrap}
+  .pattern-info{font-size:12px;width:100%}
+  .pattern-tools{gap:3px;width:100%;justify-content:flex-start;margin-left:0}
   .btn-tool{font-size:9px;height:22px;padding:0 5px}
 
   /* Arrangement */
@@ -538,7 +541,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .about-arrow{font-size:14px}
 
   /* Bar tabs */
-  .bar-btn{font-size:12px;padding:3px 8px}
+  .bar-btn{font-size:12px;padding:3px 8px;flex:0 0 calc(25% - 3px)}
   .bar-tabs{gap:3px;flex-wrap:wrap}
 
   /* MIDI player */
