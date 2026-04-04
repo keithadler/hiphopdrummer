@@ -285,6 +285,14 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 - Click any filled grid cell to hear that drum hit at its programmed velocity through the SoundFont synth (when not playing)
 - Click any row label (Kick, Snare, Hat, etc.) to audition that instrument at velocity 100
 - Click any cell to see a tooltip explaining why that hit is at that velocity
+- **Edit mode** (✏ toggle in player controls): switches from educational tooltips to editing
+  - Click empty cell → adds a hit at default velocity for that instrument
+  - Click filled cell → opens velocity slider (1-127) with delete button
+  - All edits auto-save to the current history slot (debounced 500ms)
+  - Edit mode auto-disables during playback; velocity editor closes on play
+- **Regenerate section** (🎲): regenerates the current section's drum pattern with fresh randomization, preserving the style/feel. Undoable.
+- **Section loop** (🔁): loops the current section during playback instead of advancing to the next
+- **Undo** (↩): reverts the last edit (cell add/delete/velocity change or section regenerate). 1 level.
 
 ### Playback Features
 - Play/Stop button in the header — green "▶ PLAY" turns red "■ STOP" during playback
