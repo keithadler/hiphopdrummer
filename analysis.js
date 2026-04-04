@@ -969,6 +969,8 @@ function analyzeBeat() {
   lines.push('• The <b>pad swells into the chorus</b> — velocity ramps up in the last 2 bars of the verse, building energy for the section change.');
   lines.push('• The <b>breakdown strips everything down</b> — drums thin, bass simplifies, keys get quieter, creating contrast for the last chorus re-entry.');
   lines.push('This is how a real band plays. Every musician listens to every other musician. The space between instruments is as important as the notes.');
+  lines.push('<b>Beat drops:</b> When the drums go silent (breakdown endings, pre-chorus drops, mid-verse pauses), ALL instruments go silent too — bass, keys, everything. The silence makes the re-entry hit like a truck.');
+  lines.push('<b>Strict vs Improvise:</b> In Preferences, choose Strict (default) for identical playback every time, or Improvise for slight variations each play. Drums and bass are always consistent — they\'re the foundation.');
 
   // === WHAT TO LISTEN FOR ===
   lines.push('');

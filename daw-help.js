@@ -237,6 +237,22 @@ function buildHelpGeneral(bpm, swing, noSwing) {
     'Not every style uses every instrument. Empty channels are normal.',
     'Load each into a separate track with the appropriate GM sound.',
     '',
+    'STRICT vs IMPROVISE MODE',
+    '------------------------',
+    'In Preferences, you can choose how melodic instruments behave:',
+    '  Strict (default): same part every play — good for learning/practicing.',
+    '  Improvise: slight variations each play — like a live band.',
+    'Drums and bass are always consistent as the rhythmic foundation.',
+    '',
+    'BEAT DROPS',
+    '----------',
+    'The beat includes moments where ALL instruments go silent:',
+    '  - Last 4 steps of the breakdown (before the re-entry slam)',
+    '  - Last 2-4 steps of the pre-chorus (before the chorus drop)',
+    '  - Occasional 1-beat silence in verses (dramatic pause)',
+    'These drops affect every instrument — drums, bass, and all melodic',
+    'tracks. The silence makes the re-entry hit harder.',
+    '',
   ]).concat(_footerSection()).join('\r\n');
 }
 
