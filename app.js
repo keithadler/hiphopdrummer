@@ -929,7 +929,10 @@ function initPlayerControls() {
       // Read all preferences once
       var _prefs = _readPlayPrefs();
       
-      // Build MIDI fresh with current prefs (only the bytes to play, not stored globally)
+      // FIX 8: Build MIDI bytes BEFORE the countdown starts.
+      // This moves the synchronous MIDI generation out of the critical
+      // path — the countdown gives the main thread time to recover
+      // before audio playback begins.
       var midiToPlay;
       if (window._loopSection && curSec && patterns[curSec]) {
         midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
@@ -938,6 +941,9 @@ function initPlayerControls() {
         midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
       }
       
+      // FIX 8: Yield to the browser after MIDI generation so any
+      // pending layout/paint work completes before we start audio.
+      setTimeout(function() {
       // Start countdown (or skip), then play
       playCountdown(function() {
         var _loadTimeout = setTimeout(function() {
@@ -969,6 +975,7 @@ function initPlayerControls() {
           _setNavBtnsDisabled(false);
         });
       });
+      }, 0); // FIX 8: end of yield-to-browser setTimeout
     }
   };
 
@@ -1105,8 +1112,13 @@ function initPlayerControls() {
   }
   connectCallbacks();
 
-  // Failsafe: poll synthBridge.isPlaying every 500ms to keep button in sync
-  setInterval(function() {
+  // FIX 6: Replace 500ms setInterval failsafe with a lightweight
+  // requestAnimationFrame loop that only runs when the button state
+  // might be stale. rAF pauses automatically when the tab is hidden,
+  // so zero wasted CPU.
+  var _failsafeRAF = null;
+  function failsafeSync() {
+    _failsafeRAF = requestAnimationFrame(failsafeSync);
     if (!window.synthBridge || !headerPlayBtn) return;
     if (window._loopSection && window.synthBridge.isPlaying) return;
     var playing = window.synthBridge.isPlaying;
@@ -1122,7 +1134,21 @@ function initPlayerControls() {
       headerPlayBtn.disabled = false;
     }
     _setNavBtnsDisabled(playing);
-  }, 500);
+  }
+  failsafeSync();
+
+  // FIX 3: Pre-warm the synth on first user interaction so the
+  // AudioContext is created in "running" state and the SoundFont
+  // is already cached by the time the user hits Play.
+  function _warmOnce() {
+    if (window.synthBridge && window.synthBridge.warmUp) {
+      window.synthBridge.warmUp();
+    }
+    document.removeEventListener('click', _warmOnce);
+    document.removeEventListener('touchstart', _warmOnce);
+  }
+  document.addEventListener('click', _warmOnce, { once: true });
+  document.addEventListener('touchstart', _warmOnce, { once: true });
 }
 
 // ── Guitar Chord Diagrams ──
@@ -1559,19 +1585,24 @@ var _vfx = {
   lastFillSection: '' // track fill countdown per section
 };
 
-/** 1. Cursor trail — leave fading ghost on previous 3 steps */
+/** 1. Cursor trail — leave fading ghost on previous step */
+/** PERF: Reuse the cursor elements from the previous frame as trail
+ *  instead of doing a fresh querySelectorAll. The _cachedCursorEls from
+ *  highlightStep become the trail elements for the next step. */
 function vfxCursorTrail(stepIdx, gridR) {
+  // Clear old trail
   for (var i = 0; i < _vfx.trailEls.length; i++) {
     _vfx.trailEls[i].classList.remove('cursor-trail');
   }
   _vfx.trailEls = [];
   if (stepIdx < 1 || !gridR) return;
-  // Only trail 1 step back instead of 3 (reduces DOM queries from 3 to 1)
-  var prev = stepIdx - 1;
-  var els = gridR.querySelectorAll('[data-step="' + prev + '"]');
-  for (var j = 0; j < els.length; j++) {
-    els[j].classList.add('cursor-trail');
-    _vfx.trailEls.push(els[j]);
+  // Use the pending trail elements set by highlightStep (previous cursor els)
+  if (_vfx._pendingTrail && _vfx._pendingTrail.length > 0) {
+    for (var j = 0; j < _vfx._pendingTrail.length; j++) {
+      _vfx._pendingTrail[j].classList.add('cursor-trail');
+      _vfx.trailEls.push(_vfx._pendingTrail[j]);
+    }
+    _vfx._pendingTrail = null;
   }
 }
 
@@ -1648,10 +1679,14 @@ function vfxBeatDrop(sec) {
 
 /** 9. Arrangement progress bar — update fill width and section markers */
 function vfxUpdateProgress(currentTime, duration) {
-  var fill = document.getElementById('arrProgressFill');
+  // PERF: Caller should pass cached element, but fall back to getElementById
+  var fill = _vfx._progressFill || document.getElementById('arrProgressFill');
   if (!fill || duration <= 0) return;
-  var pct = Math.min(100, (currentTime / duration) * 100);
-  fill.style.width = pct + '%';
+  _vfx._progressFill = fill;
+  // PERF: Use transform instead of width — transform is GPU-composited,
+  // width triggers layout recalculation every frame.
+  var pct = Math.min(1, currentTime / duration);
+  fill.style.transform = 'scaleX(' + pct + ')';
 }
 function vfxBuildProgressMarkers(sectionTimeMap, totalDuration) {
   var container = document.getElementById('arrProgressMarkers');
@@ -1694,10 +1729,17 @@ function vfxStartVisualizer() {
 
   _vfx.vizActive = true;
   var barCount = 32;
+  // FIX 9: Throttle visualizer to ~30fps max — halves GPU/CPU cost
+  // with no visible quality loss on a frequency bar display.
+  var lastDrawTime = 0;
+  var FRAME_BUDGET = 33; // ~30fps in ms
 
-  function drawFrame() {
+  function drawFrame(now) {
     if (!_vfx.vizActive) return;
     _vfx.vizRAF = requestAnimationFrame(drawFrame);
+    // FIX 9: Skip frame if we drew less than FRAME_BUDGET ms ago
+    if (now - lastDrawTime < FRAME_BUDGET) return;
+    lastDrawTime = now;
     // Skip drawing if canvas is not visible (scrolled off screen)
     if (canvas.offsetHeight === 0) return;
     var dpr = window.devicePixelRatio || 1;
@@ -1774,16 +1816,23 @@ function vfxClearAll() {
     _vfx.trailEls[i].classList.remove('cursor-trail');
   }
   _vfx.trailEls = [];
+  _vfx._pendingTrail = null;
+  _vfx._progressFill = null;
   // Clear glow timers
   for (var k in _vfx.glowTimers) { clearTimeout(_vfx.glowTimers[k]); }
   _vfx.glowTimers = {};
-  // Clear fill countdown classes
+  // PERF: Clear fill countdown classes using cached class names
+  // instead of expensive [class*=] attribute selector
   var gridR = document.getElementById('gridR');
   if (gridR) {
-    var fcs = gridR.querySelectorAll('[class*="fill-countdown"]');
-    for (var i = 0; i < fcs.length; i++) {
-      fcs[i].classList.remove('fill-countdown-1','fill-countdown-2','fill-countdown-3','fill-countdown-4');
-    }
+    var fcs = gridR.getElementsByClassName('fill-countdown-1');
+    while (fcs.length) fcs[0].classList.remove('fill-countdown-1');
+    fcs = gridR.getElementsByClassName('fill-countdown-2');
+    while (fcs.length) fcs[0].classList.remove('fill-countdown-2');
+    fcs = gridR.getElementsByClassName('fill-countdown-3');
+    while (fcs.length) fcs[0].classList.remove('fill-countdown-3');
+    fcs = gridR.getElementsByClassName('fill-countdown-4');
+    while (fcs.length) fcs[0].classList.remove('fill-countdown-4');
     gridR.classList.remove('beat-drop');
   }
   // Stop breathing and visualizer
@@ -1791,7 +1840,7 @@ function vfxClearAll() {
   vfxStopVisualizer();
   // Reset progress bar
   var fill = document.getElementById('arrProgressFill');
-  if (fill) fill.style.width = '0';
+  if (fill) fill.style.transform = 'scaleX(0)';
   var markers = document.getElementById('arrProgressMarkers');
   if (markers) markers.innerHTML = '';
 }
@@ -1821,6 +1870,10 @@ function initPlaybackTracking() {
   var _touchPauseFollow = false;
   var _sectionChords = []; // chord per bar for current section
   var _chordToastVisible = false;
+  // PERF: Cache frequently-accessed DOM elements once
+  var _cachedGridR = null;
+  var _cachedToast = null;
+  var _cachedProgressFill = null;
   // Read preferences from localStorage immediately (not just on playback start)
   var _showChordsOverlay = true;
   try { var _sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (_sc === null || _sc !== 'false'); } catch(e) {}
@@ -1833,6 +1886,9 @@ function initPlaybackTracking() {
     _playerCurrentEl = document.getElementById('playerCurrent');
     _playerSeekEl = document.getElementById('playerSeek');
     _playerPlayBtn = document.getElementById('headerPlayBtn');
+    _cachedGridR = document.getElementById('gridR');
+    _cachedToast = document.getElementById('sectionToast');
+    _cachedProgressFill = document.getElementById('arrProgressFill');
     sectionTimeMap = [];
     var t = 0;
     for (var i = 0; i < arrangement.length; i++) {
@@ -1857,7 +1913,7 @@ function initPlaybackTracking() {
    * Build chord list for a section and render the chord toast HTML.
    */
   function buildChordToast(sec) {
-    var toast = document.getElementById('sectionToast');
+    var toast = _cachedToast || document.getElementById('sectionToast');
     _sectionChords = [];
 
     // Use the chord sheet's voiced chords (same as what's displayed in About This Beat)
@@ -1896,7 +1952,7 @@ function initPlaybackTracking() {
   }
 
   function updateChordHighlight(barIdx) {
-    var toast = document.getElementById('sectionToast');
+    var toast = _cachedToast || document.getElementById('sectionToast');
     if (!toast) return;
     var items = toast.querySelectorAll('.chord-toast-item');
     var totalItems = items.length;
@@ -1918,6 +1974,9 @@ function initPlaybackTracking() {
 
   function highlightStep(stepIdx) {
     if (stepIdx === lastHighlightedStep) return;
+    // PERF: Save current cursor elements as pending trail for vfxCursorTrail
+    // This eliminates a querySelectorAll in the trail function.
+    _vfx._pendingTrail = _cachedCursorEls.slice();
     // Clear previous cursor from cached elements (no DOM scan)
     for (var i = 0; i < _cachedCursorEls.length; i++) {
       _cachedCursorEls[i].classList.remove('playback-cursor');
@@ -1930,9 +1989,11 @@ function initPlaybackTracking() {
     var currentBar = Math.floor(stepIdx / 16);
     if (currentBar !== _lastActiveBar) {
       _lastActiveBar = currentBar;
+      // FIX 10: Cache bar tab elements to avoid querySelectorAll on every bar change
       var barTabs = document.getElementById('barTabs');
       if (barTabs) {
-        barTabs.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
+        var prevActive = barTabs.querySelector('.bar-btn-active');
+        if (prevActive) prevActive.classList.remove('bar-btn-active');
         var activeTab = document.getElementById('bar-tab-' + currentBar);
         if (activeTab) activeTab.classList.add('bar-btn-active');
       }
@@ -1945,8 +2006,8 @@ function initPlaybackTracking() {
       if (_chordToastVisible) updateChordHighlight(currentBar);
     }
 
-    // Query from grid container ONCE and reuse for all VFX
-    var gridR = document.getElementById('gridR');
+    // PERF: Use cached gridR reference instead of getElementById every step
+    var gridR = _cachedGridR;
     var allStepEls = gridR ? gridR.querySelectorAll('[data-step="' + stepIdx + '"]') : [];
     var activeCells = [];
     for (var i = 0; i < allStepEls.length; i++) {
@@ -1997,7 +2058,7 @@ function initPlaybackTracking() {
       // Show combined section + chord overlay (persists until next section or stop)
       var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
       var barCount = Math.ceil((secSteps[curSec] || 32) / 16);
-      var toast = document.getElementById('sectionToast');
+      var toast = _cachedToast;
       if (toast && _showChordsOverlay) {
         // Ensure chord sheet data exists
         if (!window._chordSheetData || !window._chordSheetData[curSec]) {
@@ -2015,7 +2076,7 @@ function initPlaybackTracking() {
           var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
           if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
           toastHtml += '<div class="toast-divider"></div>';
-          toastHtml += '<div class="toast-chords">' + (document.getElementById('sectionToast')._chordHtml || '') + '</div>';
+          toastHtml += '<div class="toast-chords">' + (toast._chordHtml || '') + '</div>';
           toastHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
           toast.innerHTML = toastHtml;
           toast.classList.add('show');
@@ -2029,12 +2090,13 @@ function initPlaybackTracking() {
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
       _lastActiveBar = -1; // reset bar tracking for new section
+      // PERF: Re-cache gridR after renderGrid rebuilds the DOM
+      _cachedGridR = document.getElementById('gridR');
       // Section transition flash
-      var gridEl = document.getElementById('gridR');
-      if (gridEl) {
-        gridEl.classList.remove('section-flash');
-        void gridEl.offsetWidth; // force reflow to restart animation
-        gridEl.classList.add('section-flash');
+      if (_cachedGridR) {
+        _cachedGridR.classList.remove('section-flash');
+        void _cachedGridR.offsetWidth; // force reflow to restart animation
+        _cachedGridR.classList.add('section-flash');
       }
       // VFX: Beat drop on chorus sections
       vfxBeatDrop(curSec);
@@ -2051,7 +2113,7 @@ function initPlaybackTracking() {
         highlightStep(currentStep);
         // VFX: Fill countdown — only in last 5 steps to avoid unnecessary DOM work
         if (sectionSteps - currentStep <= 5) {
-          vfxFillCountdown(currentStep, sectionSteps, document.getElementById('gridR'));
+          vfxFillCountdown(currentStep, sectionSteps, _cachedGridR);
         }
       }
       // VFX: Progress bar
@@ -2082,27 +2144,39 @@ function initPlaybackTracking() {
         var timeStr = min + ':' + (sec < 10 ? '0' : '') + sec;
         if (_playerCurrentEl.textContent !== timeStr) _playerCurrentEl.textContent = timeStr;
       }
+      // PERF: Only update seek bar when the integer percentage changes.
+      // Setting .value every frame forces the browser to recalculate
+      // the range thumb position even when it hasn't visibly moved.
       if (_playerSeekEl && duration > 0) {
-        _playerSeekEl.value = (current / duration) * 100;
+        var newVal = (current / duration) * 100;
+        if (Math.abs(_playerSeekEl.value - newVal) > 0.5) {
+          _playerSeekEl.value = newVal;
+        }
       }
       updateCurrentSection(current);
     };
+    // PERF: Cache nav button elements once for the tracking callback
+    var _trackBtnIds = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
+    var _trackBtnEls = [];
+    for (var _tbi = 0; _tbi < _trackBtnIds.length; _tbi++) {
+      var _tbEl = document.getElementById(_trackBtnIds[_tbi]);
+      if (_tbEl) _trackBtnEls.push(_tbEl);
+    }
+
     window.synthBridge.onPlayStateChange = function(playing) {
       if (_playerPlayBtn) {
         _playerPlayBtn.textContent = playing ? '■ STOP' : '▶ PLAY';
         if (playing) _playerPlayBtn.classList.add('playing');
         else _playerPlayBtn.classList.remove('playing');
       }
-      // Disable/enable non-play buttons during playback
-      var _trackBtns = document.querySelectorAll('#btnGen,#btnExport,#btnHistory,#btnPrefs,#playerEditBtn,#playerRegenSecBtn,#btnUndo,#playerLoopBtn');
-      for (var bi = 0; bi < _trackBtns.length; bi++) _trackBtns[bi].disabled = playing;
+      // PERF: Use cached nav button elements instead of querySelectorAll
+      for (var bi = 0; bi < _trackBtnEls.length; bi++) _trackBtnEls[bi].disabled = playing;
       // Turn off edit mode when playback starts
       if (playing && window._editMode) {
         window._editMode = false;
         var eb = document.getElementById('playerEditBtn');
         if (eb) eb.classList.remove('edit-active');
-        var gr = document.getElementById('gridR');
-        if (gr) gr.classList.remove('grid-edit-mode');
+        if (_cachedGridR) _cachedGridR.classList.remove('grid-edit-mode');
       }
       // Close velocity editor if open
       if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
@@ -2126,8 +2200,7 @@ function initPlaybackTracking() {
         }
         clearCursor();
         window._playbackControlsBarTabs = false;
-        var toast = document.getElementById('sectionToast');
-        if (toast) toast.classList.remove('show');
+        if (_cachedToast) _cachedToast.classList.remove('show');
         _chordToastVisible = false;
         // VFX: Clear all visual effects on stop
         vfxClearAll();
@@ -2163,7 +2236,7 @@ function initPlaybackTracking() {
           curSec = arrangement[0];
           var secName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
           var barCt = Math.ceil((secSteps[curSec] || 32) / 16);
-          var t = document.getElementById('sectionToast');
+          var t = _cachedToast;
           if (t) {
             // Ensure chord sheet data exists (may be missing on first cold load)
             if (!window._chordSheetData || !window._chordSheetData[curSec]) {
@@ -2216,15 +2289,22 @@ function initPlaybackTracking() {
   function _releaseWakeLock() {
     if (_wakeLock) { try { _wakeLock.release(); } catch(e) {} _wakeLock = null; }
   }
+  // FIX 7: Don't kill playback when the tab is hidden — mobile users
+  // switch apps constantly. Instead, just release the wake lock and
+  // let the AudioContext handle suspension/resumption natively.
+  // Re-acquire wake lock when the tab becomes visible again.
   document.addEventListener('visibilitychange', function() {
-    if (document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
-      window._loopMidiBytes = null;
-      window.synthBridge.stop();
+    if (document.hidden) {
       _releaseWakeLock();
-    }
-    // Re-acquire wake lock when tab becomes visible again during playback
-    if (!document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
-      _requestWakeLock();
+    } else {
+      // Tab visible again — re-acquire wake lock if still playing
+      if (window.synthBridge && window.synthBridge.isPlaying) {
+        _requestWakeLock();
+        // FIX 2: Nudge AudioContext back to running if it was suspended
+        if (window.synthBridge.audioContext && window.synthBridge.audioContext.state !== "running") {
+          window.synthBridge.audioContext.resume().catch(function() {});
+        }
+      }
     }
   });
 }

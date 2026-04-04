@@ -120,70 +120,64 @@ function renderGrid() {
     };
   });
 
-  // Build the grid rows — one "page" per bar
-  var rows = document.getElementById('gridR');
-  rows.innerHTML = '';
+  // PERF: Build the entire grid as a single HTML string and assign once
+  // via innerHTML. This is significantly faster than createElement +
+  // appendChild in a loop because the browser only parses and lays out
+  // the DOM tree once instead of incrementally on each append.
+  var gridHtml = '';
+  var chordData = (window._chordSheetData && window._chordSheetData[curSec]) ? window._chordSheetData[curSec] : null;
+  var secClassName = typeof vfxSectionClass === 'function' ? ' ' + vfxSectionClass(curSec) : '';
 
   for (var page = 0; page < totalPages; page++) {
     var barStart = page * 16, barEnd = Math.min(barStart + 16, len);
     var stepsInBar = barEnd - barStart;
 
-    // Bar label with chord function color (scroll target for bar tab buttons)
-    var label = document.createElement('div');
-    label.id = 'grid-page-' + page;
-    label.className = 'grid-page-label' + (typeof vfxSectionClass === 'function' ? ' ' + vfxSectionClass(curSec) : '');
+    // Bar label
     var barLabelText = 'Bar ' + (page + 1);
-    // Add chord function indicator if chord data is available
-    var chordData = (window._chordSheetData && window._chordSheetData[curSec]) ? window._chordSheetData[curSec] : null;
     if (chordData && chordData[page]) {
       var fn = chordData[page].fn;
       var chordName = chordData[page].name;
       var fnColor = (fn === 'I') ? 'var(--accent-red)' : (fn === 'IV' || fn === 'ii' || fn === 'bVI' || fn === 'bIII') ? 'var(--accent-blue)' : (fn === 'V' || fn === 'bII' || fn === 'bVII' || fn === '#idim') ? 'var(--accent-green)' : 'var(--text-dim)';
       barLabelText += ' <span style="color:' + fnColor + ';font-size:0.85em;margin-left:6px">' + chordName + ' (' + fn + ')</span>';
     }
-    label.innerHTML = barLabelText;
-    rows.appendChild(label);
+    gridHtml += '<div id="grid-page-' + page + '" class="grid-page-label' + secClassName + '">' + barLabelText + '</div>';
 
-    // Step number header (1–16), with beat boundaries highlighted
-    var hdr = document.createElement('div');
-    hdr.className = 'grid-header';
-    var hh = '';
+    // Step number header
+    gridHtml += '<div class="grid-header">';
     for (var i = 0; i < stepsInBar; i++) {
-      // 'db' class marks downbeat positions (steps 1, 5, 9, 13) for visual emphasis
-      hh += '<div class="beat-num' + ((i % 4 === 0) ? ' db' : '') + '" data-step="' + (barStart + i) + '">' + (i + 1) + '</div>';
+      gridHtml += '<div class="beat-num' + ((i % 4 === 0) ? ' db' : '') + '" data-step="' + (barStart + i) + '">' + (i + 1) + '</div>';
     }
-    hdr.innerHTML = hh;
-    rows.appendChild(hdr);
+    gridHtml += '</div>';
 
-    // One row per instrument
-    ROWS.forEach(function(r) {
-      var row = document.createElement('div');
-      row.className = 'grid-row';
+    // Instrument rows
+    for (var ri = 0; ri < ROWS.length; ri++) {
+      var r = ROWS[ri];
       var rowTip = ROW_TIPS[r] ? ' title="' + ROW_TIPS[r] + '"' : '';
-      var html = '<div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
-      var velocityMode = _gridVelMode;
+      gridHtml += '<div class="grid-row"><div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
         var pct = vel > 0 ? Math.round(vel / 127 * 100) : 0;
         var velText = '';
         if (vel > 0) {
-          if (velocityMode === 'midi') {
+          if (_gridVelMode === 'midi') {
             velText = (vel < 127) ? vel.toString() : '';
           } else {
             velText = (pct > 0 && pct < 100) ? pct + '%' : '';
           }
         }
         var stepInBar = i - barStart;
-        // 'beat-start' class adds a left border at beat boundaries (steps 5, 9, 13)
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
-        var ariaVel = velocityMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
+        var ariaVel = _gridVelMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
         var velStyle = vel > 0 ? ' style="--vel-h:' + pct + '%"' : '';
-        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '"' + velStyle + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
+        gridHtml += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '"' + velStyle + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
       }
-      row.innerHTML = html;
-      rows.appendChild(row);
-    });
+      gridHtml += '</div>';
+    }
   }
+
+  // Single innerHTML assignment — one parse, one layout
+  var rows = document.getElementById('gridR');
+  rows.innerHTML = gridHtml;
 
   // Scroll grid container to top so Bar 1 is visible after render
   var gridContainer = document.getElementById('gridR');
@@ -312,6 +306,19 @@ function _selectArrItem(idx) {
  *   updates #arrTime, optionally calls updateMidiPlayer()
  */
 function renderArr(skipMidiUpdate) {
+  // PERF: During playback, only the .playing class changes between sections.
+  // Skip the full DOM rebuild and just move the class.
+  if (skipMidiUpdate && window._playbackControlsBarTabs) {
+    var f = document.getElementById('arrFlow');
+    if (f) {
+      var items = f.children;
+      for (var ci = 0; ci < items.length; ci++) {
+        if (ci === arrIdx) items[ci].classList.add('playing');
+        else items[ci].classList.remove('playing');
+      }
+    }
+    return;
+  }
   var f = document.getElementById('arrFlow');
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   f.innerHTML = arrangement.map(function(s, i) {

@@ -210,15 +210,15 @@ midi-player::part(play-button){color:var(--accent-green)}
 .grid-page-label{font-family:var(--mono);font-size:18px;color:var(--text-dim);padding:10px 0 4px 0;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:8px}
 .grid-page-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .grid-page-label:first-child{padding-top:0}
-.section-flash{animation:sec-flash 0.4s ease-out}
+.section-flash{animation:sec-flash 0.4s ease-out;will-change:background}
 @keyframes sec-flash{0%{background:rgba(80,160,255,.15)}100%{background:transparent}}
 .grid-header{display:flex;align-items:center;margin-bottom:2px;padding-left:90px}
 .beat-num{flex:1;text-align:center;min-width:0;font-family:var(--mono);font-size:18px;color:var(--text-dim);font-weight:500;padding:2px 0}
 .beat-num.db{color:var(--accent-red);font-weight:700}
-.grid-row{display:flex;align-items:center;margin-bottom:1px}
+.grid-row{display:flex;align-items:center;margin-bottom:1px;contain:layout}
 .row-label{width:90px;flex-shrink:0;font-family:var(--mono);font-size:18px;color:var(--text-muted);text-align:right;padding-right:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:500;cursor:pointer}
 .row-label:hover{color:var(--accent-blue)}
-.cell{flex:1;height:28px;margin:1px;border-radius:3px;min-width:0;border:1px solid transparent;background:var(--bg-deep);font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.9);font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;position:relative}
+.cell{flex:1;height:28px;margin:1px;border-radius:3px;min-width:0;border:1px solid transparent;background:var(--bg-deep);font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.9);font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;position:relative;contain:layout style}
 .cell.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:var(--vel-h,0%);background:rgba(255,255,255,.15);border-radius:0 0 2px 2px;pointer-events:none;transition:height .1s}
 .cell.kick.on{background:#d04040}
 .cell.snare.on{background:#e8a020}
@@ -239,8 +239,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.cursor-trail{box-shadow:inset 0 0 0 1px rgba(80,255,160,.25);border-color:rgba(80,255,160,.15);transition:box-shadow .3s ease-out,border-color .3s ease-out}
 .beat-num.cursor-trail{color:rgba(80,255,160,.3);transition:color .3s ease-out}
 /* FX: Hit flash — cell brightens when cursor lands on active hit */
+/* PERF: Use opacity animation instead of filter:brightness — opacity is GPU-composited, brightness triggers repaint */
 .cell.hit-flash{animation:hit-pop .2s ease-out}
-@keyframes hit-pop{0%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+@keyframes hit-pop{0%{opacity:.6}100%{opacity:1}}
 /* FX: Row glow — row label glows in instrument color on hit */
 .row-label.row-glow{transition:color .15s,text-shadow .15s}
 .row-label.glow-kick{color:#d04040;text-shadow:0 0 8px rgba(208,64,64,.6)}
@@ -271,7 +272,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 
 /* FX: Arrangement progress bar */
 .arr-progress{height:8px;background:var(--border);border-radius:4px;margin-bottom:6px;overflow:hidden;position:relative}
-.arr-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:2px;transition:width .15s linear;width:0}
+.arr-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:2px;width:100%;transform:scaleX(0);transform-origin:left;will-change:transform}
 .arr-progress-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none}
 .arr-progress-mark{position:absolute;top:0;width:1px;height:100%;background:rgba(255,255,255,.2)}
 

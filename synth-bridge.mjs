@@ -20,25 +20,65 @@ let soundFontBuffer = null;
 let isPlaying = false;
 let onTimeUpdate = null;
 let onPlayStateChange = null;
-let trackingInterval = null;
+let trackingRAF = null;       // FIX 1: rAF replaces setInterval
+let _initPromise = null;      // FIX 5: deduplicate concurrent init calls
+let _sfCached = false;        // FIX 5: track SoundFont cache state
 
 /**
  * Initialize the synthesizer with the SoundFont.
  * Must be called once before any playback.
+ * FIX 3: Returns a shared promise so concurrent calls don't double-init.
+ * FIX 5: SoundFont buffer is fetched once and cached.
  */
 async function initSynth() {
   if (synth) return;
-  audioContext = new AudioContext();
-  // Load the worklet processor
-  await audioContext.audioWorklet.addModule("spessasynth_processor.min.js");
-  // Load the SoundFont (keep a copy since addSoundBank transfers the buffer)
-  const sfResponse = await fetch("GeneralUserGS.sf3");
-  const sfOriginal = await sfResponse.arrayBuffer();
-  soundFontBuffer = sfOriginal;
-  // Create the synthesizer
-  synth = new WorkletSynthesizer(audioContext);
-  synth.connect(audioContext.destination);
-  await synth.soundBankManager.addSoundBank(sfOriginal.slice(0), "gm");
+  if (_initPromise) return _initPromise;
+  _initPromise = _doInit();
+  return _initPromise;
+}
+
+async function _doInit() {
+  try {
+    audioContext = new AudioContext();
+    // FIX 2: Listen for AudioContext state changes to auto-recover
+    audioContext.onstatechange = function() {
+      if (audioContext.state === "interrupted" || audioContext.state === "suspended") {
+        // Mobile browsers suspend context when backgrounded; try to resume
+        audioContext.resume().catch(function() {});
+      }
+    };
+    // Load the worklet processor
+    await audioContext.audioWorklet.addModule("spessasynth_processor.min.js");
+    // FIX 5: Load the SoundFont once and cache the buffer
+    if (!_sfCached) {
+      const sfResponse = await fetch("GeneralUserGS.sf3");
+      soundFontBuffer = await sfResponse.arrayBuffer();
+      _sfCached = true;
+    }
+    // Create the synthesizer
+    synth = new WorkletSynthesizer(audioContext);
+    synth.connect(audioContext.destination);
+    await synth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
+  } catch(e) {
+    // Reset so a retry can succeed
+    synth = null;
+    _initPromise = null;
+    throw e;
+  }
+}
+
+/**
+ * FIX 3: Pre-warm the synth engine on first user gesture.
+ * Call this from a click/touch handler so AudioContext starts in "running" state.
+ * Returns immediately if already initialized.
+ */
+async function warmUp() {
+  try {
+    await initSynth();
+    if (audioContext && audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+  } catch(e) { /* non-fatal — real init will retry on play */ }
 }
 
 /**
@@ -47,34 +87,57 @@ async function initSynth() {
  */
 async function playSynthMidi(midiBytes) {
   await initSynth();
-  if (audioContext.state === "suspended") await audioContext.resume();
-  // Stop any existing playback
+  // FIX 2: Robust AudioContext resume with retry
+  if (audioContext.state !== "running") {
+    try { await audioContext.resume(); } catch(e) {}
+    // If still not running after resume, wait a tick and retry once (iOS quirk)
+    if (audioContext.state !== "running") {
+      await new Promise(function(r) { setTimeout(r, 100); });
+      try { await audioContext.resume(); } catch(e) {}
+    }
+  }
+  // FIX 4: Full sequencer reset between songs — destroy and recreate
   if (sequencer) {
     try { sequencer.pause(); } catch(e) {}
+    try { sequencer.currentTime = 0; } catch(e) {}
+    sequencer = null;
   }
-  // Create sequencer if needed
-  if (!sequencer) {
-    sequencer = new Sequencer(synth);
-  }
+  sequencer = new Sequencer(synth);
   // Load the MIDI — SpessaSynth expects {binary: ArrayBuffer, fileName: string}
   const midiBuf = new Uint8Array(midiBytes).buffer;
   sequencer.loadNewSongList([{ binary: midiBuf, fileName: "beat.mid" }]);
   sequencer.play();
   isPlaying = true;
   if (onPlayStateChange) onPlayStateChange(true);
-  // Start tracking
-  if (trackingInterval) clearInterval(trackingInterval);
-  trackingInterval = setInterval(function() {
+  // FIX 1: Replace setInterval with requestAnimationFrame for tracking.
+  // rAF syncs with the display refresh (16ms @ 60fps) — smoother than 50ms polling,
+  // and automatically pauses when the tab is backgrounded (no wasted CPU).
+  _startTracking();
+}
+
+// FIX 1: Shared rAF-based tracking loop — one frame callback handles
+// time updates AND end-of-song detection. No setInterval drift.
+function _startTracking() {
+  _stopTracking();
+  function tick() {
+    if (!isPlaying) return;
     if (sequencer && onTimeUpdate) {
       onTimeUpdate(sequencer.currentTime, sequencer.duration);
     }
-    // Check if playback ended
-    if (sequencer && sequencer.currentTime >= sequencer.duration && isPlaying) {
+    // End-of-song detection
+    if (sequencer && sequencer.duration > 0 && sequencer.currentTime >= sequencer.duration) {
       isPlaying = false;
       if (onPlayStateChange) onPlayStateChange(false);
-      if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+      trackingRAF = null;
+      return;
     }
-  }, 50);
+    trackingRAF = requestAnimationFrame(tick);
+  }
+  trackingRAF = requestAnimationFrame(tick);
+}
+
+function _stopTracking() {
+  if (trackingRAF) { cancelAnimationFrame(trackingRAF); trackingRAF = null; }
 }
 
 /**
@@ -84,6 +147,7 @@ function pauseSynth() {
   if (sequencer && isPlaying) {
     sequencer.pause();
     isPlaying = false;
+    _stopTracking();
     if (onPlayStateChange) onPlayStateChange(false);
   }
 }
@@ -93,20 +157,14 @@ function pauseSynth() {
  */
 function resumeSynth() {
   if (sequencer && !isPlaying) {
-    if (audioContext && audioContext.state === "suspended") audioContext.resume();
+    // FIX 2: Always try to resume AudioContext
+    if (audioContext && audioContext.state !== "running") {
+      audioContext.resume().catch(function() {});
+    }
     sequencer.play();
     isPlaying = true;
     if (onPlayStateChange) onPlayStateChange(true);
-    if (!trackingInterval) {
-      trackingInterval = setInterval(function() {
-        if (sequencer && onTimeUpdate) onTimeUpdate(sequencer.currentTime, sequencer.duration);
-        if (sequencer && sequencer.currentTime >= sequencer.duration && isPlaying) {
-          isPlaying = false;
-          if (onPlayStateChange) onPlayStateChange(false);
-          if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
-        }
-      }, 50);
-    }
+    _startTracking();
   }
 }
 
@@ -114,7 +172,7 @@ function resumeSynth() {
  * Stop playback and reset to beginning.
  */
 function stopSynth() {
-  if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+  _stopTracking();
   if (sequencer) {
     try { sequencer.pause(); } catch(e) {}
     try { sequencer.currentTime = 0; } catch(e) {}
@@ -240,6 +298,7 @@ async function playNote(channel, note, velocity, duration) {
 // Expose to global scope for vanilla JS access
 window.synthBridge = {
   init: initSynth,
+  warmUp: warmUp,
   play: playSynthMidi,
   pause: pauseSynth,
   resume: resumeSynth,

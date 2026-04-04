@@ -128,14 +128,19 @@ function applyGroove(p, len, feel) {
       else if (barInPhrase === 6) arcMult = 1.0 + (0.03 * arcIntensity);
       else if (barInPhrase === 7) arcMult = 1.0 + (0.05 * arcIntensity);
       if (arcMult !== 1.0) {
-        ROWS.forEach(function(r) {
+        // PERF: Plain for loop instead of ROWS.forEach — avoids closure allocation per step
+        for (var ri = 0; ri < ROWS.length; ri++) {
+          var r = ROWS[ri];
           if (p[r][i] > 0) p[r][i] = Math.min(127, Math.max(30, Math.round(p[r][i] * arcMult)));
-        });
+        }
       }
     }
   }
   // Zero out steps beyond the section length to prevent bleed from previous data
-  for (var i = len; i < STEPS; i++) ROWS.forEach(function(r) { p[r][i] = 0; });
+  // PERF: Plain for loop instead of ROWS.forEach — avoids closure allocation per step
+  for (var i = len; i < STEPS; i++) {
+    for (var ri = 0; ri < ROWS.length; ri++) { p[ROWS[ri]][i] = 0; }
+  }
 }
 
 /**
@@ -156,7 +161,9 @@ function humanizeVelocities(p, len, feel) {
   // Player profile — shapes velocity bias and jitter per instrument
   var prof = (typeof activePlayerProfile !== 'undefined') ? activePlayerProfile : null;
 
-  ROWS.forEach(function(r) {
+  // PERF: Plain for loop instead of ROWS.forEach — avoids closure allocation
+  for (var _ri = 0; _ri < ROWS.length; _ri++) {
+    var r = ROWS[_ri];
     // Determine which profile category this instrument falls into
     var profCat = null;
     if (prof) {
@@ -219,7 +226,7 @@ function humanizeVelocities(p, len, feel) {
         p[r][i] = Math.min(127, Math.max(30, p[r][i] + jitter));
       }
     }
-  });
+  }
 }
 
 /**
