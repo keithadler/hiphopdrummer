@@ -1124,7 +1124,14 @@ function initPlayerControls() {
           var sb = localStorage.getItem('hhd_bass_sound') || '33';
           window.synthBridge.setBassProgram(parseInt(sb) || 33);
         } catch(e) {}
-        // Now start countdown, then play
+        // Ensure playback tracking is connected before playing
+        // (connectTracking polls every 50ms for synthBridge — it should connect now that init is done)
+        function _waitForTracking(cb, attempts) {
+          if (window._playbackTrackingConnected || attempts > 20) { cb(); return; }
+          setTimeout(function() { _waitForTracking(cb, attempts + 1); }, 50);
+        }
+        _waitForTracking(function() {
+          // Now start countdown, then play
         playCountdown(function() {
           var _loadTimeout = setTimeout(function() {
             if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
@@ -1159,6 +1166,7 @@ function initPlayerControls() {
             }
           });
         });
+        }, 0); // end _waitForTracking
       }).catch(function() {
         // Synth init failed
         headerPlayBtn.disabled = false;
