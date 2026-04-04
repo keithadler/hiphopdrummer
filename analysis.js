@@ -847,6 +847,104 @@ function analyzeBeat() {
   ];
   lines.push(pick(didYouKnow));
 
+  // === KICK DNA ===
+  lines.push('');
+  lines.push('👟 <b>KICK DNA</b>');
+  var kickDna = '';
+  for (var kd = 0; kd < 16; kd++) {
+    if (baseKick[kd]) {
+      var kv = patterns.verse ? patterns.verse.kick[kd] : 100;
+      kickDna += (kv > 100) ? '<b>X</b>' : 'x';
+    } else {
+      kickDna += (kd % 4 === 0) ? '·' : '.';
+    }
+  }
+  lines.push('<span style="font-family:var(--mono);font-size:1.2em;letter-spacing:2px">' + kickDna + '</span>');
+  lines.push('<span style="font-size:0.85em;color:var(--text-dim)">X = loud kick, x = soft kick, · = beat boundary, . = empty</span>');
+  var kickHits = 0; for (var kd = 0; kd < 16; kd++) if (baseKick[kd]) kickHits++;
+  if (kickHits <= 2) lines.push('Minimal pattern — the space between hits IS the groove. Every kick is a statement.');
+  else if (kickHits <= 4) lines.push('Standard density — enough hits to drive the groove without crowding the snare.');
+  else lines.push('Busy pattern — the kick is relentless. Works for driving, bounce, and chopbreak feels.');
+
+  // === SWING EXPLAINED FOR THIS BEAT ===
+  lines.push('');
+  lines.push('⏱ <b>SWING MATH FOR THIS BEAT</b>');
+  var stepMs = (60000 / bpm) / 4; // milliseconds per 16th note
+  var swingDelay = ((swing - 50) / 50) * (stepMs * 0.5);
+  swingDelay = Math.round(swingDelay * 10) / 10;
+  lines.push('At ' + bpm + ' BPM, each 16th note = ' + Math.round(stepMs) + 'ms. With ' + swing + '% swing, every even 16th is delayed by <b>' + swingDelay + 'ms</b>.');
+  lines.push('That means your hat on the "and" of 1 (step 3) plays ' + swingDelay + 'ms late. The "and" of 2 (step 7) is ' + swingDelay + 'ms late. Every upbeat leans back by the same amount.');
+  if (swing >= 64) lines.push('At ' + swing + '%, the delay is clearly audible — you can HEAR the hats dragging. This is the heavy, "drunk" swing of Dilla and Pete Rock.');
+  else if (swing >= 56) lines.push('At ' + swing + '%, the delay is subtle but felt — your head nods without you knowing why. This is the classic boom bap pocket.');
+  else lines.push('At ' + swing + '%, the beat is nearly straight — mechanical and precise. Early drum machine era and crunk territory.');
+
+  // === DRUM MACHINE HERITAGE ===
+  lines.push('');
+  lines.push('🎛 <b>DRUM MACHINE HERITAGE</b>');
+  var machineMap = {
+    normal: 'This beat\'s DNA comes from the <b>E-mu SP-1200</b> (1987) and <b>Akai MPC60</b> (1988). The SP-1200\'s 12-bit crunch defined boom bap\'s gritty texture. The MPC60\'s swing algorithm (designed by Roger Linn) is why these beats bounce.',
+    hard: 'This beat channels the <b>E-mu SP-1200</b> — Havoc programmed "Shook Ones" on one. The 12-bit resolution gives hard beats their aggressive, crunchy character. No soft edges.',
+    jazzy: 'This beat lives in the <b>Akai MPC3000</b> (1994) — Pete Rock and Q-Tip\'s weapon. The MPC3000 had 16-bit audio and 32 voices, giving jazz-influenced beats cleaner dynamics and wider headroom for ghost notes.',
+    dark: 'This beat descends from the <b>Ensoniq EPS</b> and <b>ASR-10</b> — RZA\'s machines. The EPS had a distinctive grainy quality that defined Wu-Tang\'s dark, cinematic sound.',
+    dilla: 'This beat is pure <b>Akai MPC3000</b> (1994). Dilla\'s machine. He played the pads in real time and NEVER quantized — the timing imperfections ARE the style. The MPC3000\'s swing algorithm delays even steps by a percentage, creating the "drunk" feel.',
+    lofi: 'This beat channels the <b>Roland SP-404</b> (2003). Madlib and Knxwledge run everything through its vinyl simulation and lo-fi effects. The SP-404 doesn\'t make beats sound good — it makes them sound REAL.',
+    gfunk: 'This beat is built on the <b>Akai MPC3000</b> paired with a <b>Minimoog</b> bass synth. Dr. Dre\'s G-Funk sound came from layering the MPC\'s tight drum programming with the Moog\'s warm, sliding bass lines.',
+    crunk: 'This beat comes from the <b>Roland TR-808</b> drum machine. Lil Jon used the 808\'s booming kick, snappy snare, and driving hats to create crunk\'s aggressive, mechanical energy.',
+    memphis: 'This beat descends from the <b>Roland TR-808</b> and cheap <b>Casio keyboards</b>. DJ Paul and Juicy J made early Three 6 Mafia beats on whatever they could afford — the lo-fi quality became the aesthetic.',
+    griselda: 'This beat channels the <b>Akai MPC2000XL</b> and <b>SP-1200</b> — Daringer uses both. The modern Griselda sound is a deliberate callback to 90s boom bap production, with modern compression and mixing.',
+    phonk: 'This beat resamples the <b>Memphis cassette tape</b> aesthetic through modern DAWs. Phonk producers sample old Three 6 Mafia tapes, add distortion, and slow everything down.',
+    nujabes: 'This beat lives in the <b>Akai MPC2000</b> — Nujabes\' machine. His production combined the MPC\'s tight sequencing with live jazz recordings, creating a warm, organic sound.',
+    oldschool: 'This beat comes from the <b>Roland TR-808</b> (1980), <b>LinnDrum</b> (1982), and <b>Oberheim DMX</b> (1981). These three machines defined early hip hop\'s drum sounds before sampling took over.',
+    chopbreak: 'This beat channels the <b>E-mu SP-1200</b> — Premier\'s machine. The SP-1200\'s 2.5-second sample time forced producers to chop breaks into tiny fragments and reassemble them.',
+    bounce: 'This beat comes from the <b>Akai MPC60</b> and <b>MPC3000</b> — Easy Mo Bee and Puff Daddy\'s Bad Boy era. The MPC\'s swing made these danceable beats bounce.',
+    halftime: 'This beat channels the <b>Ensoniq ASR-10</b> — Havoc\'s machine for Mobb Deep\'s slower, darker productions. The halftime feel makes the tempo feel half as fast.',
+    sparse: 'This beat descends from the <b>Ensoniq EPS</b> — RZA\'s weapon for Wu-Tang\'s most minimal productions. When you only have 10 seconds of sample time, every hit has to count.',
+    driving: 'This beat channels the <b>E-mu SP-1200</b> paired with <b>Technics 1200</b> turntables — Premier\'s setup for Gangstarr\'s uptempo cuts.',
+    big: 'This beat comes from the <b>Akai MPC3000</b> — the machine behind the biggest hip hop anthems of the 90s. Pete Rock, Easy Mo Bee, and Premier all used it for their stadium-sized productions.'
+  };
+  lines.push(machineMap[songFeelBase] || machineMap.normal);
+
+  // === VELOCITY STORY ===
+  lines.push('');
+  lines.push('📊 <b>VELOCITY STORY</b>');
+  lines.push('This beat\'s 8-bar dynamic arc:');
+  var arcLabels = ['Statement', 'Statement', 'Settle', 'Settle', 'Steady', 'Steady', 'Push', 'Peak'];
+  var arcPcts = ['102%', '102%', '97%', '97%', '100%', '100%', '103%', '105%'];
+  var arcLine = '';
+  for (var ai = 0; ai < 8; ai++) {
+    arcLine += 'Bar ' + (ai + 1) + ': ' + arcLabels[ai] + ' (' + arcPcts[ai] + ')';
+    if (ai < 7) arcLine += ' → ';
+  }
+  lines.push(arcLine);
+  lines.push('Bars 1-2 hit strong to establish the groove. Bars 3-4 settle back — the drummer relaxes into the pocket. Bars 5-6 are steady. Bar 7 pushes energy up. Bar 8 peaks into the fill or transition. This shape repeats every 8 bars throughout the song.');
+  lines.push('The difference between 97% and 105% is only 8% — but your ear hears it as a natural energy wave. That\'s how a real drummer shapes a phrase without thinking about it.');
+
+  // === SAMPLE CRATE DECADE ===
+  lines.push('');
+  lines.push('📀 <b>SAMPLE CRATE DECADE</b>');
+  var crateMap = {
+    normal: 'Dig in: <b>1968-1978 soul/jazz</b> (Al Green, Roy Ayers, Ahmad Jamal, Grover Washington Jr.). Piano chords, horn stabs, string loops, vocal chops. The golden era sound comes from this decade.',
+    hard: 'Dig in: <b>1970-1980 dark jazz and film scores</b> (Lalo Schifrin, David Axelrod, Isaac Hayes). Minor key piano, orchestral hits, aggressive brass. Also try <b>1985-1995 horror soundtracks</b>.',
+    jazzy: 'Dig in: <b>1955-1970 Blue Note jazz</b> (Herbie Hancock, Horace Silver, Art Blakey, Lee Morgan). Rhodes piano, vibraphone, upright bass, brushed drums. The source material for every jazz-rap beat.',
+    dark: 'Dig in: <b>1970-1980 film scores</b> (Ennio Morricone, Lalo Schifrin, John Carpenter) and <b>1965-1975 dark soul</b> (Isaac Hayes, Curtis Mayfield\'s darker work). Eerie strings, minor key piano, atmospheric pads.',
+    dilla: 'Dig in: <b>1975-1985 neo-soul and Brazilian</b> (Minnie Riperton, Marcos Valle, Azymuth, Roy Ayers). Warm Rhodes, Wurlitzer, Fender bass, soft vocals. Also <b>1990s broken beat</b> (4hero, Jazzanova).',
+    lofi: 'Dig in: <b>1970-1980 easy listening and library music</b> (KPM, Bruton, De Wolfe catalogs). Also <b>1960s Japanese jazz</b> (Ryo Fukui, Masabumi Kikuchi). The more obscure, the better.',
+    gfunk: 'Dig in: <b>1975-1983 P-Funk</b> (Parliament, Funkadelic, Zapp & Roger, Gap Band). Synth bass, talk box, smooth pads. Also <b>1980-1985 electro-funk</b> (Egyptian Lover, World Class Wreckin\' Cru).',
+    crunk: 'Crunk doesn\'t sample records — it uses <b>synth presets and 808 kits</b>. Build from scratch: TR-808 kick, snappy clap, driving hats, horn stab synth patches. Simple and aggressive.',
+    memphis: 'Dig in: <b>1970-1980 Isaac Hayes and Stax Records</b> for dark soul. Also <b>1980s horror soundtracks</b> (John Carpenter, Goblin). Three 6 Mafia sampled horror movies and obscure Memphis soul.',
+    griselda: 'Dig in: <b>1965-1975 obscure soul and jazz</b> with maximum vinyl grit. Daringer digs DEEP — unknown 45s, library music, European film scores. The grittier the source, the better.',
+    phonk: 'Phonk resamples <b>1991-1997 Memphis rap itself</b> — Three 6 Mafia vocals, DJ Paul ad-libs, Gangsta Boo hooks. Layer with cowbell loops and distorted 808s.',
+    nujabes: 'Dig in: <b>1960-1975 Japanese jazz</b> (Ryo Fukui, Masabumi Kikuchi), <b>Brazilian bossa nova</b> (Antonio Carlos Jobim, Marcos Valle), and <b>European film scores</b> (Ennio Morricone, Nino Rota).',
+    oldschool: 'Dig in: <b>1980-1986 electro and early hip hop</b> (Kraftwerk, Afrika Bambaataa, Grandmaster Flash). Also <b>1970s funk breaks</b> (James Brown, The Meters) for the breakbeat foundation.',
+    chopbreak: 'Dig in: <b>1969-1976 funk breaks</b> (James Brown, Skull Snaps, The Winstons, The Honeydrippers). The source material for every chopped break. Also <b>1970s soul with horn sections</b>.',
+    bounce: 'Dig in: <b>1978-1985 disco, R&B, and soul</b> (Diana Ross, Mtume, DeBarge, Chic). Bright, catchy, hook-friendly. Bad Boy era sampled this decade heavily.',
+    halftime: 'Dig in: <b>1970-1980 dark jazz and atmospheric soul</b> (Ahmad Jamal, Les McCann, Donny Hathaway\'s darker work). Slow, heavy samples that breathe with the halftime groove.',
+    sparse: 'Dig in: <b>ambient, minimal, single-instrument recordings</b>. One piano note, one guitar phrase, one vocal sample. The space in the drums needs space in the melody.',
+    driving: 'Dig in: <b>1972-1980 uptempo funk</b> (James Brown, The Meters, Tower of Power). Guitar riffs, bass lines, horn stabs — anything with forward momentum.',
+    big: 'Dig in: <b>1970s soul with full arrangements</b> (Barry White, Isaac Hayes, Curtis Mayfield). Orchestral strings, brass sections, gospel choirs. Big beats need big sounds.'
+  };
+  lines.push(crateMap[songFeelBase] || crateMap.normal);
+
   // === HISTORY ===
   lines.push('');
   lines.push('📚 <b>HISTORY</b>');
