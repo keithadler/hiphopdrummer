@@ -261,7 +261,7 @@
           <div class="prefs-hint" id="prefsKitDesc">Changes the drum sounds used by the preview player. All GM drum kits from the GeneralUser GS SoundFont.</div>
         </div>
         <div class="regen-field">
-          <label class="regen-label">Bass Preview</label>
+          <label class="regen-label">Bass Sound</label>
           <select id="prefsBassSound" class="regen-select">
             <option value="33">Electric Bass (Finger)</option>
             <option value="34">Electric Bass (Pick)</option>
@@ -270,18 +270,19 @@
             <option value="38">Synth Bass 1</option>
             <option value="39">Synth Bass 2</option>
           </select>
-          <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsBassPlayback" checked> Play/download bass line with drums</label>
-          <div class="prefs-hint">Select the bass sound for the preview player and WAV export. When unchecked, playback and downloads are drums only. Bass MIDI/MPC exports are always available regardless.</div>
         </div>
         <div class="regen-field">
-          <label class="regen-label">Electric Piano</label>
-          <label class="export-check"><input type="checkbox" id="prefsEPPlayback" checked> Play/download electric piano with drums</label>
-          <div class="prefs-hint">Adds electric piano chords to playback and WAV export for styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce). Disabled styles get no EP regardless of this setting. EP MIDI/MPC exports are always available.</div>
-        </div>
-        <div class="regen-field">
-          <label class="regen-label">Synth Pad</label>
-          <label class="export-check"><input type="checkbox" id="prefsPadPlayback" checked> Play/download synth pad with drums</label>
-          <div class="prefs-hint">Adds atmospheric synth pads for styles that use them (Memphis, phonk, dark, Griselda, crunk, hard). Strings, choir, or synth lead depending on style.</div>
+          <label class="regen-label">Instruments in Playback</label>
+          <div class="prefs-hint" style="margin-bottom:6px">Choose which instruments you hear during playback and in WAV exports. MIDI/MPC exports always include all instruments regardless.</div>
+          <label class="export-check"><input type="checkbox" id="prefsBassPlayback" checked> 🎸 Bass</label>
+          <label class="export-check"><input type="checkbox" id="prefsEPPlayback" checked> 🎹 Electric Piano <span class="export-note">(Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsPadPlayback" checked> 🎛 Synth Pad <span class="export-note">(Memphis, phonk, dark, Griselda, crunk, hard)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsLeadPlayback" checked> 🎵 Synth Lead <span class="export-note">(G-Funk whistle melody)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsOrganPlayback" checked> 🎹 Organ <span class="export-note">(jazz, Nujabes)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsHornPlayback" checked> 🎺 Horn Stabs <span class="export-note">(boom bap, big, driving, chopbreak, oldschool)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsVibesPlayback" checked> 🔔 Vibraphone <span class="export-note">(Nujabes, jazzy)</span></label>
+          <label class="export-check"><input type="checkbox" id="prefsClavPlayback" checked> 🎹 Clavinet <span class="export-note">(bounce, G-Funk DJ Quik)</span></label>
+          <div class="prefs-hint">Only instruments that match the current style will play. Unchecking an instrument silences it even if the style supports it.</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Playback</label>
