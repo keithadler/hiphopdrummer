@@ -907,6 +907,18 @@ function initPlayerControls() {
         }
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
+      // Load all preferences fresh before playing
+      var _playBassOn = true;
+      try { var _bp = localStorage.getItem('hhd_bass_playback'); if (_bp !== null) _playBassOn = (_bp !== 'false'); } catch(e) {}
+      
+      // Rebuild MIDI with current preferences (bass on/off may have changed since generation)
+      var _playBpm = parseInt(document.getElementById('bpm').textContent) || 90;
+      if (_playBassOn) {
+        window._currentMidiBytes = buildCombinedMidiBytes(arrangement, _playBpm);
+      } else {
+        window._currentMidiBytes = buildMidiBytes(arrangement, _playBpm);
+      }
+      
       // Disable non-play buttons immediately
       var navBtnsImmediate = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
@@ -916,10 +928,7 @@ function initPlayerControls() {
       // Build the MIDI to play (loop section or full song)
       var midiToPlay = window._currentMidiBytes;
       if (window._loopSection && curSec && patterns[curSec]) {
-        var loopBpm = parseInt(document.getElementById('bpm').textContent) || 90;
-        var loopBassOn = true;
-        try { var lbp = localStorage.getItem('hhd_bass_playback'); if (lbp !== null) loopBassOn = (lbp !== 'false'); } catch(e) {}
-        midiToPlay = loopBassOn ? buildCombinedMidiBytes([curSec], loopBpm) : buildMidiBytes([curSec], loopBpm);
+        midiToPlay = _playBassOn ? buildCombinedMidiBytes([curSec], _playBpm) : buildMidiBytes([curSec], _playBpm);
         window._loopMidiBytes = midiToPlay;
       }
       // Init synth in user gesture context (Safari AudioContext requirement)
