@@ -2,6 +2,24 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.14] - 2026-04-03
+
+### Changed
+- Tablet layout: buttons on row 1, Style/Key/BPM/Swing centered on row 2
+- Stop cooldown now disables all buttons for 800ms (prevents accidental clicks after stopping)
+
+### Fixed
+- Phone layout: restored base rules (sticky header, single-column, overflow) lost in breakpoint split
+- Style marquee overflow contained on mobile (overflow:hidden on ctrl-style group)
+- Saving preferences during playback no longer stops the music
+- Play button won't trigger if in disabled state (race condition guard)
+- Marquee rAF callback guards against stale DOM elements
+- Visualizer cached dimensions reset on stop
+- Instrumental section now gets a color theme
+- Hit flash uses brightness-only (no scale that caused cell jitter)
+- Fill countdown uses border-bottom instead of box-shadow (no conflict with playback cursor)
+- Removed dead bridge section CSS
+
 ## [1.13] - 2026-04-03
 
 ### Added
