@@ -474,6 +474,9 @@ document.addEventListener('keydown', function(e) {
     showRegenDialog();
   }
   if (e.key === ' ') {
+    // Only toggle playback if no interactive element is focused (prevents double-action on arr cards)
+    var active = document.activeElement;
+    if (active && (active.classList.contains('arr-item') || active.classList.contains('arr-move') || active.classList.contains('rm') || active.getAttribute('role') === 'button')) return;
     e.preventDefault();
     var playBtn = document.getElementById('headerPlayBtn');
     if (playBtn) playBtn.click();
@@ -1389,6 +1392,9 @@ var _vfx = {
   vizCtx: null,       // canvas 2d context
   vizRAF: null,       // requestAnimationFrame id
   vizData: null,      // frequency data array
+  vizActive: false,   // visualizer running flag
+  vizW: 0,            // cached canvas width
+  vizH: 0,            // cached canvas height
   breatheEl: null,    // BPM breathing element
   lastFillSection: '' // track fill countdown per section
 };
@@ -1522,7 +1528,9 @@ function vfxStartVisualizer() {
       var analyser = ac.createAnalyser();
       analyser.fftSize = 128;
       analyser.smoothingTimeConstant = 0.8;
-      // Connect synth output through analyser
+      // Disconnect synth from destination, insert analyser inline
+      // synth → analyser → destination (instead of synth → destination + synth → analyser → destination)
+      try { window.synthBridge.synth.disconnect(ac.destination); } catch(e2) {}
       window.synthBridge.synth.connect(analyser);
       analyser.connect(ac.destination);
       _vfx.analyser = analyser;
@@ -1538,8 +1546,17 @@ function vfxStartVisualizer() {
 
   function drawFrame() {
     if (!_vfx.vizActive) return;
-    var w = canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
-    var h = canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+    var dpr = window.devicePixelRatio || 1;
+    var cw = canvas.offsetWidth * dpr;
+    var ch = canvas.offsetHeight * dpr;
+    // Only resize canvas when dimensions actually change
+    if (cw !== _vfx.vizW || ch !== _vfx.vizH) {
+      canvas.width = cw;
+      canvas.height = ch;
+      _vfx.vizW = cw;
+      _vfx.vizH = ch;
+    }
+    var w = _vfx.vizW, h = _vfx.vizH;
     ctx.clearRect(0, 0, w, h);
 
     if (_vfx.analyser && _vfx.vizData) {
@@ -1620,6 +1637,8 @@ function vfxClearAll() {
   // Reset progress bar
   var fill = document.getElementById('arrProgressFill');
   if (fill) fill.style.width = '0';
+  var markers = document.getElementById('arrProgressMarkers');
+  if (markers) markers.innerHTML = '';
 }
 
 // =============================================
