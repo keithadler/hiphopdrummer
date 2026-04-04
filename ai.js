@@ -1446,8 +1446,21 @@ function generatePattern(sec) {
         for (var i = 0; i < 16; i++) { p.ghostkick[bkOff+i] = 0; p.rimshot[bkOff+i] = 0; p.clap[bkOff+i] = 0; p.ride[bkOff+i] = 0; p.shaker[bkOff+i] = 0; }
         for (var i = 0; i < 16; i++) if (p.snare[bkOff+i] > 0 && p.snare[bkOff+i] < 85) p.snare[bkOff+i] = 0;
       }
-      if (bk >= 2) {
-        // Bar 3+: strip to hat + sparse kick on beat 1 only
+      if (bk === 2) {
+        // Bar 3: keep snare backbeat but drop everything else
+        for (var i = 0; i < 16; i++) {
+          if (p.snare[bkOff+i] > 0 && p.snare[bkOff+i] < 85) p.snare[bkOff+i] = 0; // drop ghosts
+          p.clap[bkOff+i] = 0; p.ghostkick[bkOff+i] = 0;
+          p.rimshot[bkOff+i] = 0; p.crash[bkOff+i] = 0; p.openhat[bkOff+i] = 0;
+          p.ride[bkOff+i] = 0; p.shaker[bkOff+i] = 0;
+        }
+        // Simplify kick to beat 1 only
+        for (var i = 1; i < 16; i++) p.kick[bkOff+i] = 0;
+        if (p.kick[bkOff] === 0) p.kick[bkOff] = v(95, 10);
+        for (var i = 0; i < 16; i += 2) p.hat[bkOff+i] = i % 4 === 0 ? v(80, 10) : v(60, 15);
+      }
+      if (bk >= 3) {
+        // Bar 4+: strip to just kick on 1 and sparse hats — maximum tension
         for (var i = 0; i < 16; i++) {
           p.snare[bkOff+i] = 0; p.clap[bkOff+i] = 0; p.ghostkick[bkOff+i] = 0;
           p.rimshot[bkOff+i] = 0; p.crash[bkOff+i] = 0; p.openhat[bkOff+i] = 0;
@@ -1515,8 +1528,11 @@ function applySectionTransitions() {
     if (!curPat || !nextPat) continue;
 
     // Rule 1: Fill ending → crash + strong downbeat on next section
+    // Crash velocity scales with fill intensity
     if (curPat.snare[curLen - 1] > 100) {
-      if (nextPat.crash[0] === 0 && nextSec !== 'outro') nextPat.crash[0] = v(105, 10);
+      var fillVel = curPat.snare[curLen - 1];
+      var crashVel = Math.min(120, Math.max(85, fillVel - 10));
+      if (nextPat.crash[0] === 0 && nextSec !== 'outro') nextPat.crash[0] = v(crashVel, 8);
       if (nextPat.kick[0] === 0) nextPat.kick[0] = v(120, 8);
     }
 
