@@ -79,9 +79,10 @@ function renderGrid() {
   try { _gridVelMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
 
   // Swing visualization: calculate pixel offset for odd steps
-  // Swing 50% = straight (0px offset), 66% = heavy (up to 4px offset)
+  // Swing 50% = straight (0px), 62% = ~3px, 66% = ~4px, 75% = 6px
+  // Uses translateX in CSS so the cell visually shifts without breaking flex layout
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingNorm = Math.max(0, (swing - 50) / 50); // 0 = straight, 0.32 = heavy
+  var swingNorm = Math.max(0, (swing - 50) / 50); // 0 = straight, 0.5 = max
   var swingPx = Math.round(swingNorm * 12); // 0-12px range
   var swingStyle = swingPx > 0 ? ' style="--swing-offset:' + swingPx + 'px"' : '';
   var swingClass = swingPx > 0 ? ' swing-offset' : '';

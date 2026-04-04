@@ -557,6 +557,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .history-slot-key,.history-slot-bpm,.history-slot-swing{font-family:var(--mono);font-size:12px;color:var(--text-dim)}
 .history-slot-load{width:100%;padding:8px;font-size:13px;background:var(--accent-blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-weight:600;letter-spacing:1px;transition:all .2s}
 .history-slot-load:hover{background:var(--accent-green);transform:translateY(-1px)}
+.history-slot-load:disabled{background:var(--bg-input);color:var(--text-muted);cursor:default;transform:none}
+.history-slot-active{border-color:var(--accent-green);background:var(--bg-raised)}
+.history-slot-current{font-family:var(--mono);font-size:11px;color:var(--accent-green);font-weight:600;letter-spacing:0.5px}
 .empty-history{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:var(--mono);font-size:14px;font-style:italic}
 
 /* Slot Replacement Dialog */
@@ -605,9 +608,11 @@ midi-player::part(play-button){color:var(--accent-green)}
 /* Odd-numbered steps (the "and" positions) get a visual offset
    proportional to the swing amount. This makes swing VISIBLE —
    the user can see the timing displacement on the grid itself.
-   The offset is set via a CSS custom property --swing-offset
+   Uses translateX so it works inside flex layouts (margin-left
+   gets absorbed by flex:1). The offset is set via --swing-offset
    applied by renderGrid in ui.js. */
-.cell.swing-offset,.beat-num.swing-offset{margin-left:var(--swing-offset,0px)}
+.cell.swing-offset{transform:translateX(var(--swing-offset,0px))}
+.beat-num.swing-offset{transform:translateX(var(--swing-offset,0px));color:var(--accent-blue)}
 
 /* ── Keyboard Shortcut Hints ── */
 .shortcut-hint{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-left:4px;opacity:.6}
