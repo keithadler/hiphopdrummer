@@ -205,6 +205,13 @@
             </div>
           </div>
           <div class="regen-field">
+            <label class="regen-label">Electric Piano</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expEPMidi" checked> EP .mid files <span class="export-note">(MIDI ch 2, style-aware chord comping)</span></label>
+              <label class="export-check"><input type="checkbox" id="expEPMpc" checked> EP .mpcpattern files <span class="export-note">(for Keygroup/Plugin track)</span></label>
+            </div>
+          </div>
+          <div class="regen-field">
             <label class="regen-label">DAW Help Files</label>
             <div class="export-checks export-daws">
               <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
@@ -270,6 +277,11 @@
           </select>
           <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsBassPlayback" checked> Play/download bass line with drums</label>
           <div class="prefs-hint">Select the bass sound for the preview player and WAV export. When unchecked, playback and downloads are drums only. Bass MIDI/MPC exports are always available regardless.</div>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">Electric Piano</label>
+          <label class="export-check"><input type="checkbox" id="prefsEPPlayback" checked> Play/download electric piano with drums</label>
+          <div class="prefs-hint">Adds electric piano chords to playback and WAV export for styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce). Disabled styles get no EP regardless of this setting. EP MIDI/MPC exports are always available.</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Playback</label>
@@ -397,6 +409,7 @@
   <script src="writers.js"></script>
   <script src="groove.js"></script>
   <script src="bass.js"></script>
+  <script src="ep.js"></script>
   <script src="analysis.js"></script>
   <script src="ui.js"></script>
   <script src="daw-help.js"></script>
