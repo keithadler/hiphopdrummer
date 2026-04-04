@@ -1023,6 +1023,12 @@ function initPlayerControls() {
       headerPlayBtn.classList.remove('playing');
       headerPlayBtn.disabled = false;
     }
+    // Sync non-play button disabled state
+    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+    for (var ni = 0; ni < navBtns.length; ni++) {
+      var nb = document.getElementById(navBtns[ni]);
+      if (nb) nb.disabled = playing;
+    }
   }, 500);
 }
 
@@ -1704,6 +1710,12 @@ function initPlaybackTracking() {
         _playerPlayBtn.textContent = playing ? '■ STOP' : '▶ PLAY';
         if (playing) _playerPlayBtn.classList.add('playing');
         else _playerPlayBtn.classList.remove('playing');
+      }
+      // Disable/enable non-play buttons during playback
+      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      for (var bi = 0; bi < btns.length; bi++) {
+        var btn = document.getElementById(btns[bi]);
+        if (btn) btn.disabled = playing;
       }
       if (!playing) {
         clearCursor();
