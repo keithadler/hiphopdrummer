@@ -843,6 +843,30 @@ function initPlayerControls() {
 
   if (!headerPlayBtn) return;
 
+  // Cached nav button elements (avoid repeated getElementById)
+  var _navBtnIds = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
+  var _navBtnEls = [];
+  for (var _nbi = 0; _nbi < _navBtnIds.length; _nbi++) {
+    var _el = document.getElementById(_navBtnIds[_nbi]);
+    if (_el) _navBtnEls.push(_el);
+  }
+  function _setNavBtnsDisabled(disabled) {
+    for (var i = 0; i < _navBtnEls.length; i++) _navBtnEls[i].disabled = disabled;
+  }
+  
+  // Read all playback-relevant preferences in one shot
+  function _readPlayPrefs() {
+    var p = { bassOn: true, bpm: 90, kit: 0, bass: 33 };
+    try {
+      var bp = localStorage.getItem('hhd_bass_playback');
+      if (bp !== null) p.bassOn = (bp !== 'false');
+      p.bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+      p.kit = parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0;
+      p.bass = parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33;
+    } catch(e) {}
+    return p;
+  }
+
   // Countdown function - plays 3-2-1 at the current BPM
   function playCountdown(callback) {
     var countdownEnabled = true;
@@ -885,103 +909,64 @@ function initPlayerControls() {
   headerPlayBtn.onclick = function() {
     if (!window.synthBridge) return;
     if (window.synthBridge.isPlaying) {
-      // Clear loop MIDI bytes but keep loop toggle state
       window._loopMidiBytes = null;
       window.synthBridge.stop();
       if (currentEl) currentEl.textContent = '0:00';
       if (seekBar) seekBar.value = 0;
       headerPlayBtn.textContent = '▶ PLAY';
       headerPlayBtn.classList.remove('playing');
-      // Brief cooldown so user can't accidentally re-trigger play or other actions
       headerPlayBtn.disabled = true;
-      var cooldownBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-      for (var ci = 0; ci < cooldownBtns.length; ci++) {
-        var cb = document.getElementById(cooldownBtns[ci]);
-        if (cb) cb.disabled = true;
-      }
+      _setNavBtnsDisabled(true);
       setTimeout(function() {
         headerPlayBtn.disabled = false;
-        for (var ci = 0; ci < cooldownBtns.length; ci++) {
-          var cb = document.getElementById(cooldownBtns[ci]);
-          if (cb) cb.disabled = false;
-        }
+        _setNavBtnsDisabled(false);
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
-      // Load all preferences fresh before playing
-      var _playBassOn = true;
-      try { var _bp = localStorage.getItem('hhd_bass_playback'); if (_bp !== null) _playBassOn = (_bp !== 'false'); } catch(e) {}
-      
-      // Rebuild MIDI with current preferences (bass on/off may have changed since generation)
-      var _playBpm = parseInt(document.getElementById('bpm').textContent) || 90;
-      if (_playBassOn) {
-        window._currentMidiBytes = buildCombinedMidiBytes(arrangement, _playBpm);
-      } else {
-        window._currentMidiBytes = buildMidiBytes(arrangement, _playBpm);
-      }
-      
-      // Disable non-play buttons immediately
-      var navBtnsImmediate = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-      for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
-        var nb = document.getElementById(navBtnsImmediate[ni]);
-        if (nb) nb.disabled = true;
-      }
-      // Build the MIDI to play (loop section or full song)
-      var midiToPlay = window._currentMidiBytes;
-      if (window._loopSection && curSec && patterns[curSec]) {
-        midiToPlay = _playBassOn ? buildCombinedMidiBytes([curSec], _playBpm) : buildMidiBytes([curSec], _playBpm);
-        window._loopMidiBytes = midiToPlay;
-      }
-      // Init synth in user gesture context (Safari AudioContext requirement)
-      if (window.synthBridge && window.synthBridge.init) {
-        try { window.synthBridge.init(); } catch(e) {}
-      }
-      // Apply drum kit and bass sound immediately (synth may already be initialized from a previous play)
-      try {
-        window.synthBridge.setDrumKit(parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0);
-        window.synthBridge.setBassProgram(parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33);
-      } catch(e) {}
+      _setNavBtnsDisabled(true);
       headerPlayBtn.disabled = true;
-      // Start countdown, then play
+      headerPlayBtn.textContent = '⏳ LOADING';
+      
+      // Read all preferences once
+      var _prefs = _readPlayPrefs();
+      
+      // Build MIDI fresh with current prefs (only the bytes to play, not stored globally)
+      var midiToPlay;
+      if (window._loopSection && curSec && patterns[curSec]) {
+        midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
+        window._loopMidiBytes = midiToPlay;
+      } else {
+        midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
+      }
+      
+      // Start countdown (or skip), then play
       playCountdown(function() {
-        headerPlayBtn.textContent = '⏳ LOADING';
         var _loadTimeout = setTimeout(function() {
           if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
             headerPlayBtn.disabled = false;
             headerPlayBtn.textContent = '▶ PLAY';
             headerPlayBtn.classList.remove('playing');
-            var tBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-            for (var ti = 0; ti < tBtns.length; ti++) { var tb = document.getElementById(tBtns[ti]); if (tb) tb.disabled = false; }
+            _setNavBtnsDisabled(false);
           }
         }, 15000);
         window.synthBridge.play(midiToPlay).then(function() {
           clearTimeout(_loadTimeout);
-          // Apply preferences after synth is guaranteed initialized
+          // Apply drum kit + bass sound (synth is now guaranteed initialized)
           try {
-            window.synthBridge.setDrumKit(parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0);
-            window.synthBridge.setBassProgram(parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33);
+            window.synthBridge.setDrumKit(_prefs.kit);
+            window.synthBridge.setBassProgram(_prefs.bass);
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
           setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
-          // Force tracking callbacks — the getter now works, but also handle the case
-          // where connectTracking hasn't connected yet by doing critical work inline
+          // Trigger tracking
           var _psc = window.synthBridge.onPlayStateChange;
-          if (_psc) {
-            _psc(true);
-          } else {
-            // Tracking not connected yet — do the essential work inline
-            var _disBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-            for (var _di = 0; _di < _disBtns.length; _di++) {
-              var _db = document.getElementById(_disBtns[_di]);
-              if (_db) _db.disabled = true;
-            }
-          }
+          if (_psc) _psc(true);
+          else _setNavBtnsDisabled(true);
         }).catch(function() {
           clearTimeout(_loadTimeout);
           headerPlayBtn.disabled = false;
           headerPlayBtn.textContent = '▶ PLAY';
-          var fBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-          for (var fi = 0; fi < fBtns.length; fi++) { var fb = document.getElementById(fBtns[fi]); if (fb) fb.disabled = false; }
+          _setNavBtnsDisabled(false);
         });
       });
     }
@@ -1120,16 +1105,13 @@ function initPlayerControls() {
   }
   connectCallbacks();
 
-  // Failsafe: poll synthBridge.isPlaying every 500ms to keep the button
-  // in sync. On iPhone, callbacks can be missed during the first-play
-  // SoundFont load race. This ensures the button ALWAYS reflects reality.
+  // Failsafe: poll synthBridge.isPlaying every 500ms to keep button in sync
   setInterval(function() {
     if (!window.synthBridge || !headerPlayBtn) return;
-    if (window._loopSection && window.synthBridge.isPlaying) return; // Don't interfere during loop playback
+    if (window._loopSection && window.synthBridge.isPlaying) return;
     var playing = window.synthBridge.isPlaying;
     var showsStop = headerPlayBtn.classList.contains('playing');
-    var isLoading = headerPlayBtn.textContent.indexOf('LOADING') >= 0;
-    if (isLoading) return; // don't interfere during SoundFont load
+    if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) return;
     if (playing && !showsStop) {
       headerPlayBtn.textContent = '■ STOP';
       headerPlayBtn.classList.add('playing');
@@ -1139,12 +1121,7 @@ function initPlayerControls() {
       headerPlayBtn.classList.remove('playing');
       headerPlayBtn.disabled = false;
     }
-    // Sync non-play button disabled state
-    var navBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
-    for (var ni = 0; ni < navBtns.length; ni++) {
-      var nb = document.getElementById(navBtns[ni]);
-      if (nb) nb.disabled = playing;
-    }
+    _setNavBtnsDisabled(playing);
   }, 500);
 }
 
@@ -1720,6 +1697,9 @@ function vfxStartVisualizer() {
 
   function drawFrame() {
     if (!_vfx.vizActive) return;
+    _vfx.vizRAF = requestAnimationFrame(drawFrame);
+    // Skip drawing if canvas is not visible (scrolled off screen)
+    if (canvas.offsetHeight === 0) return;
     var dpr = window.devicePixelRatio || 1;
     var cw = canvas.offsetWidth * dpr;
     var ch = canvas.offsetHeight * dpr;
@@ -1758,7 +1738,6 @@ function vfxStartVisualizer() {
         ctx.fillRect(i * sliceW + 1, h - barH, sliceW - 2, barH);
       }
     }
-    _vfx.vizRAF = requestAnimationFrame(drawFrame);
   }
   drawFrame();
 }
@@ -2115,14 +2094,8 @@ function initPlaybackTracking() {
         else _playerPlayBtn.classList.remove('playing');
       }
       // Disable/enable non-play buttons during playback
-      var btns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-      for (var bi = 0; bi < btns.length; bi++) {
-        var btn = document.getElementById(btns[bi]);
-        if (btn) btn.disabled = playing;
-      }
-      // Disable loop toggle during playback (can't change loop state while playing)
-      var loopBtnTrack = document.getElementById('playerLoopBtn');
-      if (loopBtnTrack) loopBtnTrack.disabled = playing;
+      var _trackBtns = document.querySelectorAll('#btnGen,#btnExport,#btnHistory,#btnPrefs,#playerEditBtn,#playerRegenSecBtn,#btnUndo,#playerLoopBtn');
+      for (var bi = 0; bi < _trackBtns.length; bi++) _trackBtns[bi].disabled = playing;
       // Turn off edit mode when playback starts
       if (playing && window._editMode) {
         window._editMode = false;
