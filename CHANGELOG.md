@@ -4,6 +4,16 @@ All notable changes to Hip Hop Drummer are documented in this file.
 
 ## [1.26] - 2026-04-04
 
+### Added
+- Tap tempo: double-click the BPM display (or press T) to open a tap overlay — tap 4+ times to detect tempo, apply with Enter. Mentioned in rapper, producer, and learner role tips, flow guide, and about dialog
+- Keyboard shortcuts: Space = play/stop, R = new beat, T = tap tempo, E = edit mode, L = loop, ←/→ = navigate sections. Shortcuts disabled when dialogs are open. Button titles updated with shortcut hints
+- Swing visualization on grid: odd-numbered steps (the "and" positions) are visually offset to the right proportional to the swing amount (0px at 50% straight, up to 12px at 66% heavy). Both beat-number headers and cells shift together
+- Master FX chain on WAV export: 30Hz HPF → glue compressor (3.5:1, 12ms attack, 150ms release) → 350Hz low-mid cut (-2.5dB) → 8kHz high shelf (+1.5dB) → makeup gain (+2dB), with parallel reverb send (generated 400ms room IR, 10ms pre-delay, 400Hz-4kHz filtered, 12% wet). Checkbox in export dialog, always on for quick WAV download button
+- MPC production guide: layering kicks (body + sub + click), layering snares (crack + body + texture), velocity-switched hat layers, complete drum bus FX chain (HPF → transient shaper → compressor → EQ → saturation → send reverb/delay), sampled breakbeat as bottom layer with filtering, production checklist
+
+### Fixed
+- Reliable end-of-song stop: uses SpessaSynth's native songEnded event instead of polling currentTime >= duration in the rAF loop. Full song playback now stops cleanly every time; section loops continue to seek-and-resume
+
 ### Optimized — Playback Reliability
 - Replaced all setInterval-based tracking (50ms + 500ms polls) with requestAnimationFrame — syncs to display refresh, zero drift, auto-pauses when tab hidden
 - AudioContext state management: onstatechange listener auto-recovers from suspended/interrupted, play retries resume() with 100ms fallback for iOS
