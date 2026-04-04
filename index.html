@@ -212,6 +212,13 @@
             </div>
           </div>
           <div class="regen-field">
+            <label class="regen-label">Synth Pad</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expPadMidi" checked> Pad .mid files <span class="export-note">(MIDI ch 3, strings/choir/synth per style)</span></label>
+              <label class="export-check"><input type="checkbox" id="expPadMpc" checked> Pad .mpcpattern files <span class="export-note">(for Keygroup/Plugin track)</span></label>
+            </div>
+          </div>
+          <div class="regen-field">
             <label class="regen-label">DAW Help Files</label>
             <div class="export-checks export-daws">
               <label class="export-check"><input type="checkbox" class="daw-check" value="ableton" checked> Ableton Live</label>
@@ -235,6 +242,7 @@
               <label class="export-check"><input type="checkbox" id="expWavDrums"> WAV drums stem <span class="export-note">(drums only)</span></label>
               <label class="export-check"><input type="checkbox" id="expWavBass"> WAV bass stem <span class="export-note">(bass only)</span></label>
               <label class="export-check"><input type="checkbox" id="expWavEP"> WAV electric piano stem <span class="export-note">(EP only — styles that use it)</span></label>
+              <label class="export-check"><input type="checkbox" id="expWavPad"> WAV synth pad stem <span class="export-note">(pad only — dark styles)</span></label>
               <label class="export-check"><input type="checkbox" id="expMasterFx" checked> Apply master FX to WAV <span class="export-note">(compression, EQ, room reverb — sounds like a finished mix)</span></label>
             </div>
           </div>
@@ -370,7 +378,8 @@
         • <em>Bass MPC patterns</em> — load into a Keygroup or plugin track alongside the drum patterns.<br>
         • <em>Electric Piano MIDI</em> — EP .mid files (channel 2) for styles that use it: Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce. Voice-led chord voicings with style-aware comping rhythms.<br>
         • <em>Electric Piano MPC patterns</em> — load into a Keygroup or plugin track for EP chords on your MPC.<br>
-        • <em>WAV audio</em> — rendered drums + bass + electric piano, ready to chop, sample, scratch over, or use as-is.<br>
+        • <em>Synth Pad MIDI</em> — pad .mid files (channel 3) for dark styles: Memphis choir, phonk detuned pads, Griselda strings, crunk synth stabs.<br>
+        • <em>WAV audio</em> — rendered drums + bass + keys/pads, ready to chop, sample, scratch over, or use as-is.<br>
         • <em>PDF beat sheet</em> — printable color-coded pattern grids with the full analysis.<br>
         • <em>Chord sheet PDF</em> — piano keyboard diagrams with feel-aware voicings for each section.<br>
         • <em>DAW guides</em> — step-by-step setup for Ableton, Logic, FL Studio, Pro Tools, Maschine, Reason, Reaper, Studio One, GarageBand.<br>
@@ -391,8 +400,9 @@
         <h3>🎸 For Musicians</h3>
         <p>The chord sheet gives you everything you need to play along. Piano keyboard diagrams show the exact voicings for each section — triads for boom bap, 7th chords for jazz, 9ths for Dilla, min7 for G-Funk. The voicings change with the style because the harmony is modal, not just "minor key." G-Funk uses Dorian mode — the IV chord is C7 (major), not Cm7, and that raised 6th is what makes it sound warm and funky instead of dark. Memphis and Griselda use Phrygian — the bII chord (Db in the key of Cm) creates that sinister half-step tension.</p>
         <p><b>Electric Piano:</b> For styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce, halftime), the app generates a complete electric piano part automatically. It comps in style-appropriate rhythms — sustained chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated tones for Nujabes, pad-style for G-Funk, stabs for bounce. The voicings use voice leading (common tones held between chords), per-note velocity humanization, and react to the drums. G-Funk and Dilla use Dorian IV (dominant 7th). Disable it in Preferences to play your own part instead, or export the EP MIDI to study the voicings.</p>
+        <p><b>Synth Pad:</b> For darker styles (Memphis, phonk, dark, Griselda, crunk, hard), the app generates atmospheric synth pads — choir sounds for Memphis/phonk (with a detuned chorus effect), string ensembles for dark/Griselda, and aggressive sawtooth stabs for crunk. These sit underneath the drums and bass as a harmonic bed. Disable in Preferences to leave space for your own synth layers.</p>
         <p>The bass MIDI is a masterclass in hip hop bass playing. It's not just root notes on the kick — it uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches for G-Funk, drops to sub octaves on beat 1 for weight, and breathes with intentional rests on weak beats. Load the bass MIDI into your DAW and study the note choices — then play your own version on top.</p>
-        <p>The suggested key section gives you a starting point with I/IV/V chords, 3-chord combos, and style-matched alternate progressions (Andalusian cadence, ii-V-I turnarounds, neo-soul turnarounds, trap minor). The drums, bass, and electric piano are the foundation — everything you add makes it yours.</p>
+        <p>The suggested key section gives you a starting point with I/IV/V chords, 3-chord combos, and style-matched alternate progressions (Andalusian cadence, ii-V-I turnarounds, neo-soul turnarounds, trap minor). The drums, bass, electric piano, and synth pads are the foundation — everything you add makes it yours.</p>
 
         <h3>🎛 For Producers</h3>
         <p>Use it as a starting point or a learning tool — or both. Generate a beat in the style you want, export the MIDI, and customize it in your DAW or MPC. Swap the kick samples, adjust ghost note velocities, add your own fills, re-voice the bass with your own synth or 808. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid.</p>

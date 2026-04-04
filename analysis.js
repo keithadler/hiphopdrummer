@@ -841,6 +841,30 @@ function analyzeBeat() {
     }
   }
 
+  // === SYNTH PAD ===
+  var padFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel;
+  if (typeof PAD_STYLES !== 'undefined' && PAD_STYLES[padFeelBase]) {
+    lines.push('');
+    lines.push('🎛 <b>SYNTH PAD</b>');
+    var padStyle = (typeof PAD_COMP_STYLES !== 'undefined') ? (PAD_COMP_STYLES[padFeelBase] || {}) : {};
+    var padSoundDesc = {
+      52: 'Choir Aahs — eerie, atmospheric vocal pad. The defining sound of Memphis and phonk.',
+      48: 'String Ensemble — cold, cinematic strings. Dark, Griselda, and hard styles.',
+      81: 'Sawtooth Lead — aggressive synth stabs. Crunk energy.'
+    };
+    var padRhythmDesc = {
+      sustain: 'Full-bar sustained chords — the pad sits underneath everything as a harmonic bed. Felt more than heard.',
+      pulse: 'Half-note pulses — more rhythmic than a pure sustain. Griselda-style, the strings breathe with the drums.',
+      stab: 'Short aggressive stabs on beat 1 — crunk energy. The synth hits hard and gets out of the way.'
+    };
+    lines.push('Sound: <b>' + (padSoundDesc[padStyle.program] || 'Atmospheric synth') + '</b>');
+    lines.push('Rhythm: <b>' + (padRhythmDesc[padStyle.rhythm] || padStyle.rhythm) + '</b>');
+    if (padStyle.detuned) {
+      lines.push('The pad uses a <b>detuned chorus effect</b> — two layers slightly offset in timing, creating the eerie, wobbly sound that defines Memphis and phonk production.');
+    }
+    lines.push('The pad is on <b>MIDI channel 4</b> (channel index 3) in the export. Load it into a separate track with a pad/string/choir sound.');
+  }
+
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
   lines.push('🔬 <b>TECHNIQUE SPOTLIGHT</b>');
