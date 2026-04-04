@@ -205,7 +205,7 @@ document.getElementById('btnGen').onclick = showRegenDialog;
 document.getElementById('btnShare').onclick = function() {
   try {
     // Encode just the generation parameters — short URL
-    var style = songFeel || 'normal';
+    var style = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel || 'normal') : (songFeel || 'normal');
     var key = document.getElementById('songKey').textContent || '';
     var bpm = document.getElementById('bpm').textContent || '90';
     var params = 's=' + encodeURIComponent(style) + '&k=' + encodeURIComponent(key) + '&b=' + bpm;
@@ -1178,7 +1178,7 @@ function initPlayerControls() {
       headerPlayBtn.disabled = false;
     }
     // Sync non-play button disabled state
-    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
     for (var ni = 0; ni < navBtns.length; ni++) {
       var nb = document.getElementById(navBtns[ni]);
       if (nb) nb.disabled = playing;

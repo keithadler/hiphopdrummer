@@ -74,6 +74,9 @@ function renderGrid() {
   if (!pat) return;
   var len = secSteps[curSec] || STEPS;
   var totalPages = Math.ceil(len / 16);
+  // Cache velocity display mode once (avoid 1000+ localStorage reads)
+  var _gridVelMode = 'percent';
+  try { _gridVelMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
 
   // Update the section name display above the grid
   var pl = document.getElementById('patternLabel');
@@ -158,9 +161,7 @@ function renderGrid() {
       row.className = 'grid-row';
       var rowTip = ROW_TIPS[r] ? ' title="' + ROW_TIPS[r] + '"' : '';
       var html = '<div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
-      // Get velocity display mode preference
-      var velocityMode = 'percent';
-      try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+      var velocityMode = _gridVelMode;
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
         var pct = vel > 0 ? Math.round(vel / 127 * 100) : 0;
@@ -282,8 +283,8 @@ function _selectArrItem(idx) {
     for (var si = 0; si < arrIdx; si++) {
       t += (secSteps[arrangement[si]] || 32) * secPerStep;
     }
-    // Only seek if already playing — don't auto-start playback on section click
-    if (window.synthBridge.isPlaying) {
+    // Only seek if already playing full song (not during loop)
+    if (window.synthBridge.isPlaying && !window._loopSection) {
       window.synthBridge.seek(t);
     }
   }
@@ -1341,8 +1342,23 @@ function _flushEditToHistory() {
     saveBeatHistory(history);
   }
 }
-// Flush pending save on page unload so edits aren't lost
-window.addEventListener('beforeunload', function() { if (_saveEditTimer) _flushEditToHistory(); });
+// Flush pending save on page unload so edits aren't lost (synchronous to complete before navigation)
+window.addEventListener('beforeunload', function() {
+  if (_saveEditTimer) {
+    clearTimeout(_saveEditTimer);
+    _saveEditTimer = null;
+    // Synchronous save — must complete before page unloads
+    try {
+      if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function' && typeof loadBeatHistory === 'function') {
+        var history = loadBeatHistory();
+        if (history.length > 0) {
+          history[0] = captureBeatState();
+          saveBeatHistory(history);
+        }
+      }
+    } catch(e) {}
+  }
+});
 
 function _afterEdit() {
   _hideVelEditor();

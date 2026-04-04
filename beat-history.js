@@ -69,6 +69,23 @@ function restoreBeatState(beatData) {
   var toast = document.getElementById('sectionToast');
   if (toast) toast.classList.remove('show');
   
+  // Reset editing state
+  if (typeof window._editMode !== 'undefined') {
+    window._editMode = false;
+    var eb = document.getElementById('playerEditBtn');
+    if (eb) eb.classList.remove('edit-active');
+  }
+  if (typeof window._loopSection !== 'undefined') {
+    window._loopSection = false;
+    window._loopMidiBytes = null;
+    var lb = document.getElementById('playerLoopBtn');
+    if (lb) lb.classList.remove('loop-active');
+  }
+  if (typeof _undoState !== 'undefined') { _undoState = null; }
+  var undoBtn = document.getElementById('btnUndo');
+  if (undoBtn) undoBtn.style.display = 'none';
+  if (typeof _hideVelEditor === 'function') _hideVelEditor();
+  
   // Restore global state
   document.getElementById('bpm').textContent = beatData.bpm;
   document.getElementById('swing').textContent = beatData.swing;
