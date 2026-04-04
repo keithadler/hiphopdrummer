@@ -2,6 +2,13 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.29] - 2026-04-04
+
+### Fixed
+- EP now plays in all sections when the song's primary feel is an EP style (was only playing in sections whose individual feel was in EP_STYLES — chorus/breakdown/etc were silent)
+- EP styleLookup ternary logic fixed (could resolve to empty string, falling back to wrong style)
+- EP analysis section indicator matches song-level EP logic (no longer incorrectly lists sections as "No EP")
+
 ## [1.28] - 2026-04-04
 
 ### Added
