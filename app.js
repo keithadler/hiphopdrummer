@@ -435,6 +435,9 @@ document.getElementById('prefsSave').onclick = function() {
     window.synthBridge.setPadProgram(48);
     window.synthBridge.setLeadProgram(80);
     window.synthBridge.setOrganProgram(16);
+    window.synthBridge.setHornProgram(61);
+    window.synthBridge.setVibesProgram(11);
+    window.synthBridge.setClavProgram(7);
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -801,6 +804,9 @@ function initBeatHistoryHandlers() {
                 window.synthBridge.setPadProgram(48);
                 window.synthBridge.setLeadProgram(80);
                 window.synthBridge.setOrganProgram(16);
+                window.synthBridge.setHornProgram(61);
+                window.synthBridge.setVibesProgram(11);
+                window.synthBridge.setClavProgram(7);
               } catch(e) {}
             }).catch(function() {});
           }
@@ -1152,6 +1158,9 @@ function initPlayerControls() {
             window.synthBridge.setPadProgram(48); // GM String Ensemble (overridden by style)
             window.synthBridge.setLeadProgram(80); // GM Square Lead
             window.synthBridge.setOrganProgram(16); // GM Drawbar Organ
+            window.synthBridge.setHornProgram(61); // GM Brass Section
+            window.synthBridge.setVibesProgram(11); // GM Vibraphone
+            window.synthBridge.setClavProgram(7); // GM Clavinet
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');

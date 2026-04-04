@@ -886,6 +886,54 @@ function buildCombinedMidiBytes(sectionList, bpm) {
         }
       }
     }
+
+    // Horn events (channel 6)
+    if (typeof generateHornPattern === 'function') {
+      var hornEvents = generateHornPattern(sec, bpm);
+      var hornCh = 6; var hornSwing = Math.round(baseSwingAmount * 0.8);
+      for (var hi = 0; hi < hornEvents.length; hi++) {
+        var hE = hornEvents[hi]; var hSIB = hE.step % 16;
+        var hTick = secTickStart + (hE.step * ticksPerStep) + ((hSIB % 2 === 1) ? hornSwing : 0) + (hE.timingOffset || 0);
+        if (hTick < 0) hTick = 0; var hDur = Math.max(1, Math.floor(ticksPerStep * hE.dur));
+        for (var hni = 0; hni < hE.notes.length; hni++) {
+          var hVel = (hE.vels && hE.vels[hni] !== undefined) ? hE.vels[hni] : 80;
+          events.push({ tick: hTick, type: 'on', ch: hornCh, note: hE.notes[hni], vel: Math.min(127, Math.max(1, hVel)) });
+          events.push({ tick: hTick + hDur, type: 'off', ch: hornCh, note: hE.notes[hni] });
+        }
+      }
+    }
+
+    // Vibraphone events (channel 7)
+    if (typeof generateVibesPattern === 'function') {
+      var vibesEvts = generateVibesPattern(sec, bpm);
+      var vibesCh = 7; var vibesSwing = Math.round(baseSwingAmount * 1.0);
+      for (var vbi = 0; vbi < vibesEvts.length; vbi++) {
+        var vbE = vibesEvts[vbi]; var vbSIB = vbE.step % 16;
+        var vbTick = secTickStart + (vbE.step * ticksPerStep) + ((vbSIB % 2 === 1) ? vibesSwing : 0) + (vbE.timingOffset || 0);
+        if (vbTick < 0) vbTick = 0; var vbDur = Math.max(1, Math.floor(ticksPerStep * vbE.dur));
+        for (var vbni = 0; vbni < vbE.notes.length; vbni++) {
+          var vbVel = (vbE.vels && vbE.vels[vbni] !== undefined) ? vbE.vels[vbni] : 50;
+          events.push({ tick: vbTick, type: 'on', ch: vibesCh, note: vbE.notes[vbni], vel: Math.min(127, Math.max(1, vbVel)) });
+          events.push({ tick: vbTick + vbDur, type: 'off', ch: vibesCh, note: vbE.notes[vbni] });
+        }
+      }
+    }
+
+    // Clavinet events (channel 8)
+    if (typeof generateClavPattern === 'function') {
+      var clavEvts = generateClavPattern(sec, bpm);
+      var clavCh = 8; var clavSwing = Math.round(baseSwingAmount * 1.1);
+      for (var cli = 0; cli < clavEvts.length; cli++) {
+        var clE = clavEvts[cli]; var clSIB = clE.step % 16;
+        var clTick = secTickStart + (clE.step * ticksPerStep) + ((clSIB % 2 === 1) ? clavSwing : 0) + (clE.timingOffset || 0);
+        if (clTick < 0) clTick = 0; var clDur = Math.max(1, Math.floor(ticksPerStep * clE.dur));
+        for (var clni = 0; clni < clE.notes.length; clni++) {
+          var clVel = (clE.vels && clE.vels[clni] !== undefined) ? clE.vels[clni] : 65;
+          events.push({ tick: clTick, type: 'on', ch: clavCh, note: clE.notes[clni], vel: Math.min(127, Math.max(1, clVel)) });
+          events.push({ tick: clTick + clDur, type: 'off', ch: clavCh, note: clE.notes[clni] });
+        }
+      }
+    }
   });
 
   // Sort: by tick, note-offs before note-ons at same tick
@@ -944,6 +992,13 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var organProgram = 16;
   try { var opf = localStorage.getItem('hhd_organ_sound'); if (opf) organProgram = parseInt(opf) || 16; } catch(e) {}
   td.push(0, 0xC0 | 5, organProgram);
+
+  // Program change on channel 6: Horns (Brass Section)
+  td.push(0, 0xC0 | 6, 61);
+  // Program change on channel 7: Vibraphone
+  td.push(0, 0xC0 | 7, 11);
+  // Program change on channel 8: Clavinet
+  td.push(0, 0xC0 | 8, 7);
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)

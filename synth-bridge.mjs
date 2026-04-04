@@ -428,6 +428,18 @@ function setOrganProgram(program) {
   }
 }
 
+function setHornProgram(program) {
+  if (synth) { synth.programChange(6, program); }
+}
+
+function setVibesProgram(program) {
+  if (synth) { synth.programChange(7, program); }
+}
+
+function setClavProgram(program) {
+  if (synth) { synth.programChange(8, program); }
+}
+
 /**
  * Play a single note on a given channel.
  * Used for auditioning drum hits when clicking grid cells.
@@ -462,6 +474,9 @@ window.synthBridge = {
   setPadProgram: setPadProgram,
   setLeadProgram: setLeadProgram,
   setOrganProgram: setOrganProgram,
+  setHornProgram: setHornProgram,
+  setVibesProgram: setVibesProgram,
+  setClavProgram: setClavProgram,
   playNote: playNote,
   set onTimeUpdate(fn) { onTimeUpdate = fn; },
   get onTimeUpdate() { return onTimeUpdate; },
