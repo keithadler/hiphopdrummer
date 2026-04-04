@@ -2,6 +2,34 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.28] - 2026-04-04
+
+### Added
+- Electric Piano generator with 30 musicality features across 3 rounds of refinement:
+  - Voice leading, per-note velocity humanization, Dorian IV correction, bar-to-bar variation
+  - Crushed chords (LH leads RH), ghost re-attacks, octave root doubling, motif-based comping
+  - Bass interaction, chord anticipation, velocity arc, register shift per section, kick-locked stabs, note-off humanization
+  - Melodic top-note movement, independent LH/RH rhythms, sus4→3 resolutions, chromatic approach chords
+  - Snare accent unisons, single-note tremolo, section-boundary fills, strategic rest bars
+  - Drum-density velocity response, pedal tone drones for G-Funk/Dilla
+- EP enabled for 12 styles: Dilla, jazzy, Nujabes, lo-fi, G-Funk (all variants), bounce, Queens, Long Island, halftime
+- EP playback toggle in Preferences (on by default, can disable)
+- EP MIDI and MPC pattern export with per-section files
+- EP WAV stem export
+- EP analysis section in About This Beat (rhythm type, voicing, Dorian IV, drum interaction, sections with/without EP)
+- EP setup instructions in Ableton and general DAW help guides
+- 5 dedicated EP tests (style coverage, Dorian IV intervals, voice leading, MIDI export)
+- Master FX chain on WAV export: HPF → compressor → EQ → room reverb
+- Tap tempo, keyboard shortcuts, swing visualization on grid
+- Current beat protected from deletion in history
+
+### Fixed
+- EP plays when bass is disabled (updateMidiPlayer and play handler use combined MIDI when EP is on)
+- EP export preferences save/restore correctly
+- Regional variants (normal_queens, normal_li) correctly resolve to EP styles
+- Reliable end-of-song stop via SpessaSynth songEnded event
+- Swing visualization uses translateX (flex:1 was absorbing margin-left)
+
 ## [1.27] - 2026-04-04
 
 ### Added
