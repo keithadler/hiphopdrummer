@@ -2,6 +2,41 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.26] - 2026-04-04
+
+### Optimized — Playback Reliability
+- Replaced all setInterval-based tracking (50ms + 500ms polls) with requestAnimationFrame — syncs to display refresh, zero drift, auto-pauses when tab hidden
+- AudioContext state management: onstatechange listener auto-recovers from suspended/interrupted, play retries resume() with 100ms fallback for iOS
+- Pre-warm synth on first user gesture — AudioContext created in "running" state, SoundFont pre-fetched before first Play press
+- Full sequencer reset between songs — destroy and recreate eliminates ghost notes and timing artifacts
+- SoundFont buffer fetched once and cached; concurrent initSynth() calls share a single promise
+- Tab switching no longer kills playback — visibilitychange releases wake lock only, AudioContext handles suspension natively
+
+### Optimized — Rendering Pipeline
+- renderGrid builds entire grid as single HTML string + one innerHTML assignment (was createElement + appendChild in a loop)
+- renderArr fast path during playback: moves .playing class between cards instead of full DOM rebuild + event handler re-wiring
+- Cached DOM references (gridR, sectionToast, progressFill, nav buttons) at playback start — eliminates getElementById every frame
+- Cursor trail reuses previous frame's cursor elements instead of querySelectorAll per step
+- Seek bar only updates when value changes by >0.5% — avoids unnecessary range input repaints
+- Bar tab switching uses querySelector('.bar-btn-active') instead of querySelectorAll('.bar-btn').forEach
+- vfxClearAll uses getElementsByClassName (live collection) instead of querySelectorAll('[class*=]') attribute selector
+
+### Optimized — CSS & Compositing
+- Progress bar uses transform: scaleX() instead of width — GPU-composited, skips layout
+- Hit flash animation uses opacity instead of filter: brightness — GPU-composited, no repaint
+- CSS contain: layout style on .cell, contain: layout on .grid-row — class changes don't trigger page-wide layout
+- will-change: transform on progress fill, will-change: background on section flash
+
+### Optimized — MIDI Building
+- Variable-length quantity encoder uses direct return paths for 1/2/3/4 byte cases (no loop + unshift)
+- Event-writing loop inlines common case (delta < 128) — skips function call + array allocation
+- Final file assembly uses pre-allocated Uint8Array with .set() instead of [].concat() intermediate arrays
+- MIDI bytes built before countdown, with setTimeout(0) yield so browser can paint before audio starts
+
+### Optimized — Pattern Processing
+- All ROWS.forEach calls in hot paths (groove arc, zero-fill, humanize, both MIDI builders) replaced with plain for loops — eliminates thousands of closure allocations per generation
+- Visualizer throttled to ~30fps — halves GPU/CPU cost with no visible quality loss
+
 ## [1.25] - 2026-04-04
 
 ### Optimized

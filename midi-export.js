@@ -103,7 +103,9 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
 
-      ROWS.forEach(function(r) {
+      // PERF: Plain for loop instead of ROWS.forEach
+      for (var ri = 0; ri < ROWS.length; ri++) {
+        var r = ROWS[ri];
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
@@ -122,7 +124,7 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
             events.push({ tick: stepTick + noteDurTicks, type: 'off', note: note });
           }
         }
-      });
+      }
       tickPos += ticksPerStep;
     }
   });
@@ -168,10 +170,14 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
   td.push(0, 0xC0 | ch, drumKitProgram);
 
   // Write note-on (0x9n) and note-off (0x80) events with delta-time encoding
+  // PERF: Inline VLQ encoding for the common case (delta < 128) to avoid
+  // function call + array allocation + push.apply overhead per event.
   var lastTick = 0;
   for (var i = 0; i < events.length; i++) {
     var e = events[i];
-    td.push.apply(td, vl(e.tick - lastTick)); // delta time as variable-length quantity
+    var delta = e.tick - lastTick;
+    if (delta < 128) { td.push(delta); }
+    else { var vlq = vl(delta); for (var vi = 0; vi < vlq.length; vi++) td.push(vlq[vi]); }
     if (e.type === 'on') td.push(0x90 | ch, e.note, e.vel);
     else td.push(0x80 | ch, e.note, 64); // note-off velocity 64 (MIDI default, better sampler compatibility)
     lastTick = e.tick;
@@ -182,12 +188,19 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
   td.push(0xFF, 0x2F, 0x00);
 
   // MThd: "MThd" + length(6) + format(0) + tracks(1) + PPQ
-  var hdr = [0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF];
-  // MTrk: "MTrk" + 4-byte track length + track data
-  var trkHdr = [0x4D,0x54,0x72,0x6B];
+  // PERF: Pre-allocate the final array at the correct size instead of
+  // using [].concat() which creates multiple intermediate arrays.
+  var hdrLen = 14; // MThd header is always 14 bytes
+  var trkHdrLen = 8; // MTrk + 4-byte length
   var trkLen = td.length;
-  var fileData = [].concat(hdr, trkHdr, [(trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], td);
-  return new Uint8Array(fileData);
+  var fileData = new Uint8Array(hdrLen + trkHdrLen + trkLen);
+  // MThd
+  fileData.set([0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF], 0);
+  // MTrk + length
+  fileData.set([0x4D,0x54,0x72,0x6B, (trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], hdrLen);
+  // Track data
+  fileData.set(td, hdrLen + trkHdrLen);
+  return fileData;
 }
 
 /**
@@ -553,14 +566,14 @@ function exportMIDI(opts) {
  * @param {number} val - Non-negative integer to encode
  * @returns {number[]} Array of bytes representing the VLQ
  */
+// PERF: Pre-allocated variable-length quantity encoding.
+// Avoids array allocation + unshift for the common case (val < 128).
 function vl(val) {
   val = Math.max(0, Math.round(val));
   if (val < 128) return [val];
-  var b = [];
-  b.unshift(val & 0x7F);       // least significant 7 bits (no continuation flag)
-  val >>= 7;
-  while (val > 0) { b.unshift((val & 0x7F) | 0x80); val >>= 7; } // set continuation bit
-  return b;
+  if (val < 16384) return [(val >> 7) | 0x80, val & 0x7F];
+  if (val < 2097152) return [(val >> 14) | 0x80, ((val >> 7) & 0x7F) | 0x80, val & 0x7F];
+  return [(val >> 21) | 0x80, ((val >> 14) & 0x7F) | 0x80, ((val >> 7) & 0x7F) | 0x80, val & 0x7F];
 }
 
 /**
@@ -634,7 +647,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
 
-      ROWS.forEach(function(r) {
+      // PERF: Plain for loop instead of ROWS.forEach
+      for (var ri = 0; ri < ROWS.length; ri++) {
+        var r = ROWS[ri];
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
@@ -652,7 +667,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
             events.push({ tick: stepTick + noteDurTicks, type: 'off', ch: drumCh, note: note });
           }
         }
-      });
+      }
       tickPos += ticksPerStep;
     }
 
@@ -715,10 +730,13 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   td.push(0, 0xC0 | drumCh, drumKitProgram);
 
   // Write events
+  // PERF: Inline VLQ for common case (delta < 128)
   var lastTick = 0;
   for (var i = 0; i < events.length; i++) {
     var e = events[i];
-    td.push.apply(td, vl(e.tick - lastTick));
+    var delta = e.tick - lastTick;
+    if (delta < 128) { td.push(delta); }
+    else { var vlq = vl(delta); for (var vi = 0; vi < vlq.length; vi++) td.push(vlq[vi]); }
     if (e.type === 'on') td.push(0x90 | e.ch, e.note, e.vel);
     else td.push(0x80 | e.ch, e.note, 64);
     lastTick = e.tick;
@@ -729,9 +747,13 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   td.push(0xFF, 0x2F, 0x00);
 
   // MThd + MTrk
-  var hdr = [0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF];
-  var trkHdr = [0x4D,0x54,0x72,0x6B];
+  // PERF: Pre-allocate the final Uint8Array at the correct size
+  var hdrLen = 14;
+  var trkHdrLen = 8;
   var trkLen = td.length;
-  var fileData = [].concat(hdr, trkHdr, [(trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], td);
-  return new Uint8Array(fileData);
+  var fileData = new Uint8Array(hdrLen + trkHdrLen + trkLen);
+  fileData.set([0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF], 0);
+  fileData.set([0x4D,0x54,0x72,0x6B, (trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], hdrLen);
+  fileData.set(td, hdrLen + trkHdrLen);
+  return fileData;
 }
