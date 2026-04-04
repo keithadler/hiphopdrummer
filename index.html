@@ -391,6 +391,20 @@
     </div>
   </div>
 
+  <!-- QR Share Dialog -->
+  <div id="qrShareOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog" style="max-width:360px">
+      <div class="regen-title">Share Beat via QR Code</div>
+      <div class="regen-dialog-body" style="text-align:center">
+        <div id="qrCodeContainer" style="display:inline-block;padding:12px;background:#fff;border-radius:8px;margin:8px 0"></div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:8px">Scan to load this exact beat — all patterns, arrangement, BPM, swing, and key.</p>
+      </div>
+      <div class="regen-actions">
+        <button class="btn regen-cancel" id="qrShareClose">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="patterns.js"></script>
   <script src="ai.js"></script>
   <script src="writers.js"></script>
@@ -439,20 +453,6 @@
       };
     }
   </script>
-
-  <!-- QR Share Dialog -->
-  <div id="qrShareOverlay" class="regen-overlay" style="display:none">
-    <div class="regen-dialog" style="max-width:360px">
-      <div class="regen-title">Share Beat via QR Code</div>
-      <div class="regen-dialog-body" style="text-align:center">
-        <div id="qrCodeContainer" style="display:inline-block;padding:12px;background:#fff;border-radius:8px;margin:8px 0"></div>
-        <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:8px">Scan to load this exact beat — all patterns, arrangement, BPM, swing, and key.</p>
-      </div>
-      <div class="regen-actions">
-        <button class="btn regen-cancel" id="qrShareClose">Close</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Beat History Dialog -->
   <div id="beatHistoryOverlay" class="regen-overlay" style="display:none">
