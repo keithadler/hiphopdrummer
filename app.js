@@ -949,11 +949,8 @@ function initPlayerControls() {
   headerPlayBtn.onclick = function() {
     if (!window.synthBridge) return;
     if (window.synthBridge.isPlaying) {
-      // Clear loop state if active
-      window._loopSection = false;
+      // Clear loop MIDI bytes but keep loop toggle state
       window._loopMidiBytes = null;
-      var lb = document.getElementById('playerLoopBtn');
-      if (lb) { lb.classList.remove('loop-active'); lb.textContent = '🔁 Loop'; }
       window.synthBridge.stop();
       if (currentEl) currentEl.textContent = '0:00';
       if (seekBar) seekBar.value = 0;
@@ -980,6 +977,15 @@ function initPlayerControls() {
         var nb = document.getElementById(navBtnsImmediate[ni]);
         if (nb) nb.disabled = true;
       }
+      // If loop mode is on, build section MIDI instead of full song
+      var midiToPlay = window._currentMidiBytes;
+      if (window._loopSection && curSec && patterns[curSec]) {
+        var loopBpm = parseInt(document.getElementById('bpm').textContent) || 90;
+        var loopBassOn = true;
+        try { var lbp = localStorage.getItem('hhd_bass_playback'); if (lbp !== null) loopBassOn = (lbp !== 'false'); } catch(e) {}
+        midiToPlay = loopBassOn ? buildCombinedMidiBytes([curSec], loopBpm) : buildMidiBytes([curSec], loopBpm);
+        window._loopMidiBytes = midiToPlay;
+      }
       // Start countdown, then play
       playCountdown(function() {
         // Disable button while synth initializes (SoundFont load on first play)
@@ -999,7 +1005,7 @@ function initPlayerControls() {
             }
           }
         }, 15000);
-        window.synthBridge.play(window._currentMidiBytes).then(function() {
+        window.synthBridge.play(midiToPlay).then(function() {
           clearTimeout(_loadTimeout);
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
@@ -1062,55 +1068,14 @@ function initPlayerControls() {
     };
   }
 
-  // Loop section button — plays current section on repeat
+  // Loop section toggle — when active, play button plays just the current section on repeat
   window._loopSection = false;
   window._loopMidiBytes = null;
   if (loopBtn) {
     loopBtn.onclick = function() {
-      if (!window.synthBridge) return;
-      if (window._loopSection) {
-        // Stop loop
-        window.synthBridge.stop();
-        window._loopSection = false;
-        loopBtn.classList.remove('loop-active');
-        loopBtn.textContent = '🔁 Loop';
-        // Re-enable buttons
-        var reenBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerWavBtn'];
-        for (var ri = 0; ri < reenBtns.length; ri++) {
-          var rb = document.getElementById(reenBtns[ri]);
-          if (rb) rb.disabled = false;
-        }
-        headerPlayBtn.disabled = false;
-        // Rebuild full song MIDI so the main play button works again
-        if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
-        return;
-      }
-      // Start loop — build MIDI for just the current section
-      if (!curSec || !patterns[curSec]) return;
-      if (window.synthBridge.isPlaying) window.synthBridge.stop();
-      window._loopSection = true;
-      loopBtn.classList.add('loop-active');
-      loopBtn.textContent = '■ Stop';
-      // Disable all other buttons
-      var disBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerWavBtn'];
-      for (var di = 0; di < disBtns.length; di++) {
-        var db = document.getElementById(disBtns[di]);
-        if (db) db.disabled = true;
-      }
-      headerPlayBtn.disabled = true;
-      // Turn off edit mode
-      if (window._editMode) {
-        window._editMode = false;
-        var eb = document.getElementById('playerEditBtn');
-        if (eb) eb.classList.remove('edit-active');
-      }
-      // Build section MIDI and play
-      var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-      var bassOn = true;
-      try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
-      var sectionMidi = bassOn ? buildCombinedMidiBytes([curSec], bpm) : buildMidiBytes([curSec], bpm);
-      window._loopMidiBytes = sectionMidi;
-      window.synthBridge.play(sectionMidi);
+      if (window.synthBridge && window.synthBridge.isPlaying) return; // can't toggle during playback
+      window._loopSection = !window._loopSection;
+      loopBtn.classList.toggle('loop-active', window._loopSection);
     };
   }
 
@@ -2179,9 +2144,9 @@ function initPlaybackTracking() {
         var btn = document.getElementById(btns[bi]);
         if (btn) btn.disabled = playing;
       }
-      // Disable loop button during full-song playback (but not during loop playback)
+      // Disable loop toggle during playback (can't change loop state while playing)
       var loopBtnTrack = document.getElementById('playerLoopBtn');
-      if (loopBtnTrack && !window._loopSection) loopBtnTrack.disabled = playing;
+      if (loopBtnTrack) loopBtnTrack.disabled = playing;
       // Turn off edit mode when playback starts
       if (playing && window._editMode) {
         window._editMode = false;
@@ -2291,10 +2256,7 @@ function initPlaybackTracking() {
   }
   document.addEventListener('visibilitychange', function() {
     if (document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
-      window._loopSection = false;
       window._loopMidiBytes = null;
-      var lb = document.getElementById('playerLoopBtn');
-      if (lb) { lb.classList.remove('loop-active'); lb.textContent = '🔁 Loop'; }
       window.synthBridge.stop();
       _releaseWakeLock();
     }
