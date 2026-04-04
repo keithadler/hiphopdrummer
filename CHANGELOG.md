@@ -2,6 +2,18 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.15] - 2026-04-03
+
+### Added
+- Loading indicator with spinner during beat generation
+- Cell editing: double-click any grid cell to toggle hits on/off (adds at default velocity per instrument)
+- Section loop button (🔁) next to WAV download — loops the current section during playback
+- WAV stems export: separate "drums only" and "bass only" WAV checkboxes in Export dialog (unchecked by default)
+- Tablet layout: single-row header with compact controls
+
+### Changed
+- package.json version now syncs with app version (1.15.0)
+
 ## [1.14] - 2026-04-03
 
 ### Changed
