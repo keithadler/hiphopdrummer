@@ -2,6 +2,28 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.13] - 2026-04-03
+
+### Added
+- Tablet/landscape phone breakpoint (601-1024px): header wraps into 2 clean rows with flex layout
+
+### Changed
+- Style label uses scrolling marquee for long names, capped at 160px on desktop
+- Arrangement progress bar height increased to 8px
+- Chord toast max-height increased to 90vh
+- Disabled buttons during playback now show 25% opacity + grayscale for clearer visual feedback
+
+### Fixed
+- Visualizer double-connect bug: was routing audio through 2 paths to destination, doubling volume
+- Canvas visualizer no longer resizes every frame (only on actual dimension change)
+- Progress bar markers cleared on playback stop
+- Spacebar shortcut no longer conflicts with focused arrangement card buttons
+- Mobile layout: Style group spans full width in 2-column grid, proper flow for all controls
+- Buttons now disable immediately on play press (before countdown), not just after async callback
+- Play/Stop button stays clickable during playback (removed pointer-events:none from disabled state)
+- Service worker skips chrome-extension:// URLs in fetch handler
+- VFX module moved out of unclosed JSDoc comment block
+
 ## [1.12] - 2026-04-03
 
 ### Changed
