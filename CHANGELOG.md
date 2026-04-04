@@ -2,6 +2,18 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.20] - 2026-04-04
+
+### Added
+- QR code sharing: SHARE button generates a QR code containing the complete beat (all patterns, arrangement, BPM, swing, key) — scan to load the exact beat
+- Edit mode auto-enables loop toggle
+- Toast role tip text enlarged to 18px
+
+### Fixed
+- Safari playback: synth init chained synchronously in click handler, preferences applied after init, playback tracking waits for connection before starting
+- QR dialog crash: moved HTML before script tags so DOM exists when handlers are wired
+- Undo system verified working end-to-end
+
 ## [1.19] - 2026-04-04
 
 ### Added
