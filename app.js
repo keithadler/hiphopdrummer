@@ -838,6 +838,12 @@ function initPlayerControls() {
       headerPlayBtn.disabled = true;
       setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
     } else if (window._currentMidiBytes) {
+      // Disable non-play buttons immediately when starting playback
+      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
+        var nb = document.getElementById(navBtnsImmediate[ni]);
+        if (nb) nb.disabled = true;
+      }
       // Start countdown, then play
       playCountdown(function() {
         // Disable button while synth initializes (SoundFont load on first play)
