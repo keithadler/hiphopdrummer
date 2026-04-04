@@ -267,6 +267,8 @@ var dragIdx = null;
 function _selectArrItem(idx) {
   arrIdx = idx;
   curSec = arrangement[arrIdx];
+  // Close velocity editor (section changed, pat reference would be stale)
+  if (typeof _hideVelEditor === 'function') _hideVelEditor();
   renderGrid();
   renderArr(true);
   // Seek playback to this section's start time and play
@@ -1298,6 +1300,9 @@ function _saveUndo() {
 
 function _applyUndo() {
   if (!_undoState) return;
+  // Don't undo during playback
+  if (window.synthBridge && window.synthBridge.isPlaying) return;
+  if (window._loopSection) return;
   patterns = _undoState.patterns;
   _undoState = null;
   var btn = document.getElementById('btnUndo');
@@ -1423,7 +1428,7 @@ function _hideVelEditor() {
     var rowLabel = e.target.closest('.row-label');
 
     // Click on row label: play that instrument at default velocity
-    if (rowLabel && !cell && window.synthBridge && !window.synthBridge.isPlaying) {
+    if (rowLabel && !cell && window.synthBridge && !window.synthBridge.isPlaying && !window._loopSection) {
       var row = rowLabel.dataset.row;
       if (row && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], 100, 250);
@@ -1449,7 +1454,7 @@ function _hideVelEditor() {
     if (!pat || !pat[row]) return;
 
     // Edit mode OFF: show tooltip + play sound (educational mode)
-    if (!window._editMode || (window.synthBridge && window.synthBridge.isPlaying)) {
+    if (!window._editMode || (window.synthBridge && window.synthBridge.isPlaying) || window._loopSection) {
       _showCellTooltip(cell);
       if (window.synthBridge && cell.classList.contains('on') && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);

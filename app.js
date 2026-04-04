@@ -151,8 +151,9 @@ document.getElementById('regenGo').onclick = function() {
     
     // Reset loop and edit mode for the new beat
     window._loopSection = false;
+    window._loopMidiBytes = null;
     var loopBtnEl = document.getElementById('playerLoopBtn');
-    if (loopBtnEl) loopBtnEl.classList.remove('loop-active');
+    if (loopBtnEl) { loopBtnEl.classList.remove('loop-active'); loopBtnEl.textContent = '🔁 Loop'; }
     window._editMode = false;
     var editBtnEl = document.getElementById('playerEditBtn');
     if (editBtnEl) editBtnEl.classList.remove('edit-active');
@@ -881,6 +882,11 @@ function initPlayerControls() {
   headerPlayBtn.onclick = function() {
     if (!window.synthBridge) return;
     if (window.synthBridge.isPlaying) {
+      // Clear loop state if active
+      window._loopSection = false;
+      window._loopMidiBytes = null;
+      var lb = document.getElementById('playerLoopBtn');
+      if (lb) { lb.classList.remove('loop-active'); lb.textContent = '🔁 Loop'; }
       window.synthBridge.stop();
       if (currentEl) currentEl.textContent = '0:00';
       if (seekBar) seekBar.value = 0;
@@ -888,7 +894,7 @@ function initPlayerControls() {
       headerPlayBtn.classList.remove('playing');
       // Brief cooldown so user can't accidentally re-trigger play or other actions
       headerPlayBtn.disabled = true;
-      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ci = 0; ci < cooldownBtns.length; ci++) {
         var cb = document.getElementById(cooldownBtns[ci]);
         if (cb) cb.disabled = true;
@@ -902,7 +908,7 @@ function initPlayerControls() {
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
       // Disable non-play buttons immediately when starting playback
-      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
         var nb = document.getElementById(navBtnsImmediate[ni]);
         if (nb) nb.disabled = true;
@@ -977,12 +983,55 @@ function initPlayerControls() {
     };
   }
 
-  // Loop section button
+  // Loop section button — plays current section on repeat
+  window._loopSection = false;
+  window._loopMidiBytes = null;
   if (loopBtn) {
     loopBtn.onclick = function() {
-      window._loopSection = !window._loopSection;
-      loopBtn.classList.toggle('loop-active', window._loopSection);
-      loopBtn.title = window._loopSection ? 'Loop ON — repeating current section' : 'Loop current section';
+      if (!window.synthBridge) return;
+      if (window._loopSection) {
+        // Stop loop
+        window.synthBridge.stop();
+        window._loopSection = false;
+        loopBtn.classList.remove('loop-active');
+        loopBtn.textContent = '🔁 Loop';
+        // Re-enable buttons
+        var reenBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+        for (var ri = 0; ri < reenBtns.length; ri++) {
+          var rb = document.getElementById(reenBtns[ri]);
+          if (rb) rb.disabled = false;
+        }
+        headerPlayBtn.disabled = false;
+        // Rebuild full song MIDI so the main play button works again
+        if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+        return;
+      }
+      // Start loop — build MIDI for just the current section
+      if (!curSec || !patterns[curSec]) return;
+      if (window.synthBridge.isPlaying) window.synthBridge.stop();
+      window._loopSection = true;
+      loopBtn.classList.add('loop-active');
+      loopBtn.textContent = '■ Stop';
+      // Disable all other buttons
+      var disBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+      for (var di = 0; di < disBtns.length; di++) {
+        var db = document.getElementById(disBtns[di]);
+        if (db) db.disabled = true;
+      }
+      headerPlayBtn.disabled = true;
+      // Turn off edit mode
+      if (window._editMode) {
+        window._editMode = false;
+        var eb = document.getElementById('playerEditBtn');
+        if (eb) eb.classList.remove('edit-active');
+      }
+      // Build section MIDI and play
+      var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+      var bassOn = true;
+      try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
+      var sectionMidi = bassOn ? buildCombinedMidiBytes([curSec], bpm) : buildMidiBytes([curSec], bpm);
+      window._loopMidiBytes = sectionMidi;
+      window.synthBridge.play(sectionMidi);
     };
   }
 
@@ -1066,6 +1115,7 @@ function initPlayerControls() {
   // SoundFont load race. This ensures the button ALWAYS reflects reality.
   setInterval(function() {
     if (!window.synthBridge || !headerPlayBtn) return;
+    if (window._loopSection) return; // Don't interfere during loop playback
     var playing = window.synthBridge.isPlaying;
     var showsStop = headerPlayBtn.classList.contains('playing');
     var isLoading = headerPlayBtn.textContent.indexOf('LOADING') >= 0;
@@ -1080,7 +1130,7 @@ function initPlayerControls() {
       headerPlayBtn.disabled = false;
     }
     // Sync non-play button disabled state
-    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
     for (var ni = 0; ni < navBtns.length; ni++) {
       var nb = document.getElementById(navBtns[ni]);
       if (nb) nb.disabled = playing;
@@ -1944,12 +1994,6 @@ function initPlaybackTracking() {
       foundIdx = map.length - 1; sectionStartTime = map[foundIdx].start; sectionSteps = map[foundIdx].steps;
     }
     if (foundIdx >= 0 && foundIdx !== lastTrackedSection) {
-      // Section loop: if loop is on, seek back to current section start instead of advancing
-      if (window._loopSection && lastTrackedSection >= 0 && lastTrackedSection < map.length) {
-        var loopStart = map[lastTrackedSection].start;
-        if (window.synthBridge) window.synthBridge.seek(loopStart + 0.01);
-        return;
-      }
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
@@ -2051,11 +2095,14 @@ function initPlaybackTracking() {
         else _playerPlayBtn.classList.remove('playing');
       }
       // Disable/enable non-play buttons during playback
-      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var bi = 0; bi < btns.length; bi++) {
         var btn = document.getElementById(btns[bi]);
         if (btn) btn.disabled = playing;
       }
+      // Disable loop button during full-song playback (but not during loop playback)
+      var loopBtnTrack = document.getElementById('playerLoopBtn');
+      if (loopBtnTrack && !window._loopSection) loopBtnTrack.disabled = playing;
       // Turn off edit mode when playback starts
       if (playing && window._editMode) {
         window._editMode = false;
@@ -2065,6 +2112,15 @@ function initPlaybackTracking() {
       // Close velocity editor if open
       if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
       if (!playing) {
+        // Loop restart: if loop is active and playback ended naturally, restart
+        if (window._loopSection && window._loopMidiBytes && window.synthBridge) {
+          setTimeout(function() {
+            if (window._loopSection && window._loopMidiBytes) {
+              window.synthBridge.play(window._loopMidiBytes);
+            }
+          }, 100);
+          return; // Don't clear cursor/VFX — loop continues
+        }
         clearCursor();
         window._playbackControlsBarTabs = false;
         var toast = document.getElementById('sectionToast');
@@ -2137,6 +2193,10 @@ function initPlaybackTracking() {
   // Stop playback when screen locks or tab becomes hidden (iOS/mobile)
   document.addEventListener('visibilitychange', function() {
     if (document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
+      window._loopSection = false;
+      window._loopMidiBytes = null;
+      var lb = document.getElementById('playerLoopBtn');
+      if (lb) { lb.classList.remove('loop-active'); lb.textContent = '🔁 Loop'; }
       window.synthBridge.stop();
     }
   });
