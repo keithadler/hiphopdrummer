@@ -295,8 +295,15 @@ function generateEPPattern(sec, bpm) {
 
   var epFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
   var epFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(epFeel) : epFeel;
-  if (!EP_STYLES[epFeel] && !EP_STYLES[epFeelBase]) return [];
-  var styleLookup = EP_COMP_STYLES[epFeel] ? epFeel : epFeelBase;
+  // Check if this section's feel OR the song's primary feel enables EP.
+  // The song feel (palette[0]) determines whether the song "has keys" —
+  // if the verse is Dilla, the chorus (which might be 'big') still gets EP.
+  var songFeelResolved = (typeof songFeel !== 'undefined' && typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : '';
+  var sectionHasEP = EP_STYLES[epFeel] || EP_STYLES[epFeelBase];
+  var songHasEP = (typeof songFeel !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelResolved]);
+  if (!sectionHasEP && !songHasEP) return [];
+  // Use the section's own style if it has one, otherwise fall back to the song feel
+  var styleLookup = EP_COMP_STYLES[epFeel] ? epFeel : (EP_COMP_STYLES[epFeelBase] ? epFeelBase : (EP_COMP_STYLES[songFeelResolved] || EP_COMP_STYLES[songFeel] ? songFeelResolved : 'dilla'));
   var style = EP_COMP_STYLES[styleLookup] || EP_COMP_STYLES.dilla;
 
   var keyData = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
