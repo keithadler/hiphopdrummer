@@ -859,6 +859,17 @@ function _getCachedOrGenerate(name, genFn, sec, bpm) {
   return genFn(sec, bpm);
 }
 
+/** Check if drums are in a beat-drop (all silent) at a given step.
+ *  Melodic instruments should also be silent during drops. */
+function _isDrumDrop(drumPat, step) {
+  if (!drumPat) return false;
+  // Check if ALL drum rows are silent at this step
+  for (var ri = 0; ri < ROWS.length; ri++) {
+    if (drumPat[ROWS[ri]][step] > 0) return false;
+  }
+  return true; // all drums silent = beat drop
+}
+
 function buildCombinedMidiBytes(sectionList, bpm) {
   var ppq = 96, drumCh = 9, bassCh = 0, epCh = 2;
   var ticksPerStep = ppq / 4;
@@ -923,6 +934,8 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[bassFeel]) ? INSTRUMENT_SWING[bassFeel].bass : 0.9;
     var bassSwing = Math.round(baseSwingAmount * bassSwingMult);
     bassEvents.forEach(function(e) {
+      // Skip bass events during beat drops (all drums silent)
+      if (_isDrumDrop(pat, e.step)) return;
       var stepInBar = e.step % 16;
       var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
       var timingOff = (e.timingOffset || 0);
@@ -945,6 +958,8 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var epSwing = Math.round(baseSwingAmount * epSwingMult);
       for (var epi = 0; epi < epEvents.length; epi++) {
         var epE = epEvents[epi];
+        // Skip events during beat drops (all drums silent at this step)
+        if (_isDrumDrop(pat, epE.step)) continue;
         var epStepInBar = epE.step % 16;
         var epSwingOff = (epStepInBar % 2 === 1) ? epSwing : 0;
         var epTimingOff = epE.timingOffset || 0;
@@ -974,6 +989,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var padSwing = Math.round(baseSwingAmount * padSwingMult);
       for (var padi = 0; padi < padEvents.length; padi++) {
         var padE = padEvents[padi];
+        if (_isDrumDrop(pat, padE.step)) continue;
         var padStepInBar = padE.step % 16;
         var padSwingOff = (padStepInBar % 2 === 1) ? padSwing : 0;
         var padTimingOff = padE.timingOffset || 0;
@@ -997,6 +1013,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var leadSwing = Math.round(baseSwingAmount * 0.9);
       for (var li = 0; li < leadEvents.length; li++) {
         var lE = leadEvents[li];
+        if (_isDrumDrop(pat, lE.step)) continue;
         var lStepInBar = lE.step % 16;
         var lSwingOff = (lStepInBar % 2 === 1) ? leadSwing : 0;
         var lTimingOff = lE.timingOffset || 0;
@@ -1020,6 +1037,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var organSwing = Math.round(baseSwingAmount * 0.4);
       for (var oi = 0; oi < organEvents.length; oi++) {
         var oE = organEvents[oi];
+        if (_isDrumDrop(pat, oE.step)) continue;
         var oStepInBar = oE.step % 16;
         var oSwingOff = (oStepInBar % 2 === 1) ? organSwing : 0;
         var oStepTick = secTickStart + (oE.step * ticksPerStep) + oSwingOff + (oE.timingOffset || 0);
@@ -1041,6 +1059,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var hornCh = 6; var hornSwing = Math.round(baseSwingAmount * 0.8);
       for (var hi = 0; hi < hornEvents.length; hi++) {
         var hE = hornEvents[hi]; var hSIB = hE.step % 16;
+        if (_isDrumDrop(pat, hE.step)) continue;
         var hTick = secTickStart + (hE.step * ticksPerStep) + ((hSIB % 2 === 1) ? hornSwing : 0) + (hE.timingOffset || 0);
         if (hTick < 0) hTick = 0; var hDur = Math.max(1, Math.floor(ticksPerStep * hE.dur));
         for (var hni = 0; hni < hE.notes.length; hni++) {
@@ -1059,6 +1078,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var vibesCh = 7; var vibesSwing = Math.round(baseSwingAmount * 1.0);
       for (var vbi = 0; vbi < vibesEvts.length; vbi++) {
         var vbE = vibesEvts[vbi]; var vbSIB = vbE.step % 16;
+        if (_isDrumDrop(pat, vbE.step)) continue;
         var vbTick = secTickStart + (vbE.step * ticksPerStep) + ((vbSIB % 2 === 1) ? vibesSwing : 0) + (vbE.timingOffset || 0);
         if (vbTick < 0) vbTick = 0; var vbDur = Math.max(1, Math.floor(ticksPerStep * vbE.dur));
         for (var vbni = 0; vbni < vbE.notes.length; vbni++) {
@@ -1077,6 +1097,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       var clavCh = 8; var clavSwing = Math.round(baseSwingAmount * 1.1);
       for (var cli = 0; cli < clavEvts.length; cli++) {
         var clE = clavEvts[cli]; var clSIB = clE.step % 16;
+        if (_isDrumDrop(pat, clE.step)) continue;
         var clTick = secTickStart + (clE.step * ticksPerStep) + ((clSIB % 2 === 1) ? clavSwing : 0) + (clE.timingOffset || 0);
         if (clTick < 0) clTick = 0; var clDur = Math.max(1, Math.floor(ticksPerStep * clE.dur));
         for (var clni = 0; clni < clE.notes.length; clni++) {
