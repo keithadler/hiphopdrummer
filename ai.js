@@ -1528,7 +1528,6 @@ function applySectionTransitions() {
     if (!curPat || !nextPat) continue;
 
     // Rule 1: Fill ending → crash + strong downbeat on next section
-    // Crash velocity scales with fill intensity
     if (curPat.snare[curLen - 1] > 100) {
       var fillVel = curPat.snare[curLen - 1];
       var crashVel = Math.min(120, Math.max(85, fillVel - 10));
@@ -1537,7 +1536,6 @@ function applySectionTransitions() {
     }
 
     // Rule 2: Breakdown → next section gets maximum-impact re-entry ("the drop")
-    // Scale re-entry velocity based on the song feel
     if (curSec === 'breakdown') {
       var reKick = 125, reSnare = 115, reClap = 110, reCrash = 110;
       if (songFeel === 'lofi') { reKick = 88; reSnare = 85; reClap = 78; reCrash = 80; }
@@ -1548,7 +1546,15 @@ function applySectionTransitions() {
       nextPat.kick[0] = Math.max(nextPat.kick[0], v(reKick, 5));
       if (nextPat.crash[0] === 0) nextPat.crash[0] = v(reCrash, 8);
       nextPat.clap[0] = v(reClap, 8);
-      // No snare on beat 1 — snare enters on beat 2 as normal
+
+      // BEAT DROP: Last 4 steps of breakdown go completely silent
+      // Creates a dramatic gap before the re-entry slam
+      if (curLen >= 16) {
+        var dropStart = curLen - 4;
+        for (var ds = dropStart; ds < curLen; ds++) {
+          for (var ri = 0; ri < ROWS.length; ri++) { curPat[ROWS[ri]][ds] = 0; }
+        }
+      }
     }
 
     // Rule 3: Chorus entries always get a crash on beat 1
@@ -1556,17 +1562,57 @@ function applySectionTransitions() {
       nextPat.crash[0] = v(108, 10);
     }
 
-    // Rule 4: Cymbal swell before last chorus — build energy in the last bar
-    if (nextSec === 'lastchorus' && curLen >= 16) {
-      var swellStart = curLen - 4;
-      // Ride crescendo in the last 4 steps of the preceding section
-      for (var sw = 0; sw < 4; sw++) {
-        var swStep = swellStart + sw;
-        if (swStep < curLen && curPat.ride[swStep] === 0 && curPat.crash[swStep] === 0) {
-          curPat.ride[swStep] = v(70 + sw * 12, 6);
+    // BEAT DROP: Pre-chorus → chorus transition
+    // Last 2-4 steps of pre-chorus go silent for maximum chorus impact
+    if (curSec === 'pre' && (nextSec === 'chorus' || nextSec === 'chorus2' || nextSec === 'lastchorus')) {
+      if (curLen >= 16 && maybe(0.7)) {
+        var preDropLen = maybe(0.5) ? 4 : 2; // 2 or 4 steps of silence
+        var preDropStart = curLen - preDropLen;
+        for (var pds = preDropStart; pds < curLen; pds++) {
+          for (var ri = 0; ri < ROWS.length; ri++) { curPat[ROWS[ri]][pds] = 0; }
         }
       }
     }
+
+    // Rule 4: Cymbal swell before last chorus
+    if (nextSec === 'lastchorus' && curLen >= 16) {
+      var swellStart = curLen - 4;
+      // Only add swell if we didn't just clear those steps for a drop
+      if (curSec !== 'breakdown') {
+        for (var sw = 0; sw < 4; sw++) {
+          var swStep = swellStart + sw;
+          if (swStep < curLen && curPat.ride[swStep] === 0 && curPat.crash[swStep] === 0) {
+            curPat.ride[swStep] = v(70 + sw * 12, 6);
+          }
+        }
+      }
+    }
+  }
+
+  // BEAT DROP: Mid-section drops — occasional 1-beat silence in verses/choruses
+  // Creates a dramatic "the beat drops out" moment that rappers and DJs love
+  for (var a = 0; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    var pat = patterns[sec];
+    var len = secSteps[sec] || 32;
+    if (!pat) continue;
+
+    // Only in verse, verse2, chorus, chorus2 — and only in longer sections (4+ bars)
+    if ((sec === 'verse' || sec === 'verse2' || sec === 'chorus' || sec === 'chorus2') && len >= 64) {
+      // 30% chance of a 1-beat drop on bar 4 beat 3 (step 56-59)
+      if (maybe(0.3)) {
+        var dropBar = 3; // bar 4 (0-indexed)
+        var dropBeat = 8; // beat 3 within the bar
+        var dropStep = dropBar * 16 + dropBeat;
+        // Clear 4 steps (one beat of silence)
+        for (var ds = dropStep; ds < dropStep + 4 && ds < len; ds++) {
+          for (var ri = 0; ri < ROWS.length; ri++) { pat[ROWS[ri]][ds] = 0; }
+        }
+      }
+    }
+
+    // Breakdown: progressive strip-down with a full-bar drop at the end
+    // (The last-bar drop is handled in the transition rules above)
   }
 }
 
