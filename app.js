@@ -360,6 +360,14 @@ function showPrefsDialog() {
   var padOn = true;
   try { var pd = localStorage.getItem('hhd_pad_playback'); if (pd !== null) padOn = (pd !== 'false'); } catch(e) {}
   document.getElementById('prefsPadPlayback').checked = padOn;
+  // Restore other instrument playback preferences (default: on)
+  var instrPrefs = ['lead', 'organ', 'horn', 'vibes', 'clav'];
+  instrPrefs.forEach(function(inst) {
+    var on = true;
+    try { var val = localStorage.getItem('hhd_' + inst + '_playback'); if (val !== null) on = (val !== 'false'); } catch(e) {}
+    var el = document.getElementById('prefs' + inst.charAt(0).toUpperCase() + inst.slice(1) + 'Playback');
+    if (el) el.checked = on;
+  });
   // Restore bass sound preference (default: 33 = Electric Bass Finger)
   var bassSound = '33';
   try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
@@ -405,6 +413,12 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_ep_playback', epOn ? 'true' : 'false'); } catch(e) {}
   var padOn = document.getElementById('prefsPadPlayback').checked;
   try { localStorage.setItem('hhd_pad_playback', padOn ? 'true' : 'false'); } catch(e) {}
+  // Save other instrument playback preferences
+  var instrSavePrefs = ['lead', 'organ', 'horn', 'vibes', 'clav'];
+  instrSavePrefs.forEach(function(inst) {
+    var el = document.getElementById('prefs' + inst.charAt(0).toUpperCase() + inst.slice(1) + 'Playback');
+    if (el) { try { localStorage.setItem('hhd_' + inst + '_playback', el.checked ? 'true' : 'false'); } catch(e) {} }
+  });
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
@@ -699,6 +713,11 @@ function initBeatHistoryHandlers() {
     'hhd_bass_playback': 'true',
     'hhd_ep_playback': 'true',
     'hhd_pad_playback': 'true',
+    'hhd_lead_playback': 'true',
+    'hhd_organ_playback': 'true',
+    'hhd_horn_playback': 'true',
+    'hhd_vibes_playback': 'true',
+    'hhd_clav_playback': 'true',
     'hhd_bass_sound': '33',
     'hhd_follow_playhead': 'false',
     'hhd_show_chords': 'true',

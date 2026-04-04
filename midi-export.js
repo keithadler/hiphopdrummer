@@ -967,7 +967,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Synth Lead events (channel 4) — generated per section
-    if (typeof generateLeadPattern === 'function') {
+    var leadOn = true;
+    try { var lp = localStorage.getItem('hhd_lead_playback'); if (lp !== null) leadOn = (lp !== 'false'); } catch(e4) {}
+    if (leadOn && typeof generateLeadPattern === 'function') {
       var leadEvents = generateLeadPattern(sec, bpm);
       var leadCh = 4;
       var leadSwing = Math.round(baseSwingAmount * 0.9);
@@ -988,7 +990,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Organ events (channel 5) — generated per section
-    if (typeof generateOrganPattern === 'function') {
+    var organOn = true;
+    try { var op = localStorage.getItem('hhd_organ_playback'); if (op !== null) organOn = (op !== 'false'); } catch(e5) {}
+    if (organOn && typeof generateOrganPattern === 'function') {
       var organEvents = generateOrganPattern(sec, bpm);
       var organCh = 5;
       var organSwing = Math.round(baseSwingAmount * 0.4);
@@ -1008,7 +1012,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Horn events (channel 6)
-    if (typeof generateHornPattern === 'function') {
+    var hornOn = true;
+    try { var hp = localStorage.getItem('hhd_horn_playback'); if (hp !== null) hornOn = (hp !== 'false'); } catch(e6) {}
+    if (hornOn && typeof generateHornPattern === 'function') {
       var hornEvents = generateHornPattern(sec, bpm);
       var hornCh = 6; var hornSwing = Math.round(baseSwingAmount * 0.8);
       for (var hi = 0; hi < hornEvents.length; hi++) {
@@ -1024,7 +1030,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Vibraphone events (channel 7)
-    if (typeof generateVibesPattern === 'function') {
+    var vibesOn = true;
+    try { var vp = localStorage.getItem('hhd_vibes_playback'); if (vp !== null) vibesOn = (vp !== 'false'); } catch(e7) {}
+    if (vibesOn && typeof generateVibesPattern === 'function') {
       var vibesEvts = generateVibesPattern(sec, bpm);
       var vibesCh = 7; var vibesSwing = Math.round(baseSwingAmount * 1.0);
       for (var vbi = 0; vbi < vibesEvts.length; vbi++) {
@@ -1040,7 +1048,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     }
 
     // Clavinet events (channel 8)
-    if (typeof generateClavPattern === 'function') {
+    var clavOn = true;
+    try { var cp2 = localStorage.getItem('hhd_clav_playback'); if (cp2 !== null) clavOn = (cp2 !== 'false'); } catch(e8) {}
+    if (clavOn && typeof generateClavPattern === 'function') {
       var clavEvts = generateClavPattern(sec, bpm);
       var clavCh = 8; var clavSwing = Math.round(baseSwingAmount * 1.1);
       for (var cli = 0; cli < clavEvts.length; cli++) {
