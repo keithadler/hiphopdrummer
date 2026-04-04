@@ -354,6 +354,7 @@ function exportMIDI(opts) {
   }
 
   // Individual section MIDIs + MPC patterns
+  // Note: iOS flattens ZIP folders on extract, so filenames include folder prefix for clarity
   var midiFolder = (opts.sections || opts.bassMidi || (opts.daws && opts.daws.length > 0)) ? folder.folder('MIDI Patterns') : null;
   var mpcFolder  = (opts.mpc || opts.bassMpc) ? folder.folder('MPC') : null;
 
@@ -368,11 +369,11 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var baseName = padIdx + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       if (opts.sections) {
-        midiFolder.file(baseName + swingTag + '.mid', buildMidiBytes([sec], bpm, noSwing));
+        midiFolder.file('MIDI_' + baseName + swingTag + '.mid', buildMidiBytes([sec], bpm, noSwing));
       }
       if (opts.mpc) {
         var mpcName = (SL[sec] || sec).replace(/\s+/g, '_');
-        mpcFolder.file(mpcName + '.mpcpattern', buildMpcPattern([sec], bpm));
+        mpcFolder.file('MPC_' + mpcName + '.mpcpattern', buildMpcPattern([sec], bpm));
       }
       idx++;
     });
@@ -401,7 +402,7 @@ function exportMIDI(opts) {
     var bassMpcFolder  = (opts.bassMpc && mpcFolder)   ? mpcFolder.folder('Bass')  : null;
     // Full song bass
     if (bassMidiFolder) {
-      bassMidiFolder.file('00_bass_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
+      bassMidiFolder.file('Bass_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
     }
     // No full-song MPC pattern — individual sections only
     // Individual section bass
@@ -415,11 +416,11 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var bassBaseName = padIdx + '_bass_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       if (bassMidiFolder) {
-        bassMidiFolder.file(bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
+        bassMidiFolder.file('Bass_MIDI_' + bassBaseName + swingTag + '.mid', buildBassMidiBytes([sec], bpm, noSwing));
       }
       if (bassMpcFolder) {
         var bassMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
-        bassMpcFolder.file(bassMpcName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
+        bassMpcFolder.file('Bass_MPC_' + bassMpcName + '.mpcpattern', buildBassMpcPattern([sec], bpm));
       }
       bassIdx++;
     });
@@ -427,15 +428,15 @@ function exportMIDI(opts) {
 
   // DAW help files — only include selected DAWs
   var dawMap = {
-    ableton:   function() { return midiFolder && midiFolder.file('HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },
-    logic:     function() { return midiFolder && midiFolder.file('HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal, noSwing)); },
-    fl:        function() { return midiFolder && midiFolder.file('HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal, noSwing)); },
-    garageband:function() { return midiFolder && midiFolder.file('HOW_TO_USE_GARAGEBAND.txt',buildHelpGarageBand(bpm, swingVal, noSwing)); },
-    protools:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal, noSwing)); },
-    reason:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal, noSwing)); },
-    reaper:    function() { return midiFolder && midiFolder.file('HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal, noSwing)); },
-    studioone: function() { return midiFolder && midiFolder.file('HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal, noSwing)); },
-    maschine:  function() { return midiFolder && midiFolder.file('HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); }
+    ableton:   function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },
+    logic:     function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_LOGIC_PRO.txt', buildHelpLogic(bpm, swingVal, noSwing)); },
+    fl:        function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_FL_STUDIO.txt', buildHelpFL(bpm, swingVal, noSwing)); },
+    garageband:function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_GARAGEBAND.txt',buildHelpGarageBand(bpm, swingVal, noSwing)); },
+    protools:  function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_PRO_TOOLS.txt', buildHelpProTools(bpm, swingVal, noSwing)); },
+    reason:    function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal, noSwing)); },
+    reaper:    function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal, noSwing)); },
+    studioone: function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal, noSwing)); },
+    maschine:  function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); }
   };
   // Always include the general overview
   folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal, noSwing));
@@ -444,7 +445,7 @@ function exportMIDI(opts) {
     opts.daws.forEach(function(daw) { if (dawMap[daw]) dawMap[daw](); });
   }
   if (opts.mpc) {
-    mpcFolder.file('HOW_TO_USE_MPC.txt', buildHelpMPC(bpm, swingVal));
+    mpcFolder.file('MPC_HOW_TO_USE.txt', buildHelpMPC(bpm, swingVal));
   }
 
   // WAV audio export (async — render before generating ZIP)
