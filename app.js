@@ -834,7 +834,6 @@ function initBeatHistoryHandlers() {
   function _showHeaderEditor(el, min, max, step, onApply) {
     _hideHeaderEditor();
     if (window.synthBridge && window.synthBridge.isPlaying) return;
-    if (window._loopSection) return;
     var val = parseInt(el.textContent) || min;
     var div = document.createElement('div');
     div.className = 'header-editor';
@@ -855,7 +854,7 @@ function initBeatHistoryHandlers() {
     setTimeout(function() {
       document.addEventListener('click', _headerEditorOutside);
       var scrollArea = document.querySelector('.scroll-area');
-      if (scrollArea) scrollArea.addEventListener('scroll', _hideHeaderEditor, { once: true });
+      if (scrollArea) scrollArea.addEventListener('scroll', _hideHeaderEditor);
     }, 10);
   }
 
@@ -864,6 +863,9 @@ function initBeatHistoryHandlers() {
       document.getElementById('bpm').textContent = val;
       if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
       if (typeof renderArr === 'function') renderArr();
+      // Update player total time display
+      var totalEl = document.getElementById('playerTotal');
+      if (totalEl && typeof calcArrTime === 'function') totalEl.textContent = calcArrTime(true);
       if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
     });
   };
@@ -1085,6 +1087,8 @@ function initPlayerControls() {
     regenSecBtn.onclick = function() {
       if (window.synthBridge && window.synthBridge.isPlaying) return;
       if (!curSec) return;
+      // Close velocity editor if open
+      if (typeof _hideVelEditor === 'function') _hideVelEditor();
       // Save undo state
       if (typeof _saveUndo === 'function') _saveUndo();
       // Regenerate just this section's pattern
@@ -1159,7 +1163,7 @@ function initPlayerControls() {
   // SoundFont load race. This ensures the button ALWAYS reflects reality.
   setInterval(function() {
     if (!window.synthBridge || !headerPlayBtn) return;
-    if (window._loopSection) return; // Don't interfere during loop playback
+    if (window._loopSection && window.synthBridge.isPlaying) return; // Don't interfere during loop playback
     var playing = window.synthBridge.isPlaying;
     var showsStop = headerPlayBtn.classList.contains('playing');
     var isLoading = headerPlayBtn.textContent.indexOf('LOADING') >= 0;
