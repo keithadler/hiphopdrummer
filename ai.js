@@ -1756,9 +1756,7 @@ function applyArrangementArc() {
     }
 
     // ── 5. Progressive velocity scaling ──
-    // Apply a subtle velocity multiplier based on song progress
-    // Early sections slightly softer, late sections slightly louder
-    var progressMult = 0.97 + (songProgress * 0.06); // 0.97 to 1.03
+    var progressMult = 0.97 + (songProgress * 0.06);
     if (sec !== 'breakdown' && sec !== 'outro' && sec !== 'intro') {
       for (var i = 0; i < len; i++) {
         ROWS.forEach(function(r) {
@@ -1766,6 +1764,89 @@ function applyArrangementArc() {
             pat[r][i] = Math.min(127, Math.max(30, Math.round(pat[r][i] * progressMult)));
           }
         });
+      }
+    }
+
+    // ── 6. Intro build-in — add instruments bar by bar ──
+    if (sec === 'intro' && len >= 32) {
+      var totalIntroBars = Math.ceil(len / 16);
+      for (var bar = 0; bar < totalIntroBars; bar++) {
+        var barOff = bar * 16;
+        // Bar 1: only hat (clear everything else)
+        if (bar === 0) {
+          for (var i = barOff; i < barOff + 16 && i < len; i++) {
+            pat.kick[i] = 0; pat.snare[i] = 0; pat.clap[i] = 0;
+            pat.ghostkick[i] = 0; pat.rimshot[i] = 0;
+            pat.openhat[i] = 0; pat.ride[i] = 0; pat.crash[i] = 0; pat.shaker[i] = 0;
+          }
+        }
+        // Bar 2: hat + kick (clear snare, clap, ghosts)
+        else if (bar === 1 && totalIntroBars >= 3) {
+          for (var i = barOff; i < barOff + 16 && i < len; i++) {
+            pat.snare[i] = 0; pat.clap[i] = 0;
+            pat.ghostkick[i] = 0; pat.rimshot[i] = 0; pat.shaker[i] = 0;
+          }
+        }
+        // Bar 3+: full groove (leave as generated)
+      }
+    }
+
+    // ── 7. Outro fade-out — remove instruments bar by bar ──
+    if (sec === 'outro' && len >= 32) {
+      var totalOutroBars = Math.ceil(len / 16);
+      for (var bar = 0; bar < totalOutroBars; bar++) {
+        var barOff = bar * 16;
+        var barsFromEnd = totalOutroBars - 1 - bar;
+        // Last bar: only hat (or silence)
+        if (barsFromEnd === 0) {
+          for (var i = barOff; i < barOff + 16 && i < len; i++) {
+            pat.kick[i] = 0; pat.snare[i] = 0; pat.clap[i] = 0;
+            pat.ghostkick[i] = 0; pat.rimshot[i] = 0;
+            pat.openhat[i] = 0; pat.ride[i] = 0; pat.crash[i] = 0; pat.shaker[i] = 0;
+            // Fade hat velocity
+            if (pat.hat[i] > 0) pat.hat[i] = Math.max(30, Math.round(pat.hat[i] * 0.5));
+          }
+        }
+        // Second-to-last bar: drop snare, clap, ghosts
+        else if (barsFromEnd === 1 && totalOutroBars >= 3) {
+          for (var i = barOff; i < barOff + 16 && i < len; i++) {
+            pat.snare[i] = 0; pat.clap[i] = 0;
+            pat.ghostkick[i] = 0; pat.rimshot[i] = 0; pat.shaker[i] = 0;
+          }
+        }
+        // Earlier bars: reduce ghost density
+        else if (barsFromEnd <= 2) {
+          for (var i = barOff; i < barOff + 16 && i < len; i++) {
+            if (pat.ghostkick[i] > 0 && maybe(0.5)) pat.ghostkick[i] = 0;
+            if (pat.rimshot[i] > 0 && maybe(0.5)) pat.rimshot[i] = 0;
+          }
+        }
+      }
+    }
+
+    // ── 8. Double-time hat section — 16th notes in last chorus or pre-chorus ──
+    if ((sec === 'lastchorus' || sec === 'pre') && len >= 32) {
+      // Add 16th note hats in the last 2 bars (fill the gaps between 8th notes)
+      var dtStart = len - 32; // last 2 bars
+      for (var i = dtStart; i < len; i++) {
+        if (pat.hat[i] === 0 && i % 2 === 1 && maybe(0.6)) {
+          // Add soft 16th note hat on odd steps (the "e" and "ah" positions)
+          pat.hat[i] = v(45, 8); // soft — these are texture, not accents
+        }
+      }
+    }
+
+    // ── 9. Snare roll build — before chorus entries ──
+    if (sec === 'pre' && len >= 16) {
+      // 16th note snare roll in the last 4 steps with increasing velocity
+      var rollStart = len - 4;
+      for (var i = rollStart; i < len; i++) {
+        var rollProgress = (i - rollStart) / 3; // 0 to 1
+        var rollVel = Math.round(60 + rollProgress * 50); // 60 → 110
+        if (pat.snare[i] === 0) pat.snare[i] = Math.min(120, rollVel);
+        // Clear hats during the roll for clarity
+        pat.hat[i] = 0;
+        pat.shaker[i] = 0;
       }
     }
   }
