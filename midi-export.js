@@ -845,6 +845,47 @@ function buildCombinedMidiBytes(sectionList, bpm) {
         }
       }
     }
+
+    // Synth Lead events (channel 4) — generated per section
+    if (typeof generateLeadPattern === 'function') {
+      var leadEvents = generateLeadPattern(sec, bpm);
+      var leadCh = 4;
+      var leadSwing = Math.round(baseSwingAmount * 0.9);
+      for (var li = 0; li < leadEvents.length; li++) {
+        var lE = leadEvents[li];
+        var lStepInBar = lE.step % 16;
+        var lSwingOff = (lStepInBar % 2 === 1) ? leadSwing : 0;
+        var lTimingOff = lE.timingOffset || 0;
+        var lStepTick = secTickStart + (lE.step * ticksPerStep) + lSwingOff + lTimingOff;
+        if (lStepTick < 0) lStepTick = 0;
+        var lDurTicks = Math.max(1, Math.floor(ticksPerStep * lE.dur));
+        for (var lni = 0; lni < lE.notes.length; lni++) {
+          var lNoteVel = (lE.vels && lE.vels[lni] !== undefined) ? lE.vels[lni] : 60;
+          events.push({ tick: lStepTick, type: 'on', ch: leadCh, note: lE.notes[lni], vel: Math.min(127, Math.max(1, lNoteVel)) });
+          events.push({ tick: lStepTick + lDurTicks, type: 'off', ch: leadCh, note: lE.notes[lni] });
+        }
+      }
+    }
+
+    // Organ events (channel 5) — generated per section
+    if (typeof generateOrganPattern === 'function') {
+      var organEvents = generateOrganPattern(sec, bpm);
+      var organCh = 5;
+      var organSwing = Math.round(baseSwingAmount * 0.4);
+      for (var oi = 0; oi < organEvents.length; oi++) {
+        var oE = organEvents[oi];
+        var oStepInBar = oE.step % 16;
+        var oSwingOff = (oStepInBar % 2 === 1) ? organSwing : 0;
+        var oStepTick = secTickStart + (oE.step * ticksPerStep) + oSwingOff + (oE.timingOffset || 0);
+        if (oStepTick < 0) oStepTick = 0;
+        var oDurTicks = Math.max(1, Math.floor(ticksPerStep * oE.dur));
+        for (var oni = 0; oni < oE.notes.length; oni++) {
+          var oNoteVel = (oE.vels && oE.vels[oni] !== undefined) ? oE.vels[oni] : 40;
+          events.push({ tick: oStepTick, type: 'on', ch: organCh, note: oE.notes[oni], vel: Math.min(127, Math.max(1, oNoteVel)) });
+          events.push({ tick: oStepTick + oDurTicks, type: 'off', ch: organCh, note: oE.notes[oni] });
+        }
+      }
+    }
   });
 
   // Sort: by tick, note-offs before note-ons at same tick
@@ -893,6 +934,16 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var padProgram = 48; // default: String Ensemble
   try { var padPref = localStorage.getItem('hhd_pad_sound'); if (padPref) padProgram = parseInt(padPref) || 48; } catch(e) {}
   td.push(0, 0xC0 | 3, padProgram);
+
+  // Program change on channel 4: Synth Lead
+  var leadProgram = 80;
+  try { var lpf = localStorage.getItem('hhd_lead_sound'); if (lpf) leadProgram = parseInt(lpf) || 80; } catch(e) {}
+  td.push(0, 0xC0 | 4, leadProgram);
+
+  // Program change on channel 5: Organ
+  var organProgram = 16;
+  try { var opf = localStorage.getItem('hhd_organ_sound'); if (opf) organProgram = parseInt(opf) || 16; } catch(e) {}
+  td.push(0, 0xC0 | 5, organProgram);
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)

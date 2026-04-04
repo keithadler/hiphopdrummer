@@ -433,6 +433,8 @@ document.getElementById('prefsSave').onclick = function() {
     window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
     window.synthBridge.setEPProgram(4);
     window.synthBridge.setPadProgram(48);
+    window.synthBridge.setLeadProgram(80);
+    window.synthBridge.setOrganProgram(16);
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -797,6 +799,8 @@ function initBeatHistoryHandlers() {
                 window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
                 window.synthBridge.setEPProgram(4);
                 window.synthBridge.setPadProgram(48);
+                window.synthBridge.setLeadProgram(80);
+                window.synthBridge.setOrganProgram(16);
               } catch(e) {}
             }).catch(function() {});
           }
@@ -1146,6 +1150,8 @@ function initPlayerControls() {
             window.synthBridge.setBassProgram(_prefs.bass);
             window.synthBridge.setEPProgram(4); // GM Electric Piano 1
             window.synthBridge.setPadProgram(48); // GM String Ensemble (overridden by style)
+            window.synthBridge.setLeadProgram(80); // GM Square Lead
+            window.synthBridge.setOrganProgram(16); // GM Drawbar Organ
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
