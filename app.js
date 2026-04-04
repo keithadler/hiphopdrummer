@@ -183,43 +183,17 @@ document.getElementById('btnGen').onclick = showRegenDialog;
 /** Share button: encode beat into URL and copy to clipboard */
 document.getElementById('btnShare').onclick = function() {
   try {
-    // Build compact beat data — only essential fields
-    var shareData = {
-      b: parseInt(document.getElementById('bpm').textContent) || 90,
-      s: parseInt(document.getElementById('swing').textContent) || 62,
-      k: document.getElementById('songKey').textContent || '',
-      f: songFeel || 'normal',
-      a: arrangement.slice(),
-      ss: {},
-      sf: {},
-      p: {}
-    };
-    // Sparse pattern encoding — only store non-zero values
-    arrangement.forEach(function(sec) {
-      if (shareData.ss[sec]) return;
-      shareData.ss[sec] = secSteps[sec] || 32;
-      shareData.sf[sec] = secFeels[sec] || '';
-      var pat = patterns[sec];
-      if (!pat) return;
-      var sp = {};
-      ROWS.forEach(function(r) {
-        var hits = [];
-        var len = secSteps[sec] || 32;
-        for (var i = 0; i < len; i++) {
-          if (pat[r][i] > 0) hits.push(i + ':' + pat[r][i]);
-        }
-        if (hits.length > 0) sp[r] = hits.join(',');
-      });
-      shareData.p[sec] = sp;
-    });
-    var json = JSON.stringify(shareData);
-    var encoded = btoa(unescape(encodeURIComponent(json)));
-    var url = window.location.origin + window.location.pathname + '#beat=' + encoded;
+    // Encode just the generation parameters — short URL
+    var style = songFeel || 'normal';
+    var key = document.getElementById('songKey').textContent || '';
+    var bpm = document.getElementById('bpm').textContent || '90';
+    var params = 's=' + encodeURIComponent(style) + '&k=' + encodeURIComponent(key) + '&b=' + bpm;
+    var url = window.location.origin + window.location.pathname + '#' + params;
     
     // Copy to clipboard
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function() {
-        showShareToast('Link copied! Share it with anyone.');
+        showShareToast('Link copied! Same style, key, and BPM — patterns will vary.');
       }).catch(function() {
         showShareFallback(url);
       });
@@ -663,84 +637,40 @@ function initBeatHistoryHandlers() {
 (function() {
   // Check for shared beat in URL hash
   var sharedBeatLoaded = false;
-  if (window.location.hash && window.location.hash.indexOf('#beat=') === 0) {
+  // Check for shared beat parameters in URL hash (e.g. #s=gfunk&k=Gm7&b=92)
+  if (window.location.hash && window.location.hash.length > 1 && window.location.hash.indexOf('s=') > 0) {
     try {
-      var encoded = window.location.hash.substring(6);
-      var json = decodeURIComponent(escape(atob(encoded)));
-      var shareData = JSON.parse(json);
-      
-      // Restore the shared beat
-      document.getElementById('bpm').textContent = shareData.b || 90;
-      document.getElementById('swing').textContent = shareData.s || 62;
-      document.getElementById('songKey').textContent = shareData.k || '';
-      songFeel = shareData.f || 'normal';
-      arrangement = shareData.a || [];
-      
-      // Restore secSteps and secFeels
-      secSteps = {};
-      secFeels = {};
-      for (var sk in shareData.ss) { secSteps[sk] = shareData.ss[sk]; }
-      for (var sk in shareData.sf) { secFeels[sk] = shareData.sf[sk]; }
-      
-      // Restore patterns from sparse encoding
-      patterns = {};
-      for (var sec in shareData.p) {
-        var pat = {};
-        ROWS.forEach(function(r) { pat[r] = new Array(STEPS).fill(0); });
-        var sp = shareData.p[sec];
-        for (var r in sp) {
-          var hits = sp[r].split(',');
-          for (var h = 0; h < hits.length; h++) {
-            var parts = hits[h].split(':');
-            var step = parseInt(parts[0]);
-            var vel = parseInt(parts[1]);
-            if (!isNaN(step) && !isNaN(vel)) pat[r][step] = vel;
-          }
-        }
-        patterns[sec] = pat;
-      }
-      
-      // Set style display
-      var styleEl = document.getElementById('songStyle');
-      if (styleEl && STYLE_DATA[songFeel]) styleEl.textContent = STYLE_DATA[songFeel].label;
-      
-      // Set key data for chord sheet
-      _forcedKey = shareData.k || null;
-      
-      // Build UI
-      curSec = arrangement[0] || 'verse';
-      arrIdx = 0;
-      renderGrid();
-      renderArr();
-      
-      // Run analyzeBeat to set _lastChosenKey and build About panel
-      var aboutEl = document.getElementById('aboutBeat');
-      if (aboutEl && typeof analyzeBeat === 'function') {
-        aboutEl.innerHTML = analyzeBeat();
+      var hashStr = window.location.hash.substring(1);
+      var hashParams = {};
+      hashStr.split('&').forEach(function(pair) {
+        var kv = pair.split('=');
+        if (kv.length === 2) hashParams[kv[0]] = decodeURIComponent(kv[1]);
+      });
+      if (hashParams.s) {
+        // Generate a beat with the shared parameters
+        var opts = { style: hashParams.s };
+        if (hashParams.k) opts.key = hashParams.k;
+        if (hashParams.b) opts.bpm = hashParams.b;
+        generateAll(opts);
+        updateMidiPlayer();
         if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
         if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
         if (typeof buildAboutSummary === 'function') buildAboutSummary();
-      }
-      _forcedKey = null;
-      
-      updateMidiPlayer();
-      if (typeof buildChordSheet === 'function') buildChordSheet();
-      
-      // Save shared beat to history
-      if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-        var beatData = captureBeatState();
-        var hist = loadBeatHistory();
-        hist.unshift(beatData);
-        if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
-          hist = hist.slice(0, MAX_HISTORY_SLOTS);
+        if (typeof buildChordSheet === 'function') buildChordSheet();
+        // Save to history
+        if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+          var beatData = captureBeatState();
+          var hist = loadBeatHistory();
+          hist.unshift(beatData);
+          if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
+            hist = hist.slice(0, MAX_HISTORY_SLOTS);
+          }
+          saveBeatHistory(hist);
         }
-        saveBeatHistory(hist);
+        sharedBeatLoaded = true;
+        if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
+        console.log('Loaded shared beat:', hashParams.s, hashParams.b + ' BPM', hashParams.k);
       }
-      
-      sharedBeatLoaded = true;
-      // Clear the hash so refreshing doesn't re-load the shared beat
-      if (history.replaceState) history.replaceState(null, '', window.location.pathname);
-      console.log('Loaded shared beat:', shareData.f, 'at', shareData.b, 'BPM in', shareData.k);
     } catch(e) {
       console.warn('Failed to load shared beat:', e);
     }
