@@ -147,9 +147,13 @@ document.getElementById('regenGo').onclick = function() {
   setTimeout(function() {
     // Close any open editors
     if (typeof _hideHeaderEditor === 'function') _hideHeaderEditor();
-    // Generate the new beat
-    generateAll({ style: style, key: key, bpm: bpm });
-    updateMidiPlayer();
+    try {
+      // Generate the new beat
+      generateAll({ style: style, key: key, bpm: bpm });
+      updateMidiPlayer();
+    } catch(e) {
+      console.error('Beat generation failed:', e);
+    }
     
     // Reset loop and edit mode for the new beat
     window._loopSection = false;
@@ -816,8 +820,8 @@ function initBeatHistoryHandlers() {
             }).catch(function() {});
           }
         }
-        document.addEventListener('touchstart', _initSynthOnGesture, { once: true, passive: true });
-        document.addEventListener('click', _initSynthOnGesture, { once: true });
+        document.addEventListener('touchstart', _initSynthOnGesture, { passive: true });
+        document.addEventListener('click', _initSynthOnGesture);
       }, remaining);
     } else if (_bootAttempts >= _maxBootAttempts) {
       // SpessaSynth failed to load after 5 seconds
@@ -901,8 +905,8 @@ function initBeatHistoryHandlers() {
       var desc = document.getElementById('swingDesc');
       if (desc) {
         if (val >= 66) desc.textContent = ' heavy';
-        else if (val >= 58) desc.textContent = ' natural';
-        else if (val >= 52) desc.textContent = ' light';
+        else if (val >= 60) desc.textContent = ' groove';
+        else if (val >= 55) desc.textContent = ' feel';
         else desc.textContent = ' straight';
       }
       if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
@@ -2193,11 +2197,15 @@ function initPlaybackTracking() {
       if (!playing) {
         // Loop restart: if loop is active and playback ended naturally, restart
         if (window._loopSection && window._loopMidiBytes && window.synthBridge) {
-          setTimeout(function() {
-            if (window._loopSection && window._loopMidiBytes) {
-              window.synthBridge.play(window._loopMidiBytes);
-            }
-          }, 100);
+          if (!window._loopRestartPending) {
+            window._loopRestartPending = true;
+            setTimeout(function() {
+              window._loopRestartPending = false;
+              if (window._loopSection && window._loopMidiBytes) {
+                window.synthBridge.play(window._loopMidiBytes);
+              }
+            }, 100);
+          }
           return; // Don't clear cursor/VFX — loop continues
         }
         clearCursor();

@@ -89,6 +89,12 @@ function restoreBeatState(beatData) {
   // Restore global state
   document.getElementById('bpm').textContent = beatData.bpm;
   document.getElementById('swing').textContent = beatData.swing;
+  // Update swing description
+  var swingDescEl = document.getElementById('swingDesc');
+  if (swingDescEl) {
+    var sw = beatData.swing;
+    swingDescEl.textContent = sw >= 66 ? ' heavy' : sw >= 60 ? ' groove' : sw >= 55 ? ' feel' : ' straight';
+  }
   var _styleEl = document.getElementById('songStyle');
   if (_styleEl) {
     _styleEl.textContent = beatData.songStyle;
