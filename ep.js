@@ -303,8 +303,13 @@ function generateEPPattern(sec, bpm) {
   var songHasEP = (typeof songFeel !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelResolved]);
   if (!sectionHasEP && !songHasEP) return [];
   // Use the section's own style if it has one, otherwise fall back to the song feel
-  var styleLookup = EP_COMP_STYLES[epFeel] ? epFeel : (EP_COMP_STYLES[epFeelBase] ? epFeelBase : (EP_COMP_STYLES[songFeelResolved] || EP_COMP_STYLES[songFeel] ? songFeelResolved : 'dilla'));
-  var style = EP_COMP_STYLES[styleLookup] || EP_COMP_STYLES.dilla;
+  var styleLookup;
+  if (EP_COMP_STYLES[epFeel]) styleLookup = epFeel;
+  else if (EP_COMP_STYLES[epFeelBase]) styleLookup = epFeelBase;
+  else if (songFeelResolved && EP_COMP_STYLES[songFeelResolved]) styleLookup = songFeelResolved;
+  else if (typeof songFeel !== 'undefined' && EP_COMP_STYLES[songFeel]) styleLookup = songFeel;
+  else styleLookup = 'dilla';
+  var style = EP_COMP_STYLES[styleLookup];
 
   var keyData = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
   if (!keyData) { try { var ks = document.getElementById('songKey').textContent || 'C'; keyData = { root: ks, i: ks, iv: ks, v: ks }; } catch(e) { keyData = { root: 'C', i: 'C', iv: 'F', v: 'G' }; } }
