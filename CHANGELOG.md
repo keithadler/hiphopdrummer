@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.21] - 2026-04-04
+
+### Fixed
+- Playback on Chrome and Safari: simplified play handler removes nested promise chains and tracking waits that caused race conditions
+- Preferences (drum kit, bass sound) now applied after play succeeds (synth guaranteed initialized)
+- onPlayStateChange force-called after play to ensure button disable, toast, and cursor tracking always activate
+- No longer requires opening Preferences before first play
+
 ## [1.20] - 2026-04-04
 
 ### Added
