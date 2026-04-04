@@ -22,7 +22,16 @@ function analyzeBeat() {
   // === START HERE — quick orientation for new users ===
   lines.push('🚀 <b>START HERE</b>');
   lines.push('<b>New to this?</b> Three steps: <b>1.</b> Hit EXPORT → download the ZIP. <b>2.</b> Open <b>HOW_TO_USE.txt</b> inside the ZIP — it tells you exactly how to load these patterns into your DAW or MPC. <b>3.</b> Read the sections below to understand what makes this beat work and how to recreate it.');
+  lines.push('');
+  lines.push('<b>📚 Learning path by level:</b>');
+  lines.push('• <b>Beginner:</b> Start with Understanding Velocity, Glossary, and How to Practice. These three sections teach you the fundamentals.');
+  lines.push('• <b>Intermediate:</b> Read Style History, Build This Beat From Scratch, and How the Band Works Together. Learn why things sound the way they do.');
+  lines.push('• <b>Advanced:</b> Skip to Technique Spotlight, Compare Sections, and What Would They Do Differently. Refine your ear and develop your own style.');
   lines.push('<b>Already know what you\'re doing?</b> Skip to Suggested Key, Compare Sections, or Drum Machine Workflow below.');
+  lines.push('');
+  // FIX 10: Quick glossary at the top for beginners
+  lines.push('<b>📖 Quick glossary</b> (full glossary at the bottom):');
+  lines.push('• <b>Backbeat</b> = snare on beats 2 and 4 · <b>Ghost note</b> = very soft hit (30-50%) · <b>Swing</b> = delaying every other note for groove · <b>Velocity</b> = how hard a hit is (1-127) · <b>BPM</b> = beats per minute (tempo)');
   lines.push('');
 
   // === TEMPO ===
@@ -448,6 +457,15 @@ function analyzeBeat() {
   lines.push('');
   lines.push('<b>Tempo of melodic parts:</b> A pad that changes every 4 bars feels slow and hypnotic. A sample chop every bar feels medium. A stab on every beat feels fast. Mix these — a slow pad under a fast stab creates depth.');
   lines.push('<b>The one-chord trick:</b> Some of the greatest hip hop beats never leave the I chord. If your ' + root + ' loop is right, you don\'t need to go anywhere. Movement is a choice, not a requirement.');
+  lines.push('');
+  lines.push('<b>🎓 Why these chords work:</b>');
+  lines.push('• The <b>I chord (' + root + ')</b> is home — it feels stable and resolved. Every phrase starts and ends here.');
+  lines.push('• The <b>IV chord (' + fourth + ')</b> creates gentle tension — it wants to move somewhere. Going I→IV feels like a question being asked.');
+  lines.push('• The <b>V chord (' + fifth + ')</b> creates strong tension — it NEEDS to resolve back to I. Going V→I is the most satisfying resolution in music.');
+  lines.push('• The <b>I→IV→V→I</b> cycle is: home → question → tension → resolution. That cycle is why chord progressions feel like they\'re going somewhere even when they loop.');
+  if (isMinor) {
+    lines.push('• This beat is in a <b>minor key</b> — the 3rd of each chord is flatted, giving it a darker, more serious character. Most hip hop is in minor keys.');
+  }
 
   // === SAMPLE HUNTING GUIDE ===
   lines.push('');
@@ -493,6 +511,12 @@ function analyzeBeat() {
   lines.push('');
   lines.push('📐 <b>SONG ELEMENTS</b>');
   lines.push('Click any section card in the Arrangement panel above to switch the grid view and hear that section.');
+  lines.push('');
+  // FIX 9: Arrangement arc explanation
+  lines.push('<b>Why this arrangement works:</b> The sections follow a tension-release arc:');
+  lines.push('• <b>Intro</b> (low energy) → <b>Verse</b> (medium — the groove establishes) → <b>Pre-Chorus</b> (building — density increases) → <b>Chorus</b> (peak — maximum energy) → <b>Breakdown</b> (tension — drums strip down, creating anticipation) → <b>Last Chorus</b> (maximum — hits hardest because of the contrast with the breakdown) → <b>Outro</b> (wind down).');
+  lines.push('This arc is what makes a 3-minute beat feel like a journey instead of a loop. The breakdown is the key — without it, the last chorus has nothing to contrast against.');
+  lines.push('');
   var secDescs = {
     intro: 'Kick+hat or full groove. The sample/melody sets the mood.',
     verse: 'Full groove — kick A/B, snare+clap on 2&4, 8th note hats, ghost notes. This is where the rapper lives. <b>May end with a fill</b> — listen for hats dropping out in the last 2-3 steps.',
@@ -823,6 +847,7 @@ function analyzeBeat() {
       lines.push('Timing: the chords sit <b>' + epStyle.behind + ' ticks behind the beat</b> — the same lazy, behind-the-pocket feel that defines this style.');
     }
     lines.push('The EP is on <b>MIDI channel 3</b> (channel index 2) in the export. Load it into a separate track with an electric piano sound — GM program 4 (Electric Piano 1) or any warm EP patch.');
+    lines.push('<b>Chord sheet connection:</b> The EP plays the exact chords shown in the chord sheet above — the same progression, the same voicings. The chord sheet shows you WHAT to play; the EP MIDI shows you HOW a session player would voice and rhythm those chords for this style.');
     // List which sections have EP and which don't
     // EP plays in all sections when the song's primary feel is an EP style
     var epSections = [], noEpSections = [];
@@ -979,8 +1004,12 @@ function analyzeBeat() {
   lines.push('🔨 <b>BUILD THIS BEAT FROM SCRATCH</b>');
   lines.push('Want to recreate this beat yourself? Here\'s the step-by-step creative process:');
   lines.push('1. <b>Set BPM to ' + bpm + '</b> and swing to ' + swing + '% in your DAW or drum machine.');
-  lines.push('2. <b>Program the kick</b> — start with just beat 1 (step 1). Then add the second kick hit. For this beat, the kick pattern has ' + (function(){ var c=0; for(var i=0;i<16;i++) if(baseKick[i]) c++; return c; })() + ' hits per bar.');
-  lines.push('3. <b>Add the snare on 2 and 4</b> (steps 5 and 13) at full velocity. This is the backbeat — the most important element.');
+  // FIX 7: Reference the actual kick pattern
+  var kickSteps = [];
+  var kickPositionNames2 = {0:'beat 1',2:'the "e" of 1',4:'beat 2',6:'the "and" of 2',8:'beat 3',10:'the "e" of 3',12:'beat 4',14:'the "and" of 4',1:'the "e" of 1',3:'the "and" of 1',5:'the "e" of 2',7:'the "and" of 2',9:'the "e" of 3',11:'the "and" of 3',13:'the "e" of 4',15:'the "and" of 4'};
+  for (var ki = 0; ki < 16; ki++) { if (baseKick[ki]) kickSteps.push('step ' + (ki+1) + ' (' + (kickPositionNames2[ki] || 'step ' + (ki+1)) + ')'); }
+  lines.push('2. <b>Program the kick</b> — this beat\'s kick hits on: <b>' + kickSteps.join(', ') + '</b>. Start with just beat 1, then add each hit one at a time. Listen to how each new hit changes the groove.');
+  lines.push('3. <b>Add the snare on 2 and 4</b> (steps 5 and 13) at full velocity. This is the backbeat — the most important element. Without it, nothing grooves.');
   lines.push('4. <b>Add hi-hats</b> — start with 8th notes (every other step). Accent the downbeats (steps 1, 5, 9, 13) louder than the upbeats.');
   lines.push('5. <b>Add ghost snares</b> — soft hits (30-45%) on the "e" and "ah" positions between the main snare hits. Start with one or two, then add more.');
   lines.push('6. <b>Add the bass</b> — root note on beat 1, following the kick pattern. Add a 5th or octave on beat 3 for movement.');
@@ -1001,6 +1030,22 @@ function analyzeBeat() {
   lines.push('6. <b>Sidechain the pad/EP to the kick</b> — this creates the "pumping" effect that gives the beat space and energy.');
   lines.push('7. <b>Add vinyl texture</b> — a subtle crackle layer and slight pitch wobble turns a clean beat into a warm, lived-in production.');
   lines.push('8. <b>Record vocals</b> — the arrangement has intros and outros built in. Press record and go.');
+  lines.push('');
+  // FIX 8: Style-specific mixing tips
+  var mixTips = {
+    normal: 'For this boom bap beat: high-pass the drums at 40Hz, add a short room reverb on the snare (0.3s, 15% wet), compress the drum bus at 3:1 with 12ms attack. Keep the bass dry and punchy.',
+    dilla: 'For this Dilla beat: add tape saturation on the EP (subtle warmth), low-pass the drums at 10kHz for that dusty feel, use a slow compressor on the mix bus to glue everything together. Don\'t over-process — the imperfection IS the sound.',
+    gfunk: 'For this G-Funk beat: the synth lead needs a touch of chorus and delay (1/8 note, 2 repeats). The EP pad should be wide (pan L/R slightly). Compress the 808 bass hard. Add a subtle phaser on the hats.',
+    memphis: 'For this Memphis beat: bitcrush the choir pad slightly (12-bit). Distort the 808 bass. Add a long, dark reverb on the snare (1.2s, 20% wet). The lo-fi quality is intentional — don\'t clean it up.',
+    crunk: 'For this crunk beat: maximize everything. Hard limiter on the drum bus. The synth stabs should be loud and aggressive. No subtlety — the energy comes from volume and density.',
+    jazzy: 'For this jazz beat: the EP needs a warm, slightly overdriven tone. Add a plate reverb on the vibraphone. Keep the organ low in the mix — it\'s a bed, not a lead. The ride cymbal should shimmer.',
+    dark: 'For this dark beat: the string pad should be cold and distant (long reverb, low-pass at 4kHz). Keep the drums dry and punchy — the contrast between dry drums and wet pad creates the atmosphere.',
+    lofi: 'For this lo-fi beat: add vinyl crackle, pitch wobble (±3 cents), and a low-pass filter at 8kHz on the master. Compress the EP hard to narrow the dynamics. The beat should sound like it\'s playing through a cheap speaker.',
+    griselda: 'For this Griselda beat: the drums should be punchy and dry. The string pad sits low in the mix. Add a subtle tape delay on the snare. The overall mix should feel raw — don\'t polish it.',
+    phonk: 'For this phonk beat: distort the 808 bass. Bitcrush the choir pad. Add a long, dark reverb on everything. The cowbell (if you add one) should be lo-fi and repetitive. Hypnotic repetition is the goal.'
+  };
+  var mixTip = mixTips[songFeelBase] || mixTips.normal;
+  lines.push('<b>🎚 Mixing tip for this style:</b> ' + mixTip);
 
   // === GLOSSARY ===
   lines.push('');
