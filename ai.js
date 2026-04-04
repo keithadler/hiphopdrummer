@@ -1555,6 +1555,18 @@ function applySectionTransitions() {
     if ((nextSec === 'chorus' || nextSec === 'chorus2' || nextSec === 'lastchorus') && nextPat.crash[0] === 0) {
       nextPat.crash[0] = v(108, 10);
     }
+
+    // Rule 4: Cymbal swell before last chorus — build energy in the last bar
+    if (nextSec === 'lastchorus' && curLen >= 16) {
+      var swellStart = curLen - 4;
+      // Ride crescendo in the last 4 steps of the preceding section
+      for (var sw = 0; sw < 4; sw++) {
+        var swStep = swellStart + sw;
+        if (swStep < curLen && curPat.ride[swStep] === 0 && curPat.crash[swStep] === 0) {
+          curPat.ride[swStep] = v(70 + sw * 12, 6);
+        }
+      }
+    }
   }
 }
 

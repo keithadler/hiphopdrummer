@@ -1131,7 +1131,13 @@ function writeOpenHat(p, feel, off) {
   // Primary: &4 (step 14) — 70% chance (80% for bounce, 85% for big)
   var oh4chance = (feel === 'big') ? .85 : (feel === 'bounce') ? .80 : .70;
   if (maybe(oh4chance)) {
-    p.openhat[off + 14] = v(85, 10);
+    // Phrase-aware velocity: louder approaching fills (bars 6-7), softer in settle (bars 2-3)
+    var barInPhrase = Math.floor(off / 16) % 8;
+    var ohVel = 85;
+    if (barInPhrase >= 6) ohVel = 92;       // push/peak bars — louder
+    else if (barInPhrase <= 1) ohVel = 85;  // statement bars — normal
+    else if (barInPhrase <= 3) ohVel = 78;  // settle bars — softer
+    p.openhat[off + 14] = v(ohVel, 8);
     p.hat[off + 14] = 0;  // choke: open hat kills closed hat on same step
     if (off + 15 < STEPS) p.hat[off + 15] = 0; // and the next step
   }
@@ -1276,10 +1282,15 @@ function writeClap(p, feel, off) {
   var isBarB = (off === 16);
   var clapVelBase = isBarB ? 96 : 100;
   
-  // FIX #3: Clap offset for loose styles uses timing offset, not grid position
-  // Normal: clap layers with snare on backbeat
-  if (p.snare[off + 4] > 0 && maybe(chance)) p.clap[off + 4] = v(clapVelBase, 10);
-  if (p.snare[off + 12] > 0 && maybe(chance)) p.clap[off + 12] = v(clapVelBase, 10);
+  // Normal: clap layers with snare on backbeat — velocity tracks snare
+  if (p.snare[off + 4] > 0 && maybe(chance)) {
+    var snareRatio = Math.min(1.0, p.snare[off + 4] / 127);
+    p.clap[off + 4] = v(Math.round(clapVelBase * snareRatio), 8);
+  }
+  if (p.snare[off + 12] > 0 && maybe(chance)) {
+    var snareRatio = Math.min(1.0, p.snare[off + 12] / 127);
+    p.clap[off + 12] = v(Math.round(clapVelBase * snareRatio), 8);
+  }
   
   if (feel === 'hard') {
     // Mobb Deep/Onyx: louder claps
@@ -1359,7 +1370,13 @@ function writeRimshot(p, feel, off) {
     if (p.snare[off + 12] > 0) p.rimshot[off + 12] = v(58, 10);
   }
   
-  var positions = [1, 3, 5, 7, 9, 11, 13, 15];
+  // Phrase-aware rimshot positions — different positions per bar in the phrase
+  var barInPhrase = Math.floor(off / 16) % 8;
+  var positions;
+  if (barInPhrase <= 1) positions = [3, 5, 11, 13];       // statement: near backbeat
+  else if (barInPhrase <= 3) positions = [1, 7, 9, 15];   // settle: off-beat positions
+  else if (barInPhrase <= 5) positions = [3, 7, 11, 15];  // steady: "ah" positions
+  else positions = [1, 5, 9, 13];                          // push/peak: "e" positions
   var chance = 0.12 * ghostDensity;
   if (feel === 'halftime') chance *= 0.5;
   if (feel === 'big' || feel === 'driving') chance *= 0.7;

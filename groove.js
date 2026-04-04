@@ -110,15 +110,23 @@ function applyGroove(p, len, feel) {
   // Dampened for lo-fi and dilla to keep dynamics flat/hypnotic
   // Skipped for crunk — maximum energy throughout, no arc
   if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk' && feel !== 'nujabes' && feel !== 'oldschool') {
+    // Determine arc intensity based on section type (via secFeels lookup)
+    var arcIntensity = 1.0; // default
+    var currentSec = '';
+    for (var sk in secFeels) { if (secFeels[sk] === feel && secSteps[sk] === len) { currentSec = sk; break; } }
+    if (currentSec === 'chorus' || currentSec === 'chorus2' || currentSec === 'lastchorus') arcIntensity = 0.5; // flatter, high-energy
+    else if (currentSec === 'instrumental') arcIntensity = 1.5; // more dynamic
+    else if (currentSec === 'breakdown') arcIntensity = 0.3; // minimal arc
+    
     for (var i = 0; i < len; i++) {
       var barNum = Math.floor(i / 16);
       var barInPhrase = barNum % 8;
       var arcMult = 1.0;
-      if (barInPhrase === 0 || barInPhrase === 1) arcMult = 1.02;       // statement
-      else if (barInPhrase === 2 || barInPhrase === 3) arcMult = 0.97; // settle
-      else if (barInPhrase === 4 || barInPhrase === 5) arcMult = 1.0;  // steady
-      else if (barInPhrase === 6) arcMult = 1.03;                       // push
-      else if (barInPhrase === 7) arcMult = 1.05;                       // peak
+      if (barInPhrase === 0 || barInPhrase === 1) arcMult = 1.0 + (0.02 * arcIntensity);
+      else if (barInPhrase === 2 || barInPhrase === 3) arcMult = 1.0 - (0.03 * arcIntensity);
+      else if (barInPhrase === 4 || barInPhrase === 5) arcMult = 1.0;
+      else if (barInPhrase === 6) arcMult = 1.0 + (0.03 * arcIntensity);
+      else if (barInPhrase === 7) arcMult = 1.0 + (0.05 * arcIntensity);
       if (arcMult !== 1.0) {
         ROWS.forEach(function(r) {
           if (p[r][i] > 0) p[r][i] = Math.min(127, Math.max(30, Math.round(p[r][i] * arcMult)));

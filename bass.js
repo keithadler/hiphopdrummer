@@ -469,8 +469,8 @@ function generateBassPattern(sec, bpm) {
     var barStart = barIdx * 16;
     var barEnd = Math.min(barStart + 16, len);
     var barInPhrase = barIdx % 4;
-    var isRepeatBar = (barIdx >= 2 && motifIntervals !== null);
-    var motifBarIdx = barIdx % 2;
+    var isRepeatBar = (barIdx >= 4 && motifIntervals !== null);
+    var motifBarIdx = barIdx % 4;
 
     for (var step = barStart; step < barEnd; step++) {
       var pos = step % 16;
@@ -733,12 +733,12 @@ function generateBassPattern(sec, bpm) {
       });
     }
 
-    // ── Fix #3: Capture motif as intervals relative to chord root ──
-    if (barIdx === 1 && motifIntervals === null) {
+    // Capture motif after bar 3 (4-bar phrase) for better musical development
+    if (barIdx === 3 && motifIntervals === null) {
       motifIntervals = [];
-      motifChordRoot = rootNote; // bars 0-1 are on the I chord
+      motifChordRoot = rootNote;
       for (var ei = 0; ei < events.length; ei++) {
-        if (events[ei].step < 32) {
+        if (events[ei].step < 64) {
           motifIntervals.push({
             relStep: events[ei].step,
             interval: events[ei].note - motifChordRoot,
@@ -1189,14 +1189,15 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
  */
 function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourthNote, vChordRoot) {
   // Determine if this section gets a fill and how long
-  var doFill = false, fillLen = 3;
-  if (sec === 'pre') { doFill = maybe(0.75); fillLen = pick([3, 4]); }
-  else if (sec === 'verse' || sec === 'verse2') { doFill = maybe(0.45); fillLen = pick([2, 3]); }
-  else if (sec === 'chorus') { doFill = maybe(0.35); fillLen = 3; }
-  else if (sec === 'chorus2') { doFill = maybe(0.55); fillLen = pick([3, 4]); }
-  else if (sec === 'lastchorus') { doFill = true; fillLen = pick([3, 4]); }
+  // Bass fill is 1 step shorter than drum fill to drop out before the drum fill hits
+  var doFill = false, fillLen = 2;
+  if (sec === 'pre') { doFill = maybe(0.75); fillLen = pick([2, 3]); }
+  else if (sec === 'verse' || sec === 'verse2') { doFill = maybe(0.45); fillLen = 2; }
+  else if (sec === 'chorus') { doFill = maybe(0.35); fillLen = 2; }
+  else if (sec === 'chorus2') { doFill = maybe(0.55); fillLen = pick([2, 3]); }
+  else if (sec === 'lastchorus') { doFill = true; fillLen = pick([2, 3]); }
   else if (sec === 'breakdown') { doFill = false; } // breakdown already handled
-  else if (sec === 'instrumental') { doFill = maybe(0.4); fillLen = 3; }
+  else if (sec === 'instrumental') { doFill = maybe(0.4); fillLen = 2; }
   if (!doFill || len < 16) return events;
 
   var fillStart = len - fillLen;
