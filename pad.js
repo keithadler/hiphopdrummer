@@ -1,39 +1,42 @@
 // =============================================
 // Synth Pad Generator — Dark/Atmospheric Chord Sustains
 //
-// Covers styles that don't use electric piano but need harmonic
-// content: Memphis, phonk, dark, Griselda, crunk, hard, sparse.
+// 10 musicality features:
+//   1.  Drum interaction (velocity responds to drum density)
+//   2.  Velocity arc across section (phrase-level energy curve)
+//   3.  Bar-to-bar variation (motif seeds, no two bars identical)
+//   4.  Register shift between sections (chorus up, breakdown down)
+//   5.  Bass interaction (thin when bass walks, fill when bass rests)
+//   6.  Swell/fade dynamics (ramp into chorus, fade out of breakdown)
+//   7.  Phrygian bII emphasis for Memphis/dark
+//   8.  Rest bars (strategic silence on bar 4 of 8-bar phrases)
+//   9.  Chord anticipation (swell into next chord on and-of-4)
+//  10.  Kick-locked crunk stabs
 //
-// Much simpler than EP — mostly sustained whole notes and half notes
-// at low velocity with slow attack simulation (velocity ramp).
-//
-// GM programs:
-//   48 = String Ensemble (dark, Griselda, hard, sparse)
-//   52 = Choir Aahs (Memphis, phonk)
-//   81 = Sawtooth Lead (crunk stabs)
-//
-// Uses MIDI channel 3. Does NOT overlap with EP (different styles).
+// GM programs: 48=Strings, 52=Choir, 81=Saw Lead
+// MIDI channel 3. Mutually exclusive with EP.
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
 
-/** Styles that get synth pad. Mutually exclusive with EP_STYLES. */
 var PAD_STYLES = {
   memphis: true, phonk: true, dark: true, griselda: true,
   crunk: true, hard: true, sparse: true
 };
 
-/** Per-style pad configuration */
 var PAD_COMP_STYLES = {
-  memphis:  { rhythm: 'sustain', velBase: 42, velRange: 8,  noteDur: 0.95, density: 0.9,  register: 'mid',  voicing: 'triad',   program: 52, behind: 0, detuned: true },
-  phonk:    { rhythm: 'sustain', velBase: 38, velRange: 6,  noteDur: 0.95, density: 0.85, register: 'low',  voicing: 'triad',   program: 52, behind: 0, detuned: true },
-  dark:     { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'mid',  voicing: 'seventh', program: 48, behind: 0, detuned: false },
-  griselda: { rhythm: 'pulse',   velBase: 45, velRange: 10, noteDur: 0.45, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 48, behind: 0, detuned: false },
-  crunk:    { rhythm: 'stab',    velBase: 95, velRange: 10, noteDur: 0.1,  density: 0.5,  register: 'mid',  voicing: 'triad',   program: 81, behind: 0, detuned: false },
-  hard:     { rhythm: 'sustain', velBase: 44, velRange: 8,  noteDur: 0.85, density: 0.75, register: 'low',  voicing: 'triad',   program: 48, behind: 0, detuned: false },
-  sparse:   { rhythm: 'sustain', velBase: 36, velRange: 6,  noteDur: 0.95, density: 0.6,  register: 'low',  voicing: 'shell',   program: 48, behind: 0, detuned: false }
+  memphis:  { rhythm: 'sustain', velBase: 42, velRange: 8,  noteDur: 0.95, density: 0.9,  register: 'mid',  voicing: 'triad',   program: 52, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
+  phonk:    { rhythm: 'sustain', velBase: 38, velRange: 6,  noteDur: 0.95, density: 0.85, register: 'low',  voicing: 'triad',   program: 52, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
+  dark:     { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'mid',  voicing: 'seventh', program: 48, detuned: false, regShift: { chorus: 'high', breakdown: 'low' } },
+  griselda: { rhythm: 'pulse',   velBase: 45, velRange: 10, noteDur: 0.45, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
+  crunk:    { rhythm: 'stab',    velBase: 95, velRange: 10, noteDur: 0.1,  density: 0.5,  register: 'mid',  voicing: 'triad',   program: 81, detuned: false, regShift: { chorus: 'high', breakdown: 'mid' } },
+  hard:     { rhythm: 'sustain', velBase: 44, velRange: 8,  noteDur: 0.85, density: 0.75, register: 'low',  voicing: 'triad',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
+  sparse:   { rhythm: 'sustain', velBase: 36, velRange: 6,  noteDur: 0.95, density: 0.6,  register: 'low',  voicing: 'shell',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } }
 };
 
-// ── Voicing builder (reuses EP's interval logic, simpler voice leading) ──
+/** Styles where Phrygian bII should be emphasized */
+var PAD_PHRYGIAN = { memphis: true, phonk: true, dark: true, griselda: true };
+
+// ── Voicing builder ──
 
 function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
   var base = root;
@@ -51,7 +54,6 @@ function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
     if (voicingType === 'seventh') intervals = [0, 4, 7, 10];
     else intervals = [0, 4, 7];
   } else {
-    // All pad styles use natural minor (no Dorian — that's EP territory)
     if (voicingType === 'seventh') intervals = [0, 3, 7, 10];
     else if (voicingType === 'shell') intervals = [0, 3, 10];
     else intervals = [0, 3, 7];
@@ -65,7 +67,6 @@ function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
     notes.push(n);
   }
 
-  // Simple voice leading — hold common tones
   if (prevNotes && prevNotes.length > 0) {
     var bestNotes = notes, bestCommon = 0;
     for (var inv = 0; inv < notes.length; inv++) {
@@ -90,13 +91,57 @@ function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
   return notes;
 }
 
-/** Per-note velocity humanization — pads are softer and more even than EP */
 function _padHumanizeVel(notes, baseVel) {
   var vels = [];
   for (var i = 0; i < notes.length; i++) {
     vels.push(Math.min(127, Math.max(25, baseVel + Math.floor((rnd() - 0.5) * 6))));
   }
   return vels;
+}
+
+// ── Helpers for 10 musicality features ──
+
+/** FIX 1: Drum density score (0-1) */
+function _padDrumDensity(drumPat, barStart) {
+  if (!drumPat) return 0.5;
+  var hits = 0;
+  for (var i = barStart; i < barStart + 16; i++) {
+    if (drumPat.kick && drumPat.kick[i] > 0) hits++;
+    if (drumPat.snare && drumPat.snare[i] > 0) hits++;
+    if (drumPat.hat && drumPat.hat[i] > 0) hits++;
+  }
+  return Math.min(1, hits / 30);
+}
+
+/** FIX 2: Velocity arc — same shape as EP */
+function _padVelArc(bar, totalBars) {
+  if (totalBars <= 4) return 1.0;
+  var pos = bar / (totalBars - 1);
+  if (pos < 0.25) return 0.92;
+  if (pos < 0.5) return 0.88;
+  if (pos < 0.75) return 1.0;
+  if (pos < 0.9) return 1.1;
+  return 0.95;
+}
+
+/** FIX 5: Bass busy check (kick density proxy) */
+function _padBassBusy(drumPat, barStart) {
+  if (!drumPat || !drumPat.kick) return false;
+  var count = 0;
+  for (var i = barStart; i < barStart + 16 && i < drumPat.kick.length; i++) {
+    if (drumPat.kick[i] > 0) count++;
+  }
+  return count >= 4;
+}
+
+/** FIX 10: Kick positions for crunk stab lock */
+function _padKickPositions(drumPat, barStart) {
+  var positions = [];
+  if (!drumPat || !drumPat.kick) return positions;
+  for (var i = 0; i < 16 && (barStart + i) < drumPat.kick.length; i++) {
+    if (drumPat.kick[barStart + i] > 0) positions.push(i);
+  }
+  return positions;
 }
 
 // ── Main generator ──
@@ -110,14 +155,10 @@ function generatePadPattern(sec, bpm) {
 
   var padFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
   var padFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(padFeel) : padFeel;
-
-  // Check section feel AND song feel (same logic as EP)
   var songFeelResolved = (typeof songFeel !== 'undefined' && typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : '';
   var sectionHasPad = PAD_STYLES[padFeel] || PAD_STYLES[padFeelBase];
   var songHasPad = (typeof songFeel !== 'undefined') && (PAD_STYLES[songFeel] || PAD_STYLES[songFeelResolved]);
   if (!sectionHasPad && !songHasPad) return [];
-
-  // Don't generate pad if EP is already active for this song
   var songHasEP = (typeof EP_STYLES !== 'undefined' && typeof songFeel !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelResolved]);
   if (songHasEP) return [];
 
@@ -159,66 +200,133 @@ function generatePadPattern(sec, bpm) {
   var isIntroOutro = /^intro|^outro/.test(feel);
   var prevNotes = null;
 
+  // FIX 4: Register shift per section
+  var secRegister = style.register;
+  if (style.regShift) {
+    if (style.regShift[sec]) secRegister = style.regShift[sec];
+    else if (/chorus/.test(sec) && style.regShift.chorus) secRegister = style.regShift.chorus;
+    else if (sec === 'breakdown' && style.regShift.breakdown) secRegister = style.regShift.breakdown;
+  }
+
+  // FIX 3: Bar variation seeds (motif-based, 2-bar phrase)
+  var motifSeeds = [rnd(), rnd()];
+  var barSeeds = [];
+  for (var bs = 0; bs < totalBars; bs++) {
+    barSeeds.push(Math.min(1, Math.max(0, motifSeeds[bs % 2] + (rnd() - 0.5) * 0.12)));
+  }
+
+  // FIX 7: Phrygian bII — for Memphis/dark, occasionally add the bII note to the voicing
+  var isPhrygian = PAD_PHRYGIAN[styleLookup];
+
   for (var bar = 0; bar < totalBars; bar++) {
     var barStart = bar * 16;
     var barInPhrase = bar % progression.length;
     var progDegree = progression[barInPhrase];
+    var barSeed = barSeeds[bar];
 
     // Turnaround on last bar
     if (bar === totalBars - 1 && totalBars > 4 && styleLookup !== 'crunk') {
       progDegree = 'v';
     }
 
-    var chordRoot = degreeToNote(progDegree);
-    var chordNotes = buildPadVoicing(chordRoot, progDegree, style.voicing, style.register, prevNotes);
-    prevNotes = chordNotes;
-    var vel = v(style.velBase, style.velRange);
+    // FIX 8: Rest bars — skip bar 4 of 8-bar phrases
+    if (totalBars >= 8 && (bar % 8 === 3) && maybe(0.3) && style.rhythm !== 'stab') {
+      continue;
+    }
 
-    // Section dynamics
-    if (sec === 'breakdown') vel = Math.max(25, vel - 10);
-    if (sec === 'lastchorus') vel = Math.min(127, vel + 8);
     // Intro/outro: very sparse
     if (isIntroOutro && maybe(0.5)) continue;
 
+    var chordRoot = degreeToNote(progDegree);
+    var chordNotes = buildPadVoicing(chordRoot, progDegree, style.voicing, secRegister, prevNotes);
+    prevNotes = chordNotes;
+
+    // FIX 7: Phrygian bII color — add the flat 2nd to the voicing on some bars
+    if (isPhrygian && progDegree === 'i' && maybe(0.25)) {
+      var bIINoteVoice = bIINote;
+      while (bIINoteVoice < chordNotes[0]) bIINoteVoice += 12;
+      if (bIINoteVoice <= 84) chordNotes.push(bIINoteVoice);
+    }
+
+    // FIX 1 + 2: Velocity with drum density response and phrase arc
+    var baseVel = v(style.velBase, style.velRange);
+    var arcMult = _padVelArc(bar, totalBars);
+    var drumDens = _padDrumDensity(drumPat, barStart);
+    var densAdj = Math.round((0.5 - drumDens) * 10); // sparse drums = louder pad
+    var vel = Math.min(127, Math.max(25, Math.round(baseVel * arcMult) + densAdj));
+
+    // FIX 5: Bass interaction — thin voicing when bass is busy
+    var bassBusy = _padBassBusy(drumPat, barStart);
+    if (bassBusy && chordNotes.length > 2 && maybe(0.5)) {
+      // Drop to shell voicing (root + 3rd only)
+      chordNotes = chordNotes.slice(0, 2);
+    }
+
+    // FIX 6: Swell dynamics — ramp velocity in last 2 bars before chorus
+    if (bar >= totalBars - 2 && (sec === 'verse' || sec === 'verse2' || sec === 'pre')) {
+      vel = Math.min(127, vel + 8 + (bar - (totalBars - 2)) * 5);
+    }
+    // Fade out in breakdown
+    if (sec === 'breakdown') {
+      var fadeAmount = Math.floor((bar / Math.max(1, totalBars - 1)) * 15);
+      vel = Math.max(25, vel - 10 - fadeAmount);
+    }
+    if (sec === 'lastchorus') vel = Math.min(127, vel + 8);
+
+    // FIX 9: Chord anticipation — swell into next chord on and-of-4
+    var nextDegree = progression[(barInPhrase + 1) % progression.length];
+    var doAnticipation = (bar < totalBars - 1) && maybe(0.15) && style.rhythm === 'sustain' && progDegree !== nextDegree;
+
     if (style.rhythm === 'sustain') {
-      // Full-bar sustained chord — the core pad sound
       if (maybe(style.density)) {
         var vels = _padHumanizeVel(chordNotes, vel);
-        // Slow attack simulation: first note slightly softer, ramp up
+        // Slow attack: softer start
         for (var vi = 0; vi < vels.length; vi++) vels[vi] = Math.max(25, vels[vi] - 8);
-        events.push({ step: barStart, notes: chordNotes, vels: vels, dur: style.noteDur * 4, timingOffset: 0 });
-        // Detuned double for Memphis/phonk — second set of notes 1 tick later, slightly sharp
+        // FIX 3: Vary duration slightly per bar
+        var durMod = barSeed > 0.7 ? 0.85 : (barSeed < 0.3 ? 1.0 : 0.95);
+        events.push({ step: barStart, notes: chordNotes, vels: vels, dur: style.noteDur * 4 * durMod, timingOffset: 0 });
+
+        // Detuned double for Memphis/phonk
         if (style.detuned && maybe(0.7)) {
-          var detunedNotes = [];
-          var detunedVels = [];
-          for (var di = 0; di < chordNotes.length; di++) {
-            detunedNotes.push(chordNotes[di]); // same pitch (MIDI can't do microtones, but the slight timing offset creates a chorus effect)
-            detunedVels.push(Math.max(25, vel - 15));
-          }
-          events.push({ step: barStart, notes: detunedNotes, vels: detunedVels, dur: style.noteDur * 4, timingOffset: 2 }); // 2 ticks late = chorus/detune effect
+          var detVels = [];
+          for (var di = 0; di < chordNotes.length; di++) detVels.push(Math.max(25, vel - 15));
+          events.push({ step: barStart, notes: chordNotes.slice(), vels: detVels, dur: style.noteDur * 4 * durMod, timingOffset: 2 });
+        }
+
+        // FIX 9: Anticipation — soft swell into next chord
+        if (doAnticipation) {
+          var antRoot = degreeToNote(nextDegree);
+          var antNotes = buildPadVoicing(antRoot, nextDegree, style.voicing, secRegister, chordNotes);
+          events.push({ step: barStart + 14, notes: antNotes, vels: _padHumanizeVel(antNotes, Math.max(25, vel - 10)), dur: style.noteDur, timingOffset: 0 });
+          prevNotes = antNotes;
         }
       }
     }
     else if (style.rhythm === 'pulse') {
-      // Half-note pulses — Griselda style, more rhythmic
       if (maybe(style.density)) {
         events.push({ step: barStart, notes: chordNotes, vels: _padHumanizeVel(chordNotes, vel), dur: style.noteDur * 2, timingOffset: 0 });
       }
-      if (maybe(style.density * 0.7)) {
+      // FIX 3: Vary second pulse probability per bar
+      if (maybe(style.density * (0.5 + barSeed * 0.3))) {
         events.push({ step: barStart + 8, notes: chordNotes, vels: _padHumanizeVel(chordNotes, Math.max(25, vel - 8)), dur: style.noteDur * 2, timingOffset: 0 });
       }
     }
     else if (style.rhythm === 'stab') {
-      // Crunk stabs — short, loud, on beat 1 and sometimes beat 3
+      // FIX 10: Lock crunk stabs to kick positions
+      var kickPos = _padKickPositions(drumPat, barStart);
+      var stabPos1 = kickPos.length > 0 ? kickPos[0] : 0;
+      var stabPos2 = kickPos.length > 1 ? kickPos[1] : 8;
+
       if (maybe(style.density)) {
-        events.push({ step: barStart, notes: chordNotes, vels: _padHumanizeVel(chordNotes, vel), dur: style.noteDur, timingOffset: 0 });
+        events.push({ step: barStart + stabPos1, notes: chordNotes, vels: _padHumanizeVel(chordNotes, vel), dur: style.noteDur, timingOffset: 0 });
       }
       if (maybe(style.density * 0.4)) {
-        events.push({ step: barStart + 8, notes: chordNotes, vels: _padHumanizeVel(chordNotes, Math.max(25, vel - 10)), dur: style.noteDur, timingOffset: 0 });
+        events.push({ step: barStart + stabPos2, notes: chordNotes, vels: _padHumanizeVel(chordNotes, Math.max(25, vel - 10)), dur: style.noteDur, timingOffset: 0 });
       }
-      // Crunk: occasional rapid stab on and-of-3
-      if (maybe(0.2)) {
-        events.push({ step: barStart + 10, notes: chordNotes, vels: _padHumanizeVel(chordNotes, Math.max(25, vel - 15)), dur: style.noteDur, timingOffset: 0 });
+      // FIX 3: Occasional extra stab varies per bar
+      if (barSeed > 0.7 && maybe(0.2)) {
+        var extraPos = kickPos.length > 2 ? kickPos[2] : 10;
+        events.push({ step: barStart + extraPos, notes: chordNotes, vels: _padHumanizeVel(chordNotes, Math.max(25, vel - 15)), dur: style.noteDur, timingOffset: 0 });
       }
     }
   }
@@ -228,7 +336,7 @@ function generatePadPattern(sec, bpm) {
 // ── MIDI export ──
 
 function buildPadMidiBytes(sectionList, bpm, noSwing) {
-  var ppq = 96, ch = 3; // MIDI channel 3 for pad
+  var ppq = 96, ch = 3;
   var ticksPerStep = ppq / 4;
   var midiEvents = [];
   var tickPos = 0;
@@ -237,8 +345,7 @@ function buildPadMidiBytes(sectionList, bpm, noSwing) {
   var swingCurved = ((swing - 50) / 50) * (1 + ((swing - 50) / 50) * 0.5);
   var baseSwingAmount = noSwing ? 0 : Math.round(swingCurved * ticksPerStep * 0.5);
 
-  // Determine the pad program from the first section's style
-  var padProgram = 48; // default: String Ensemble
+  var padProgram = 48;
   for (var si = 0; si < sectionList.length; si++) {
     var secFeel = (secFeels[sectionList[si]] || songFeel || 'normal');
     var secFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
@@ -250,10 +357,6 @@ function buildPadMidiBytes(sectionList, bpm, noSwing) {
     var sec = sectionList[si];
     var padEvents = generatePadPattern(sec, bpm);
     var len = secSteps[sec] || 32;
-
-    var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
-    secFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
-    // Pad swing: minimal — pads sit on the grid more than comping instruments
     var padSwingMult = 0.3;
     var padSwing = noSwing ? 0 : Math.round(baseSwingAmount * padSwingMult);
 
@@ -289,7 +392,7 @@ function buildPadMidiBytes(sectionList, bpm, noSwing) {
 
   var td = [];
   td.push(0, 0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08);
-  var trackName = [0x53,0x79,0x6E,0x74,0x68,0x20,0x50,0x61,0x64]; // "Synth Pad"
+  var trackName = [0x53,0x79,0x6E,0x74,0x68,0x20,0x50,0x61,0x64];
   td.push(0, 0xFF, 0x03, trackName.length);
   for (var ti = 0; ti < trackName.length; ti++) td.push(trackName[ti]);
   var us = Math.round(60000000 / bpm);
