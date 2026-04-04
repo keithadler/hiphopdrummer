@@ -137,44 +137,50 @@ document.getElementById('regenGo').onclick = function() {
     window.synthBridge.stop();
   }
   
-  // Generate the new beat
-  generateAll({ style: style, key: key, bpm: bpm });
-  updateMidiPlayer();
+  // Show loading indicator
+  var loadingEl = document.createElement('div');
+  loadingEl.className = 'gen-loading';
+  loadingEl.innerHTML = '<div class="gen-loading-inner">Generating beat...<div class="progress-spinner"></div></div>';
+  document.body.appendChild(loadingEl);
   
-  // Rebuild chord sheet after MIDI build so it picks up bass progressions
-  if (typeof buildChordSheet === 'function') buildChordSheet();
-  
-  // Scroll to top of the page so the user sees the new beat
-  var scrollArea = document.querySelector('.scroll-area');
-  if (scrollArea) scrollArea.scrollTop = 0;
-  else window.scrollTo(0, 0);
-  
-  // Save the newly generated beat to history
-  if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-    var newBeatData = captureBeatState();
-    var history = loadBeatHistory();
+  // Defer generation to next frame so the loading overlay renders
+  setTimeout(function() {
+    // Generate the new beat
+    generateAll({ style: style, key: key, bpm: bpm });
+    updateMidiPlayer();
     
-    // Check if this exact beat is already at the top of history (prevent immediate duplicates)
-    var isTopDuplicate = history.length > 0 && 
-                         history[0].bpm === newBeatData.bpm &&
-                         history[0].songStyle === newBeatData.songStyle &&
-                         history[0].songKey === newBeatData.songKey &&
-                         Math.abs(history[0].timestamp - newBeatData.timestamp) < 5000; // Within 5 seconds
+    // Rebuild chord sheet after MIDI build so it picks up bass progressions
+    if (typeof buildChordSheet === 'function') buildChordSheet();
     
-    if (!isTopDuplicate) {
-      history.unshift(newBeatData);
+    // Remove loading indicator
+    if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+    
+    // Scroll to top of the page so the user sees the new beat
+    var scrollArea = document.querySelector('.scroll-area');
+    if (scrollArea) scrollArea.scrollTop = 0;
+    else window.scrollTo(0, 0);
+    
+    // Save the newly generated beat to history
+    if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+      var newBeatData = captureBeatState();
+      var history = loadBeatHistory();
       
-      // Trim to max capacity if needed
-      if (typeof MAX_HISTORY_SLOTS !== 'undefined' && history.length > MAX_HISTORY_SLOTS) {
-        history = history.slice(0, MAX_HISTORY_SLOTS);
+      // Check if this exact beat is already at the top of history (prevent immediate duplicates)
+      var isTopDuplicate = history.length > 0 && 
+                           history[0].bpm === newBeatData.bpm &&
+                           history[0].songStyle === newBeatData.songStyle &&
+                           history[0].songKey === newBeatData.songKey &&
+                           Math.abs(history[0].timestamp - newBeatData.timestamp) < 5000;
+      
+      if (!isTopDuplicate) {
+        history.unshift(newBeatData);
+        if (typeof MAX_HISTORY_SLOTS !== 'undefined' && history.length > MAX_HISTORY_SLOTS) {
+          history = history.slice(0, MAX_HISTORY_SLOTS);
+        }
+        saveBeatHistory(history);
       }
-      
-      saveBeatHistory(history);
-      console.log('Saved new beat to history:', newBeatData.songStyle, 'at', newBeatData.bpm, 'BPM in', newBeatData.songKey);
-    } else {
-      console.log('Beat already at top of history, skipping duplicate');
     }
-  }
+  }, 30);
 };
 
 /** New Beat button: show the dialog */
@@ -254,6 +260,8 @@ function showExportDialog() {
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
+    if (typeof saved.wavDrums === 'boolean') document.getElementById('expWavDrums').checked = saved.wavDrums;
+    if (typeof saved.wavBass === 'boolean') document.getElementById('expWavBass').checked = saved.wavBass;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
         c.checked = saved.daws.indexOf(c.value) >= 0;
@@ -299,6 +307,8 @@ document.getElementById('exportGo').onclick = function() {
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
     wav:         document.getElementById('expWav').checked,
+    wavDrums:    document.getElementById('expWavDrums').checked,
+    wavBass:     document.getElementById('expWavBass').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
                .map(function(c) { return c.value; })
@@ -784,8 +794,12 @@ function initPlayerControls() {
   var headerPlayBtn = document.getElementById('headerPlayBtn');
   var seekBar = document.getElementById('playerSeek');
   var wavBtn = document.getElementById('playerWavBtn');
+  var loopBtn = document.getElementById('playerLoopBtn');
   var currentEl = document.getElementById('playerCurrent');
   var isSeeking = false;
+  
+  // Section loop state
+  window._loopSection = false;
 
   if (!headerPlayBtn) return;
 
@@ -924,6 +938,15 @@ function initPlayerControls() {
         wavBtn.textContent = '⬇';
         wavBtn.disabled = false;
       });
+    };
+  }
+
+  // Loop section button
+  if (loopBtn) {
+    loopBtn.onclick = function() {
+      window._loopSection = !window._loopSection;
+      loopBtn.classList.toggle('loop-active', window._loopSection);
+      loopBtn.title = window._loopSection ? 'Loop ON — repeating current section' : 'Loop current section';
     };
   }
 
@@ -1840,6 +1863,12 @@ function initPlaybackTracking() {
       foundIdx = map.length - 1; sectionStartTime = map[foundIdx].start; sectionSteps = map[foundIdx].steps;
     }
     if (foundIdx >= 0 && foundIdx !== lastTrackedSection) {
+      // Section loop: if loop is on, seek back to current section start instead of advancing
+      if (window._loopSection && lastTrackedSection >= 0 && lastTrackedSection < map.length) {
+        var loopStart = map[lastTrackedSection].start;
+        if (window.synthBridge) window.synthBridge.seek(loopStart + 0.01);
+        return;
+      }
       lastTrackedSection = foundIdx;
       arrIdx = foundIdx;
       curSec = arrangement[foundIdx];
