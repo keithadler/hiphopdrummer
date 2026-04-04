@@ -2,6 +2,21 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.25] - 2026-04-04
+
+### Optimized
+- Cached nav button DOM elements at boot — eliminates 7+ getElementById calls per state change
+- Single preference read function — all playback prefs read once, no scattered localStorage calls
+- MIDI built once per play (not twice — removed redundant global rebuild)
+- Drum kit/bass sound applied exactly once in .then() (removed duplicate pre-play call that silently failed)
+- Visualizer skips drawing when canvas is scrolled offscreen
+- Failsafe poll and tracking handler use cached/batched button references
+- Play handler 40% shorter — removed redundant code paths
+
+### Fixed
+- getElementById guards prevent crash when SW serves stale HTML
+- Preferences reliably loaded on every play press
+
 ## [1.24] - 2026-04-04
 
 ### Fixed
