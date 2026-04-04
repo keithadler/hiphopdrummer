@@ -330,7 +330,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .export-note{font-size:10px;color:var(--text-dim);font-style:italic}
 
 /* ── Mobile responsive layout ── */
-@media (max-width: 1024px) {
+
+/* Tablet / landscape phone (601-1024px): 2-row header */
+@media (min-width: 601px) and (max-width: 1024px) {
   body{overflow:auto;font-size:17px}
   #app-wrap{height:auto;min-height:100vh}
   .header-bar{position:sticky;top:0;z-index:100;flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}
@@ -339,7 +341,25 @@ midi-player::part(play-button){color:var(--accent-green)}
   #aboutBeatPanel{position:static;max-height:none}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
-  .controls-bar{flex-wrap:wrap;gap:6px}
+  /* Controls: flex-wrap into 2 rows */
+  .controls-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  /* Row 1: PLAY, NEW BEAT, Style, Key, BPM, Swing */
+  .btn-play-header{font-size:13px;height:36px;padding:0 14px}
+  .btn-gen{font-size:13px;height:36px;padding:0 12px}
+  .ctrl-group{height:34px;padding:3px 8px}
+  .ctrl-label{font-size:13px}
+  .ctrl-input{font-size:15px}
+  .ctrl-input-wide{max-width:140px;font-size:13px}
+  /* Row 2: EXPORT, SHARE, HISTORY, PREFS pushed right */
+  .btn-export{margin-left:auto;font-size:12px;height:34px;padding:0 10px}
+  .btn-share{font-size:12px;height:34px;padding:0 10px}
+  .btn-history{font-size:12px;height:34px;padding:0 10px}
+  .btn-prefs{font-size:12px;height:34px;padding:0 10px}
   .grid-row{overflow-x:hidden}
   .cell{flex:1;min-width:0}
   .row-label{width:70px;font-size:13px;padding-right:4px}
@@ -348,6 +368,8 @@ midi-player::part(play-button){color:var(--accent-green)}
   .arr-flow{min-height:60px}
   .panel{padding:8px 10px}
 }
+
+/* Phone portrait (≤600px): 2-column grid header */
 
 @media (max-width: 600px) {
   /* Prevent iOS zoom on input focus */
