@@ -368,8 +368,8 @@ function exportMIDI(opts) {
 
   // Individual section MIDIs + MPC patterns
   // Note: iOS flattens ZIP folders on extract, so filenames include folder prefix for clarity
-  var midiFolder = (opts.sections || opts.bassMidi || (opts.daws && opts.daws.length > 0)) ? folder.folder('MIDI Patterns') : null;
-  var mpcFolder  = (opts.mpc || opts.bassMpc) ? folder.folder('MPC') : null;
+  var midiFolder = (opts.sections || opts.instrMidi || (opts.daws && opts.daws.length > 0)) ? folder.folder('MIDI Patterns') : null;
+  var mpcFolder  = (opts.mpc || opts.instrMpc) ? folder.folder('MPC') : null;
 
   if (opts.sections || opts.mpc) {
     var exported = {};
@@ -409,10 +409,10 @@ function exportMIDI(opts) {
     } catch(e) { console.warn('Chord sheet PDF failed:', e); }
   }
 
-  // Bass line exports — MIDI bass goes in MIDI Patterns/Bass/, MPC bass goes in MPC/Bass/
-  if (opts.bassMidi || opts.bassMpc) {
-    var bassMidiFolder = (opts.bassMidi && midiFolder) ? midiFolder.folder('Bass') : null;
-    var bassMpcFolder  = (opts.bassMpc && mpcFolder)   ? mpcFolder.folder('Bass')  : null;
+  // Bass line exports
+  if (opts.instrMidi || opts.instrMpc) {
+    var bassMidiFolder = (opts.instrMidi && midiFolder) ? midiFolder.folder('Bass') : null;
+    var bassMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Bass')  : null;
     // Full song bass
     if (bassMidiFolder) {
       bassMidiFolder.file('Bass_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', buildBassMidiBytes(arrangement, bpm, noSwing));
@@ -439,10 +439,10 @@ function exportMIDI(opts) {
     });
   }
 
-  // Electric Piano exports — EP MIDI goes in MIDI Patterns/EP/, MPC EP goes in MPC/EP/
-  if (opts.epMidi || opts.epMpc) {
-    var epMidiFolder = (opts.epMidi && midiFolder) ? midiFolder.folder('Electric Piano') : null;
-    var epMpcFolder  = (opts.epMpc && mpcFolder)   ? mpcFolder.folder('Electric Piano')  : null;
+  // Electric Piano exports
+  if (opts.instrMidi || opts.instrMpc) {
+    var epMidiFolder = (opts.instrMidi && midiFolder) ? midiFolder.folder('Electric Piano') : null;
+    var epMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Electric Piano')  : null;
     // Full song EP
     if (epMidiFolder) {
       var epFull = buildEPMidiBytes(arrangement, bpm, noSwing);
@@ -472,10 +472,10 @@ function exportMIDI(opts) {
     });
   }
 
-  // Synth Pad exports — Pad MIDI goes in MIDI Patterns/Synth Pad/, MPC in MPC/Synth Pad/
-  if (opts.padMidi || opts.padMpc) {
-    var padMidiFolder = (opts.padMidi && midiFolder) ? midiFolder.folder('Synth Pad') : null;
-    var padMpcFolder  = (opts.padMpc && mpcFolder)   ? mpcFolder.folder('Synth Pad')  : null;
+  // Synth Pad exports
+  if (opts.instrMidi || opts.instrMpc) {
+    var padMidiFolder = (opts.instrMidi && midiFolder) ? midiFolder.folder('Synth Pad') : null;
+    var padMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Synth Pad')  : null;
     if (padMidiFolder && typeof buildPadMidiBytes === 'function') {
       var padFull = buildPadMidiBytes(arrangement, bpm, noSwing);
       if (padFull.length > 30) {
@@ -505,7 +505,7 @@ function exportMIDI(opts) {
   }
 
   // Synth Lead exports
-  if (midiFolder && typeof buildLeadMidiBytes === 'function') {
+  if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildLeadMidiBytes === 'function') {
     var leadFull = buildLeadMidiBytes(arrangement, bpm, noSwing);
     if (leadFull.length > 30) {
       var leadMidiFolder = midiFolder.folder('Synth Lead');
@@ -529,7 +529,7 @@ function exportMIDI(opts) {
   }
 
   // Organ exports
-  if (midiFolder && typeof buildOrganMidiBytes === 'function') {
+  if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildOrganMidiBytes === 'function') {
     var organFull = buildOrganMidiBytes(arrangement, bpm, noSwing);
     if (organFull.length > 30) {
       var organMidiFolder = midiFolder.folder('Organ');
@@ -553,7 +553,7 @@ function exportMIDI(opts) {
   }
 
   // Horn Stabs exports
-  if (midiFolder && typeof buildHornMidiBytes === 'function') {
+  if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildHornMidiBytes === 'function') {
     var hornFull = buildHornMidiBytes(arrangement, bpm, noSwing);
     if (hornFull.length > 30) {
       var hornMidiFolder = midiFolder.folder('Horn Stabs');
@@ -577,7 +577,7 @@ function exportMIDI(opts) {
   }
 
   // Vibraphone exports
-  if (midiFolder && typeof buildVibesMidiBytes === 'function') {
+  if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildVibesMidiBytes === 'function') {
     var vibesFull = buildVibesMidiBytes(arrangement, bpm, noSwing);
     if (vibesFull.length > 30) {
       var vibesMidiFolder = midiFolder.folder('Vibraphone');
@@ -601,7 +601,7 @@ function exportMIDI(opts) {
   }
 
   // Clavinet exports
-  if (midiFolder && typeof buildClavMidiBytes === 'function') {
+  if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildClavMidiBytes === 'function') {
     var clavFull = buildClavMidiBytes(arrangement, bpm, noSwing);
     if (clavFull.length > 30) {
       var clavMidiFolder = midiFolder.folder('Clavinet');
