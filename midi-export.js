@@ -510,9 +510,9 @@ function exportMIDI(opts) {
 
   // Generate and trigger download (wait for WAV if needed)
   var generateZip = function() {
-    // Show final progress
+    // Always show progress toast during ZIP generation
     var toast = document.getElementById('exportToast');
-    if (toast && !needsAnyWav) {
+    if (toast) {
       toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Creating ZIP...</strong><br><br>Packaging your files...<br><br><div class="progress-spinner"></div></div>';
       toast.classList.add('show');
     }

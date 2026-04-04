@@ -143,8 +143,8 @@ document.getElementById('regenGo').onclick = function() {
   loadingEl.innerHTML = '<div class="gen-loading-inner">Generating beat...<div class="progress-spinner"></div></div>';
   document.body.appendChild(loadingEl);
   
-  // Defer generation to next frame so the loading overlay renders
-  setTimeout(function() {
+  // Defer generation to next paint so the loading overlay renders
+  requestAnimationFrame(function() { setTimeout(function() {
     // Close any open editors
     if (typeof _hideHeaderEditor === 'function') _hideHeaderEditor();
     try {
@@ -201,7 +201,7 @@ document.getElementById('regenGo').onclick = function() {
         saveBeatHistory(history);
       }
     }
-  }, 30);
+  }, 0); });
 };
 
 /** New Beat button: show the dialog */
