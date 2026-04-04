@@ -103,33 +103,39 @@ async function playSynthMidi(midiBytes) {
     sequencer = null;
   }
   sequencer = new Sequencer(synth);
+  // Listen for SpessaSynth's native songEnded event — this is the
+  // authoritative signal that playback has finished. Much more reliable
+  // than polling currentTime >= duration in the rAF loop.
+  sequencer.eventHandler.addEvent("songEnded", "hhd-end", function() {
+    if (!isPlaying) return;
+    isPlaying = false;
+    _stopTracking();
+    // Fire one last time update so the UI shows the final position
+    if (onTimeUpdate && sequencer) {
+      onTimeUpdate(sequencer.duration, sequencer.duration);
+    }
+    if (onPlayStateChange) onPlayStateChange(false);
+  });
   // Load the MIDI — SpessaSynth expects {binary: ArrayBuffer, fileName: string}
   const midiBuf = new Uint8Array(midiBytes).buffer;
   sequencer.loadNewSongList([{ binary: midiBuf, fileName: "beat.mid" }]);
   sequencer.play();
   isPlaying = true;
   if (onPlayStateChange) onPlayStateChange(true);
-  // FIX 1: Replace setInterval with requestAnimationFrame for tracking.
-  // rAF syncs with the display refresh (16ms @ 60fps) — smoother than 50ms polling,
-  // and automatically pauses when the tab is backgrounded (no wasted CPU).
+  // rAF tracking for UI updates (time display, cursor, VFX).
+  // End-of-song is now handled by the songEnded event above,
+  // so the rAF loop only needs to push time updates.
   _startTracking();
 }
 
-// FIX 1: Shared rAF-based tracking loop — one frame callback handles
-// time updates AND end-of-song detection. No setInterval drift.
+// rAF-based tracking loop — pushes time updates to the UI.
+// End-of-song detection is handled by the songEnded event in playSynthMidi.
 function _startTracking() {
   _stopTracking();
   function tick() {
     if (!isPlaying) return;
     if (sequencer && onTimeUpdate) {
       onTimeUpdate(sequencer.currentTime, sequencer.duration);
-    }
-    // End-of-song detection
-    if (sequencer && sequencer.duration > 0 && sequencer.currentTime >= sequencer.duration) {
-      isPlaying = false;
-      if (onPlayStateChange) onPlayStateChange(false);
-      trackingRAF = null;
-      return;
     }
     trackingRAF = requestAnimationFrame(tick);
   }
