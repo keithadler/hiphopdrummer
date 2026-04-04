@@ -223,6 +223,20 @@ function buildHelpGeneral(bpm, swing, noSwing) {
     'If your style uses electric piano instead (Dilla, jazz, G-Funk),',
     'the Synth Pad folder will be empty — that\'s correct.',
     '',
+    'ADDITIONAL INSTRUMENTS',
+    '----------------------',
+    'Depending on the style, the export may include additional MIDI:',
+    '',
+    '  Channel 4 (index 3) — Synth Pad (strings/choir/synth, dark styles)',
+    '  Channel 5 (index 4) — Synth Lead (G-Funk whistle melody)',
+    '  Channel 6 (index 5) — Organ (jazz/Nujabes sustained layer)',
+    '  Channel 7 (index 6) — Horn Stabs (boom bap/big brass hits)',
+    '  Channel 8 (index 7) — Vibraphone (Nujabes/jazzy shimmer)',
+    '  Channel 9 (index 8) — Clavinet (bounce/G-Funk funky comping)',
+    '',
+    'Not every style uses every instrument. Empty channels are normal.',
+    'Load each into a separate track with the appropriate GM sound.',
+    '',
   ]).concat(_footerSection()).join('\r\n');
 }
 

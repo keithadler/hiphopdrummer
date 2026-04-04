@@ -865,6 +865,34 @@ function analyzeBeat() {
     lines.push('The pad is on <b>MIDI channel 4</b> (channel index 3) in the export. Load it into a separate track with a pad/string/choir sound.');
   }
 
+  // === ADDITIONAL INSTRUMENTS ===
+  // Show which extra instruments are active for this beat
+  var extraInstruments = [];
+  if (typeof LEAD_STYLES !== 'undefined' && (LEAD_STYLES[songFeel] || LEAD_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    extraInstruments.push('<b>Synth Lead</b> (MIDI ch 5) — G-Funk whistle melody, pentatonic with slides');
+  }
+  if (typeof ORGAN_STYLES !== 'undefined' && (ORGAN_STYLES[songFeel] || ORGAN_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    extraInstruments.push('<b>Organ</b> (MIDI ch 6) — sustained drawbar organ underneath the EP');
+  }
+  if (typeof HORN_STYLES !== 'undefined' && (HORN_STYLES[songFeel] || HORN_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    extraInstruments.push('<b>Horn Stabs</b> (MIDI ch 7) — brass section chord hits locked to the kick');
+  }
+  if (typeof VIBES_STYLES !== 'undefined' && (VIBES_STYLES[songFeel] || VIBES_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    extraInstruments.push('<b>Vibraphone</b> (MIDI ch 8) — bell-like arpeggiated tones');
+  }
+  if (typeof CLAV_STYLES !== 'undefined' && (CLAV_STYLES[songFeel] || CLAV_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    extraInstruments.push('<b>Clavinet</b> (MIDI ch 9) — funky percussive 16th-note comping');
+  }
+  if (extraInstruments.length > 0) {
+    lines.push('');
+    lines.push('🎵 <b>ADDITIONAL INSTRUMENTS</b>');
+    lines.push('This beat also includes:');
+    for (var xi = 0; xi < extraInstruments.length; xi++) {
+      lines.push('• ' + extraInstruments[xi]);
+    }
+    lines.push('Each instrument follows the same chord progressions as the bass and EP. Load the MIDI into separate tracks in your DAW.');
+  }
+
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
   lines.push('🔬 <b>TECHNIQUE SPOTLIGHT</b>');
