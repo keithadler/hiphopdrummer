@@ -183,16 +183,105 @@ function _epKickPositions(drumPat, barStart) {
   return positions;
 }
 
-/** FIX 7: Velocity arc multiplier for position within a section.
- *  Bars 1-2: settle (0.95), bars 3-4: dip (0.9), bars 5-6: build (1.0), bar 7: peak (1.08), bar 8: pull back (0.95) */
+/** FIX 7: Velocity arc multiplier for position within a section. */
 function _epVelArc(bar, totalBars) {
   if (totalBars <= 4) return 1.0;
-  var pos = bar / (totalBars - 1); // 0 to 1
+  var pos = bar / (totalBars - 1);
   if (pos < 0.25) return 0.95;
   if (pos < 0.5) return 0.9;
   if (pos < 0.75) return 1.0;
   if (pos < 0.9) return 1.08;
   return 0.95;
+}
+
+/** R2-FIX 1: Melodic top-note movement — add a neighbor/passing tone to the
+ *  highest note of the voicing. Returns a modified notes array or null if no movement. */
+function _epMelodyMove(notes, degree, barSeed) {
+  if (notes.length < 3 || barSeed < 0.3) return null; // only move sometimes
+  var sorted = notes.slice().sort(function(a, b) { return a - b; });
+  var topNote = sorted[sorted.length - 1];
+  var move = 0;
+  // Neighbor tone: step up or down by 1-2 semitones, then resolve back
+  if (barSeed > 0.7) move = 2;  // whole step up (sus2 feel)
+  else if (barSeed > 0.5) move = -1; // half step down (chromatic approach)
+  else move = 1; // half step up
+  var movedNote = topNote + move;
+  if (movedNote > 96) movedNote -= 12;
+  if (movedNote < 36) movedNote += 12;
+  // Return the modified voicing (top note replaced) and the resolution note
+  var modified = notes.slice();
+  for (var i = 0; i < modified.length; i++) {
+    if (modified[i] === topNote) { modified[i] = movedNote; break; }
+  }
+  return { moved: modified, resolve: notes, resolveNote: topNote, movedNote: movedNote };
+}
+
+/** R2-FIX 3: Sus4→3 resolution — replace the 3rd with the 4th, resolve later */
+function _epSus4Voicing(notes, root) {
+  // Find the 3rd (3 or 4 semitones above root) and replace with 4th (5 semitones)
+  var rootPC = root % 12;
+  var modified = notes.slice();
+  for (var i = 0; i < modified.length; i++) {
+    var interval = ((modified[i] % 12) - rootPC + 12) % 12;
+    if (interval === 3 || interval === 4) { // minor or major 3rd
+      modified[i] += (5 - interval); // move to perfect 4th
+      if (modified[i] > 96) modified[i] -= 12;
+      return { sus: modified, resolve: notes };
+    }
+  }
+  return null; // couldn't find the 3rd
+}
+
+/** R2-FIX 4: Chromatic approach chord — half step below the target */
+function _epApproachChord(targetNotes) {
+  var approach = [];
+  for (var i = 0; i < targetNotes.length; i++) {
+    approach.push(targetNotes[i] - 1); // half step below each note
+  }
+  return approach;
+}
+
+/** R2-FIX 6: Single-note tremolo on the top note */
+function _epTremolo(notes, step, vel, behind, count) {
+  var sorted = notes.slice().sort(function(a, b) { return a - b; });
+  var topNote = sorted[sorted.length - 1];
+  var tremoloEvents = [];
+  for (var t = 0; t < count; t++) {
+    var tVel = Math.max(30, vel - 15 + Math.floor(rnd() * 8));
+    tremoloEvents.push({ step: step + t * 2, notes: [topNote], vels: [tVel], dur: 0.12, timingOffset: behind + Math.floor(rnd() * 2), crush: null, durJitter: 0 });
+  }
+  return tremoloEvents;
+}
+
+/** R2-FIX 7: Section-boundary fill — quick grace note run into the next section */
+function _epSectionFill(chordNotes, step, vel, behind) {
+  var sorted = chordNotes.slice().sort(function(a, b) { return a - b; });
+  var fillEvents = [];
+  // Quick ascending run through chord tones in the last 2 steps
+  for (var fi = 0; fi < Math.min(sorted.length, 3); fi++) {
+    fillEvents.push({
+      step: step + fi,
+      notes: [sorted[fi]],
+      vels: [Math.max(30, vel - 10 + fi * 5)],
+      dur: 0.1,
+      timingOffset: behind,
+      crush: null,
+      durJitter: 0
+    });
+  }
+  return fillEvents;
+}
+
+/** R2-FIX 9: Drum density score for a bar (0-1, higher = busier drums) */
+function _epDrumDensity(drumPat, barStart) {
+  if (!drumPat) return 0.5;
+  var hits = 0;
+  for (var i = barStart; i < barStart + 16; i++) {
+    if (drumPat.kick && drumPat.kick[i] > 0) hits++;
+    if (drumPat.snare && drumPat.snare[i] > 0) hits++;
+    if (drumPat.hat && drumPat.hat[i] > 0) hits++;
+  }
+  return Math.min(1, hits / 30); // 30 hits = max density
 }
 
 // ── Main generator ──
@@ -273,15 +362,17 @@ function generateEPPattern(sec, bpm) {
 
   /** Push a chord event with all humanization applied */
   function pushChord(step, notes, baseVel, dur, behind, crushAmt, octRoot) {
-    var arcMult = _epVelArc(Math.floor(step / 16), totalBars); // FIX 7
-    var vel = Math.round(baseVel * arcMult);
+    var arcMult = _epVelArc(Math.floor(step / 16), totalBars);
+    // R2-FIX 9: Adjust velocity based on drum density — louder when drums are sparse
+    var drumDens = _epDrumDensity(drumPat, (Math.floor(step / 16)) * 16);
+    var densVelAdj = Math.round((0.5 - drumDens) * 12); // sparse drums = +6, busy drums = -6
+    var vel = Math.min(127, Math.max(30, Math.round(baseVel * arcMult) + densVelAdj));
     var vels = _epHumanizeChordVel(notes, vel);
-    var crush = (crushAmt > 0 && notes.length > 1) ? _epCrushOffsets(notes, crushAmt) : null; // FIX 1
-    // FIX 10: Note-off humanization — stabs shorter, pads slightly longer
+    var crush = (crushAmt > 0 && notes.length > 1) ? _epCrushOffsets(notes, crushAmt) : null;
     var durJitter = 0;
-    if (style.rhythm === 'stab' || style.rhythm === 'comp') durJitter = -Math.floor(rnd() * 2); // staccato
-    else if (style.rhythm === 'pad' || style.rhythm === 'whole') durJitter = Math.floor(rnd() * 3); // legato
-    // FIX 3: Octave root doubling
+    if (style.rhythm === 'stab' || style.rhythm === 'comp') durJitter = -Math.floor(rnd() * 2);
+    else if (style.rhythm === 'pad' || style.rhythm === 'whole') durJitter = Math.floor(rnd() * 3);
+    // R2-FIX 10: Pedal tone — for pad/whole styles, hold the root as a drone
     var finalNotes = notes.slice();
     var finalVels = vels.slice();
     if (octRoot > 0 && maybe(octRoot)) {
@@ -333,20 +424,61 @@ function generateEPPattern(sec, bpm) {
     var kickPos = _epKickPositions(drumPat, barStart);
 
     // ── Rhythm patterns ──
+    // R2-FIX 8: Rest bars — skip bar 4 of 8-bar phrases sometimes
+    var isRestBar = (totalBars >= 8 && (bar % 8 === 3) && maybe(0.35));
+    if (isRestBar && style.rhythm !== 'pad') {
+      // Silent bar — strategic rest
+      continue;
+    }
+
+    // R2-FIX 5: Snare accent — occasionally stab WITH the snare on beat 2 or 4
+    var snareAccent = false;
+    if ((style.rhythm === 'comp' || style.rhythm === 'stab') && maybe(0.2)) {
+      var snareStep = drumPat.snare && drumPat.snare[barStart + 4] > 90 ? 4 : (drumPat.snare && drumPat.snare[barStart + 12] > 90 ? 12 : -1);
+      if (snareStep >= 0) {
+        pushChord(barStart + snareStep, chordNotes, v(style.velBase + 10, 6), style.noteDur * 0.3, 0, 0, 0);
+        snareAccent = true;
+      }
+    }
+
     if (style.rhythm === 'whole') {
       if (maybe(style.density * densityMod)) {
-        pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, style.octaveRoot);
-        // FIX 2: Ghost re-attack mid-bar
+        // R2-FIX 3: Sus4→3 resolution on some bars
+        var sus = (barSeed > 0.65) ? _epSus4Voicing(chordNotes, chordRoot) : null;
+        if (sus) {
+          pushChord(barStart, sus.sus, vel, style.noteDur * 2, behind, crushAmt, style.octaveRoot);
+          pushChord(barStart + 4, sus.resolve, Math.max(30, vel - 5), style.noteDur * 2, behind, crushAmt, 0);
+        } else {
+          pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, style.octaveRoot);
+        }
+        // R2-FIX 1: Melodic top-note movement mid-bar
+        var melody = _epMelodyMove(chordNotes, progDegree, barSeed);
+        if (melody && barSeed > 0.55) {
+          pushChord(barStart + 8, melody.moved, Math.max(30, vel - 8), style.noteDur, behind, 0, 0);
+          pushChord(barStart + 12, melody.resolve, Math.max(30, vel - 5), style.noteDur, behind, 0, 0);
+        }
+        // Ghost re-attack
         if (barSeed > 0.5 && maybe(0.4)) pushGhost(barStart + 6, chordNotes, vel, behind);
-        if (barSeed > 0.7) pushGhost(barStart + 10, chordNotes, vel, behind);
+        // R2-FIX 6: Tremolo on sustained bars
+        if (barSeed > 0.8 && maybe(0.25)) {
+          var trem = _epTremolo(chordNotes, barStart + 8, vel, behind, 3);
+          for (var ti = 0; ti < trem.length; ti++) events.push(trem[ti]);
+        }
       }
     }
     else if (style.rhythm === 'pad') {
-      pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, style.octaveRoot);
+      // R2-FIX 10: Pedal tone — hold root note through chord changes for G-Funk/Dilla
+      var usePedal = (styleLookup === 'gfunk' || styleLookup === 'gfunk_dre' || styleLookup === 'dilla') && maybe(0.4);
+      if (usePedal) {
+        // Sustained root drone on its own
+        var pedalNote = rootNote;
+        while (pedalNote < 48) pedalNote += 12;
+        events.push({ step: barStart, notes: [pedalNote], vels: [Math.max(30, vel - 15)], dur: style.noteDur * 4, timingOffset: behind, crush: null, durJitter: 2 });
+      }
+      pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, usePedal ? 0 : style.octaveRoot);
       if (maybe(0.3 + barSeed * 0.3)) {
         pushChord(barStart + 8, chordNotes, Math.max(30, vel - 15), style.noteDur * 2, behind, crushAmt, 0);
       }
-      // FIX 2: Ghost bounce
       if (maybe(0.3)) pushGhost(barStart + 4, chordNotes, vel, behind);
     }
     else if (style.rhythm === 'half') {
@@ -356,13 +488,11 @@ function generateEPPattern(sec, bpm) {
       if (maybe(style.density * densityMod) && !_epDrumBusy(drumPat, barStart + 8)) {
         pushChord(barStart + 8, chordNotes, v(style.velBase - 5, style.velRange), style.noteDur * 2, behind, crushAmt, 0);
       }
-      // FIX 2: Ghost between halves
       if (barSeed > 0.6 && maybe(0.35)) pushGhost(barStart + 5, chordNotes, vel, behind);
     }
     else if (style.rhythm === 'stab') {
-      // FIX 9: Lock stabs to kick positions when possible
       var stabPositions = kickPos.length >= 2 ? [kickPos[0], kickPos[Math.min(1, kickPos.length - 1)]] : [0, barSeed > 0.5 ? 6 : 5];
-      if (maybe(style.density * densityMod) && !_epDrumBusy(drumPat, barStart + stabPositions[0])) {
+      if (maybe(style.density * densityMod) && !_epDrumBusy(drumPat, barStart + stabPositions[0]) && !snareAccent) {
         pushChord(barStart + stabPositions[0], chordNotes, vel, style.noteDur, 0, 0, style.octaveRoot);
       }
       if (maybe(style.density * 0.6 * densityMod)) {
@@ -373,22 +503,31 @@ function generateEPPattern(sec, bpm) {
       }
     }
     else if (style.rhythm === 'comp') {
-      // FIX 4: Motif-based comp — positions derived from barSeed (which is motif-based)
+      // R2-FIX 2: Independent LH/RH — LH holds whole note, RH comps on top
+      if (barSeed < 0.35 && maybe(0.4)) {
+        // LH: sustained root+5th
+        var lhNotes = chordNotes.slice().sort(function(a,b){return a-b;}).slice(0, 2);
+        events.push({ step: barStart, notes: lhNotes, vels: _epHumanizeChordVel(lhNotes, Math.max(30, vel - 10)), dur: style.noteDur * 4, timingOffset: behind, crush: null, durJitter: 2 });
+      }
       if (barSeed < 0.4 && maybe(style.density * 0.5 * densityMod)) {
         pushChord(barStart, chordNotes, vel, style.noteDur * 2, behind, crushAmt, style.octaveRoot);
       }
-      // FIX 9: Main comp hit — lock to kick if available
       var compPos = kickPos.length > 1 ? kickPos[1] : (barSeed > 0.6 ? 2 : barSeed > 0.3 ? 6 : 3);
       if (maybe(style.density * densityMod)) {
-        pushChord(barStart + compPos, chordNotes, v(style.velBase + 5, style.velRange), style.noteDur * 1.5, behind, crushAmt, 0);
+        // R2-FIX 3: Occasional sus4 on comp hits
+        var compSus = (barSeed > 0.7) ? _epSus4Voicing(chordNotes, chordRoot) : null;
+        if (compSus) {
+          pushChord(barStart + compPos, compSus.sus, v(style.velBase + 5, style.velRange), style.noteDur, behind, crushAmt, 0);
+          pushChord(barStart + compPos + 2, compSus.resolve, v(style.velBase, style.velRange), style.noteDur * 0.5, behind, 0, 0);
+        } else {
+          pushChord(barStart + compPos, chordNotes, v(style.velBase + 5, style.velRange), style.noteDur * 1.5, behind, crushAmt, 0);
+        }
       }
       var compPos2 = barSeed > 0.5 ? 8 : 10;
       if (maybe(style.density * 0.6 * densityMod) && !_epDrumBusy(drumPat, barStart + compPos2)) {
         pushChord(barStart + compPos2, chordNotes, v(style.velBase - 5, style.velRange), style.noteDur, behind, crushAmt, 0);
       }
-      // FIX 2: Ghost re-attack
       if (barSeed > 0.4 && maybe(0.3)) pushGhost(barStart + 4, chordNotes, vel, behind);
-      // Pickup
       if (barSeed > 0.75 && maybe(0.3)) {
         pushChord(barStart + 14, chordNotes, v(style.velBase - 10, style.velRange), style.noteDur * 0.5, behind, 0, 0);
       }
@@ -405,21 +544,30 @@ function generateEPPattern(sec, bpm) {
           if (arpStep % 4 === 0) arpVel = Math.min(127, arpVel + 8);
           if (barSeed > 0.6 && arpStep === 6) continue;
           if (barSeed < 0.3 && arpStep === 10) continue;
-          // FIX 10: Arp notes get slight duration variation
           var arpDurJitter = Math.floor((rnd() - 0.5) * 2);
           events.push({ step: barStart + arpStep, notes: [arpNote], vels: [arpVel], dur: style.noteDur, timingOffset: behind, crush: null, durJitter: arpDurJitter });
         }
       }
     }
 
-    // FIX 6: Chord anticipation — hit next chord on and-of-4
+    // R2-FIX 4: Approach chord before chord changes
     if (doAnticipation) {
       var antRoot = degreeToNote(nextDegree);
       var antNotes = buildEPVoicing(antRoot, nextDegree, style.voicing, secRegister, style.spread, styleLookup, chordNotes);
+      // Use chromatic approach chord on some anticipations
+      if (maybe(0.3)) {
+        var approachNotes = _epApproachChord(antNotes);
+        pushChord(barStart + 13, approachNotes, v(style.velBase - 12, 6), style.noteDur * 0.3, behind, 0, 0);
+      }
       pushChord(barStart + 14, antNotes, v(style.velBase - 5, style.velRange), style.noteDur * 0.5, behind, crushAmt, 0);
-      prevNotes = antNotes; // next bar starts from the anticipated voicing
+      prevNotes = antNotes;
     }
 
+    // R2-FIX 7: Section-boundary fill on the last bar
+    if (bar === totalBars - 1 && maybe(0.4) && style.rhythm !== 'arp') {
+      var fillEvts = _epSectionFill(chordNotes, barStart + 13, vel, behind);
+      for (var fi = 0; fi < fillEvts.length; fi++) events.push(fillEvts[fi]);
+    }
     // Section-aware dynamics
     if (sec === 'breakdown') {
       for (var ei = events.length - 1; ei >= 0; ei--) {
