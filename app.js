@@ -1652,6 +1652,13 @@ function initPlaybackTracking() {
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
       _lastActiveBar = -1; // reset bar tracking for new section
+      // Section transition flash
+      var gridEl = document.getElementById('gridR');
+      if (gridEl) {
+        gridEl.classList.remove('section-flash');
+        void gridEl.offsetWidth; // force reflow to restart animation
+        gridEl.classList.add('section-flash');
+      }
       // Follow playhead: scroll the current section into view
       if (_followPlayhead && !_touchPauseFollow) {
         var activeCard = document.querySelector('.arr-item.playing');

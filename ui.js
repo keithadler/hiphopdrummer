@@ -155,7 +155,8 @@ function renderGrid() {
         // 'beat-start' class adds a left border at beat boundaries (steps 5, 9, 13)
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
         var ariaVel = velocityMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
-        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '" data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
+        var velStyle = vel > 0 ? ' style="--vel-h:' + pct + '%"' : '';
+        html += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + '"' + velStyle + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
       }
       row.innerHTML = html;
       rows.appendChild(row);
