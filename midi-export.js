@@ -762,8 +762,13 @@ function buildCombinedMidiBytes(sectionList, bpm) {
         var epDurTicks = Math.max(1, Math.floor(ticksPerStep * epE.dur));
         for (var epni = 0; epni < epE.notes.length; epni++) {
           var epNoteVel = (epE.vels && epE.vels[epni] !== undefined) ? epE.vels[epni] : (epE.vel || 60);
-          events.push({ tick: epStepTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epNoteVel)) });
-          events.push({ tick: epStepTick + epDurTicks, type: 'off', ch: epCh, note: epE.notes[epni] });
+          // FIX 1: Apply crush offset per note (staggered chord attack)
+          var epCrushOff = (epE.crush && epE.crush[epni]) ? epE.crush[epni] : 0;
+          var epNoteTick = Math.max(0, epStepTick + epCrushOff);
+          // FIX 10: Apply duration jitter
+          var epNoteDur = Math.max(1, epDurTicks + (epE.durJitter || 0));
+          events.push({ tick: epNoteTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epNoteVel)) });
+          events.push({ tick: epNoteTick + epNoteDur, type: 'off', ch: epCh, note: epE.notes[epni] });
         }
       }
     }
