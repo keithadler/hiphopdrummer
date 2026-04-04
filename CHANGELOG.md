@@ -2,6 +2,20 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.31] - 2026-04-04
+
+### Updated — Documentation
+- README.md fully rewritten for 1.31: documents all 9 instruments, strict/improvise, beat drops, tap tempo, keyboard shortcuts, swing visualization, master FX, educational content, 14,000+ tests, complete project structure
+- DOCS.md updated: new sections for all 7 melodic instrument generators (EP, pad, lead, organ, horns, vibes, clav) with MIDI channels, GM programs, style coverage, and key features; beat drops & production techniques; strict/improvise mode; MIDI channel assignment table; updated export dialog docs; updated test coverage list
+- Role tips updated: keys role now mentions organ, vibes, pad, and strict/improvise; DJ role mentions beat drops and full mix WAV; learner role mentions all instruments and strict/improvise; drummer role mentions beat drops
+
+### Fixed
+- Loading indicator reliability: added forced style recalc (void offsetHeight) and double-rAF pattern to ensure the "Generating beat..." overlay paints before synchronous generation blocks the main thread
+
+### Added — Tests
+- Key distribution test: 100 random generations verify no single key exceeds 35% (prevents Cm bias)
+- Per-style key uniformity test: 50 generations of boom bap verify at least 3 of 5 keys appear and none exceeds 50%
+
 ## [1.30] - 2026-04-04
 
 ### Added — 9 Instruments

@@ -1,6 +1,6 @@
 {
   "name": "ai-drums",
-  "version": "1.30.0",
+  "version": "1.31.0",
   "description": "Learn hip hop drum programming by generating and studying authentic patterns — from old school 808s to modern boom bap, G-Funk, and beyond.",
   "main": "ai.js",
   "scripts": {
