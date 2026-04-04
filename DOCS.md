@@ -297,9 +297,23 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 ### Header & Mobile
 - Sticky header on mobile — controls stay visible while scrolling
 - Brand name clickable — opens About dialog
-- Mobile: PLAY + NEW BEAT on one row, EXPORT + Preferences on one row
+- Mobile: PLAY + NEW BEAT on one row, EXPORT + SHARE on one row, HISTORY + PREFS on one row
 - iPhone optimizations: no double-tap zoom, no input focus zoom, safe area insets for notch/Dynamic Island, overscroll-behavior prevents elastic bounce, PWA standalone mode
 - Play button disabled until synth module loaded and MIDI built; shows "⏳ LOADING" on first play while SoundFont loads
+- Buttons disabled during playback (only STOP active)
+
+### Visual FX During Playback
+10 visual effects activate during song playback to make the experience more immersive:
+- **Cursor trail** — previous 3 steps retain a fading green ghost outline so you see the beat moving across the grid
+- **Hit flash** — cells brighten and scale up (1.08×) when the playback cursor lands on an active hit
+- **Row glow** — row labels (Kick, Snare, Hat, etc.) flash in their instrument color when that instrument plays (kick red, snare orange, hat blue, crash yellow, etc.)
+- **Section color themes** — arrangement cards get a colored left border and grid bar labels are tinted by section type: intro (cyan), verse (dim), chorus (gold), bridge (purple), breakdown (green), outro (red), pre (yellow)
+- **BPM breathing** — the player controls panel border pulses at the tempo rate using a CSS animation with `--bpm-period` custom property
+- **Fill countdown** — the last 4 steps of each section get a progressive red bottom glow (strongest on the final step) signaling the section end
+- **Audio visualizer** — a 32-bar frequency visualization canvas below the player controls. Uses Web Audio API AnalyserNode when available (connected to SpessaSynth's AudioContext), falls back to a simulated waveform
+- **Arrangement progress bar** — a thin gradient bar (blue→green) above the arrangement cards showing playback position in the full song, with vertical markers at section boundaries
+- **Beat drop** — a radial blue pulse effect on the grid container when a chorus or last chorus section starts
+- **Arrangement card pulse** — the currently playing section card glows with a blue box-shadow animation
 
 ### Welcome Screen & Roles
 - First-time visitors see a role selector: Producer, Rapper, DJ, Keys, Bassist, Guitarist, Drummer, Learner
@@ -311,6 +325,18 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 - Key and BPM lock to Auto when style is Auto
 - Key and BPM reset when style changes
 - Only shows style-appropriate key and BPM options
+
+### Share Beat
+- Generates a short URL hash: `#s=gfunk&k=Gm7&b=92` (style, key, BPM)
+- Recipients get a fresh beat generated with the same style/key/BPM (not the exact same pattern)
+- Shared beats are automatically saved to the recipient's beat history
+- Uses `encodeURIComponent` for key names with sharps/flats
+
+### Beat History
+- Stores the last 100 generated beats in localStorage
+- Each entry records: style, key, BPM, timestamp, arrangement, patterns, bass data
+- Click any history entry to reload the full beat (patterns, arrangement, bass, analysis)
+- History accessible via the HISTORY button in the header
 
 ### About Dialog
 - Opens from brand name click
@@ -381,12 +407,12 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 - **Rendering** — Vanilla DOM, CSS flexbox/grid, responsive layout with sticky mobile header
 - **Export** — JSZip for MIDI/MPC bundles, jsPDF for beat sheets and chord sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
-- **Testing** — Node.js test suite (9500+ assertions, zero dependencies)
+- **Testing** — Node.js test suite (11,000+ assertions, zero dependencies)
 - **Dependencies** — JSZip, jsPDF, SpessaSynth (bundled via esbuild)
 
 ## Testing
 
-Run `node tests.js` — zero dependencies, runs in Node.js. 9700+ assertions.
+Run `node tests.js` — zero dependencies, runs in Node.js. 11,000+ assertions.
 
 Covers:
 - All JS files parse without syntax errors
