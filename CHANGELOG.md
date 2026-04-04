@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.12] - 2026-04-03
+
+### Changed
+- Style label capped at 160px with scrolling marquee for long names (e.g. "G-Funk — DJ Quik")
+- Arrangement progress bar height increased from 3px to 8px for better visibility
+- Chord toast max-height increased to 90vh (was 85vh)
+- Mobile layout: HISTORY and PREFS share a row instead of PREFS taking full width
+
+### Fixed
+- Service worker: skip non-http schemes (chrome-extension://) in fetch handler
+
 ## [1.11] - 2026-04-03
 
 ### Added
