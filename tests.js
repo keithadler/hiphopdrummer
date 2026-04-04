@@ -320,6 +320,121 @@ test('Bass MIDI and MPC export produce valid output', function() {
   });
 });
 
+// === Test EP generator ===
+test('EP generates patterns for correct styles and skips others', function() {
+  var epStyles = ['dilla', 'jazzy', 'nujabes', 'lofi', 'gfunk', 'gfunk_dre', 'gfunk_quik', 'gfunk_battlecat', 'bounce', 'normal_queens', 'normal_li', 'halftime'];
+  var noEpStyles = ['normal', 'normal_bronx', 'hard', 'dark', 'crunk', 'memphis', 'griselda', 'phonk', 'oldschool'];
+
+  _lastChosenKey = { root: 'Cm', i: 'Cm', iv: 'Fm', v: 'Gm' };
+
+  epStyles.forEach(function(feel) {
+    songFeel = feel;
+    songPalette = null;
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    arrangement = ['verse'];
+    secSteps = {};
+    secFeels = {};
+    patterns = {};
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    genBasePatterns();
+    patterns['verse'] = generatePattern('verse');
+    var epEvents = generateEPPattern('verse', 90);
+    assert(Array.isArray(epEvents), feel + ': EP should return array');
+    assert(epEvents.length > 0, feel + ': EP should have events for EP style, got ' + epEvents.length);
+    // Check voicing has notes
+    epEvents.forEach(function(e, idx) {
+      assert(e.notes && e.notes.length > 0, feel + ' EP event ' + idx + ': should have notes');
+      assert(e.vels && e.vels.length === e.notes.length, feel + ' EP event ' + idx + ': vels should match notes length');
+      e.notes.forEach(function(n) {
+        assert(n >= 36 && n <= 96, feel + ' EP note ' + n + ' out of range');
+      });
+      e.vels.forEach(function(v) {
+        assert(v >= 30 && v <= 127, feel + ' EP vel ' + v + ' out of range');
+      });
+    });
+  });
+
+  noEpStyles.forEach(function(feel) {
+    songFeel = feel;
+    songPalette = null;
+    ghostDensity = 1.0;
+    hatPatternType = '8th';
+    useRide = false;
+    arrangement = ['verse'];
+    secSteps = {};
+    secFeels = {};
+    patterns = {};
+    for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+      if (FEEL_PALETTES[pi][0] === feel) { songPalette = FEEL_PALETTES[pi]; break; }
+    }
+    genBasePatterns();
+    patterns['verse'] = generatePattern('verse');
+    var epEvents = generateEPPattern('verse', 90);
+    assert(Array.isArray(epEvents), feel + ': EP should return array');
+    assert(epEvents.length === 0, feel + ': EP should be empty for non-EP style, got ' + epEvents.length);
+  });
+});
+
+test('EP Dorian IV produces major 3rd intervals', function() {
+  // Dorian IV: the 3rd should be 4 semitones (major), not 3 (minor)
+  var dorianStyles = ['gfunk', 'dilla', 'nujabes'];
+  dorianStyles.forEach(function(feel) {
+    var voicing = buildEPVoicing(41, 'iv', 'seventh', 'mid', 12, feel, null); // F = MIDI 41
+    // Find the 3rd: should be 4 semitones above root (major 3rd)
+    var rootPitchClass = voicing[0] % 12;
+    var has_major_3rd = voicing.some(function(n) { return (n % 12) === ((rootPitchClass + 4) % 12); });
+    var has_minor_3rd = voicing.some(function(n) { return (n % 12) === ((rootPitchClass + 3) % 12); });
+    assert(has_major_3rd, feel + ' Dorian IV should have major 3rd');
+    assert(!has_minor_3rd, feel + ' Dorian IV should NOT have minor 3rd');
+  });
+
+  // Non-Dorian: iv should have minor 3rd
+  var voicing = buildEPVoicing(41, 'iv', 'seventh', 'mid', 12, 'halftime', null);
+  var rootPitchClass = voicing[0] % 12;
+  var has_minor_3rd = voicing.some(function(n) { return (n % 12) === ((rootPitchClass + 3) % 12); });
+  assert(has_minor_3rd, 'halftime iv should have minor 3rd (not Dorian)');
+});
+
+test('EP voice leading retains common tones', function() {
+  // i to iv: Cm7 (C Eb G Bb) to Fm7 (F Ab C Eb) — C and Eb are common
+  var v1 = buildEPVoicing(36, 'i', 'seventh', 'mid', 14, 'dilla', null);
+  var v2 = buildEPVoicing(41, 'iv', 'seventh', 'mid', 14, 'dilla', v1);
+  // Count pitch classes in common
+  var common = 0;
+  for (var i = 0; i < v1.length; i++) {
+    for (var j = 0; j < v2.length; j++) {
+      if (v1[i] % 12 === v2[j] % 12) { common++; break; }
+    }
+  }
+  assert(common >= 1, 'Voice leading from i to iv should retain at least 1 common tone, got ' + common);
+});
+
+test('EP MIDI export produces valid output for EP styles', function() {
+  songFeel = 'dilla';
+  songPalette = null;
+  for (var pi = 0; pi < FEEL_PALETTES.length; pi++) {
+    if (FEEL_PALETTES[pi][0] === 'dilla') { songPalette = FEEL_PALETTES[pi]; break; }
+  }
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['verse'];
+  secSteps = {};
+  secFeels = {};
+  genBasePatterns();
+  patterns = { verse: generatePattern('verse') };
+  _lastChosenKey = { root: 'Dm7', i: 'Dm7', iv: 'G7', v: 'Am7' };
+
+  var epBytes = buildEPMidiBytes(['verse'], 90);
+  assert(epBytes instanceof Uint8Array, 'EP MIDI should return Uint8Array');
+  assert(epBytes.length > 50, 'EP MIDI should have data for dilla style');
+  assert(epBytes[0] === 0x4D && epBytes[1] === 0x54, 'EP MIDI should start with MThd');
+});
+
 // === Test analyzeBeat doesn't crash ===
 test('analyzeBeat produces HTML for all feels', function() {
   var allFeels = Object.keys(STYLE_DATA);

@@ -823,6 +823,21 @@ function analyzeBeat() {
       lines.push('Timing: the chords sit <b>' + epStyle.behind + ' ticks behind the beat</b> — the same lazy, behind-the-pocket feel that defines this style.');
     }
     lines.push('The EP is on <b>MIDI channel 3</b> (channel index 2) in the export. Load it into a separate track with an electric piano sound — GM program 4 (Electric Piano 1) or any warm EP patch.');
+    // List which sections have EP and which don't
+    var epSections = [], noEpSections = [];
+    for (var si = 0; si < arrangement.length; si++) {
+      var secName = SL[arrangement[si]] || arrangement[si];
+      var secF = secFeels[arrangement[si]] || songFeel || 'normal';
+      var secFBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secF) : secF;
+      if (EP_STYLES[secFBase] && !/^intro|^outro/.test(secF)) {
+        if (epSections.indexOf(secName) < 0) epSections.push(secName);
+      } else {
+        if (noEpSections.indexOf(secName) < 0) noEpSections.push(secName);
+      }
+    }
+    if (epSections.length > 0) {
+      lines.push('<b>Sections with EP:</b> ' + epSections.join(', ') + '.' + (noEpSections.length > 0 ? ' <b>No EP:</b> ' + noEpSections.join(', ') + ' (play your own or leave space).' : ''));
+    }
   }
 
   // === TECHNIQUE SPOTLIGHT ===

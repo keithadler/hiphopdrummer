@@ -235,6 +235,7 @@ function showExportDialog() {
     if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
     if (typeof saved.epMidi === 'boolean') document.getElementById('expEPMidi').checked = saved.epMidi;
     if (typeof saved.epMpc === 'boolean') document.getElementById('expEPMpc').checked = saved.epMpc;
+    if (typeof saved.wavEP === 'boolean') document.getElementById('expWavEP').checked = saved.wavEP;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
@@ -534,7 +535,7 @@ document.addEventListener('keydown', function(e) {
 var ROLE_TIPS = {
   producer: {
     title: '🎛 Producer / Beat Maker',
-    html: '<p>This tool is your co-pilot. Every beat generates a unique drum and bass arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>Tap Tempo</h3><p>Got a tempo in your head from a sample you\'re chopping? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along. The app detects your tempo from 4+ taps — way faster than dialing in a number.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>Swing Visualization</h3><p>The grid now shows swing visually — odd-numbered steps (the "and" positions) are offset to the right proportional to the swing amount. At 50% (straight) there\'s no offset. At 66% (heavy) you can see the displacement. This makes the timing relationship visible instead of abstract.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. 808 subs in Memphis/phonk sit near-grid for that locked, hypnotic feel. Shakers follow the hat groove. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP. Beat history saves your last 100 generations.</p>'
+    html: '<p>This tool is your co-pilot. Every beat generates a unique drum, bass, and electric piano arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>Electric Piano</h3><p>Styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce) get auto-generated electric piano chords — voice-led voicings, per-note velocity humanization, drum-reactive comping. Disable it in Preferences if you want to play your own keys, or export the EP MIDI to study the voicings.</p><h3>Tap Tempo</h3><p>Got a tempo in your head from a sample you\'re chopping? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along. The app detects your tempo from 4+ taps — way faster than dialing in a number.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, EP MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP.</p>'
   },
   rapper: {
     title: '🎤 Rapper / MC',
@@ -1021,10 +1022,12 @@ function initPlayerControls() {
   
   // Read all playback-relevant preferences in one shot
   function _readPlayPrefs() {
-    var p = { bassOn: true, bpm: 90, kit: 0, bass: 33 };
+    var p = { bassOn: true, epOn: true, bpm: 90, kit: 0, bass: 33 };
     try {
       var bp = localStorage.getItem('hhd_bass_playback');
       if (bp !== null) p.bassOn = (bp !== 'false');
+      var ep = localStorage.getItem('hhd_ep_playback');
+      if (ep !== null) p.epOn = (ep !== 'false');
       p.bpm = parseInt(document.getElementById('bpm').textContent) || 90;
       p.kit = parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0;
       p.bass = parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33;
@@ -1100,10 +1103,10 @@ function initPlayerControls() {
       // before audio playback begins.
       var midiToPlay;
       if (window._loopSection && curSec && patterns[curSec]) {
-        midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
         window._loopMidiBytes = midiToPlay;
       } else {
-        midiToPlay = _prefs.bassOn ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
       }
       
       // FIX 8: Yield to the browser after MIDI generation so any
