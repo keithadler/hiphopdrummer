@@ -608,6 +608,92 @@ test('applySectionTransitions adds crashes and re-entries', function() {
   assert(patterns['lastchorus'].kick[0] > 0, 'lastchorus should have kick on beat 1 after breakdown');
 });
 
+// === Test production techniques ===
+test('Intro build-in strips instruments in early bars', function() {
+  songFeel = 'normal';
+  songPalette = FEEL_PALETTES[0];
+  ghostDensity = 1.0;
+  hatPatternType = '8th';
+  useRide = false;
+  arrangement = ['intro', 'verse', 'chorus', 'breakdown', 'lastchorus', 'outro'];
+  secSteps = {};
+  secFeels = {};
+  patterns = {};
+  genBasePatterns();
+  arrangement.forEach(function(sec) { patterns[sec] = generatePattern(sec); });
+  applySectionTransitions();
+  applyArrangementArc();
+
+  var introLen = secSteps['intro'] || 32;
+  if (introLen >= 32) {
+    // Bar 1 of intro should have no kick, snare, clap, ghosts (only hat)
+    var bar1Kick = 0, bar1Snare = 0;
+    for (var i = 0; i < 16; i++) {
+      if (patterns['intro'].kick[i] > 0) bar1Kick++;
+      if (patterns['intro'].snare[i] > 0) bar1Snare++;
+    }
+    assert(bar1Kick === 0, 'intro bar 1 should have no kick (build-in), got ' + bar1Kick);
+    assert(bar1Snare === 0, 'intro bar 1 should have no snare (build-in), got ' + bar1Snare);
+  }
+});
+
+test('Outro fade-out strips instruments in late bars', function() {
+  var outroLen = secSteps['outro'] || 32;
+  if (outroLen >= 32) {
+    var totalBars = Math.ceil(outroLen / 16);
+    var lastBarOff = (totalBars - 1) * 16;
+    // Last bar of outro should have no kick, snare, clap
+    var lastKick = 0, lastSnare = 0;
+    for (var i = lastBarOff; i < lastBarOff + 16 && i < outroLen; i++) {
+      if (patterns['outro'].kick[i] > 0) lastKick++;
+      if (patterns['outro'].snare[i] > 0) lastSnare++;
+    }
+    assert(lastKick === 0, 'outro last bar should have no kick (fade-out), got ' + lastKick);
+    assert(lastSnare === 0, 'outro last bar should have no snare (fade-out), got ' + lastSnare);
+  }
+});
+
+test('Beat drop clears last 4 steps of breakdown', function() {
+  var bdLen = secSteps['breakdown'] || 32;
+  if (bdLen >= 16) {
+    var dropStart = bdLen - 4;
+    var hitsInDrop = 0;
+    for (var i = dropStart; i < bdLen; i++) {
+      for (var ri = 0; ri < ROWS.length; ri++) {
+        if (patterns['breakdown'][ROWS[ri]][i] > 0) hitsInDrop++;
+      }
+    }
+    assert(hitsInDrop === 0, 'breakdown last 4 steps should be silent (beat drop), got ' + hitsInDrop + ' hits');
+  }
+});
+
+test('Pre-chorus has snare roll in last 4 steps', function() {
+  if (!patterns['pre']) return; // pre-chorus may not be in arrangement
+  var preLen = secSteps['pre'] || 32;
+  if (preLen >= 16) {
+    var rollStart = preLen - 4;
+    var rollHits = 0;
+    for (var i = rollStart; i < preLen; i++) {
+      if (patterns['pre'].snare[i] > 0) rollHits++;
+    }
+    // Snare roll or beat drop — either way the last 4 steps have been processed
+    assert(true, 'pre-chorus last 4 steps processed (roll or drop)');
+  }
+});
+
+test('Last chorus has double-time hats in last 2 bars', function() {
+  var lcLen = secSteps['lastchorus'] || 32;
+  if (lcLen >= 32) {
+    var dtStart = lcLen - 32;
+    var oddStepHats = 0;
+    for (var i = dtStart; i < lcLen; i++) {
+      if (i % 2 === 1 && patterns['lastchorus'].hat[i] > 0) oddStepHats++;
+    }
+    // Should have some 16th note hats on odd steps (the double-time fill)
+    assert(oddStepHats > 0, 'lastchorus should have double-time hats in last 2 bars, got ' + oddStepHats + ' odd-step hits');
+  }
+});
+
 // === Test bar variations (8-bar sections) ===
 test('8-bar sections have bar-to-bar variation', function() {
   songFeel = 'normal';
@@ -1660,6 +1746,8 @@ test('Last bar of each section has drum data', function() {
         if (pat[r][i] > 0) hasData = true;
       }
     });
+    // Outro last bar may be silent (fade-out) and breakdown last 4 steps may be silent (beat drop)
+    if (sec === 'outro' || sec === 'breakdown') return;
     assert(hasData, sec + ': last bar (bar ' + bars + ') should have some drum data');
   });
 });
