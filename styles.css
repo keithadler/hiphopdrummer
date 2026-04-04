@@ -346,19 +346,24 @@ midi-player::part(play-button){color:var(--accent-green)}
     height:36px;
     margin-left:0;
   }
-  /* HISTORY on right */
+  /* SHARE on right */
+  .btn-share{
+    justify-content:center;
+    font-size:12px;
+    height:36px;
+  }
+  /* HISTORY on left */
   .btn-history{
     justify-content:center;
     font-size:12px;
     height:36px;
   }
-  /* Preferences takes full width */
+  /* Preferences shares row with History */
   .btn-prefs{
     font-size:12px;
     height:36px;
     padding:0 12px;
     justify-content:center;
-    grid-column:1 / -1;
   }
   .btn-prefs .prefs-icon{display:none}
   .btn-prefs .prefs-text{display:inline}
