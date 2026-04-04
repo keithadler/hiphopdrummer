@@ -473,6 +473,13 @@ function analyzeBeat() {
   lines.push('Looking for samples on Splice, Tracklib, or in your crate? Here\'s exactly what to search for to match this beat.');
   lines.push('');
   lines.push('<b>Key to search:</b> <b>' + chosenKey.root.replace(/maj7|m7|7|m$/g, '') + ' ' + (isMinor ? 'minor' : 'major') + '</b> — filter by this key on Splice or Tracklib. Samples in the relative ' + (isMinor ? 'major' : 'minor') + ' (<b>' + chosenKey.rel + '</b>) also work — same notes, different mood.');
+  // FIX 9: Key-specific search terms
+  var rootClean = chosenKey.root.replace(/maj7|m7|7|m9|m$/g, '');
+  var relClean = (chosenKey.rel || '').split(' ')[0] || '';
+  lines.push('<b>Exact search terms to copy-paste:</b>');
+  lines.push('• Splice: <b>"' + rootClean + ' minor ' + (isMinor ? 'soul' : 'pop') + ' loop"</b> or <b>"' + rootClean + 'm chord"</b>');
+  lines.push('• Tracklib: filter Key = <b>' + rootClean + (isMinor ? 'm' : '') + '</b>, BPM = <b>' + bpm + '</b>');
+  if (relClean) lines.push('• Also try the relative ' + (isMinor ? 'major' : 'minor') + ': <b>"' + relClean + ' ' + (isMinor ? 'major' : 'minor') + ' sample"</b> — same notes, brighter mood');
   lines.push('<b>BPM to search:</b> <b>' + bpm + ' BPM</b> (or half-time: ' + Math.round(bpm / 2) + ' BPM, double-time: ' + (bpm * 2) + ' BPM). Most sample platforms let you filter by tempo.');
   lines.push('');
 
@@ -575,6 +582,18 @@ function analyzeBeat() {
   lines.push('🥁 <b>WHY THIS FILL STYLE</b>');
   lines.push(fillDesc);
   lines.push('Listen for the fill at the end of each section — the hats and shaker drop out, and the snare (or silence) takes over for the last 2-4 steps. That gap is what makes the next section\'s downbeat hit hard.');
+  // FIX 8: Musical logic behind the fill choice
+  var fillLogicMap = {
+    normal: '<b>Why this works:</b> Boom bap fills are about the ABSENCE of the hat — when the ride hand stops, your ear notices the gap. The snare roll fills that gap with building energy, then the crash on beat 1 of the next section releases the tension. It\'s a setup-and-payoff that\'s been working since 1988.',
+    dilla: '<b>Why this works:</b> Dilla fills dissolve chromatically because the whole beat is about smooth, continuous motion. A hard snare roll would break the hypnotic feel. Instead, the notes slide downward like the beat is melting into the next section. The transition should feel inevitable, not dramatic.',
+    gfunk: '<b>Why this works:</b> G-Funk fills are clean and controlled — a single snare crescendo or a hat pattern change. The groove is so smooth that a busy fill would disrupt the bounce. Less is more when the pocket is this deep.',
+    memphis: '<b>Why this works:</b> Memphis fills are often just silence — the drums stop, the 808 sub rings out, and the eerie pad hangs in the air. The horror-movie tension of that silence is more powerful than any drum fill.',
+    crunk: '<b>Why this works:</b> Crunk fills hit maximum velocity because the entire style is about maximum energy. The fill isn\'t a build — it\'s an explosion. Every hit at full force, no dynamics, pure impact.',
+    jazzy: '<b>Why this works:</b> Jazz fills are conversational — the drummer responds to the music with a quick flurry of ghost notes and a cymbal swell. It\'s not a programmed pattern, it\'s a musical comment. The fill should sound spontaneous.',
+    dark: '<b>Why this works:</b> Dark fills use space as a weapon. A single kick on beat 1 after 3 beats of silence hits harder than any snare roll. The contrast between nothing and something is the most powerful dynamic tool in music.'
+  };
+  var fillLogic = fillLogicMap[songFeelBase] || fillLogicMap.normal;
+  lines.push(fillLogic);
 
   // === REFERENCE TRACKS ===
   lines.push('');
@@ -638,6 +657,26 @@ function analyzeBeat() {
       '• <b>DJ Paul</b> would slow it down, add a cowbell, and make the 808 sub sustain for 2 full beats. Memphis is about hypnotic repetition.',
       '• <b>Juicy J</b> would add a hi-hat roll on the last beat of every other bar — the Three 6 Mafia signature.',
       '• <b>SpaceGhostPurrp</b> would distort everything, resample it at half speed, and add a vocal chop from an old Memphis tape.'
+    ],
+    phonk: [
+      '• <b>DJ Smokey</b> would add a cowbell loop, pitch the choir pad down an octave, and drown everything in reverb. Phonk is Memphis through a fog machine.',
+      '• <b>Soudiere</b> would strip the drums to just kick and clap, add a distorted 808 slide, and loop a 2-bar vocal sample until it becomes hypnotic.',
+      '• <b>DJ Yung Vamp</b> would add a triplet hi-hat pattern, bitcrush the snare, and make the whole beat feel like it\'s playing underwater.'
+    ],
+    griselda: [
+      '• <b>Daringer</b> would chop a soul sample into 1-bar loops, keep the drums raw and punchy, and add a subtle tape delay on the snare. No polish — the grit is the point.',
+      '• <b>Beat Butcha</b> would add a dark string sample, make the kick hit harder, and leave more space between hits. Griselda beats breathe through silence.',
+      '• <b>Conductor Williams</b> would add a piano loop, keep the ghost notes minimal, and let the sample carry the emotion.'
+    ],
+    crunk: [
+      '• <b>Lil Jon</b> would boost every element to maximum velocity, add a "YEAH!" vocal chop, and make the synth stab hit on every beat. Subtlety is the enemy.',
+      '• <b>Mannie Fresh</b> would add a bounce to the kick pattern, make the hats busier, and add a keyboard riff. Cash Money crunk has more melody than Atlanta crunk.',
+      '• <b>Lex Luger</b> would modernize it — add an 808 slide, a orchestral hit, and a rolling hi-hat. Crunk evolved into trap.'
+    ],
+    oldschool: [
+      '• <b>Rick Rubin</b> would strip it to just kick, snare, and a scratch hook. Run-DMC beats are about power through simplicity.',
+      '• <b>Marley Marl</b> would add a sampled breakbeat underneath, creating the bridge between drum machines and sampling that defined the late 80s.',
+      '• <b>The Bomb Squad</b> would layer 5 different drum sounds on every hit, add sirens and vocal samples, and create controlled chaos. Public Enemy\'s "wall of noise" approach.'
     ]
   };
   var comps = producerComps[songFeelBase] || producerComps.normal;
@@ -1046,6 +1085,66 @@ function analyzeBeat() {
   };
   var mixTip = mixTips[songFeelBase] || mixTips.normal;
   lines.push('<b>🎚 Mixing tip for this style:</b> ' + mixTip);
+  lines.push('');
+  // FIX 5: Expanded mixing education — explain WHY, not just what
+  var mixWhyMap = {
+    normal: '<b>Why these settings:</b> The 12ms compressor attack lets the kick and snare transients punch through before the compressor grabs the sustain — that\'s what keeps boom bap punchy instead of squashed. The room reverb on the snare (not the kick!) adds space without muddying the low end. High-passing at 40Hz removes sub-rumble you can\'t hear but that eats headroom.',
+    dilla: '<b>Why these settings:</b> Tape saturation adds harmonic warmth — the even harmonics that make analog recordings feel "alive." The low-pass at 10kHz rolls off the digital harshness that makes beats sound like a computer instead of a record. The slow mix-bus compressor (100ms+ attack, auto release) glues the instruments together the way a vinyl pressing naturally compresses.',
+    gfunk: '<b>Why these settings:</b> The chorus on the synth lead creates the "wide" stereo image that defines G-Funk — the sound seems to float above the mix. Compressing the 808 hard keeps the sub consistent across different playback systems. The phaser on hats adds subtle movement that prevents the 16th-note pattern from sounding static.',
+    memphis: '<b>Why these settings:</b> Bitcrushing reduces the bit depth, creating the gritty, lo-fi texture of early Memphis tapes. The long dark reverb on the snare creates the cavernous, haunted sound of Three 6 Mafia. Distorting the 808 adds harmonics that make it audible on small speakers (pure sub disappears on phone speakers).',
+    crunk: '<b>Why these settings:</b> The hard limiter ensures maximum loudness — crunk is about physical impact, not dynamic range. Every element should hit at the same perceived volume. The energy comes from density and volume, not from contrast between loud and soft.',
+    jazzy: '<b>Why these settings:</b> The warm overdrive on the EP mimics the natural breakup of a tube amp — the sound that defines vintage electric piano recordings. The plate reverb on vibes adds sustain and shimmer without the muddiness of a room reverb. The organ sits low because it\'s a harmonic bed, not a lead — if you can clearly hear it, it\'s too loud.',
+    dark: '<b>Why these settings:</b> The contrast between dry, punchy drums and a wet, distant pad creates depth — the drums feel close and immediate while the pad feels far away. That spatial contrast is what makes dark beats feel cinematic. The low-pass on the pad removes brightness that would compete with the hats.',
+    lofi: '<b>Why these settings:</b> Vinyl crackle and pitch wobble simulate the imperfections of playing a record — the sound that lo-fi producers chase. The low-pass at 8kHz removes the "digital" top end. Hard compression on the EP narrows the dynamics to match the compressed sound of a sampled record.',
+    griselda: '<b>Why these settings:</b> Raw and dry is the Griselda aesthetic — minimal processing, maximum impact. The tape delay on the snare adds a subtle slap-back that thickens the backbeat without obvious reverb. The overall mix should sound like it was recorded in one take in a small room.',
+    phonk: '<b>Why these settings:</b> Distortion on the 808 is essential — it adds harmonics that make the bass audible on any speaker and creates the aggressive, blown-out sound of phonk. The long reverb on everything creates the hypnotic, underwater quality. Repetition and texture matter more than clarity.'
+  };
+  var mixWhy = mixWhyMap[songFeelBase] || mixWhyMap.normal;
+  lines.push(mixWhy);
+
+  // === COMMON MISTAKES ===
+  lines.push('');
+  lines.push('⚠️ <b>COMMON MISTAKES — WHAT NOT TO DO</b>');
+  lines.push('Every style has pitfalls. Here\'s what to avoid:');
+  var mistakeMap = {
+    normal: [
+      '• <b>Don\'t quantize ghost notes to the grid.</b> They should be slightly loose — that\'s what makes them feel human. Perfectly gridded ghosts sound robotic.',
+      '• <b>Don\'t put reverb on the kick.</b> It muddies the low end. Reverb goes on the snare and clap, never the kick or bass.',
+      '• <b>Don\'t make every hit the same velocity.</b> That\'s the #1 sign of a beginner. Use the full 30-127 range.'
+    ],
+    dilla: [
+      '• <b>Don\'t quantize anything.</b> The drift is intentional. If it sounds "sloppy," you\'re hearing it right. Dilla\'s timing imperfections create tension and release on every step.',
+      '• <b>Don\'t add too many elements.</b> Dilla beats are sparse — drums, bass, one chord instrument. The groove does the work, not the arrangement.',
+      '• <b>Don\'t make the snare too loud.</b> In Dilla beats, the snare sits IN the groove, not on top of it. Pull it back 3-5 dB from where you think it should be.'
+    ],
+    gfunk: [
+      '• <b>Don\'t use 8th-note hats.</b> G-Funk requires 16th notes with the 3-level dynamic (quarter=loud, 8th=medium, 16th=soft). 8th-note hats sound like boom bap, not G-Funk.',
+      '• <b>Don\'t skip the synth lead.</b> The whistle melody is what makes G-Funk recognizable. Without it, you just have a slow boom bap beat with a pad.',
+      '• <b>Don\'t make the bass too busy.</b> G-Funk bass is smooth and sustained — long notes with slides. Busy walking bass belongs in jazz, not G-Funk.'
+    ],
+    memphis: [
+      '• <b>Don\'t add ghost notes.</b> Memphis drums are sparse and mechanical. Ghost notes add groove — Memphis doesn\'t want groove, it wants menace.',
+      '• <b>Don\'t clean up the mix.</b> The lo-fi quality is the aesthetic. If it sounds too polished, it\'s not Memphis.',
+      '• <b>Don\'t use major chords.</b> Memphis is Phrygian — the bII (flat second) creates the sinister tension. Major chords sound happy, which is the opposite of the goal.'
+    ],
+    crunk: [
+      '• <b>Don\'t add dynamic variation.</b> Every hit at maximum velocity. Ghost notes, accent curves, and velocity arcs are the enemy. Flat dynamics = crunk energy.',
+      '• <b>Don\'t make it subtle.</b> Crunk is the loudest, most aggressive style in hip hop. If it doesn\'t make you want to break something, it\'s not crunk enough.',
+      '• <b>Don\'t slow it down.</b> Crunk lives at 135-150 BPM. Below 130, it loses the manic energy that defines the style.'
+    ],
+    oldschool: [
+      '• <b>Don\'t add swing.</b> Old school drum machines were nearly straight. Adding swing makes it sound like boom bap, not old school.',
+      '• <b>Don\'t add ghost notes.</b> The TR-808 and LinnDrum didn\'t have velocity sensitivity in the way modern machines do. Every hit was either on or off.',
+      '• <b>Don\'t overcomplicate the kick.</b> Old school kicks are simple — beat 1 and beat 3, maybe an extra hit. The simplicity is the point.'
+    ],
+    griselda: [
+      '• <b>Don\'t over-produce.</b> Griselda beats are raw — minimal processing, no autotune, no polish. The grit is the aesthetic.',
+      '• <b>Don\'t use bright sounds.</b> Everything should feel dark and cold. Bright pads, shiny hats, and clean reverbs don\'t belong here.',
+      '• <b>Don\'t ignore the sample.</b> Griselda beats are built around a chopped soul or jazz sample. The drums support the sample, not the other way around.'
+    ]
+  };
+  var mistakes = mistakeMap[songFeelBase] || mistakeMap.normal;
+  for (var mi = 0; mi < mistakes.length; mi++) lines.push(mistakes[mi]);
 
   // === GLOSSARY ===
   lines.push('');
