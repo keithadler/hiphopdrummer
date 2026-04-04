@@ -107,7 +107,7 @@ function renderGrid() {
     // Bar label with chord function color (scroll target for bar tab buttons)
     var label = document.createElement('div');
     label.id = 'grid-page-' + page;
-    label.className = 'grid-page-label';
+    label.className = 'grid-page-label' + (typeof vfxSectionClass === 'function' ? ' ' + vfxSectionClass(curSec) : '');
     var barLabelText = 'Bar ' + (page + 1);
     // Add chord function indicator if chord data is available
     var chordData = (window._chordSheetData && window._chordSheetData[curSec]) ? window._chordSheetData[curSec] : null;
@@ -294,7 +294,8 @@ function renderArr(skipMidiUpdate) {
     var secMin = Math.floor(secTime / 60);
     var timeStr = secMin > 0 ? secMin + ':' + (secSec < 10 ? '0' : '') + secSec : secSec + 's';
     var feelTag = secFeels[s] ? '<span class="feel-tag">' + (STYLE_DATA[secFeels[s]] ? STYLE_DATA[secFeels[s]].label : secFeels[s]) + '</span>' : '';
-    return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + '" draggable="true" data-i="' + i + '" tabindex="0" role="button" aria-label="' + SL[s] + ', ' + bars + ' bars. Arrow keys to reorder, Enter to select, Delete to remove.">'
+    var secClass = typeof vfxSectionClass === 'function' ? vfxSectionClass(s) : '';
+    return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + (secClass ? ' ' + secClass : '') + '" draggable="true" data-i="' + i + '" tabindex="0" role="button" aria-label="' + SL[s] + ', ' + bars + ' bars. Arrow keys to reorder, Enter to select, Delete to remove.">'
       + '<span class="arr-move" data-dir="left" data-i="' + i + '"' + (i === 0 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move left">◀</span>'
       + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>'
       + '<span class="arr-move" data-dir="right" data-i="' + i + '"' + (i === arrangement.length - 1 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move right">▶</span>'

@@ -105,10 +105,12 @@
               <input type="range" class="player-seek" id="playerSeek" min="0" max="100" value="0" step="0.1">
               <button class="player-btn player-btn-sm" id="playerWavBtn" title="Download WAV">⬇</button>
             </div>
+            <div class="audio-visualizer" id="audioVisualizer"><canvas id="vizCanvas"></canvas></div>
           </div>
           <div class="panel">
             <div class="panel-title">Arrangement <span class="arr-time" id="arrTime"></span></div>
             <div class="arr-hint">Click a section to view its pattern. Drag to reorder. Use + buttons to add.</div>
+            <div class="arr-progress" id="arrProgress"><div class="arr-progress-fill" id="arrProgressFill"></div><div class="arr-progress-markers" id="arrProgressMarkers"></div></div>
             <div class="arr-flow" id="arrFlow" role="list" aria-label="Song arrangement"></div>
             <div class="arr-controls" id="arrCtrl"></div>
           </div>
