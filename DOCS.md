@@ -1,6 +1,6 @@
-# 🥁 Hip Hop Drummer — Technical Documentation
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.31)
 
-Full technical breakdown of every feature, technique, and design decision in the beat generator.
+Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, 218 kick patterns, 14,000+ test assertions.
 
 ## Hip Hop Styles
 
@@ -270,6 +270,71 @@ Bass reacts to drum context: snare deference (drops/softens on loud backbeats), 
 ### Motif System
 2-bar motif stored as intervals relative to chord root, repeated with mutations (10% drop, 15% swap, 8% velocity variation). Transposes correctly over chord changes.
 
+## Melodic Instrument Generators
+
+### Electric Piano (ep.js) — MIDI Channel 2
+30 musicality features across 3 rounds of refinement. Enabled for 12 styles: Dilla, jazzy, Nujabes, lo-fi, G-Funk (all variants), bounce, Queens, Long Island, halftime. GM program 4 (Electric Piano 1).
+
+Key features: voice-led inversions (common tones held between chords), per-note velocity humanization (±8 from base), Dorian IV correction (major IV in Dorian styles), crushed chords (LH leads RH by 1-3 ticks), ghost re-attacks (soft repeated notes between chord changes), octave root doubling (bass note doubled an octave below), motif-based comping (2-bar rhythmic patterns that repeat with variation), bass interaction (rests when bass is busy), chord anticipation (plays chord 1 step early at section boundaries), velocity arc (builds across 8-bar phrases), register shift per section (verse mid, chorus high, breakdown low), kick-locked stabs (short chord hits on kick positions), note-off humanization (±2 ticks), melodic top-note movement (stepwise motion in highest voice), independent LH/RH rhythms, sus4→3 resolutions, chromatic approach chords, snare accent unisons, single-note tremolo, section-boundary fills, strategic rest bars, drum-density velocity response, pedal tone drones for G-Funk/Dilla.
+
+Style-specific comping: sustained chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated tones for Nujabes, pad-style for G-Funk, stabs for bounce.
+
+### Synth Pad (pad.js) — MIDI Channel 3
+10 musicality features. Enabled for 7 styles: Memphis, phonk, dark, Griselda, crunk, hard, sparse. GM program 48 (String Ensemble). Mutually exclusive with EP — each style gets the right harmonic instrument.
+
+Key features: drum density response (velocity scales with drum activity), velocity arc (builds across phrases), bar variation (chord extensions change per bar), register shift per section, bass interaction (avoids bass register), swell/fade dynamics (volume envelope per section), Phrygian bII emphasis (half-step tension on dark styles), rest bars (strategic silence), chord anticipation, kick-locked crunk stabs (short aggressive hits on kick positions for crunk style).
+
+### Synth Lead (lead.js) — MIDI Channel 4
+G-Funk whistle melody with pentatonic scales, slides between notes, and 2-bar melodic motifs. GM program 80 (Square Lead) or 81 (Saw Lead). Enabled for G-Funk styles.
+
+### Organ (organ.js) — MIDI Channel 5
+Sustained drawbar organ layer for jazz/Nujabes. GM program 16 (Drawbar Organ). Layers with EP when both are active for the style. Enabled for jazzy, Nujabes, Queens, bounce.
+
+### Horn Stabs (horns.js) — MIDI Channel 6
+Brass section chord hits — short, punchy, kick-locked. GM program 61 (Brass Section). Enabled for boom bap, big, driving, chopbreak, oldschool styles.
+
+### Vibraphone (vibes.js) — MIDI Channel 7
+Bell-like arpeggiated tones with 2-bar melodic motifs. GM program 11 (Vibraphone). Enabled for Nujabes, jazzy styles.
+
+### Clavinet (clav.js) — MIDI Channel 8
+Funky percussive 16th-note comping. GM program 7 (Clavinet). Enabled for bounce, G-Funk DJ Quik.
+
+### Instrument Style Coverage
+Every style has at least one harmonic instrument beyond drums and bass:
+- **Dilla/jazz/Nujabes/lo-fi/bounce/halftime**: EP (+ organ for jazz/Nujabes)
+- **G-Funk**: EP + synth lead (+ clav for DJ Quik)
+- **Memphis/phonk/dark/Griselda/crunk/hard/sparse**: Synth pad
+- **Boom bap/big/driving/chopbreak/oldschool**: Horn stabs
+- **Nujabes/jazzy**: Vibraphone
+
+### Strict vs Improvise Mode
+Preference toggle in the UI. **Strict** (default): instrument patterns are cached after first generation — identical every play. **Improvise**: patterns regenerate with slight variations each play, like a live band. Cache clears on new beat generation. Drums and bass are always consistent regardless of mode — they are the rhythmic foundation.
+
+## Beat Drops & Production Techniques
+
+### Beat Drops
+Dramatic moments of silence built into the arrangement:
+- **Breakdown drop**: last 4 steps of the breakdown section go completely silent — ALL instruments (drums, bass, EP, pad, lead, organ, horns, vibes, clav) drop out before the re-entry slam
+- **Pre-chorus drop**: instruments drop out before the chorus for maximum impact on re-entry
+- **Mid-verse silence**: occasional 1-beat silence within verses for dramatic effect
+
+All instruments check `_isDrumDrop()` before writing MIDI events — when drums are silent at a step, everything is silent.
+
+### Intro Build-In
+Instruments add bar by bar: bar 1 = hats only, bar 2 = hats + kick, bar 3+ = full kit. Creates a natural build into the song.
+
+### Outro Fade-Out
+Reverse of intro — instruments strip bar by bar as the song ends.
+
+### Double-Time Hats
+16th-note hi-hats in the last 2 bars of the last chorus and pre-chorus sections for energy.
+
+### Snare Roll Build
+Velocity-ramping 16th-note snare roll in the last 4 steps of pre-chorus sections.
+
+### Master FX on WAV Export
+HPF (30Hz) → glue compressor (3.5:1, 12ms attack, 150ms release) → EQ (350Hz low-mid cut, 8kHz high shelf) → makeup gain (+2dB) → parallel room reverb (400ms IR, 10ms pre-delay, 12% wet). Checkbox in export dialog, always on for quick WAV download button.
+
 ## Dynamic Arrangement Arc
 
 `applyArrangementArc()` builds energy across the full song like a real performance:
@@ -297,6 +362,33 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 ### Playback Features
 - Play/Stop button in the header — green "▶ PLAY" turns red "■ STOP" during playback
 - Section toast notifications — blue overlay shows section name and bar count as each section begins
+- Chord overlay during playback — shows piano keyboard diagrams for the current section's chords
+- Auto-select bar tabs — bar tabs highlight the current bar during playback
+- Follow playhead preference (off by default) — auto-scrolls page to track playback, pauses on touch for mobile
+- Playback cursor at 50ms polling with cached DOM references (zero scans per frame)
+- Reliable end-of-song stop via SpessaSynth's native songEnded event
+
+### Keyboard Shortcuts
+- **Space** — play/stop
+- **R** — open New Beat dialog
+- **T** — open tap tempo
+- **E** — toggle edit mode
+- **L** — toggle loop mode
+- **←/→** — navigate sections (previous/next)
+- **Escape** — close any dialog
+- **Enter** — confirm New Beat dialog and generate
+- Shortcuts disabled when dialogs are open or input fields are focused
+
+### Tap Tempo
+- Double-click the BPM display or press T to open the tap overlay
+- Tap 4+ times to detect tempo
+- Apply with Enter, cancel with Escape
+- Documented in rapper, producer, and learner role tips, flow guide, and about dialog
+
+### Swing Visualization
+- Odd-numbered steps (the "and" positions) are visually offset to the right proportional to the swing amount
+- 0px at 50% (straight), up to 12px at 66% (heavy)
+- Both beat-number headers and cells shift together using CSS translateX
 - Auto-select bar tabs — bar tabs highlight the current bar during playback
 - Follow playhead preference (off by default) — auto-scrolls page to track playback, pauses on touch for mobile
 - Playback cursor at 50ms polling with cached DOM references (zero scans per frame)
@@ -348,7 +440,7 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 
 ### About Dialog
 - Opens from brand name click
-- Unique generation explanation, drums+bass cohesion, itemized export list, audience sections, technical depth
+- Unique generation explanation, 9-instrument cohesion, beat drops, strict/improvise, itemized export list, audience sections, technical depth
 
 ## Export — MIDI
 
@@ -356,11 +448,14 @@ Energy values: intro 0.7, verse 0.9, pre 1.0, chorus 1.1, verse2 1.0, chorus2 1.
 Standard MIDI Format 0, GM Channel 10. ZIP folder name includes BPM and key (e.g. `hiphop_90bpm_Cm.zip`). Ghost kick uses GM note 35 (Bass Drum 2) to avoid note-off collisions with main kick (note 36). Same-note same-tick deduplication keeps the louder velocity.
 
 ### Export Dialog
-Clicking EXPORT opens a dialog with three sections:
+Clicking EXPORT opens a dialog with sections:
 
-- **MIDI Files** — Full song .mid (all sections in order), Individual section .mid files, Akai MPC .mpcpattern files. Each independently toggleable.
-- **DAW Help Files** — Step-by-step import guides for 9 DAWs, all checked by default. "Deselect all / Select all" toggle. DAW files only appear in the ZIP if the MIDI Patterns folder is also being created. Supported: Ableton Live, Logic Pro, FL Studio, GarageBand (macOS + iOS), Pro Tools, Reason (ReDrum + Kong), Reaper, Studio One (Impact XT), Maschine.
-- **Other** — PDF beat sheet.
+- **MIDI Files** — Full song .mid (all sections in order), Individual section .mid files, Bake swing into MIDI timing toggle, Akai MPC .mpcpattern files. Each independently toggleable.
+- **Instrument Tracks** — Instrument .mid files (bass, EP, pad, lead, organ, horns, vibes, clav — per section, only for instruments that play in each section), Instrument .mpcpattern files (for Keygroup/Plugin tracks on MPC). Two master toggles replace per-instrument checkboxes.
+- **DAW Help Files** — Step-by-step import guides for 9 DAWs, all checked by default. "Deselect all / Select all" toggle. Supported: Ableton Live, Logic Pro, FL Studio, GarageBand (macOS + iOS), Pro Tools, Reason (ReDrum + Kong), Reaper, Studio One (Impact XT), Maschine.
+- **Other** — PDF beat sheet, Chord sheet PDF, WAV audio (full mix with all instruments), WAV drums stem, WAV bass stem, WAV EP stem, WAV pad stem, Master FX toggle.
+
+Export only creates files/folders when there's actual content — no empty files.
 
 ZIP structure (all items selected):
 ```
@@ -368,10 +463,30 @@ hiphop_{bpm}bpm_{key}/
   00_full_song_{bpm}bpm.mid     ← full arrangement, root level
   HOW_TO_USE.txt                ← general overview + note maps
   beat_sheet_{bpm}bpm.pdf
+  chord_sheet_{bpm}bpm.pdf
+  full_mix.wav
   MIDI Patterns/
     01_intro_2bars_{bpm}bpm.mid
     02_verse_8bars_{bpm}bpm.mid
     ...
+    Bass/
+      01_intro_bass.mid
+      ...
+    EP/
+      02_verse_ep.mid
+      ...
+    Pad/
+      ...
+    Lead/
+      ...
+    Organ/
+      ...
+    Horns/
+      ...
+    Vibes/
+      ...
+    Clav/
+      ...
     HOW_TO_USE_ABLETON.txt
     HOW_TO_USE_LOGIC_PRO.txt
     HOW_TO_USE_FL_STUDIO.txt
@@ -384,8 +499,29 @@ hiphop_{bpm}bpm_{key}/
   MPC/
     01_intro_2bars_{bpm}bpm.mpcpattern
     ...
+    Bass/
+      01_intro_bass.mpcpattern
+      ...
+    EP/
+      ...
+    (other instruments...)
     HOW_TO_USE_MPC.txt
 ```
+
+### MIDI Channel Assignments
+| Channel | Instrument |
+|---------|------------|
+| 1  | Bass |
+| 2  | Electric Piano |
+| 3  | Synth Pad |
+| 4  | Synth Lead |
+| 5  | Organ |
+| 6  | Horn Stabs |
+| 7  | Vibraphone |
+| 8  | Clavinet |
+| 10 | Drums (GM standard) |
+
+The combined full-song MIDI includes all instruments on their respective channels. Individual instrument MIDI files use the same channel assignments.
 
 ### MPC Patterns
 Each section exported as a `.mpcpattern` file in `MPC/`. Compatible with Akai Force, MPC Live, MPC X, MPC One, firmware 2.11+. Format: JSON with 960 PPQ, type-2 note events, 3 required static type-1 header events. **No swing baked in** — notes are on a straight grid. Set swing on the MPC device itself (see `HOW_TO_USE_MPC.txt` in the ZIP).
@@ -411,23 +547,23 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 
 ## Tech Stack
 
-- **Audio** — SpessaSynth (SoundFont2/SF3 synthesizer) for GM drum kit and bass playback, WAV rendering, and cell audition. GeneralUser GS SoundFont.
+- **Audio** — SpessaSynth (SoundFont2/SF3 synthesizer) for GM playback of all 9 instruments, WAV rendering with master FX, and cell audition. GeneralUser GS SoundFont.
 - **Rendering** — Vanilla DOM, CSS flexbox/grid, responsive layout with sticky mobile header
 - **Export** — JSZip for MIDI/MPC bundles, jsPDF for beat sheets and chord sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
-- **Testing** — Node.js test suite (11,000+ assertions, zero dependencies)
+- **Testing** — Node.js test suite (14,000+ assertions, zero dependencies)
 - **Dependencies** — JSZip, jsPDF, SpessaSynth (bundled via esbuild)
 
 ## Testing
 
-Run `node tests.js` — zero dependencies, runs in Node.js. 11,000+ assertions.
+Run `node tests.js` — zero dependencies, runs in Node.js. 14,000+ assertions.
 
 Covers:
 - All JS files parse without syntax errors
 - All 25 feels (19 base + 6 regional) generate valid patterns for all 10 section types
 - Velocity ranges (1-127), kick-snare interlock, hat choke enforcement
 - MIDI bytes: MThd header, tempo meta-event, note-on events, end-of-track
-- Combined drums+bass MIDI: both channel 10 and channel 1 events present
+- Combined multi-instrument MIDI: channels 1-10 events present for all active instruments
 - MPC patterns: valid JSON, chronological order, straight grid timing, velocity floats
 - Full `generateAll()` pipeline end-to-end
 - Section transitions (crashes, breakdown re-entries)
@@ -446,6 +582,15 @@ Covers:
 - Player profiles: PLAYER_PROFILES covers all feels, selected during generateAll
 - Bass call-and-response: snare deference and gap filling verified
 - Bass breakdown thinning, chorus re-entry hits
+- Electric piano: style coverage, Dorian IV intervals, voice leading, MIDI export
+- Synth pad: style coverage, MIDI events, mutually exclusive with EP
+- Synth lead: G-Funk melody generation, pentatonic scales
+- Organ: jazz/Nujabes coverage, layers with EP
+- Horn stabs: boom bap/big/driving coverage, kick-locked timing
+- Vibraphone: Nujabes/jazzy coverage, arpeggiated patterns
+- Clavinet: bounce/G-Funk coverage, 16th-note comping
+- Beat drops: all instruments silent during drum drops
+- Strict/improvise mode: cache behavior, drums/bass always consistent
 
 ## Disclaimer
 

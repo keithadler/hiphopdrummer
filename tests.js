@@ -1891,6 +1891,63 @@ test('MIDI export embeds drum kit from preferences', function() {
   localStorage._data = {};
 });
 
+// === Test: Key distribution is not biased toward Cm ===
+test('Key distribution across 100 generations is not heavily biased', function() {
+  var keyCounts = {};
+  var trials = 100;
+  for (var t = 0; t < trials; t++) {
+    _domElements = {};
+    _forcedKey = null;
+    generateAll();
+    var key = _lastChosenKey.root;
+    keyCounts[key] = (keyCounts[key] || 0) + 1;
+  }
+  // Cm should not exceed 35% of all generations (with ~19 styles and 4-6 keys per pool,
+  // a fair distribution would give Cm roughly 16% — allow up to 35% for random variance)
+  var cmCount = keyCounts['Cm'] || 0;
+  var cmPct = (cmCount / trials * 100).toFixed(1);
+  assert(cmCount <= 35, 'Cm should not exceed 35% of generations, got ' + cmPct + '% (' + cmCount + '/' + trials + ')');
+  
+  // At least 5 different keys should appear across 100 generations
+  var uniqueKeys = Object.keys(keyCounts).length;
+  assert(uniqueKeys >= 5, 'At least 5 unique keys expected across ' + trials + ' generations, got ' + uniqueKeys);
+  
+  // No single key should exceed 40% (would indicate a strong bias)
+  var maxKey = '';
+  var maxCount = 0;
+  for (var k in keyCounts) {
+    if (keyCounts[k] > maxCount) { maxCount = keyCounts[k]; maxKey = k; }
+  }
+  var maxPct = (maxCount / trials * 100).toFixed(1);
+  assert(maxCount <= 40, 'No key should exceed 40% of generations, but ' + maxKey + ' got ' + maxPct + '% (' + maxCount + '/' + trials + ')');
+  
+  _forcedKey = null;
+});
+
+// === Test: Key distribution per style is uniform ===
+test('Key selection within a single style is roughly uniform', function() {
+  // Test with 'normal' (boom bap) which has 5 keys: Cm, Dm, Am, Gm, Em
+  var keyCounts = {};
+  var trials = 50;
+  for (var t = 0; t < trials; t++) {
+    _domElements = {};
+    _forcedKey = null;
+    generateAll({ style: 'normal' });
+    var key = _lastChosenKey.root;
+    keyCounts[key] = (keyCounts[key] || 0) + 1;
+  }
+  // With 5 keys, each should get ~20%. No key should exceed 50% (would indicate bias)
+  for (var k in keyCounts) {
+    var pct = (keyCounts[k] / trials * 100).toFixed(1);
+    assert(keyCounts[k] <= 25, 'In boom bap, ' + k + ' should not exceed 50% (' + pct + '%, ' + keyCounts[k] + '/' + trials + ')');
+  }
+  // At least 3 different keys should appear in 50 trials of a 5-key pool
+  var uniqueKeys = Object.keys(keyCounts).length;
+  assert(uniqueKeys >= 3, 'At least 3 unique keys expected in 50 boom bap generations, got ' + uniqueKeys);
+  
+  _forcedKey = null;
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
