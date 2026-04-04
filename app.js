@@ -207,30 +207,69 @@ document.getElementById('regenGo').onclick = function() {
 /** New Beat button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
-/** Share button: encode beat into URL and copy to clipboard */
+/** Share button: generate QR code with full beat data */
 document.getElementById('btnShare').onclick = function() {
   try {
-    // Encode just the generation parameters — short URL
-    var style = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel || 'normal') : (songFeel || 'normal');
-    var key = document.getElementById('songKey').textContent || '';
-    var bpm = document.getElementById('bpm').textContent || '90';
-    var params = 's=' + encodeURIComponent(style) + '&k=' + encodeURIComponent(key) + '&b=' + bpm;
-    var url = window.location.origin + window.location.pathname + '#' + params;
-    
-    // Copy to clipboard
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function() {
-        showShareToast('Link copied! Same style, key, and BPM — patterns will vary.');
-      }).catch(function() {
-        showShareFallback(url);
-      });
-    } else {
-      showShareFallback(url);
+    // Build sparse beat encoding — only non-zero hits
+    var sparse = {};
+    var ROWS_LIST = typeof ROWS !== 'undefined' ? ROWS : [];
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      if (sparse[sec]) continue; // already encoded this section
+      var pat = patterns[sec];
+      if (!pat) continue;
+      var secData = {};
+      for (var ri = 0; ri < ROWS_LIST.length; ri++) {
+        var r = ROWS_LIST[ri];
+        if (!pat[r]) continue;
+        var hits = [];
+        var len = secSteps[sec] || 32;
+        for (var i = 0; i < len; i++) {
+          if (pat[r][i] > 0) hits.push(i + ':' + pat[r][i]);
+        }
+        if (hits.length) secData[r] = hits.join(',');
+      }
+      if (Object.keys(secData).length) sparse[sec] = secData;
     }
+    var beatData = {
+      v: 1, // version
+      f: songFeel || 'normal',
+      k: document.getElementById('songKey').textContent || '',
+      b: parseInt(document.getElementById('bpm').textContent) || 90,
+      w: parseInt(document.getElementById('swing').textContent) || 62,
+      a: arrangement,
+      s: sparse
+    };
+    var json = JSON.stringify(beatData);
+    // Build the share URL with compressed data
+    var url = window.location.origin + window.location.pathname + '#d=' + encodeURIComponent(json);
+
+    // Show QR code dialog
+    var container = document.getElementById('qrCodeContainer');
+    if (container) container.innerHTML = '';
+    if (typeof QRCode !== 'undefined' && container) {
+      new QRCode(container, {
+        text: url,
+        width: 256,
+        height: 256,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    }
+    document.getElementById('qrShareOverlay').style.display = 'flex';
   } catch(e) {
-    console.error('Share failed:', e);
-    showShareToast('Could not create share link.');
+    console.error('QR share failed:', e);
+    showShareToast('Could not generate QR code — beat may be too complex.');
   }
+};
+
+// QR dialog close handlers
+document.getElementById('qrShareClose').onclick = function() {
+  document.getElementById('qrShareOverlay').style.display = 'none';
+};
+document.getElementById('qrShareOverlay').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
 };
 
 function showShareToast(msg) {
@@ -240,19 +279,6 @@ function showShareToast(msg) {
     toast.classList.add('show');
     setTimeout(function() { toast.classList.remove('show'); }, 3000);
   }
-}
-
-function showShareFallback(url) {
-  // Fallback for browsers without clipboard API
-  var input = document.createElement('input');
-  input.value = url;
-  input.style.cssText = 'position:fixed;top:-100px';
-  document.body.appendChild(input);
-  input.select();
-  input.setSelectionRange(0, 99999);
-  try { document.execCommand('copy'); showShareToast('Link copied! Share it with anyone.'); }
-  catch(e) { showShareToast('Copy this link: ' + url.substring(0, 60) + '...'); }
-  document.body.removeChild(input);
 }
 
 /** Export button: show the export dialog */
@@ -707,39 +733,104 @@ function initBeatHistoryHandlers() {
 (function() {
   // Check for shared beat in URL hash
   var sharedBeatLoaded = false;
-  // Check for shared beat parameters in URL hash (e.g. #s=gfunk&k=Gm7&b=92)
-  if (window.location.hash && window.location.hash.length > 1 && window.location.hash.indexOf('s=') > 0) {
+  if (window.location.hash && window.location.hash.length > 1) {
     try {
       var hashStr = window.location.hash.substring(1);
-      var hashParams = {};
-      hashStr.split('&').forEach(function(pair) {
-        var kv = pair.split('=');
-        if (kv.length === 2) hashParams[kv[0]] = decodeURIComponent(kv[1]);
-      });
-      if (hashParams.s) {
-        // Generate a beat with the shared parameters
-        var opts = { style: hashParams.s };
-        if (hashParams.k) opts.key = hashParams.k;
-        if (hashParams.b) opts.bpm = hashParams.b;
-        generateAll(opts);
-        updateMidiPlayer();
-        if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
-        if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
-        if (typeof buildAboutSummary === 'function') buildAboutSummary();
-        if (typeof buildChordSheet === 'function') buildChordSheet();
-        // Save to history
-        if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-          var beatData = captureBeatState();
-          var hist = loadBeatHistory();
-          hist.unshift(beatData);
-          if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
-            hist = hist.slice(0, MAX_HISTORY_SLOTS);
+      // Full beat data share (#d={json})
+      if (hashStr.indexOf('d=') === 0) {
+        var beatJson = JSON.parse(decodeURIComponent(hashStr.substring(2)));
+        if (beatJson.v === 1 && beatJson.a && beatJson.s) {
+          // Restore arrangement
+          arrangement = beatJson.a;
+          songFeel = beatJson.f || 'normal';
+          document.getElementById('bpm').textContent = beatJson.b || 90;
+          document.getElementById('swing').textContent = beatJson.w || 62;
+          document.getElementById('songKey').textContent = beatJson.k || '';
+          // Rebuild patterns from sparse encoding
+          var ROWS_LIST = typeof ROWS !== 'undefined' ? ROWS : [];
+          SECTIONS.forEach(function(sec) {
+            patterns[sec] = {};
+            ROWS_LIST.forEach(function(r) { patterns[sec][r] = new Array(STEPS).fill(0); });
+            secSteps[sec] = 32; // default
+          });
+          for (var sec in beatJson.s) {
+            if (!patterns[sec]) {
+              patterns[sec] = {};
+              ROWS_LIST.forEach(function(r) { patterns[sec][r] = new Array(STEPS).fill(0); });
+            }
+            for (var r in beatJson.s[sec]) {
+              var hits = beatJson.s[sec][r].split(',');
+              var maxStep = 0;
+              for (var hi = 0; hi < hits.length; hi++) {
+                var parts = hits[hi].split(':');
+                var step = parseInt(parts[0]);
+                var vel = parseInt(parts[1]);
+                if (patterns[sec][r]) patterns[sec][r][step] = vel;
+                if (step > maxStep) maxStep = step;
+              }
+              secSteps[sec] = Math.max(secSteps[sec] || 0, Math.ceil((maxStep + 1) / 16) * 16);
+            }
+            secFeels[sec] = beatJson.f || 'normal';
           }
-          saveBeatHistory(hist);
+          // Set style display
+          var styleEl = document.getElementById('songStyle');
+          if (styleEl) {
+            var label = (typeof STYLE_DATA !== 'undefined' && STYLE_DATA[songFeel]) ? STYLE_DATA[songFeel].label : songFeel;
+            styleEl.textContent = label;
+            if (typeof _applyMarquee === 'function') _applyMarquee(styleEl, label);
+          }
+          updateMidiPlayer();
+          renderGrid();
+          renderArr();
+          if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+          if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+          if (typeof buildAboutSummary === 'function') buildAboutSummary();
+          if (typeof buildChordSheet === 'function') buildChordSheet();
+          // Save to history
+          if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+            var bd = captureBeatState();
+            var h = loadBeatHistory();
+            h.unshift(bd);
+            if (typeof MAX_HISTORY_SLOTS !== 'undefined' && h.length > MAX_HISTORY_SLOTS) h = h.slice(0, MAX_HISTORY_SLOTS);
+            saveBeatHistory(h);
+          }
+          sharedBeatLoaded = true;
+          if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
+          console.log('Loaded shared beat (full data):', beatJson.f, beatJson.b + ' BPM', beatJson.k);
         }
-        sharedBeatLoaded = true;
-        if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
-        console.log('Loaded shared beat:', hashParams.s, hashParams.b + ' BPM', hashParams.k);
+      }
+      // Legacy parameter share (#s=style&k=key&b=bpm)
+      else if (hashStr.indexOf('s=') >= 0) {
+        var hashParams = {};
+        hashStr.split('&').forEach(function(pair) {
+          var kv = pair.split('=');
+          if (kv.length === 2) hashParams[kv[0]] = decodeURIComponent(kv[1]);
+        });
+        if (hashParams.s) {
+          // Generate a beat with the shared parameters
+          var opts = { style: hashParams.s };
+          if (hashParams.k) opts.key = hashParams.k;
+          if (hashParams.b) opts.bpm = hashParams.b;
+          generateAll(opts);
+          updateMidiPlayer();
+          if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+          if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+          if (typeof buildAboutSummary === 'function') buildAboutSummary();
+          if (typeof buildChordSheet === 'function') buildChordSheet();
+          // Save to history
+          if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+            var beatData = captureBeatState();
+            var hist = loadBeatHistory();
+            hist.unshift(beatData);
+            if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
+              hist = hist.slice(0, MAX_HISTORY_SLOTS);
+            }
+            saveBeatHistory(hist);
+          }
+          sharedBeatLoaded = true;
+          if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
+          console.log('Loaded shared beat:', hashParams.s, hashParams.b + ' BPM', hashParams.k);
+        }
       }
     } catch(e) {
       console.warn('Failed to load shared beat:', e);
@@ -1168,12 +1259,19 @@ function initPlayerControls() {
   var editBtn = document.getElementById('playerEditBtn');
   if (editBtn) {
     editBtn.onclick = function() {
+      if (window.synthBridge && window.synthBridge.isPlaying) return;
       window._editMode = !window._editMode;
       editBtn.classList.toggle('edit-active', window._editMode);
       editBtn.title = window._editMode ? 'Edit mode ON — click cells to add/edit/delete' : 'Edit mode — click cells to add/edit/delete hits';
       // Visual indicator on the grid itself
       var gridR = document.getElementById('gridR');
       if (gridR) gridR.classList.toggle('grid-edit-mode', window._editMode);
+      // Auto-enable loop when entering edit mode
+      if (window._editMode && !window._loopSection) {
+        window._loopSection = true;
+        var lb = document.getElementById('playerLoopBtn');
+        if (lb) lb.classList.add('loop-active');
+      }
     };
   }
 
