@@ -251,7 +251,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .arr-item.sec-pre{border-left:3px solid #c0b030}
 
 /* FX: Arrangement progress bar */
-.arr-progress{height:3px;background:var(--border);border-radius:2px;margin-bottom:6px;overflow:hidden;position:relative}
+.arr-progress{height:8px;background:var(--border);border-radius:4px;margin-bottom:6px;overflow:hidden;position:relative}
 .arr-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-green));border-radius:2px;transition:width .15s linear;width:0}
 .arr-progress-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none}
 .arr-progress-mark{position:absolute;top:0;width:1px;height:100%;background:rgba(255,255,255,.2)}
