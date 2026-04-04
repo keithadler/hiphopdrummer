@@ -18,7 +18,6 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
   <script src="synth.js" type="module"></script>
 </head>
 <body>
@@ -387,20 +386,6 @@
       </div>
       <div class="regen-actions">
         <button class="btn regen-cancel" id="aboutClose">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- QR Share Dialog -->
-  <div id="qrShareOverlay" class="regen-overlay" style="display:none">
-    <div class="regen-dialog" style="max-width:360px">
-      <div class="regen-title">Share Beat via QR Code</div>
-      <div class="regen-dialog-body" style="text-align:center">
-        <div id="qrCodeContainer" style="display:inline-block;padding:12px;background:#fff;border-radius:8px;margin:8px 0"></div>
-        <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-top:8px">Scan to load this exact beat — all patterns, arrangement, BPM, swing, and key.</p>
-      </div>
-      <div class="regen-actions">
-        <button class="btn regen-cancel" id="qrShareClose">Close</button>
       </div>
     </div>
   </div>
