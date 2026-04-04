@@ -231,12 +231,11 @@ function showExportDialog() {
     if (typeof saved.sections === 'boolean') document.getElementById('expSections').checked = saved.sections;
     if (typeof saved.bakeSwing === 'boolean') document.getElementById('expSwing').checked = saved.bakeSwing;
     if (typeof saved.mpc === 'boolean') document.getElementById('expMpc').checked = saved.mpc;
-    if (typeof saved.bassMidi === 'boolean') document.getElementById('expBassMidi').checked = saved.bassMidi;
-    if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
-    if (typeof saved.epMidi === 'boolean') document.getElementById('expEPMidi').checked = saved.epMidi;
-    if (typeof saved.epMpc === 'boolean') document.getElementById('expEPMpc').checked = saved.epMpc;
-    if (typeof saved.padMidi === 'boolean') document.getElementById('expPadMidi').checked = saved.padMidi;
-    if (typeof saved.padMpc === 'boolean') document.getElementById('expPadMpc').checked = saved.padMpc;
+    if (typeof saved.instrMidi === 'boolean') document.getElementById('expInstrMidi').checked = saved.instrMidi;
+    if (typeof saved.instrMpc === 'boolean') document.getElementById('expInstrMpc').checked = saved.instrMpc;
+    // Legacy: map old per-instrument prefs to new unified ones
+    if (typeof saved.bassMidi === 'boolean' && typeof saved.instrMidi === 'undefined') document.getElementById('expInstrMidi').checked = saved.bassMidi;
+    if (typeof saved.bassMpc === 'boolean' && typeof saved.instrMpc === 'undefined') document.getElementById('expInstrMpc').checked = saved.bassMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
@@ -285,12 +284,8 @@ document.getElementById('exportGo').onclick = function() {
     sections:    document.getElementById('expSections').checked,
     bakeSwing:   document.getElementById('expSwing').checked,
     mpc:         document.getElementById('expMpc').checked,
-    bassMidi:    document.getElementById('expBassMidi').checked,
-    bassMpc:     document.getElementById('expBassMpc').checked,
-    epMidi:      document.getElementById('expEPMidi').checked,
-    epMpc:       document.getElementById('expEPMpc').checked,
-    padMidi:     document.getElementById('expPadMidi').checked,
-    padMpc:      document.getElementById('expPadMpc').checked,
+    instrMidi:   document.getElementById('expInstrMidi').checked,
+    instrMpc:    document.getElementById('expInstrMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
     wav:         document.getElementById('expWav').checked,
