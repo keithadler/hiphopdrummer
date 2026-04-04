@@ -105,6 +105,8 @@
               <input type="range" class="player-seek" id="playerSeek" min="0" max="100" value="0" step="0.1">
               <button class="player-btn player-btn-sm" id="playerWavBtn" title="Download WAV">⬇</button>
               <button class="player-btn player-btn-sm" id="playerLoopBtn" title="Loop current section">🔁</button>
+              <button class="player-btn player-btn-sm" id="playerRegenSecBtn" title="Regenerate current section">🎲</button>
+              <button class="player-btn player-btn-sm" id="playerEditBtn" title="Edit mode — click cells to add/edit/delete hits">✏</button>
             </div>
             <div class="audio-visualizer" id="audioVisualizer"><canvas id="vizCanvas"></canvas></div>
           </div>
@@ -130,6 +132,7 @@
         <div class="panel-title">
           Pattern — <span id="patternLabel">Intro</span>
           <span class="pattern-info" id="patternInfo"></span>
+          <button class="btn btn-undo" id="btnUndo" title="Undo last edit" style="display:none">↩ Undo</button>
         </div>
 <div id="barTabs" class="bar-tabs"></div>
         <div class="vel-legend"><span class="vel-full">100%</span> full stroke &nbsp;·&nbsp; <span class="vel-accent">70–95%</span> accent &nbsp;·&nbsp; <span class="vel-ghost">30–50%</span> ghost note</div>

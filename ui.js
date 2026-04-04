@@ -1285,9 +1285,107 @@ function _showCellTooltip(cell) {
 }
 
 // Wire grid tooltips once on boot using stable parent delegation
+// ── Grid Editing & Undo System ──
+var _undoState = null; // 1-level undo: snapshot of patterns before last edit
+
+function _saveUndo() {
+  _undoState = { patterns: JSON.parse(JSON.stringify(patterns)), sec: curSec };
+  var btn = document.getElementById('btnUndo');
+  if (btn) btn.style.display = '';
+}
+
+function _applyUndo() {
+  if (!_undoState) return;
+  patterns = _undoState.patterns;
+  _undoState = null;
+  var btn = document.getElementById('btnUndo');
+  if (btn) btn.style.display = 'none';
+  renderGrid();
+  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  _saveEditToHistory();
+}
+
+function _saveEditToHistory() {
+  if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
+  var history = loadBeatHistory();
+  if (history.length > 0) {
+    history[0] = captureBeatState();
+    saveBeatHistory(history);
+  }
+}
+
+function _afterEdit() {
+  renderGrid();
+  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  _saveEditToHistory();
+}
+
+// Velocity editor popup
+var _velEditorEl = null;
+function _showVelEditor(cell, row, step) {
+  _hideVelEditor();
+  var pat = patterns[curSec];
+  if (!pat || !pat[row]) return;
+  var vel = pat[row][step];
+  if (vel <= 0) return;
+
+  var div = document.createElement('div');
+  div.className = 'vel-editor';
+  var velocityMode = 'percent';
+  try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  var displayVal = velocityMode === 'midi' ? vel : Math.round(vel / 127 * 100);
+  var suffix = velocityMode === 'midi' ? '' : '%';
+
+  div.innerHTML = '<input type="range" min="1" max="127" value="' + vel + '">'
+    + '<span class="vel-editor-val">' + displayVal + suffix + '</span>'
+    + '<button class="vel-editor-del" title="Delete hit">✕</button>';
+
+  var rect = cell.getBoundingClientRect();
+  div.style.left = Math.max(4, rect.left) + 'px';
+  div.style.top = (rect.bottom + 4) + 'px';
+  document.body.appendChild(div);
+  _velEditorEl = div;
+
+  var slider = div.querySelector('input');
+  var valSpan = div.querySelector('.vel-editor-val');
+  slider.oninput = function() {
+    var v = parseInt(slider.value);
+    var d = velocityMode === 'midi' ? v : Math.round(v / 127 * 100);
+    valSpan.textContent = d + suffix;
+  };
+  slider.onchange = function() {
+    _saveUndo();
+    pat[row][step] = parseInt(slider.value);
+    _afterEdit();
+    _hideVelEditor();
+  };
+  div.querySelector('.vel-editor-del').onclick = function() {
+    _saveUndo();
+    pat[row][step] = 0;
+    _afterEdit();
+    _hideVelEditor();
+  };
+  // Close on outside click (delayed so this click doesn't close it)
+  setTimeout(function() {
+    document.addEventListener('click', _velEditorOutsideClick);
+  }, 10);
+}
+
+function _velEditorOutsideClick(e) {
+  if (_velEditorEl && !_velEditorEl.contains(e.target)) _hideVelEditor();
+}
+
+function _hideVelEditor() {
+  if (_velEditorEl && _velEditorEl.parentNode) _velEditorEl.parentNode.removeChild(_velEditorEl);
+  _velEditorEl = null;
+  document.removeEventListener('click', _velEditorOutsideClick);
+}
+
+// Wire grid interactions
 (function() {
   var gridR = document.getElementById('gridR');
   if (!gridR) return;
+
   gridR.addEventListener('click', function(e) {
     var cell = e.target.closest('.cell');
     var rowLabel = e.target.closest('.row-label');
@@ -1301,30 +1399,14 @@ function _showCellTooltip(cell) {
       return;
     }
 
-    if (!cell) { hideTooltip(); return; }
-    _showCellTooltip(cell);
-    // Play the drum sound when clicking a filled cell (only when not playing)
-    if (window.synthBridge && !window.synthBridge.isPlaying && cell.classList.contains('on')) {
-      // Determine instrument from cell classes
-      var row = null;
-      for (var ri = 0; ri < ROWS.length; ri++) {
-        if (cell.classList.contains(ROWS[ri])) { row = ROWS[ri]; break; }
-      }
-      if (row && MIDI_NOTE_MAP[row] !== undefined) {
-        var step = parseInt(cell.dataset.step);
-        var pat = patterns[curSec];
-        var vel = (pat && pat[row]) ? pat[row][step] : 80;
-        vel = Math.min(127, Math.max(1, vel || 80));
-        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], vel, 200);
-      }
-    }
-  });
+    if (!cell) { hideTooltip(); _hideVelEditor(); return; }
 
-  // Double-click to toggle cell on/off (edit the pattern)
-  gridR.addEventListener('dblclick', function(e) {
-    if (window.synthBridge && window.synthBridge.isPlaying) return; // no editing during playback
-    var cell = e.target.closest('.cell');
-    if (!cell) return;
+    // During playback: just show tooltip and play sound
+    if (window.synthBridge && window.synthBridge.isPlaying) {
+      _showCellTooltip(cell);
+      return;
+    }
+
     var row = null;
     for (var ri = 0; ri < ROWS.length; ri++) {
       if (cell.classList.contains(ROWS[ri])) { row = ROWS[ri]; break; }
@@ -1333,22 +1415,36 @@ function _showCellTooltip(cell) {
     var step = parseInt(cell.dataset.step);
     var pat = patterns[curSec];
     if (!pat || !pat[row]) return;
-    if (pat[row][step] > 0) {
-      // Turn off
-      pat[row][step] = 0;
+
+    // Edit mode OFF: show tooltip + play sound (educational mode)
+    if (!window._editMode) {
+      _showCellTooltip(cell);
+      if (window.synthBridge && cell.classList.contains('on') && MIDI_NOTE_MAP[row] !== undefined) {
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);
+      }
+      return;
+    }
+
+    // Edit mode ON: add/edit/delete
+    if (cell.classList.contains('on')) {
+      // Filled cell: show velocity editor
+      _showVelEditor(cell, row, step);
+      // Also play the sound
+      if (window.synthBridge && MIDI_NOTE_MAP[row] !== undefined) {
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);
+      }
     } else {
-      // Turn on at default velocity for this instrument
+      // Empty cell: add hit at default velocity
+      _saveUndo();
       var defaultVel = (row === 'kick' || row === 'snare') ? 100 : (row === 'hat' || row === 'ride') ? 85 : (row === 'ghostkick') ? 50 : 90;
       pat[row][step] = defaultVel;
-      // Play the sound
       if (window.synthBridge && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], defaultVel, 200);
       }
+      _afterEdit();
     }
-    // Re-render grid and rebuild MIDI
-    renderGrid();
-    if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   });
+
   gridR.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var cell = e.target.closest('.cell');
@@ -1356,6 +1452,15 @@ function _showCellTooltip(cell) {
     e.preventDefault();
     _showCellTooltip(cell);
   });
+
+  // Undo button
+  var undoBtn = document.getElementById('btnUndo');
+  if (undoBtn) {
+    undoBtn.onclick = function(e) {
+      e.stopPropagation();
+      _applyUndo();
+    };
+  }
 })();
 
 // Close tooltip when clicking outside the grid
