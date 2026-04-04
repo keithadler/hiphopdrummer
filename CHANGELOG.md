@@ -2,6 +2,26 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.23] - 2026-04-04
+
+### Changed
+- Removed SHARE button and share URL system (didn't share exact beats)
+- Removed iOS install banner (didn't function correctly)
+- SW update: modal dialog with RELOAD NOW button replaces dismissible banner
+- Export toast always shows during ZIP generation
+- Generation loading overlay uses requestAnimationFrame for guaranteed paint
+
+### Optimized
+- Playback: removed forced reflow (void offsetWidth) from hit flash — biggest perf win
+- Cursor trail reduced from 3 DOM queries to 1 per tick
+- Row glow uses firstElementChild instead of querySelector
+- Fill countdown only runs in last 5 steps of section (skipped for 95% of playback)
+- Time display only updates when text changes
+
+### Fixed
+- Loop repeat: uses seek(0) + resume() instead of full play() reload
+- Playback callback getters added to synthBridge (were setter-only, reads returned undefined)
+
 ## [1.22] - 2026-04-04
 
 ### Fixed
