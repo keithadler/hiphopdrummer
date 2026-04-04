@@ -48,6 +48,23 @@
  * Side effects: replaces innerHTML of #gridR, #barTabs, updates
  *   #patternLabel, #patternInfo, and the section MIDI player.
  */
+/**
+ * Apply a scrolling marquee effect to an element if its text overflows.
+ * Duplicates the text so the scroll loops seamlessly.
+ */
+function _applyMarquee(el, text) {
+  // Reset first
+  el.textContent = text;
+  el.classList.remove('marquee-active');
+  // Check overflow after a frame so layout is computed
+  requestAnimationFrame(function() {
+    if (el.scrollWidth > el.clientWidth + 2) {
+      el.innerHTML = '<span class="marquee-inner">' + text + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + text + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
+      el.classList.add('marquee-active');
+    }
+  });
+}
+
 function renderGrid() {
   var pat = patterns[curSec];
   if (!pat) return;

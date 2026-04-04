@@ -1890,7 +1890,11 @@ function generateAll(opts) {
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
   var styleEl = document.getElementById('songStyle');
-  if (styleEl) styleEl.textContent = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;
+  if (styleEl) {
+    var label = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;
+    styleEl.textContent = label;
+    if (typeof _applyMarquee === 'function') _applyMarquee(styleEl, label);
+  }
   renderGrid(); renderArr();
   var aboutEl = document.getElementById('aboutBeat');
   if (aboutEl) {
