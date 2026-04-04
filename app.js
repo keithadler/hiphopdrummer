@@ -207,49 +207,6 @@ document.getElementById('regenGo').onclick = function() {
 /** New Beat button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
-/** Share button: copy link with style/key/BPM */
-document.getElementById('btnShare').onclick = function() {
-  try {
-    var style = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel || 'normal') : (songFeel || 'normal');
-    var key = document.getElementById('songKey').textContent || '';
-    var bpm = document.getElementById('bpm').textContent || '90';
-    var params = 's=' + encodeURIComponent(style) + '&k=' + encodeURIComponent(key) + '&b=' + bpm;
-    var url = window.location.origin + window.location.pathname + '#' + params;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function() {
-        showShareToast('Link copied! Same style, key, and BPM — patterns will vary.');
-      }).catch(function() {
-        _shareFallback(url);
-      });
-    } else {
-      _shareFallback(url);
-    }
-  } catch(e) {
-    showShareToast('Could not create share link.');
-  }
-};
-
-function _shareFallback(url) {
-  var input = document.createElement('input');
-  input.value = url;
-  input.style.cssText = 'position:fixed;top:-100px';
-  document.body.appendChild(input);
-  input.select();
-  input.setSelectionRange(0, 99999);
-  try { document.execCommand('copy'); showShareToast('Link copied!'); }
-  catch(e) { showShareToast('Copy this link: ' + url.substring(0, 60) + '...'); }
-  document.body.removeChild(input);
-}
-
-function showShareToast(msg) {
-  var toast = document.getElementById('exportToast');
-  if (toast) {
-    toast.innerHTML = '<div style="padding:16px;text-align:center"><strong>' + msg + '</strong></div>';
-    toast.classList.add('show');
-    setTimeout(function() { toast.classList.remove('show'); }, 3000);
-  }
-}
-
 /** Export button: show the export dialog */
 document.getElementById('btnExport').onclick = showExportDialog;
 
@@ -690,51 +647,8 @@ function initBeatHistoryHandlers() {
  *   5. Start playback tracking
  */
 (function() {
-  // Check for shared beat in URL hash
-  var sharedBeatLoaded = false;
-  if (window.location.hash && window.location.hash.length > 1) {
-    try {
-      var hashStr = window.location.hash.substring(1);
-      // Shared beat parameters (#s=style&k=key&b=bpm)
-      if (hashStr.indexOf('s=') >= 0) {
-        var hashParams = {};
-        hashStr.split('&').forEach(function(pair) {
-          var kv = pair.split('=');
-          if (kv.length === 2) hashParams[kv[0]] = decodeURIComponent(kv[1]);
-        });
-        if (hashParams.s) {
-          // Generate a beat with the shared parameters
-          var opts = { style: hashParams.s };
-          if (hashParams.k) opts.key = hashParams.k;
-          if (hashParams.b) opts.bpm = hashParams.b;
-          generateAll(opts);
-          updateMidiPlayer();
-          if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
-          if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
-          if (typeof buildAboutSummary === 'function') buildAboutSummary();
-          if (typeof buildChordSheet === 'function') buildChordSheet();
-          // Save to history
-          if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
-            var beatData = captureBeatState();
-            var hist = loadBeatHistory();
-            hist.unshift(beatData);
-            if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
-              hist = hist.slice(0, MAX_HISTORY_SLOTS);
-            }
-            saveBeatHistory(hist);
-          }
-          sharedBeatLoaded = true;
-          if (window.history && window.history.replaceState) window.history.replaceState(null, '', window.location.pathname);
-          console.log('Loaded shared beat:', hashParams.s, hashParams.b + ' BPM', hashParams.k);
-        }
-      }
-    } catch(e) {
-      console.warn('Failed to load shared beat:', e);
-    }
-  }
-  
-  // Try to load last beat from history (skip if shared beat was loaded)
-  var historyLoaded = sharedBeatLoaded;
+  // Try to load last beat from history
+  var historyLoaded = false;
   if (typeof loadBeatHistory === 'function') {
     var history = loadBeatHistory();
     if (history && history.length > 0) {
@@ -977,7 +891,7 @@ function initPlayerControls() {
       headerPlayBtn.classList.remove('playing');
       // Brief cooldown so user can't accidentally re-trigger play or other actions
       headerPlayBtn.disabled = true;
-      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+      var cooldownBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ci = 0; ci < cooldownBtns.length; ci++) {
         var cb = document.getElementById(cooldownBtns[ci]);
         if (cb) cb.disabled = true;
@@ -991,7 +905,7 @@ function initPlayerControls() {
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
       // Disable non-play buttons immediately
-      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+      var navBtnsImmediate = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
         var nb = document.getElementById(navBtnsImmediate[ni]);
         if (nb) nb.disabled = true;
@@ -1019,7 +933,7 @@ function initPlayerControls() {
             headerPlayBtn.disabled = false;
             headerPlayBtn.textContent = '▶ PLAY';
             headerPlayBtn.classList.remove('playing');
-            var tBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+            var tBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
             for (var ti = 0; ti < tBtns.length; ti++) { var tb = document.getElementById(tBtns[ti]); if (tb) tb.disabled = false; }
           }
         }, 15000);
@@ -1040,7 +954,7 @@ function initPlayerControls() {
             _psc(true);
           } else {
             // Tracking not connected yet — do the essential work inline
-            var _disBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+            var _disBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
             for (var _di = 0; _di < _disBtns.length; _di++) {
               var _db = document.getElementById(_disBtns[_di]);
               if (_db) _db.disabled = true;
@@ -1050,7 +964,7 @@ function initPlayerControls() {
           clearTimeout(_loadTimeout);
           headerPlayBtn.disabled = false;
           headerPlayBtn.textContent = '▶ PLAY';
-          var fBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+          var fBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
           for (var fi = 0; fi < fBtns.length; fi++) { var fb = document.getElementById(fBtns[fi]); if (fb) fb.disabled = false; }
         });
       });
@@ -1210,7 +1124,7 @@ function initPlayerControls() {
       headerPlayBtn.disabled = false;
     }
     // Sync non-play button disabled state
-    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
+    var navBtns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerLoopBtn'];
     for (var ni = 0; ni < navBtns.length; ni++) {
       var nb = document.getElementById(navBtns[ni]);
       if (nb) nb.disabled = playing;
@@ -1653,20 +1567,16 @@ var _vfx = {
 };
 
 /** 1. Cursor trail — leave fading ghost on previous 3 steps */
-function vfxCursorTrail(stepIdx) {
-  // Clear old trail
+function vfxCursorTrail(stepIdx, gridR) {
   for (var i = 0; i < _vfx.trailEls.length; i++) {
     _vfx.trailEls[i].classList.remove('cursor-trail');
   }
   _vfx.trailEls = [];
-  if (stepIdx < 1) return;
-  var gridR = document.getElementById('gridR');
-  if (!gridR) return;
-  // Trail the previous 3 steps
+  if (stepIdx < 1 || !gridR) return;
   for (var t = 1; t <= 3; t++) {
     var prev = stepIdx - t;
     if (prev < 0) break;
-    var els = gridR.querySelectorAll('.cell[data-step="' + prev + '"], .beat-num[data-step="' + prev + '"]');
+    var els = gridR.querySelectorAll('[data-step="' + prev + '"]');
     for (var j = 0; j < els.length; j++) {
       els[j].classList.add('cursor-trail');
       _vfx.trailEls.push(els[j]);
@@ -1675,8 +1585,7 @@ function vfxCursorTrail(stepIdx) {
 }
 
 /** 2. Hit flash — cells brighten when cursor lands on active hit */
-function vfxHitFlash(stepIdx) {
-  var gridR = document.getElementById('gridR');
+function vfxHitFlash(stepIdx, gridR) {
   if (!gridR) return;
   var cells = gridR.querySelectorAll('.cell.on[data-step="' + stepIdx + '"]');
   for (var i = 0; i < cells.length; i++) {
@@ -1687,8 +1596,7 @@ function vfxHitFlash(stepIdx) {
 }
 
 /** 8. Grid row glow on hit — row label glows in instrument color */
-function vfxRowGlow(stepIdx) {
-  var gridR = document.getElementById('gridR');
+function vfxRowGlow(stepIdx, gridR) {
   if (!gridR) return;
   var cells = gridR.querySelectorAll('.cell.on[data-step="' + stepIdx + '"]');
   for (var i = 0; i < cells.length; i++) {
@@ -1709,8 +1617,7 @@ function vfxRowGlow(stepIdx) {
 }
 
 /** 6. Fill countdown — last 4 steps before section end glow red */
-function vfxFillCountdown(stepIdx, sectionSteps) {
-  var gridR = document.getElementById('gridR');
+function vfxFillCountdown(stepIdx, sectionSteps, gridR) {
   if (!gridR) return;
   var remaining = sectionSteps - stepIdx - 1;
   // Only show in last 4 steps
@@ -2045,21 +1952,42 @@ function initPlaybackTracking() {
       if (_chordToastVisible) updateChordHighlight(currentBar);
     }
 
-    // Query from grid container (not full DOM) and cache the result
+    // Query from grid container ONCE and reuse for all VFX
     var gridR = document.getElementById('gridR');
-    var els = gridR ? gridR.querySelectorAll('.cell[data-step="' + stepIdx + '"], .beat-num[data-step="' + stepIdx + '"]') : [];
-    for (var i = 0; i < els.length; i++) {
-      els[i].classList.add('playback-cursor');
-      _cachedCursorEls.push(els[i]);
+    var allStepEls = gridR ? gridR.querySelectorAll('[data-step="' + stepIdx + '"]') : [];
+    var activeCells = [];
+    for (var i = 0; i < allStepEls.length; i++) {
+      allStepEls[i].classList.add('playback-cursor');
+      _cachedCursorEls.push(allStepEls[i]);
+      if (allStepEls[i].classList.contains('on')) activeCells.push(allStepEls[i]);
     }
-    // Follow playhead: scroll the last (bottom) cursor element into view
+    // Follow playhead
     if (_followPlayhead && !_touchPauseFollow && _cachedCursorEls.length > 0) {
       _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
-    // Visual FX on each step
-    vfxCursorTrail(stepIdx);
-    vfxHitFlash(stepIdx);
-    vfxRowGlow(stepIdx);
+    // Visual FX — pass cached elements to avoid redundant DOM queries
+    vfxCursorTrail(stepIdx, gridR);
+    // Hit flash + row glow use the active cells we already found
+    for (var ai = 0; ai < activeCells.length; ai++) {
+      activeCells[ai].classList.remove('hit-flash');
+      void activeCells[ai].offsetWidth;
+      activeCells[ai].classList.add('hit-flash');
+      // Row glow
+      var row = activeCells[ai].parentElement;
+      if (row) {
+        var label = row.querySelector('.row-label');
+        if (label) {
+          var inst = label.dataset.row;
+          if (inst) {
+            label.classList.add('row-glow', 'glow-' + inst);
+            if (_vfx.glowTimers[inst]) clearTimeout(_vfx.glowTimers[inst]);
+            _vfx.glowTimers[inst] = setTimeout(function(l, cls) {
+              l.classList.remove('row-glow', cls);
+            }.bind(null, label, 'glow-' + inst), 200);
+          }
+        }
+      }
+    }
   }
 
   function updateCurrentSection(currentTime) {
@@ -2133,7 +2061,8 @@ function initPlaybackTracking() {
       if (currentStep >= 0 && currentStep < sectionSteps) {
         highlightStep(currentStep);
         // VFX: Fill countdown in last 4 steps of section
-        vfxFillCountdown(currentStep, sectionSteps);
+        var _gridR = document.getElementById('gridR');
+        vfxFillCountdown(currentStep, sectionSteps, _gridR);
       }
       // VFX: Progress bar
       var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
@@ -2157,15 +2086,15 @@ function initPlaybackTracking() {
     var origPlayState = window.synthBridge.onPlayStateChange;
 
     window.synthBridge.onTimeUpdate = function(current, duration) {
-      // Use cached DOM refs instead of getElementById every frame
+      // Only update time display when text changes (avoid DOM thrashing)
       if (_playerCurrentEl) {
         var min = Math.floor(current / 60), sec = Math.floor(current % 60);
-        _playerCurrentEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+        var timeStr = min + ':' + (sec < 10 ? '0' : '') + sec;
+        if (_playerCurrentEl.textContent !== timeStr) _playerCurrentEl.textContent = timeStr;
       }
       if (_playerSeekEl && duration > 0) {
         _playerSeekEl.value = (current / duration) * 100;
       }
-      // Call the section tracking
       updateCurrentSection(current);
     };
     window.synthBridge.onPlayStateChange = function(playing) {
@@ -2175,7 +2104,7 @@ function initPlaybackTracking() {
         else _playerPlayBtn.classList.remove('playing');
       }
       // Disable/enable non-play buttons during playback
-      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+      var btns = ['btnGen','btnExport','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var bi = 0; bi < btns.length; bi++) {
         var btn = document.getElementById(btns[bi]);
         if (btn) btn.disabled = playing;
