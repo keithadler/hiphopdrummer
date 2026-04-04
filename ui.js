@@ -1476,12 +1476,11 @@ function _hideVelEditor() {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);
       }
     } else {
-      // Empty cell: add hit at default velocity
+      // Empty cell: add hit at full velocity — user can adjust with velocity editor
       _saveUndo();
-      var defaultVel = (row === 'kick' || row === 'snare') ? 100 : (row === 'hat' || row === 'ride') ? 85 : (row === 'ghostkick') ? 50 : 90;
-      pat[row][step] = defaultVel;
+      pat[row][step] = 127;
       if (window.synthBridge && MIDI_NOTE_MAP[row] !== undefined) {
-        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], defaultVel, 200);
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], 127, 200);
       }
       _afterEdit();
     }
