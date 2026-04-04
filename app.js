@@ -1573,14 +1573,12 @@ function vfxCursorTrail(stepIdx, gridR) {
   }
   _vfx.trailEls = [];
   if (stepIdx < 1 || !gridR) return;
-  for (var t = 1; t <= 3; t++) {
-    var prev = stepIdx - t;
-    if (prev < 0) break;
-    var els = gridR.querySelectorAll('[data-step="' + prev + '"]');
-    for (var j = 0; j < els.length; j++) {
-      els[j].classList.add('cursor-trail');
-      _vfx.trailEls.push(els[j]);
-    }
+  // Only trail 1 step back instead of 3 (reduces DOM queries from 3 to 1)
+  var prev = stepIdx - 1;
+  var els = gridR.querySelectorAll('[data-step="' + prev + '"]');
+  for (var j = 0; j < els.length; j++) {
+    els[j].classList.add('cursor-trail');
+    _vfx.trailEls.push(els[j]);
   }
 }
 
@@ -1969,22 +1967,18 @@ function initPlaybackTracking() {
     vfxCursorTrail(stepIdx, gridR);
     // Hit flash + row glow use the active cells we already found
     for (var ai = 0; ai < activeCells.length; ai++) {
-      activeCells[ai].classList.remove('hit-flash');
-      void activeCells[ai].offsetWidth;
       activeCells[ai].classList.add('hit-flash');
-      // Row glow
+      // Row glow — use parentElement traversal (no querySelector)
       var row = activeCells[ai].parentElement;
-      if (row) {
-        var label = row.querySelector('.row-label');
-        if (label) {
-          var inst = label.dataset.row;
-          if (inst) {
-            label.classList.add('row-glow', 'glow-' + inst);
-            if (_vfx.glowTimers[inst]) clearTimeout(_vfx.glowTimers[inst]);
-            _vfx.glowTimers[inst] = setTimeout(function(l, cls) {
-              l.classList.remove('row-glow', cls);
-            }.bind(null, label, 'glow-' + inst), 200);
-          }
+      if (row && row.firstElementChild && row.firstElementChild.classList.contains('row-label')) {
+        var label = row.firstElementChild;
+        var inst = label.dataset.row;
+        if (inst) {
+          label.classList.add('row-glow', 'glow-' + inst);
+          if (_vfx.glowTimers[inst]) clearTimeout(_vfx.glowTimers[inst]);
+          _vfx.glowTimers[inst] = setTimeout(function(l, cls) {
+            l.classList.remove('row-glow', cls);
+          }.bind(null, label, 'glow-' + inst), 200);
         }
       }
     }
@@ -2060,9 +2054,10 @@ function initPlaybackTracking() {
       var currentStep = Math.floor((currentTime - sectionStartTime) / _cachedSecPerStep);
       if (currentStep >= 0 && currentStep < sectionSteps) {
         highlightStep(currentStep);
-        // VFX: Fill countdown in last 4 steps of section
-        var _gridR = document.getElementById('gridR');
-        vfxFillCountdown(currentStep, sectionSteps, _gridR);
+        // VFX: Fill countdown — only in last 5 steps to avoid unnecessary DOM work
+        if (sectionSteps - currentStep <= 5) {
+          vfxFillCountdown(currentStep, sectionSteps, document.getElementById('gridR'));
+        }
       }
       // VFX: Progress bar
       var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
