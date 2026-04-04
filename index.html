@@ -410,13 +410,16 @@
             var newWorker = reg.installing;
             newWorker.addEventListener('statechange', function() {
               if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-                // New version installed — show reload banner
-                var banner = document.createElement('div');
-                banner.id = 'updateBanner';
-                banner.innerHTML = 'Update available — <b>tap to reload</b>';
-                banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#50a0ff;color:#fff;text-align:center;padding:12px;font-family:var(--mono);font-size:14px;cursor:pointer;z-index:999;letter-spacing:.5px';
-                banner.onclick = function() { window.location.reload(); };
-                document.body.appendChild(banner);
+                // New version installed — show modal update dialog
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';
+                overlay.innerHTML = '<div style="background:#1c1c26;border:1px solid #363650;border-radius:10px;padding:28px 32px;max-width:360px;text-align:center;font-family:JetBrains Mono,monospace">'
+                  + '<div style="font-size:18px;font-weight:700;color:#50a0ff;letter-spacing:1px;margin-bottom:12px">Update Available</div>'
+                  + '<p style="font-size:14px;color:#9090a8;line-height:1.6;margin-bottom:20px">A new version of Hip Hop Drummer has been downloaded. Reload to get the latest features and fixes.</p>'
+                  + '<button id="updateReloadBtn" style="background:#50a0ff;color:#fff;border:none;padding:10px 28px;border-radius:4px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:1px">RELOAD NOW</button>'
+                  + '</div>';
+                document.body.appendChild(overlay);
+                document.getElementById('updateReloadBtn').onclick = function() { window.location.reload(); };
               }
             });
           });
