@@ -251,7 +251,9 @@ window.synthBridge = {
   setBassProgram: setBassProgram,
   playNote: playNote,
   set onTimeUpdate(fn) { onTimeUpdate = fn; },
+  get onTimeUpdate() { return onTimeUpdate; },
   set onPlayStateChange(fn) { onPlayStateChange = fn; },
+  get onPlayStateChange() { return onPlayStateChange; },
   get isPlaying() { return isPlaying; },
   get audioContext() { return audioContext; },
   get synth() { return synth; }
