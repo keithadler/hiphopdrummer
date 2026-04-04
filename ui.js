@@ -104,11 +104,20 @@ function renderGrid() {
     var barStart = page * 16, barEnd = Math.min(barStart + 16, len);
     var stepsInBar = barEnd - barStart;
 
-    // Bar label (scroll target for bar tab buttons)
+    // Bar label with chord function color (scroll target for bar tab buttons)
     var label = document.createElement('div');
     label.id = 'grid-page-' + page;
     label.className = 'grid-page-label';
-    label.textContent = 'Bar ' + (page + 1);
+    var barLabelText = 'Bar ' + (page + 1);
+    // Add chord function indicator if chord data is available
+    var chordData = (window._chordSheetData && window._chordSheetData[curSec]) ? window._chordSheetData[curSec] : null;
+    if (chordData && chordData[page]) {
+      var fn = chordData[page].fn;
+      var chordName = chordData[page].name;
+      var fnColor = (fn === 'I') ? 'var(--accent-red)' : (fn === 'IV' || fn === 'ii' || fn === 'bVI' || fn === 'bIII') ? 'var(--accent-blue)' : (fn === 'V' || fn === 'bII' || fn === 'bVII' || fn === '#idim') ? 'var(--accent-green)' : 'var(--text-dim)';
+      barLabelText += ' <span style="color:' + fnColor + ';font-size:0.85em;margin-left:6px">' + chordName + ' (' + fn + ')</span>';
+    }
+    label.innerHTML = barLabelText;
     rows.appendChild(label);
 
     // Step number header (1–16), with beat boundaries highlighted
