@@ -285,6 +285,11 @@
           <div class="prefs-hint">Adds electric piano chords to playback and WAV export for styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce). Disabled styles get no EP regardless of this setting. EP MIDI/MPC exports are always available.</div>
         </div>
         <div class="regen-field">
+          <label class="regen-label">Synth Pad</label>
+          <label class="export-check"><input type="checkbox" id="prefsPadPlayback" checked> Play/download synth pad with drums</label>
+          <div class="prefs-hint">Adds atmospheric synth pads for styles that use them (Memphis, phonk, dark, Griselda, crunk, hard). Strings, choir, or synth lead depending on style.</div>
+        </div>
+        <div class="regen-field">
           <label class="regen-label">Playback</label>
           <label class="export-check"><input type="checkbox" id="prefsFollowPlayhead"> Follow playhead during playback</label>
           <div class="prefs-hint">When enabled, the page scrolls to keep the current section visible during playback.</div>
@@ -414,6 +419,7 @@
   <script src="groove.js"></script>
   <script src="bass.js"></script>
   <script src="ep.js"></script>
+  <script src="pad.js"></script>
   <script src="analysis.js"></script>
   <script src="ui.js"></script>
   <script src="daw-help.js"></script>

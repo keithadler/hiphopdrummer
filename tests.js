@@ -97,7 +97,7 @@ global.initPlaybackTracking = function() {};
 var vm = require('vm');
 
 // === Load all source files into global scope ===
-var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'ep.js', 'analysis.js',
+var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'ep.js', 'pad.js', 'analysis.js',
              'daw-help.js', 'midi-export.js', 'beat-history.js'];
 
 test('All JS files parse without errors', function() {

@@ -639,8 +639,10 @@ function updateMidiPlayer() {
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
   var epOn = true;
   try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
-  // Use combined MIDI if bass OR EP is enabled (combined handles both channels)
-  var midiBytes = (bassOn || epOn) ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
+  var padOn = true;
+  try { var pd = localStorage.getItem('hhd_pad_playback'); if (pd !== null) padOn = (pd !== 'false'); } catch(e) {}
+  // Use combined MIDI if bass OR EP OR pad is enabled
+  var midiBytes = (bassOn || epOn || padOn) ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
 
   // Store the current MIDI bytes globally for WAV export and playback
   window._currentMidiBytes = midiBytes;
@@ -772,6 +774,30 @@ function buildCombinedMidiBytes(sectionList, bpm) {
         }
       }
     }
+
+    // Synth Pad events (channel 3) — generated per section
+    var padOn = true;
+    try { var padPref = localStorage.getItem('hhd_pad_playback'); if (padPref !== null) padOn = (padPref !== 'false'); } catch(e3) {}
+    if (padOn && typeof generatePadPattern === 'function') {
+      var padEvents = generatePadPattern(sec, bpm);
+      var padCh = 3;
+      var padSwingMult = 0.3;
+      var padSwing = Math.round(baseSwingAmount * padSwingMult);
+      for (var padi = 0; padi < padEvents.length; padi++) {
+        var padE = padEvents[padi];
+        var padStepInBar = padE.step % 16;
+        var padSwingOff = (padStepInBar % 2 === 1) ? padSwing : 0;
+        var padTimingOff = padE.timingOffset || 0;
+        var padStepTick = secTickStart + (padE.step * ticksPerStep) + padSwingOff + padTimingOff;
+        if (padStepTick < 0) padStepTick = 0;
+        var padDurTicks = Math.max(1, Math.floor(ticksPerStep * padE.dur));
+        for (var padni = 0; padni < padE.notes.length; padni++) {
+          var padNoteVel = (padE.vels && padE.vels[padni] !== undefined) ? padE.vels[padni] : 40;
+          events.push({ tick: padStepTick, type: 'on', ch: padCh, note: padE.notes[padni], vel: Math.min(127, Math.max(1, padNoteVel)) });
+          events.push({ tick: padStepTick + padDurTicks, type: 'off', ch: padCh, note: padE.notes[padni] });
+        }
+      }
+    }
   });
 
   // Sort: by tick, note-offs before note-ons at same tick
@@ -815,6 +841,11 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var epProgram = 4;
   try { var epPref = localStorage.getItem('hhd_ep_sound'); if (epPref) epProgram = parseInt(epPref) || 4; } catch(e) {}
   td.push(0, 0xC0 | epCh, epProgram);
+
+  // Program change on channel 3: Synth Pad (determined by style)
+  var padProgram = 48; // default: String Ensemble
+  try { var padPref = localStorage.getItem('hhd_pad_sound'); if (padPref) padProgram = parseInt(padPref) || 48; } catch(e) {}
+  td.push(0, 0xC0 | 3, padProgram);
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)

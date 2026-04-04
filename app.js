@@ -356,6 +356,10 @@ function showPrefsDialog() {
   var epOn = true;
   try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
   document.getElementById('prefsEPPlayback').checked = epOn;
+  // Restore pad playback preference (default: on)
+  var padOn = true;
+  try { var pd = localStorage.getItem('hhd_pad_playback'); if (pd !== null) padOn = (pd !== 'false'); } catch(e) {}
+  document.getElementById('prefsPadPlayback').checked = padOn;
   // Restore bass sound preference (default: 33 = Electric Bass Finger)
   var bassSound = '33';
   try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
@@ -399,6 +403,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
   var epOn = document.getElementById('prefsEPPlayback').checked;
   try { localStorage.setItem('hhd_ep_playback', epOn ? 'true' : 'false'); } catch(e) {}
+  var padOn = document.getElementById('prefsPadPlayback').checked;
+  try { localStorage.setItem('hhd_pad_playback', padOn ? 'true' : 'false'); } catch(e) {}
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
@@ -421,6 +427,7 @@ document.getElementById('prefsSave').onclick = function() {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
     window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
     window.synthBridge.setEPProgram(4);
+    window.synthBridge.setPadProgram(48);
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -686,6 +693,7 @@ function initBeatHistoryHandlers() {
     'hhd_drumkit': '0',
     'hhd_bass_playback': 'true',
     'hhd_ep_playback': 'true',
+    'hhd_pad_playback': 'true',
     'hhd_bass_sound': '33',
     'hhd_follow_playhead': 'false',
     'hhd_show_chords': 'true',
@@ -783,6 +791,7 @@ function initBeatHistoryHandlers() {
                 var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
                 window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
                 window.synthBridge.setEPProgram(4);
+                window.synthBridge.setPadProgram(48);
               } catch(e) {}
             }).catch(function() {});
           }
@@ -1022,12 +1031,14 @@ function initPlayerControls() {
   
   // Read all playback-relevant preferences in one shot
   function _readPlayPrefs() {
-    var p = { bassOn: true, epOn: true, bpm: 90, kit: 0, bass: 33 };
+    var p = { bassOn: true, epOn: true, padOn: true, bpm: 90, kit: 0, bass: 33 };
     try {
       var bp = localStorage.getItem('hhd_bass_playback');
       if (bp !== null) p.bassOn = (bp !== 'false');
       var ep = localStorage.getItem('hhd_ep_playback');
       if (ep !== null) p.epOn = (ep !== 'false');
+      var pd = localStorage.getItem('hhd_pad_playback');
+      if (pd !== null) p.padOn = (pd !== 'false');
       p.bpm = parseInt(document.getElementById('bpm').textContent) || 90;
       p.kit = parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0;
       p.bass = parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33;
@@ -1103,10 +1114,10 @@ function initPlayerControls() {
       // before audio playback begins.
       var midiToPlay;
       if (window._loopSection && curSec && patterns[curSec]) {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
         window._loopMidiBytes = midiToPlay;
       } else {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
       }
       
       // FIX 8: Yield to the browser after MIDI generation so any
@@ -1129,6 +1140,7 @@ function initPlayerControls() {
             window.synthBridge.setDrumKit(_prefs.kit);
             window.synthBridge.setBassProgram(_prefs.bass);
             window.synthBridge.setEPProgram(4); // GM Electric Piano 1
+            window.synthBridge.setPadProgram(48); // GM String Ensemble (overridden by style)
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
