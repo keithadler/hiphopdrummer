@@ -205,13 +205,16 @@ document.getElementById('regenGo').onclick = function() {
 };
 
 /** New Beat button: show the dialog */
-document.getElementById('btnGen').onclick = showRegenDialog;
+var _btnGen = document.getElementById('btnGen');
+if (_btnGen) _btnGen.onclick = showRegenDialog;
 
 /** Export button: show the export dialog */
-document.getElementById('btnExport').onclick = showExportDialog;
+var _btnExport = document.getElementById('btnExport');
+if (_btnExport) _btnExport.onclick = showExportDialog;
 
 /** History button: show beat history dialog */
-document.getElementById('btnHistory').addEventListener('click', function(e) {
+var _btnHistory = document.getElementById('btnHistory');
+if (_btnHistory) _btnHistory.addEventListener('click', function(e) {
   e.preventDefault();
   e.stopPropagation();
   if (typeof showBeatHistoryDialog === 'function') showBeatHistoryDialog();
