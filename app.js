@@ -240,6 +240,7 @@ function showExportDialog() {
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
     if (typeof saved.wavDrums === 'boolean') document.getElementById('expWavDrums').checked = saved.wavDrums;
     if (typeof saved.wavBass === 'boolean') document.getElementById('expWavBass').checked = saved.wavBass;
+    if (typeof saved.wavEP === 'boolean') document.getElementById('expWavEP').checked = saved.wavEP;
     if (typeof saved.masterFx === 'boolean') document.getElementById('expMasterFx').checked = saved.masterFx;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
@@ -290,6 +291,7 @@ document.getElementById('exportGo').onclick = function() {
     wav:         document.getElementById('expWav').checked,
     wavDrums:    document.getElementById('expWavDrums').checked,
     wavBass:     document.getElementById('expWavBass').checked,
+    wavEP:       document.getElementById('expWavEP').checked,
     masterFx:    document.getElementById('expMasterFx').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
@@ -544,7 +546,7 @@ var ROLE_TIPS = {
   },
   keys: {
     title: '🎹 Keys / Musician',
-    html: '<p>The chord sheet and playback overlay show you exactly what to play — with feel-aware voicings, voice-led inversions, and hand split guidance that change per style.</p><h3>Your Workflow</h3><p>Generate a beat, check the <b>chord overlay</b> during playback — it highlights the current chord with a piano diagram showing voice-led inversions (common tones held between chords). The <b>chord sheet</b> in About This Beat shows voicings for every section: triads for boom bap, 9ths for Dilla, min7 for G-Funk, add9 for halftime, maj7 for bounce, dim7 passing chords for jazz.</p><h3>Modal Harmony</h3><p>G-Funk uses <b>Dorian</b> — the IV chord is major (C7, not Cm7). Dark styles use <b>Phrygian</b> — the bII creates sinister tension. The tool explains why each mode sounds the way it does. Borrowed chords (bVI, bVII) are correctly derived from the natural minor scale.</p><h3>Hand Split</h3><p>The chord sheet tells you how to split between hands per style. Jazz/Dilla: LH root+5th, RH 3rd+7th+9th. Dark: LH sustain root, RH single melody notes. Boom bap: LH root on the kick, RH chord voicing. Section tips tell you where to play in the bar — stab on beat 1, comp on upbeats, whole notes for chorus.</p><h3>Jam Along</h3><p>Play Rhodes over a Dilla beat. Add guitar to boom bap. Lay down horns over G-Funk. The drums and bass are the foundation — everything you add makes it yours.</p>'
+    html: '<p>The chord sheet and playback overlay show you exactly what to play — and now the app generates an <b>electric piano part</b> automatically for styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce).</p><h3>Electric Piano</h3><p>The EP comps in style-appropriate rhythms: sustained chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated tones for Nujabes, pad-style for G-Funk, stabs for bounce. It uses voice-led inversions (common tones held between chords), per-note velocity humanization, and reacts to the drums — resting on loud snare backbeats and thinning when hats are dense. G-Funk and Dilla styles use Dorian IV (dominant 7th, not minor 7th).</p><h3>Your Workflow</h3><p>Generate a beat, check the <b>chord overlay</b> during playback — it highlights the current chord with a piano diagram. The EP part plays along automatically. Export the <b>EP MIDI</b> to study the voicings in your DAW, or disable it in Preferences and play your own part over the drums and bass.</p><h3>Modal Harmony</h3><p>G-Funk uses <b>Dorian</b> — the IV chord is major (C7, not Cm7). Dark styles use <b>Phrygian</b> — the bII creates sinister tension. The tool explains why each mode sounds the way it does. Borrowed chords (bVI, bVII) are correctly derived from the natural minor scale.</p><h3>Hand Split</h3><p>The chord sheet tells you how to split between hands per style. Jazz/Dilla: LH root+5th, RH 3rd+7th+9th. Dark: LH sustain root, RH single melody notes. Boom bap: LH root on the kick, RH chord voicing.</p><h3>Jam Along</h3><p>The EP gives you a reference — listen to how it voices the chords, then play your own version. Disable it in Preferences when you\'re ready to take over the keys part yourself.</p>'
   },
   bassist: {
     title: '🎸 Bassist',

@@ -793,6 +793,38 @@ function analyzeBeat() {
   abDiffs.forEach(function(d) { lines.push('• ' + d); });
   lines.push('This A/B variation is how real producers create movement without changing the feel. Copy bar 1, change one element, and you have a 2-bar phrase.');
 
+  // === ELECTRIC PIANO ===
+  var epFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel;
+  if (EP_STYLES && EP_STYLES[epFeelBase]) {
+    lines.push('');
+    lines.push('🎹 <b>ELECTRIC PIANO</b>');
+    var epStyle = EP_COMP_STYLES[epFeelBase] || {};
+    var epRhythmDesc = {
+      whole: 'Sustained whole-note chords — one chord per bar, held with the sustain pedal. The warmth comes from letting the notes ring and blend.',
+      pad: 'Pad-style sustained chords with soft re-attacks on beat 3. The sound sits underneath everything like a warm blanket — felt more than heard.',
+      half: 'Half-note chords on beats 1 and 3. More rhythmic than a pad, but still sustained enough to provide harmonic foundation.',
+      stab: 'Short rhythmic stabs — punchy chord hits on beat 1 and syncopated positions. The attack is the point, not the sustain.',
+      comp: 'Jazz-style comping — syncopated chord hits on upbeats, skipping some beats entirely. The rhythm is conversational, responding to the drums and bass.',
+      arp: 'Arpeggiated chord tones in a pendulum pattern (ascending then descending). Each note rings individually, creating a flowing melodic texture.'
+    };
+    var epVoicingDesc = {
+      ninth: 'Extended 9th chord voicings — root, 3rd, 5th, 7th, 9th. Five notes create a rich, dense harmonic texture.',
+      seventh: 'Minor 7th voicings — root, 3rd, 5th, 7th. The standard jazz/soul chord that defines the electric piano sound.',
+      triad: 'Simple triads — root, 3rd, 5th. Clean and direct, letting the drums and bass carry the complexity.',
+      shell: 'Shell voicings — root, 3rd, 7th (no 5th). Sparse and open, leaving room for the bass to define the harmony.'
+    };
+    lines.push('This beat uses <b>' + (epRhythmDesc[epStyle.rhythm] || 'chord comping') + '</b>');
+    lines.push('Voicing: <b>' + (epVoicingDesc[epStyle.voicing] || epStyle.voicing) + '</b>');
+    if (EP_DORIAN_IV && EP_DORIAN_IV[epFeelBase]) {
+      lines.push('The IV chord uses <b>Dorian mode</b> — major 3rd + minor 7th (dominant 7th quality). This is what gives the harmony its warm, soulful character instead of a dark minor sound.');
+    }
+    lines.push('The electric piano reacts to the drums: it rests on loud snare backbeats (beats 2 and 4) to give the snare room, and thins out when the hats are playing dense 16th notes. Voice leading holds common tones between chords — when the chord changes, the fingers that can stay put do stay put.');
+    if (epStyle.behind > 0) {
+      lines.push('Timing: the chords sit <b>' + epStyle.behind + ' ticks behind the beat</b> — the same lazy, behind-the-pocket feel that defines this style.');
+    }
+    lines.push('The EP is on <b>MIDI channel 3</b> (channel index 2) in the export. Load it into a separate track with an electric piano sound — GM program 4 (Electric Piano 1) or any warm EP patch.');
+  }
+
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
   lines.push('🔬 <b>TECHNIQUE SPOTLIGHT</b>');

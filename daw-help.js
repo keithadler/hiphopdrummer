@@ -196,6 +196,18 @@ function buildHelpGeneral(bpm, swing, noSwing) {
     'section. Load these into a separate track with a bass synth, 808,',
     'or Keygroup program. The bass is on MIDI channel 1.',
     '',
+    'ELECTRIC PIANO MIDI',
+    '-------------------',
+    'The MIDI Patterns/Electric Piano/ subfolder contains EP .mid files',
+    'for styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce).',
+    'Load these into a separate track with an electric piano sound.',
+    'The EP is on MIDI channel 3 (channel index 2).',
+    'GM program 4 (Electric Piano 1) is recommended.',
+    '',
+    'If your style doesn\'t use electric piano (boom bap, crunk, Memphis,',
+    'dark, etc.), the EP folder will be empty or absent — that\'s correct.',
+    'Not every hip hop style uses keys.',
+    '',
   ]).concat(_footerSection()).join('\r\n');
 }
 
