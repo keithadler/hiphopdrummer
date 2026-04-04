@@ -2,6 +2,30 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.19] - 2026-04-04
+
+### Added
+- Grid edit mode visual indicator: red-tinted cell borders + pointer cursor when edit mode is on
+- Click BPM/Swing in header to adjust with slider popup
+
+### Changed
+- Loop playback suppresses chord toast overlay and forces follow-playhead on
+- Pattern tools (Edit, Regen, Loop, Undo) wrap to their own line on mobile
+- Bar tabs limited to 4 per row on mobile (8 bars = 2 rows)
+- Swing description thresholds consistent everywhere (heavy/groove/feel/straight)
+
+### Fixed
+- iOS playback: synth pre-initialized on first user gesture and before countdown delay
+- Prefs save initializes synth before applying drum kit/bass sound
+- swingDesc restored when loading beat from history
+- restoreBeatState resets edit mode, loop toggle, undo state
+- Loop restart guard prevents duplicate timer accumulation
+- Generation error boundary ensures loading indicator always removed
+- Share URL resolves regional variants to base feel
+- renderGrid caches velocity mode (eliminates 1000+ localStorage reads)
+- beforeunload save is synchronous
+- Pattern tools flex-shrink prevents wrapping issues
+
 ## [1.18] - 2026-04-03
 
 ### Added
