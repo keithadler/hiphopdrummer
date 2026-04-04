@@ -642,6 +642,30 @@ function initBeatHistoryHandlers() {
 // ── Boot ──
 
 /**
+ * Ensure all preference keys have default values in localStorage.
+ * Runs once on boot so every subsequent read gets a consistent value.
+ * Only writes if the key doesn't exist yet (preserves user choices).
+ */
+(function _ensureDefaults() {
+  var defaults = {
+    'hhd_drumkit': '0',
+    'hhd_bass_playback': 'true',
+    'hhd_bass_sound': '33',
+    'hhd_follow_playhead': 'false',
+    'hhd_show_chords': 'true',
+    'hhd_countdown': 'true',
+    'hhd_velocity_mode': 'percent'
+  };
+  try {
+    for (var key in defaults) {
+      if (localStorage.getItem(key) === null) {
+        localStorage.setItem(key, defaults[key]);
+      }
+    }
+  } catch(e) {}
+})();
+
+/**
  * IIFE boot sequence:
  *   1. Try to load last beat from history
  *   2. If no history, generate the first beat
@@ -750,10 +774,10 @@ function initBeatHistoryHandlers() {
         if (playBtn) playBtn.disabled = false;
         // Apply saved drum kit and bass sound preferences on startup
         try {
-          var savedKit = localStorage.getItem('hhd_drumkit');
-          if (savedKit) window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
-          var savedBass = localStorage.getItem('hhd_bass_sound');
-          if (savedBass) window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
+          var savedKit = localStorage.getItem('hhd_drumkit') || '0';
+          window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
+          var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
+          window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
         } catch(e) {}
       }, remaining);
     } else if (_bootAttempts >= _maxBootAttempts) {
@@ -2017,6 +2041,8 @@ function initPlaybackTracking() {
         var eb = document.getElementById('playerEditBtn');
         if (eb) eb.classList.remove('edit-active');
       }
+      // Close velocity editor if open
+      if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
       if (!playing) {
         clearCursor();
         window._playbackControlsBarTabs = false;

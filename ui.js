@@ -1361,12 +1361,14 @@ function _showVelEditor(cell, row, step) {
     valSpan.textContent = d + suffix;
   };
   slider.onchange = function() {
+    if (window.synthBridge && window.synthBridge.isPlaying) { _hideVelEditor(); return; }
     _saveUndo();
     pat[row][step] = parseInt(slider.value);
     _afterEdit();
     _hideVelEditor();
   };
   div.querySelector('.vel-editor-del').onclick = function() {
+    if (window.synthBridge && window.synthBridge.isPlaying) { _hideVelEditor(); return; }
     _saveUndo();
     pat[row][step] = 0;
     _afterEdit();

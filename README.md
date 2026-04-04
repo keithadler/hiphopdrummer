@@ -1,6 +1,6 @@
-# 🥁 Hip Hop Drummer — Release 1.10
+# 🥁 Hip Hop Drummer — Release 1.15
 
-Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Professionally reviewed and tuned by working musicians — every velocity, swing relationship, chord voicing, and rhythmic detail has been verified for authenticity. Learn, produce, rap over it, scratch over it, or jam along.
+Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Professionally reviewed and tuned by working musicians — every velocity, swing relationship, chord voicing, and rhythmic detail has been verified for authenticity. Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -107,6 +107,10 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
   - Flow Guide — rapper-focused delivery tips for the BPM and feel
   - Song Elements, Reference Tracks, Technique spotlights, producer history, difficulty rating, ear training, common mistakes, equipment guides
 - **Click any grid cell** to hear that drum hit at its velocity and see an explanation of why it's there
+- **Edit mode** — toggle ✏ to switch from learning to editing. Click empty cells to add hits, click filled cells to adjust velocity with a slider or delete. Double-click not required — single click in edit mode.
+- **Regenerate section** — 🎲 button regenerates just the current section's drum pattern using the same style rules, without affecting the rest of the song
+- **Section loop** — 🔁 button loops the current section during playback for practicing or auditioning edits
+- **1-level undo** — ↩ Undo button appears after any edit (cell add/delete/velocity change or section regenerate). Reverts to the state before the last edit.
 - **Click any row label** (Kick, Snare, Hat, etc.) to audition that instrument sound
 - **Section toast notifications** — blue overlay shows the section name and bar count as each section begins during playback
 - **Chord overlay during playback** — shows piano keyboard diagrams for the current section's chords, highlights the active bar's chord, scrolls with playback
