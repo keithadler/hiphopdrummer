@@ -114,10 +114,11 @@ function applyGroove(p, len, feel) {
       var barNum = Math.floor(i / 16);
       var barInPhrase = barNum % 8;
       var arcMult = 1.0;
-      if (barInPhrase === 2 || barInPhrase === 3) arcMult = 0.97;      // settle
+      if (barInPhrase === 0 || barInPhrase === 1) arcMult = 1.02;       // statement
+      else if (barInPhrase === 2 || barInPhrase === 3) arcMult = 0.97; // settle
       else if (barInPhrase === 4 || barInPhrase === 5) arcMult = 1.0;  // steady
       else if (barInPhrase === 6) arcMult = 1.03;                       // push
-      else if (barInPhrase === 7) arcMult = 1.05;                       // peak into fill/transition
+      else if (barInPhrase === 7) arcMult = 1.05;                       // peak
       if (arcMult !== 1.0) {
         ROWS.forEach(function(r) {
           if (p[r][i] > 0) p[r][i] = Math.min(127, Math.max(30, Math.round(p[r][i] * arcMult)));
@@ -286,17 +287,8 @@ function postProcessPattern(p, len, isCh, feel) {
     if (p.snare[i] > 0 && p.snare[i] < 80) {
       var targetStep = i + clusterSpacing;
       if (targetStep < len && p.snare[targetStep] === 0) {
-        // FIX #10: Check for kick collision at target step across all copied bars
-        var hasKickCollision = false;
-        var targetPos = targetStep % 16;
-        // Check if any bar has a kick at this position
-        for (var checkBar = 0; checkBar < Math.ceil(len / 16); checkBar++) {
-          var checkStep = checkBar * 16 + targetPos;
-          if (checkStep < len && p.kick[checkStep] > 0) {
-            hasKickCollision = true;
-            break;
-          }
-        }
+        // Check for kick collision at target step in the CURRENT bar only
+        var hasKickCollision = (p.kick[targetStep] > 0);
         if (!hasKickCollision && maybe(clusterProb)) {
           p.snare[targetStep] = Math.max(30, p.snare[i] - pick([5, 8, 12]));
         }

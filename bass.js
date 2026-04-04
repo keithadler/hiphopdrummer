@@ -942,8 +942,9 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
       // In sparse bars, fill gaps more aggressively
       var fillProb = stepCtx[s].isSparseBar ? 0.25 : 0.12;
       if (maybe(fillProb)) {
-        // Play a passing tone — chromatic approach to root or 5th
-        var fillNote = maybe(0.6) ? rootNote - 1 : rootNote + 7;
+        // Play a passing tone — chromatic approach, 3rd, 4th, 5th, or b7
+        var fillChoices = [rootNote - 1, rootNote + 3, rootNote + 5, rootNote + 7, rootNote + 10];
+        var fillNote = pick(fillChoices);
         if (fillNote > 48) fillNote -= 12;
         if (fillNote < 24) fillNote += 12;
         fillNote = Math.min(48, Math.max(24, fillNote));

@@ -1467,8 +1467,8 @@ function addFill(p, sec, len, feel) {
   var isBig = (sec==='pre'||sec==='lastchorus'); // "big" sections get crash at end
   var start = len - fillLen;
 
-  // Clear space for fill — remove hats so the fill stands out
-  for (var i = start; i < len; i++) { p.hat[i] = 0; p.openhat[i] = 0; }
+  // Clear space for fill — remove hats and shaker so the fill stands out
+  for (var i = start; i < len; i++) { p.hat[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; }
 
   if (feel === 'jazzy') {
     // Jazzy fill: ghost-level snare roll with crescendo dynamics
@@ -1491,6 +1491,11 @@ function addFill(p, sec, len, feel) {
     // Dark fill: single snare hit or silence — minimal
     if (maybe(.7)) p.snare[len - 1] = v(110, 8);
     if (maybe(.3)) p.kick[len - 1] = v(100, 10);
+  }
+  else if (feel === 'sparse') {
+    // Sparse fill: almost nothing — one soft snare or complete silence
+    if (maybe(.5)) p.snare[len - 1] = v(85, 10);
+    // No crash, no clap — space IS the fill
   }
   else if (feel === 'halftime') {
     // Halftime fill: single heavy snare on beat 3 position of last bar, maybe a kick setup
