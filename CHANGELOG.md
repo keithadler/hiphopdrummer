@@ -2,6 +2,37 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.18] - 2026-04-03
+
+### Added
+- New cells add at 127 (100%) velocity — user adjusts with velocity editor
+- Click BPM in header to adjust with slider popup
+- Click Swing in header to adjust with slider popup (updates swing description)
+- Wake Lock API prevents screen sleep during playback
+- iOS "Add to Home Screen" install banner
+
+### Changed
+- Loop is now a toggle — press Play with loop on to play current section on repeat, Stop in header to stop
+- Empty cells no longer show tooltips
+- Share URL resolves regional variants to base feel
+- renderGrid caches velocity mode (eliminates 1000+ localStorage reads per render)
+- beforeunload save is synchronous to complete before navigation
+
+### Fixed
+- Regen section now assigns generatePattern return value (was discarding it — regen did nothing)
+- restoreBeatState resets edit mode, loop toggle, undo state, and closes velocity editor
+- Loop toggle no longer blocks undo/edit/BPM/Swing/row-label when not playing
+- Failsafe poll includes playerLoopBtn in sync list
+- _selectArrItem doesn't seek during loop playback
+- Velocity editor closes on _afterEdit and regen section
+- BPM change updates player total time display
+- Keyboard Enter/Space triggers edit actions in edit mode
+- Play .catch re-enables all nav buttons on failure
+- Loading timeout re-enables all nav buttons
+- Header editor scroll listener cleanup consistent
+- Pattern tools flex-shrink prevents wrapping on mobile
+- 30+ additional bug fixes across editing, playback, and export systems
+
 ## [1.17] - 2026-04-03
 
 ### Added

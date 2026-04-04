@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Release 1.17
+# 🥁 Hip Hop Drummer — Release 1.18
 
 Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Professionally reviewed and tuned by working musicians — every velocity, swing relationship, chord voicing, and rhythmic detail has been verified for authenticity. Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 

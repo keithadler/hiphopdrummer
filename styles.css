@@ -125,7 +125,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 /* Undo button */
 .btn-undo{color:var(--text-muted);border-color:var(--border);font-size:12px;padding:0 8px}
 /* Pattern tool buttons */
-.pattern-tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+.pattern-tools{margin-left:auto;display:flex;gap:4px;align-items:center;flex-shrink:0}
 .btn-tool{font-size:11px;height:26px;padding:0 8px;color:var(--text-muted);border-color:var(--border);letter-spacing:0.5px}
 .btn-tool:hover{color:#fff}
 .btn-tool.edit-active{color:var(--accent-red);border-color:rgba(224,72,72,.3)}
