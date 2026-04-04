@@ -58,6 +58,8 @@ function _applyMarquee(el, text) {
   el.classList.remove('marquee-active');
   // Check overflow after a frame so layout is computed
   requestAnimationFrame(function() {
+    // Guard: element may have been removed from DOM during the frame
+    if (!el.parentNode) return;
     if (el.scrollWidth > el.clientWidth + 2) {
       // Escape HTML entities for safe innerHTML
       var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
