@@ -85,7 +85,16 @@ function showRegenDialog() {
       ? allBpms.filter(function(b) { return b >= data.bpmRange[0] && b <= data.bpmRange[1]; })
       : allBpms;
     bpms.forEach(function(b) {
-      bpmEl.innerHTML += '<option value="' + b + '">' + b + '</option>';
+      var zone = '';
+      if (b <= 74) zone = ' — slow & heavy';
+      else if (b <= 82) zone = ' — dark pocket';
+      else if (b <= 92) zone = ' — boom bap sweet spot';
+      else if (b <= 102) zone = ' — mid-tempo groove';
+      else if (b <= 112) zone = ' — uptempo energy';
+      else if (b <= 130) zone = ' — fast & aggressive';
+      else if (b <= 150) zone = ' — crunk / club';
+      else zone = ' — double-time';
+      bpmEl.innerHTML += '<option value="' + b + '">' + b + zone + '</option>';
     });
     // Reset BPM to Auto so the generator picks a style-appropriate tempo
     bpmEl.value = '';

@@ -524,6 +524,33 @@ function analyzeBeat() {
     lines.push(desc);
   });
 
+  // === WHY THIS FILL ===
+  var fillDescs = {
+    normal: 'B-Boy snare build — 2-3 hits crescendo into a crash. The classic boom bap transition. Hats drop out so the snare owns the moment.',
+    hard: 'Kick+snare unisons at max velocity — every hit is a statement. No subtlety. The fill IS the impact.',
+    jazzy: 'Ghost-level snare roll with crescendo — starts soft, builds to a tap. Jazz fills whisper, they don\'t shout.',
+    dark: 'Single snare hit or silence. In dark beats, the fill is what you DON\'T play. The space before the next section is the tension.',
+    sparse: 'One soft snare or complete silence. Space IS the fill. The absence creates anticipation.',
+    halftime: 'Single heavy snare on the last step with a kick setup. Halftime fills are deliberate — one hit that says "here it comes."',
+    bounce: 'Kick-snare alternation — danceable even in the transition. The groove never stops moving.',
+    dilla: 'Soft scattered ghost roll that barely announces itself. Dilla fills dissolve — they don\'t punctuate. No crash.',
+    lofi: 'Almost nothing — one muted snare, maybe a kick. The dusty aesthetic extends to the fill. Less is the entire point.',
+    chopbreak: 'Dense snare flurry mimicking a real drummer\'s break fill. Fast hands, building velocity, crash at the end.',
+    gfunk: 'Snare build with open hat — smooth West Coast transition. The open hat on the second-to-last step is the G-Funk signature.',
+    crunk: 'One massive snare+clap+kick hit on the last step — the Lil Jon "OKAYYYY" moment. Maximum impact, zero subtlety.',
+    memphis: 'Single heavy snare hit — Memphis fills are skeletal. One crack, then the next section drops.',
+    griselda: 'Hard kick+snare — punchy and direct. Daringer-style: every hit is a statement.',
+    nujabes: 'Soft ghost-level snare roll — jazzy and gentle. Nujabes fills dissolve like Dilla\'s, with warmth.',
+    oldschool: 'Simple snare hit on the last step — drum machine precision. No fills in the modern sense.',
+    driving: 'Kick-snare buildup with forward momentum — the fill pushes you into the next section.',
+    big: 'Snare crescendo with clap layers — stadium energy. The fill announces the hook.'
+  };
+  var fillDesc = fillDescs[songFeelBase] || fillDescs.normal;
+  lines.push('');
+  lines.push('🥁 <b>WHY THIS FILL STYLE</b>');
+  lines.push(fillDesc);
+  lines.push('Listen for the fill at the end of each section — the hats and shaker drop out, and the snare (or silence) takes over for the last 2-4 steps. That gap is what makes the next section\'s downbeat hit hard.');
+
   // === REFERENCE TRACKS ===
   lines.push('');
   lines.push('🎧 <b>REFERENCE TRACKS</b>');
@@ -552,6 +579,44 @@ function analyzeBeat() {
   for (var ri = 0; ri < Math.min(refs.length, 3); ri++) lines.push('• ' + refs[ri]);
   lines.push('Listen to the drums specifically — mute the vocals in your head and focus on kick placement, ghost notes, and hat dynamics.');
 
+  // === WHAT WOULD THEY DO DIFFERENTLY ===
+  lines.push('');
+  lines.push('🎩 <b>WHAT WOULD THEY DO DIFFERENTLY?</b>');
+  lines.push('If this beat landed on different producers\' desks, here\'s how they\'d change it:');
+  var producerComps = {
+    normal: [
+      '• <b>Premier</b> would tighten the kick timing (less swing), strip the ghost snares to 1-2 per bar, and make the hat straighter. His beats are mechanical precision with soul.',
+      '• <b>Pete Rock</b> would add a ride cymbal, double the ghost snare density, and widen the velocity range. His beats breathe like a live jazz drummer.',
+      '• <b>Dilla</b> would loosen everything — push the kick behind the beat, scatter ghost snares everywhere, and make the hats swing 30% harder than the kick.'
+    ],
+    hard: [
+      '• <b>Havoc</b> would strip the ghost notes almost completely, boost the snare to max, and keep the hat dead straight. Mobb Deep beats are weapons, not grooves.',
+      '• <b>Premier</b> would keep the aggression but add one ghost snare cluster for texture. Even his hardest beats have a pocket.',
+      '• <b>Alchemist</b> would slow it down 5 BPM, add more space between kicks, and let the sample do the heavy lifting.'
+    ],
+    jazzy: [
+      '• <b>Q-Tip</b> would simplify the kick to just 1 and 3, add a ride cymbal, and let the hat swing naturally. Tribe beats are deceptively simple.',
+      '• <b>Pete Rock</b> would add a rimshot on the backbeat, double the ghost density, and use a wider velocity range on the hats.',
+      '• <b>Madlib</b> would compress the dynamics, detune everything slightly, and add vinyl crackle. Same notes, completely different texture.'
+    ],
+    dilla: [
+      '• <b>Questlove</b> would play it live — same ghost note density but with human timing variation that no grid can replicate.',
+      '• <b>Kaytranada</b> would add a four-on-the-floor kick underneath and push the BPM up 10. Same Dilla DNA, modern dance energy.',
+      '• <b>Knxwledge</b> would chop the pattern into 2-bar loops, pitch it down, and add tape saturation until it sounds like it\'s playing through a broken speaker.'
+    ],
+    gfunk: [
+      '• <b>Dre</b> would polish it — tighter kick, cleaner hat dynamics, and a Minimoog bass that slides between every note.',
+      '• <b>DJ Quik</b> would make the kick busier, add more ghost snares, and push the funk harder. Quik\'s beats are rawer than Dre\'s.',
+      '• <b>Too Short</b> would simplify to just kick and snare, add a talk box melody, and let the bass carry everything.'
+    ],
+    memphis: [
+      '• <b>DJ Paul</b> would slow it down, add a cowbell, and make the 808 sub sustain for 2 full beats. Memphis is about hypnotic repetition.',
+      '• <b>Juicy J</b> would add a hi-hat roll on the last beat of every other bar — the Three 6 Mafia signature.',
+      '• <b>SpaceGhostPurrp</b> would distort everything, resample it at half speed, and add a vocal chop from an old Memphis tape.'
+    ]
+  };
+  var comps = producerComps[songFeelBase] || producerComps.normal;
+  for (var ci = 0; ci < comps.length; ci++) lines.push(comps[ci]);
 
   // === WHAT MAKES THIS BEAT UNIQUE ===
   var uniqueParts = [];
@@ -705,6 +770,27 @@ function analyzeBeat() {
   if (sharedKicks >= 2 && v1Kicks > 0) lines.push('The chorus kick shares ' + sharedKicks + ' hit positions with the verse — it was built by adding kicks to the verse pattern. The chorus feels like a natural evolution of the verse, not a separate beat. Try this: copy your verse kick, then add 1-2 hits for the chorus.');
   if (v2Kicks !== v1Kicks) lines.push('Verse 2 uses ' + v2Kicks + ' kicks vs verse 1\'s ' + v1Kicks + ' — a completely different pattern keeps the song moving forward.');
 
+  // A/B bar comparison — explain what changed between bar 1 and bar 2
+  lines.push('');
+  lines.push('<b>A/B Bar Variation (Bars 1 vs 2):</b>');
+  var abDiffs = [];
+  if (baseKickB) {
+    var kickDiffs = 0;
+    for (var i = 0; i < 16; i++) {
+      if ((baseKick[i] ? 1 : 0) !== (baseKickB[i] ? 1 : 0)) kickDiffs++;
+    }
+    if (kickDiffs === 0) abDiffs.push('Kick is identical in both bars — the groove is locked and repetitive.');
+    else if (kickDiffs === 1) abDiffs.push('Kick has 1 hit different in bar 2 — a subtle variation that keeps the loop from feeling static. This is the most common A/B technique: change ONE kick hit.');
+    else abDiffs.push('Kick has ' + kickDiffs + ' hits different in bar 2 — a more dramatic variation that creates a 2-bar phrase.');
+  }
+  if (baseSnareGhostA && baseSnareGhostB) {
+    var ghostAPos = baseSnareGhostA.map(function(g) { return g[0]; }).sort().join(',');
+    var ghostBPos = baseSnareGhostB.map(function(g) { return g[0]; }).sort().join(',');
+    if (ghostAPos !== ghostBPos) abDiffs.push('Ghost snare positions shift between bars — bar A and bar B have different ghost placements, creating a 2-bar phrase that feels alive.');
+    else abDiffs.push('Ghost snares are in the same positions both bars — consistent groove, no surprises.');
+  }
+  abDiffs.forEach(function(d) { lines.push('• ' + d); });
+  lines.push('This A/B variation is how real producers create movement without changing the feel. Copy bar 1, change one element, and you have a 2-bar phrase.');
 
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
