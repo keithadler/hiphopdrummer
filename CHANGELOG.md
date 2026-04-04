@@ -4,10 +4,20 @@ All notable changes to Hip Hop Drummer are documented in this file.
 
 ## [1.29] - 2026-04-04
 
+### Added
+- 9 total instruments: drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, clavinet
+- Synth Lead: G-Funk whistle melody with pentatonic scales, slides, 2-bar motifs (MIDI ch 4, GM Square/Saw Lead)
+- Organ: sustained drawbar organ for jazz/Nujabes/Queens/bounce, layers with EP (MIDI ch 5, GM Drawbar Organ)
+- Horn Stabs: brass section chord hits for boom bap/big/driving/chopbreak/oldschool, kick-locked (MIDI ch 6, GM Brass Section)
+- Vibraphone: bell-like arpeggiated tones for Nujabes/jazzy, 2-bar melodic motifs (MIDI ch 7, GM Vibraphone)
+- Clavinet: funky percussive 16th-note comping for bounce/G-Funk DJ Quik (MIDI ch 8, GM Clavinet)
+- Every style now has at least one harmonic instrument beyond drums and bass
+- Synth Pad: 10 musicality features (drum density response, velocity arc, Phrygian bII, kick-locked crunk stabs, etc.)
+
 ### Fixed
-- EP now plays in all sections when the song's primary feel is an EP style (was only playing in sections whose individual feel was in EP_STYLES — chorus/breakdown/etc were silent)
-- EP styleLookup ternary logic fixed (could resolve to empty string, falling back to wrong style)
-- EP analysis section indicator matches song-level EP logic (no longer incorrectly lists sections as "No EP")
+- EP plays in all sections when song's primary feel is EP-enabled (was silent in chorus/breakdown)
+- EP styleLookup ternary logic fixed (could resolve to empty string)
+- Analysis EP section indicator matches song-level logic
 
 ## [1.28] - 2026-04-04
 
