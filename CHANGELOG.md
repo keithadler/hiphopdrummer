@@ -2,6 +2,32 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.16] - 2026-04-03
+
+### Added
+- Edit mode toggle (✏) in player controls — opt-in editing, tooltips remain default
+- Velocity editor popup: click filled cells to adjust velocity with slider or delete
+- Regenerate section button (🎲) — fresh pattern for current section, undoable
+- Section loop button (🔁) — loops current section during playback
+- 1-level undo (↩) for all edits and section regeneration
+- Loading indicator with spinner during beat generation
+- WAV stems export: drums-only and bass-only WAV (unchecked by default)
+- Stop playback on screen lock / tab hide (visibilitychange)
+- Preference defaults written to localStorage on first boot
+
+### Changed
+- About This Beat now rebuilds after section regeneration
+- Export filenames prefixed for iOS flat ZIP extraction (MIDI_, MPC_, Bass_, DAW_)
+- All edits auto-save to current history slot (debounced 500ms)
+- Edit mode, velocity editor, and regen button all disable during playback
+- Docs updated: README, DOCS.md, About dialog reflect editing, regen, loop, undo capabilities
+
+### Fixed
+- Preferences not loading on first visit (defaults now written to localStorage on boot)
+- Drum kit and bass sound always applied on startup (removed null guard)
+- Velocity editor guards against playback state changes
+- Velocity editor clamps to viewport edges and closes on scroll
+
 ## [1.15] - 2026-04-03
 
 ### Added
