@@ -471,7 +471,7 @@ midi-player::part(play-button){color:var(--accent-green)}
     text-align:center;
   }
   /* Style group spans full width on mobile */
-  .ctrl-style{grid-column:1 / -1}
+  .ctrl-style{grid-column:1 / -1;overflow:hidden}
   .ctrl-group{
     justify-content:center;
     padding:4px 6px;
