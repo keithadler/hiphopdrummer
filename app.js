@@ -950,6 +950,42 @@ function initPlayerControls() {
     };
   }
 
+  // Regenerate current section button
+  var regenSecBtn = document.getElementById('playerRegenSecBtn');
+  if (regenSecBtn) {
+    regenSecBtn.onclick = function() {
+      if (window.synthBridge && window.synthBridge.isPlaying) return;
+      if (!curSec) return;
+      // Save undo state
+      if (typeof _saveUndo === 'function') _saveUndo();
+      // Regenerate just this section's pattern
+      if (typeof generatePattern === 'function') {
+        generatePattern(curSec);
+        // Apply groove and humanization
+        var len = secSteps[curSec] || 32;
+        var feel = secFeels[curSec] || songFeel || 'normal';
+        var baseFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(feel) : feel;
+        if (typeof postProcessPattern === 'function') postProcessPattern(patterns[curSec], len, curSec === 'chorus' || curSec === 'chorus2' || curSec === 'lastchorus', baseFeel);
+        if (typeof applyGroove === 'function') applyGroove(patterns[curSec], len, baseFeel);
+        if (typeof humanizeVelocities === 'function') humanizeVelocities(patterns[curSec], len, baseFeel);
+      }
+      renderGrid();
+      if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
+    };
+  }
+
+  // Edit mode toggle
+  window._editMode = false;
+  var editBtn = document.getElementById('playerEditBtn');
+  if (editBtn) {
+    editBtn.onclick = function() {
+      window._editMode = !window._editMode;
+      editBtn.classList.toggle('edit-active', window._editMode);
+      editBtn.title = window._editMode ? 'Edit mode ON — click cells to add/edit/delete' : 'Edit mode — click cells to add/edit/delete hits';
+    };
+  }
+
   // Poll for synthBridge availability and connect callbacks.
   // These are basic player-only callbacks. initPlaybackTracking()
   // will override them with versions that also do grid tracking.
