@@ -852,7 +852,7 @@ function initPlayerControls() {
       headerPlayBtn.classList.remove('playing');
       // Brief cooldown so user can't accidentally re-trigger play or other actions
       headerPlayBtn.disabled = true;
-      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
       for (var ci = 0; ci < cooldownBtns.length; ci++) {
         var cb = document.getElementById(cooldownBtns[ci]);
         if (cb) cb.disabled = true;
@@ -866,7 +866,7 @@ function initPlayerControls() {
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
       // Disable non-play buttons immediately when starting playback
-      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
         var nb = document.getElementById(navBtnsImmediate[ni]);
         if (nb) nb.disabled = true;
@@ -1035,7 +1035,7 @@ function initPlayerControls() {
       headerPlayBtn.disabled = false;
     }
     // Sync non-play button disabled state
-    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+    var navBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
     for (var ni = 0; ni < navBtns.length; ni++) {
       var nb = document.getElementById(navBtns[ni]);
       if (nb) nb.disabled = playing;
@@ -2006,10 +2006,16 @@ function initPlaybackTracking() {
         else _playerPlayBtn.classList.remove('playing');
       }
       // Disable/enable non-play buttons during playback
-      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      var btns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
       for (var bi = 0; bi < btns.length; bi++) {
         var btn = document.getElementById(btns[bi]);
         if (btn) btn.disabled = playing;
+      }
+      // Turn off edit mode when playback starts
+      if (playing && window._editMode) {
+        window._editMode = false;
+        var eb = document.getElementById('playerEditBtn');
+        if (eb) eb.classList.remove('edit-active');
       }
       if (!playing) {
         clearCursor();

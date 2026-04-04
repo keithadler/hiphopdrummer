@@ -1305,13 +1305,17 @@ function _applyUndo() {
   _saveEditToHistory();
 }
 
+var _saveEditTimer = null;
 function _saveEditToHistory() {
-  if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
-  var history = loadBeatHistory();
-  if (history.length > 0) {
-    history[0] = captureBeatState();
-    saveBeatHistory(history);
-  }
+  if (_saveEditTimer) clearTimeout(_saveEditTimer);
+  _saveEditTimer = setTimeout(function() {
+    if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
+    var history = loadBeatHistory();
+    if (history.length > 0) {
+      history[0] = captureBeatState();
+      saveBeatHistory(history);
+    }
+  }, 500);
 }
 
 function _afterEdit() {
@@ -1341,8 +1345,11 @@ function _showVelEditor(cell, row, step) {
     + '<button class="vel-editor-del" title="Delete hit">✕</button>';
 
   var rect = cell.getBoundingClientRect();
-  div.style.left = Math.max(4, rect.left) + 'px';
-  div.style.top = (rect.bottom + 4) + 'px';
+  var popLeft = Math.max(4, Math.min(rect.left, window.innerWidth - 220));
+  var popTop = rect.bottom + 4;
+  if (popTop + 40 > window.innerHeight) popTop = rect.top - 44;
+  div.style.left = popLeft + 'px';
+  div.style.top = popTop + 'px';
   document.body.appendChild(div);
   _velEditorEl = div;
 
@@ -1368,6 +1375,9 @@ function _showVelEditor(cell, row, step) {
   // Close on outside click (delayed so this click doesn't close it)
   setTimeout(function() {
     document.addEventListener('click', _velEditorOutsideClick);
+    // Close on scroll too
+    var scrollArea = document.querySelector('.scroll-area');
+    if (scrollArea) scrollArea.addEventListener('scroll', _hideVelEditor, { once: true });
   }, 10);
 }
 
