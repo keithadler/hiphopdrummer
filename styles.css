@@ -114,8 +114,6 @@ midi-player::part(play-button){color:var(--accent-green)}
 .player-btn:hover{color:#fff}
 .player-btn-sm{font-size:14px;color:var(--text-muted)}
 .player-btn-sm:hover{color:var(--accent-blue)}
-.player-btn-sm.loop-active{color:var(--accent-green)}
-.player-btn-sm.edit-active{color:var(--accent-red)}
 /* Velocity editor popup */
 .vel-editor{position:fixed;z-index:300;background:var(--bg-raised);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;color:var(--text-primary)}
 .vel-editor input[type=range]{width:100px;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none}
@@ -125,6 +123,12 @@ midi-player::part(play-button){color:var(--accent-green)}
 .vel-editor-del:hover{color:#fff}
 /* Undo button */
 .btn-undo{color:var(--text-muted);border-color:var(--border);font-size:12px;padding:0 8px}
+/* Pattern tool buttons */
+.pattern-tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+.btn-tool{font-size:11px;height:26px;padding:0 8px;color:var(--text-muted);border-color:var(--border);letter-spacing:0.5px}
+.btn-tool:hover{color:#fff}
+.btn-tool.edit-active{color:var(--accent-red);border-color:rgba(224,72,72,.3)}
+.btn-tool.loop-active{color:var(--accent-green);border-color:rgba(72,204,104,.3)}
 /* Loading overlay for beat generation */
 .gen-loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(13,13,18,.7);z-index:400;display:flex;align-items:center;justify-content:center;pointer-events:all}
 .gen-loading-inner{font-family:var(--mono);font-size:16px;color:var(--accent-blue);text-align:center;letter-spacing:1px}
@@ -498,6 +502,8 @@ midi-player::part(play-button){color:var(--accent-green)}
   .panel{padding:8px 8px}
   .panel-title{font-size:13px;letter-spacing:.8px}
   .pattern-info{font-size:12px}
+  .pattern-tools{gap:3px}
+  .btn-tool{font-size:9px;height:22px;padding:0 5px}
 
   /* Arrangement */
   .arr-hint{font-size:12px}
