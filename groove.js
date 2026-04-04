@@ -260,6 +260,10 @@ function postProcessPattern(p, len, isCh, feel) {
     // FIX #5: Adjusted hat choke to 70-75% (25-30% reduction) for natural choke sound
     if (p.openhat[i] > 0) {
       p.hat[i] = 0;
+      // Soften ride on open hat steps — the wash masks the ping
+      if (p.ride[i] > 0) p.ride[i] = Math.floor(p.ride[i] * 0.5);
+      // Drop shaker on open hat steps — the shimmer is redundant
+      if (p.shaker[i] > 0) p.shaker[i] = 0;
       var reducedChokeDuration = (bpm <= 80) ? 2 : 1;
       for (var j = 1; j <= reducedChokeDuration && i + j < len; j++) {
         if (p.openhat[i + j] === 0 && p.hat[i + j] > 0) {

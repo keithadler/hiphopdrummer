@@ -290,10 +290,11 @@ function writeSnA(p, feel, off) {
     // Halftime: snare on beat 3, occasionally dragged to and-of-3
     if (maybe(.15)) p.snare[off + 10] = v(120, 10); // dragged halftime — and-of-3
     else p.snare[off + 8] = v(125, 8);
-    // Ghost on e-of-1 or and-of-1 — common in Havoc/RZA halftime
+    // Ghost on and-of-3 — the drag that defines halftime feel (Havoc, RZA)
+    if (p.snare[off + 8] > 0 && maybe(.55 * ghostDensity)) p.snare[off + 10] = v(50, 10);
+    // Ghost on e-of-1 or and-of-1
     if (maybe(.45 * ghostDensity)) p.snare[off + 2] = v(55, 10);
     if (maybe(.35 * ghostDensity)) p.snare[off + 7] = v(60, 10);
-    if (maybe(.25 * ghostDensity) && !p.kick[off + 9]) p.snare[off + 9] = v(48, 10);
     return;
   }
   if (feel === 'dark') {
@@ -783,7 +784,11 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'jazzy') {
-    // Jazzy always gets ghost 16ths regardless of hat pattern type
+    // When ride is active, hat plays foot pedal on 2/4 only
+    if (useRide) {
+      p.hat[off+4]=v(60,8); p.hat[off+12]=v(60,8);
+      return;
+    }
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(90,12):v(65,18);
     if (maybe(.5)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(40,10); }
     if (maybe(.4)) { var gp2=pick([7,11,15]); p.hat[off+gp2]=v(35,8); }
@@ -797,9 +802,11 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'lofi') {
-    // Lo-fi: sparse 8ths in a narrow velocity band, muted and dusty
+    if (useRide) {
+      p.hat[off+4]=v(50,6); p.hat[off+12]=v(50,6);
+      return;
+    }
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(72,6):v(60,8);
-    // Occasionally skip a hat for that chopped/muted feel
     if (maybe(.3)) { var skip=pick([2,6,10]); p.hat[off+skip]=0; }
     return;
   }
@@ -863,9 +870,13 @@ function writeHA(p, feel, off) {
     return;
   }
   if (feel === 'nujabes') {
-    // Nujabes: soft 8ths — ride cymbal carries the time, hats are texture
+    // Nujabes: when ride is active, hat plays foot pedal on 2/4 only
+    if (useRide) {
+      p.hat[off+4]=v(55,8); p.hat[off+12]=v(55,8);
+      return;
+    }
+    // Without ride: soft 8ths, hats carry the time
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,12):v(48,15);
-    // Occasional ghost 16th for organic feel
     if (maybe(.4)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(30,8); }
     return;
   }

@@ -639,8 +639,9 @@ function generateBassPattern(sec, bpm) {
       // Declare at section start (outside the step loop)
       // 8% chance per section to enable octave drops, then 30% per eligible note
       
-      // Octave drop on beat 1
-      if (pos === 0 && !isDead && sectionAllowsOctaveDrop && maybe(0.3)) {
+      // Octave drop on beat 1 of phrase boundaries (bar 1 or bar 5 of 8-bar phrase)
+      var isPhraseBoundary = (barInPhrase === 0 || barInPhrase === 4);
+      if (pos === 0 && !isDead && sectionAllowsOctaveDrop && isPhraseBoundary && maybe(0.4)) {
         midiNote = currentRootLow;
       }
 
