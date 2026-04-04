@@ -238,6 +238,7 @@ function showExportDialog() {
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
     if (typeof saved.wavDrums === 'boolean') document.getElementById('expWavDrums').checked = saved.wavDrums;
     if (typeof saved.wavBass === 'boolean') document.getElementById('expWavBass').checked = saved.wavBass;
+    if (typeof saved.masterFx === 'boolean') document.getElementById('expMasterFx').checked = saved.masterFx;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
         c.checked = saved.daws.indexOf(c.value) >= 0;
@@ -285,6 +286,7 @@ document.getElementById('exportGo').onclick = function() {
     wav:         document.getElementById('expWav').checked,
     wavDrums:    document.getElementById('expWavDrums').checked,
     wavBass:     document.getElementById('expWavBass').checked,
+    masterFx:    document.getElementById('expMasterFx').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
                .map(function(c) { return c.value; })
@@ -1144,7 +1146,7 @@ function initPlayerControls() {
       if (!window.synthBridge || !window._currentMidiBytes) return;
       wavBtn.textContent = '⏳';
       wavBtn.disabled = true;
-      window.synthBridge.renderToWav(window._currentMidiBytes).then(function(blob) {
+      window.synthBridge.renderToWav(window._currentMidiBytes, true).then(function(blob) {
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
