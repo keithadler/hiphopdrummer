@@ -31,8 +31,9 @@ The project is split into focused modules:
 - **`midi-export.js`** — MIDI file writer, MPC pattern builder, ZIP export, MIDI player, export dialog logic
 - **`daw-help.js`** — DAW-specific help file builders (11 functions, one per DAW/platform)
 - **`pdf-export.js`** — PDF beat sheet generator
-- **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor
-- **`tests.js`** — Automated test suite (4700+ assertions, zero dependencies, `node tests.js`)
+- **`beat-history.js`** — Beat history storage and UI (last 100 beats in localStorage)
+- **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor, visual FX module, share beat, preferences
+- **`tests.js`** — Automated test suite (11,000+ assertions, zero dependencies, `node tests.js`)
 
 ## Key Concepts
 
@@ -118,11 +119,9 @@ Each pool uses `pick()` to select one random entry per generation. Keep entries 
 
 - **Better audio** — Real drum samples via Web Audio API instead of GM SoundFont
 - **Grid editing** — Click-to-toggle cells, drag to set velocity
-- **Generation history** — Ring buffer of recent generations with Previous/Next navigation
-- **URL sharing** — Encode beat state into URL hash for sharing
 - **More educational content** — Add entries to any of the content pools in `analyzeBeat()`
 - **More style feels** — Trap (requires 32-step grid), Drill, Afrobeats, Reggaeton
-- **Accessibility** — Keyboard navigation, screen reader support
+- **Accessibility** — Keyboard navigation improvements, screen reader support enhancements
 
 ## Reporting Issues
 

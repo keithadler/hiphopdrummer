@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Release 1.0
+# 🥁 Hip Hop Drummer — Release 1.10
 
 Generate unique hip hop drum and bass arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Professionally reviewed and tuned by working musicians — every velocity, swing relationship, chord voicing, and rhythmic detail has been verified for authenticity. Learn, produce, rap over it, scratch over it, or jam along.
 
@@ -109,6 +109,20 @@ Hit **NEW BEAT** and a complete, unique drum and bass arrangement is generated f
 - **Click any grid cell** to hear that drum hit at its velocity and see an explanation of why it's there
 - **Click any row label** (Kick, Snare, Hat, etc.) to audition that instrument sound
 - **Section toast notifications** — blue overlay shows the section name and bar count as each section begins during playback
+- **Chord overlay during playback** — shows piano keyboard diagrams for the current section's chords, highlights the active bar's chord, scrolls with playback
+- **Share Beat** — generates a short URL (`#s=gfunk&k=Gm7&b=92`) that loads a fresh beat with the same style/key/BPM and saves it to the recipient's history
+- **Beat History** — stores the last 100 generated beats with style, key, BPM, and timestamp. Click any entry to reload it.
+- **10 visual FX during playback**:
+  - Cursor trail — fading ghost on the previous 3 steps so you see the beat moving
+  - Hit flash — cells brighten and scale up when the cursor lands on an active hit
+  - Row glow — row labels flash in their instrument color (kick red, snare orange, hat blue) on each hit
+  - Section color themes — arrangement cards and grid labels are color-coded by section type (intro cyan, chorus gold, bridge purple, breakdown green)
+  - BPM breathing — player panel border pulses at the tempo rate
+  - Fill countdown — last 4 steps of each section glow red progressively as the section end approaches
+  - Audio visualizer — frequency bar canvas below the player controls showing real-time audio output
+  - Arrangement progress bar — thin gradient bar with section markers showing position in the full song
+  - Beat drop — radial pulse effect on the grid when a chorus section starts
+  - Arrangement card pulse — playing section card glows blue during playback
 - **Auto-select bar tabs** — bar tabs highlight and scroll to the current bar during playback
 - **Follow playhead** — optional preference that auto-scrolls the page to track playback (pauses on touch so you can scroll freely on mobile)
 - **Sticky header on mobile** — PLAY/STOP, NEW BEAT, and stats stay visible while scrolling
@@ -156,7 +170,7 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-9700+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined drums+bass MIDI, section transitions, bar variations, extreme BPMs, forced dialog options, beat history capacity, and all 35+ About This Beat sections.
+9700+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined drums+bass MIDI, section transitions, bar variations, extreme BPMs, forced dialog options, beat history capacity, share URL encoding/decoding, and all 35+ About This Beat sections.
 
 ## How It Works
 
@@ -184,7 +198,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── synth.js           — Bundled synth engine (built from synth-bridge.mjs)
 ├── spessasynth_processor.min.js — AudioWorklet processor for SpessaSynth
 ├── GeneralUserGS.sf3  — GeneralUser GS SoundFont (10MB, all GM instruments + drum kits)
-├── tests.js           — Automated test suite (node tests.js — 9500+ assertions, zero deps)
+├── tests.js           — Automated test suite (node tests.js — 11,000+ assertions, zero deps)
 ├── sw.js              — Service worker for PWA offline support
 ├── manifest.json      — PWA manifest for installable app
 ├── package.json       — npm config (SpessaSynth + esbuild)
