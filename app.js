@@ -149,6 +149,18 @@ document.getElementById('regenGo').onclick = function() {
     generateAll({ style: style, key: key, bpm: bpm });
     updateMidiPlayer();
     
+    // Reset loop and edit mode for the new beat
+    window._loopSection = false;
+    var loopBtnEl = document.getElementById('playerLoopBtn');
+    if (loopBtnEl) loopBtnEl.classList.remove('loop-active');
+    window._editMode = false;
+    var editBtnEl = document.getElementById('playerEditBtn');
+    if (editBtnEl) editBtnEl.classList.remove('edit-active');
+    // Clear undo state
+    if (typeof _undoState !== 'undefined') { _undoState = null; }
+    var undoBtnEl = document.getElementById('btnUndo');
+    if (undoBtnEl) undoBtnEl.style.display = 'none';
+    
     // Rebuild chord sheet after MIDI build so it picks up bass progressions
     if (typeof buildChordSheet === 'function') buildChordSheet();
     
