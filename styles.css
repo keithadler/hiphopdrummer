@@ -429,13 +429,15 @@ midi-player::part(play-button){color:var(--accent-green)}
   .btn-prefs .prefs-text{display:inline}
   /* Style text: scrolls if long */
   .ctrl-input-wide{
-    max-width:100%;
+    max-width:none;
     font-size:12px;
     width:auto;
     overflow:hidden;
     text-overflow:clip;
     text-align:center;
   }
+  /* Style group spans full width on mobile */
+  .ctrl-style{grid-column:1 / -1}
   .ctrl-group{
     justify-content:center;
     padding:4px 6px;
