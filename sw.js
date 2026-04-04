@@ -76,6 +76,8 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
   // Only handle GET requests — POST/PUT/etc should go straight to network
   if (e.request.method !== 'GET') return;
+  // Skip non-http(s) schemes (chrome-extension://, etc.)
+  if (!e.request.url.startsWith('http')) return;
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       if (cached) {
