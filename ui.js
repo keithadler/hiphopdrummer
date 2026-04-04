@@ -433,6 +433,7 @@ function renderArr(skipMidiUpdate) {
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault();
         arrangement.splice(idx, 1);
+        if (arrIdx >= arrangement.length) arrIdx = Math.max(0, arrangement.length - 1);
         renderArr();
         // Focus the item that took this position, or the last item
         var items = f.querySelectorAll('.arr-item');
@@ -470,6 +471,7 @@ function renderArr(skipMidiUpdate) {
           e.preventDefault();
           e.stopPropagation();
           arrangement.splice(parseInt(rmBtn.dataset.i), 1);
+          if (arrIdx >= arrangement.length) arrIdx = Math.max(0, arrangement.length - 1);
           renderArr();
         }
       };
@@ -1300,23 +1302,38 @@ function _applyUndo() {
   _undoState = null;
   var btn = document.getElementById('btnUndo');
   if (btn) btn.style.display = 'none';
+  // Close velocity editor (its pat reference is now stale)
+  _hideVelEditor();
   renderGrid();
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  // Rebuild About This Beat to reflect the restored pattern
+  var aboutEl = document.getElementById('aboutBeat');
+  if (aboutEl && typeof analyzeBeat === 'function') {
+    aboutEl.innerHTML = analyzeBeat();
+    if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+    if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+    if (typeof buildAboutSummary === 'function') buildAboutSummary();
+    if (typeof buildChordSheet === 'function') buildChordSheet();
+  }
   _saveEditToHistory();
 }
 
 var _saveEditTimer = null;
 function _saveEditToHistory() {
   if (_saveEditTimer) clearTimeout(_saveEditTimer);
-  _saveEditTimer = setTimeout(function() {
-    if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
-    var history = loadBeatHistory();
-    if (history.length > 0) {
-      history[0] = captureBeatState();
-      saveBeatHistory(history);
-    }
-  }, 500);
+  _saveEditTimer = setTimeout(_flushEditToHistory, 500);
 }
+function _flushEditToHistory() {
+  if (_saveEditTimer) { clearTimeout(_saveEditTimer); _saveEditTimer = null; }
+  if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
+  var history = loadBeatHistory();
+  if (history.length > 0) {
+    history[0] = captureBeatState();
+    saveBeatHistory(history);
+  }
+}
+// Flush pending save on page unload so edits aren't lost
+window.addEventListener('beforeunload', function() { if (_saveEditTimer) _flushEditToHistory(); });
 
 function _afterEdit() {
   renderGrid();
@@ -1379,7 +1396,7 @@ function _showVelEditor(cell, row, step) {
     document.addEventListener('click', _velEditorOutsideClick);
     // Close on scroll too
     var scrollArea = document.querySelector('.scroll-area');
-    if (scrollArea) scrollArea.addEventListener('scroll', _hideVelEditor, { once: true });
+    if (scrollArea) scrollArea.addEventListener('scroll', _hideVelEditor);
   }, 10);
 }
 
@@ -1391,6 +1408,9 @@ function _hideVelEditor() {
   if (_velEditorEl && _velEditorEl.parentNode) _velEditorEl.parentNode.removeChild(_velEditorEl);
   _velEditorEl = null;
   document.removeEventListener('click', _velEditorOutsideClick);
+  // Remove scroll listener if still attached
+  var scrollArea = document.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.removeEventListener('scroll', _hideVelEditor);
 }
 
 // Wire grid interactions
@@ -1429,7 +1449,7 @@ function _hideVelEditor() {
     if (!pat || !pat[row]) return;
 
     // Edit mode OFF: show tooltip + play sound (educational mode)
-    if (!window._editMode) {
+    if (!window._editMode || (window.synthBridge && window.synthBridge.isPlaying)) {
       _showCellTooltip(cell);
       if (window.synthBridge && cell.classList.contains('on') && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);
