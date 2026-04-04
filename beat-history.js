@@ -72,9 +72,11 @@ function restoreBeatState(beatData) {
   // Restore global state
   document.getElementById('bpm').textContent = beatData.bpm;
   document.getElementById('swing').textContent = beatData.swing;
-  document.getElementById('songStyle').textContent = beatData.songStyle;
   var _styleEl = document.getElementById('songStyle');
-  if (_styleEl && typeof _applyMarquee === 'function') _applyMarquee(_styleEl, beatData.songStyle);
+  if (_styleEl) {
+    _styleEl.textContent = beatData.songStyle;
+    if (typeof _applyMarquee === 'function') _applyMarquee(_styleEl, beatData.songStyle);
+  }
   document.getElementById('songKey').textContent = beatData.songKey;
   
   if (beatData.songFeel) songFeel = beatData.songFeel;
