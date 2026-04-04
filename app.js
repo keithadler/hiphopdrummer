@@ -1379,9 +1379,6 @@ function getRoleSectionTip(sec, role) {
 
 // ── Playback Tracking ──
 
-/**
- * Track the full song MIDI player's position and highlight the
- * current section in the arrangement + show its pattern in the grid.
 // =============================================
 // Visual FX Module — 10 playback visual enhancements
 // =============================================
