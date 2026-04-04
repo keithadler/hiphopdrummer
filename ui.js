@@ -1319,6 +1319,36 @@ function _showCellTooltip(cell) {
       }
     }
   });
+
+  // Double-click to toggle cell on/off (edit the pattern)
+  gridR.addEventListener('dblclick', function(e) {
+    if (window.synthBridge && window.synthBridge.isPlaying) return; // no editing during playback
+    var cell = e.target.closest('.cell');
+    if (!cell) return;
+    var row = null;
+    for (var ri = 0; ri < ROWS.length; ri++) {
+      if (cell.classList.contains(ROWS[ri])) { row = ROWS[ri]; break; }
+    }
+    if (!row) return;
+    var step = parseInt(cell.dataset.step);
+    var pat = patterns[curSec];
+    if (!pat || !pat[row]) return;
+    if (pat[row][step] > 0) {
+      // Turn off
+      pat[row][step] = 0;
+    } else {
+      // Turn on at default velocity for this instrument
+      var defaultVel = (row === 'kick' || row === 'snare') ? 100 : (row === 'hat' || row === 'ride') ? 85 : (row === 'ghostkick') ? 50 : 90;
+      pat[row][step] = defaultVel;
+      // Play the sound
+      if (window.synthBridge && MIDI_NOTE_MAP[row] !== undefined) {
+        window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], defaultVel, 200);
+      }
+    }
+    // Re-render grid and rebuild MIDI
+    renderGrid();
+    if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  });
   gridR.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     var cell = e.target.closest('.cell');

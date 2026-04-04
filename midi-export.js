@@ -449,29 +449,57 @@ function exportMIDI(opts) {
 
   // WAV audio export (async — render before generating ZIP)
   var wavPromise = null;
-  if (opts.wav && window.synthBridge && window._currentMidiBytes) {
-    // Show progress toast
+  var needsAnyWav = (opts.wav || opts.wavDrums || opts.wavBass) && window.synthBridge && window._currentMidiBytes;
+  if (needsAnyWav) {
     var toast = document.getElementById('exportToast');
     if (toast) {
-      toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Audio...</strong><br><br>Generating WAV file. This may take a moment for longer beats.<br><br><div class="progress-spinner"></div></div>';
+      toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Audio...</strong><br><br>Generating WAV files. This may take a moment for longer beats.<br><br><div class="progress-spinner"></div></div>';
       toast.classList.add('show');
     }
     
-    wavPromise = window.synthBridge.renderToWav(window._currentMidiBytes).then(function(wavBlob) {
-      // Update progress: WAV complete, now adding to ZIP
-      if (toast) {
-        toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>✓ Audio Rendered</strong><br><br>Adding files to ZIP archive...<br><br><div class="progress-spinner"></div></div>';
-      }
-      return wavBlob.arrayBuffer();
-    }).then(function(wavBuffer) {
-      folder.file('hiphop_beat_' + bpm + 'bpm.wav', new Uint8Array(wavBuffer));
-      // Hide progress toast
-      if (toast) {
-        toast.classList.remove('show');
-      }
+    var wavChain = Promise.resolve();
+    
+    // Full mix (drums + bass)
+    if (opts.wav) {
+      wavChain = wavChain.then(function() {
+        return window.synthBridge.renderToWav(window._currentMidiBytes).then(function(blob) {
+          return blob.arrayBuffer();
+        }).then(function(buf) {
+          folder.file('hiphop_beat_' + bpm + 'bpm.wav', new Uint8Array(buf));
+        });
+      });
+    }
+    
+    // Drums-only stem
+    if (opts.wavDrums) {
+      wavChain = wavChain.then(function() {
+        if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Drums Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+        var drumsMidi = buildMidiBytes(arrangement, bpm);
+        return window.synthBridge.renderToWav(drumsMidi).then(function(blob) {
+          return blob.arrayBuffer();
+        }).then(function(buf) {
+          folder.file('hiphop_beat_' + bpm + 'bpm_drums.wav', new Uint8Array(buf));
+        });
+      });
+    }
+    
+    // Bass-only stem
+    if (opts.wavBass) {
+      wavChain = wavChain.then(function() {
+        if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Bass Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+        var bassMidi = buildBassMidiBytes(arrangement, bpm);
+        return window.synthBridge.renderToWav(bassMidi).then(function(blob) {
+          return blob.arrayBuffer();
+        }).then(function(buf) {
+          folder.file('hiphop_beat_' + bpm + 'bpm_bass.wav', new Uint8Array(buf));
+        });
+      });
+    }
+    
+    wavPromise = wavChain.then(function() {
+      if (toast) toast.classList.remove('show');
     }).catch(function(err) {
       console.warn('WAV render failed:', err);
-      // Show error toast
       if (toast) {
         toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⚠ WAV Export Failed</strong><br><br>Audio rendering failed, but MIDI files will still be exported.</div>';
         setTimeout(function() { toast.classList.remove('show'); }, 4000);
@@ -483,7 +511,7 @@ function exportMIDI(opts) {
   var generateZip = function() {
     // Show final progress
     var toast = document.getElementById('exportToast');
-    if (toast && !opts.wav) {
+    if (toast && !needsAnyWav) {
       toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Creating ZIP...</strong><br><br>Packaging your files...<br><br><div class="progress-spinner"></div></div>';
       toast.classList.add('show');
     }

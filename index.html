@@ -104,6 +104,7 @@
               <div class="player-time"><span id="playerCurrent">0:00</span> / <span id="playerTotal">0:00</span></div>
               <input type="range" class="player-seek" id="playerSeek" min="0" max="100" value="0" step="0.1">
               <button class="player-btn player-btn-sm" id="playerWavBtn" title="Download WAV">⬇</button>
+              <button class="player-btn player-btn-sm" id="playerLoopBtn" title="Loop current section">🔁</button>
             </div>
             <div class="audio-visualizer" id="audioVisualizer"><canvas id="vizCanvas"></canvas></div>
           </div>
@@ -220,6 +221,8 @@
               <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
               <label class="export-check"><input type="checkbox" id="expChordSheet" checked> Chord sheet PDF <span class="export-note">(piano diagrams for keys/bass players)</span></label>
               <label class="export-check"><input type="checkbox" id="expWav" checked> WAV audio file <span class="export-note">(rendered beat — drums + bass)</span></label>
+              <label class="export-check"><input type="checkbox" id="expWavDrums"> WAV drums stem <span class="export-note">(drums only)</span></label>
+              <label class="export-check"><input type="checkbox" id="expWavBass"> WAV bass stem <span class="export-note">(bass only)</span></label>
             </div>
           </div>
         </div>
