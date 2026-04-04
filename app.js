@@ -2086,4 +2086,11 @@ function initPlaybackTracking() {
     }, { passive: true });
   }
   connectTracking();
+
+  // Stop playback when screen locks or tab becomes hidden (iOS/mobile)
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
+      window.synthBridge.stop();
+    }
+  });
 }
