@@ -853,7 +853,7 @@ function analyzeBeat() {
   var kickDna = '';
   for (var kd = 0; kd < 16; kd++) {
     if (baseKick[kd]) {
-      var kv = patterns.verse ? patterns.verse.kick[kd] : 100;
+      var kv = (patterns.verse && patterns.verse.kick) ? patterns.verse.kick[kd] : 100;
       kickDna += (kv > 100) ? '<b>X</b>' : 'x';
     } else {
       kickDna += (kd % 4 === 0) ? '·' : '.';
