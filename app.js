@@ -1018,54 +1018,65 @@ function initPlayerControls() {
         midiToPlay = loopBassOn ? buildCombinedMidiBytes([curSec], loopBpm) : buildMidiBytes([curSec], loopBpm);
         window._loopMidiBytes = midiToPlay;
       }
-      // Pre-init synth NOW while still in user gesture context (iOS AudioContext requirement)
-      // This must happen before the countdown delay or iOS will block audio
-      if (window.synthBridge && window.synthBridge.init) {
-        window.synthBridge.init().catch(function() {});
-      }
-      // Start countdown, then play
-      playCountdown(function() {
-        // Disable button while synth initializes (SoundFont load on first play)
-        headerPlayBtn.disabled = true;
-        headerPlayBtn.textContent = '⏳ LOADING';
-        // Timeout: if SoundFont load stalls on iOS, reset button after 15 seconds
-        var _loadTimeout = setTimeout(function() {
-          if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
+      // CRITICAL: Init synth SYNCHRONOUSLY in this click handler.
+      // Safari requires AudioContext creation in a user gesture's synchronous path.
+      // synthBridge.init() creates the AudioContext immediately, then loads SoundFont async.
+      // The countdown runs during the SoundFont load, so both complete around the same time.
+      headerPlayBtn.disabled = true;
+      headerPlayBtn.textContent = '⏳ LOADING';
+      var _initPromise = (window.synthBridge && window.synthBridge.init) ? window.synthBridge.init() : Promise.resolve();
+      _initPromise.then(function() {
+        // Apply saved preferences now that synth is ready
+        try {
+          var sk = localStorage.getItem('hhd_drumkit') || '0';
+          window.synthBridge.setDrumKit(parseInt(sk) || 0);
+          var sb = localStorage.getItem('hhd_bass_sound') || '33';
+          window.synthBridge.setBassProgram(parseInt(sb) || 33);
+        } catch(e) {}
+        // Now start countdown, then play
+        playCountdown(function() {
+          var _loadTimeout = setTimeout(function() {
+            if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
+              headerPlayBtn.disabled = false;
+              headerPlayBtn.textContent = '▶ PLAY';
+              headerPlayBtn.classList.remove('playing');
+              var timeoutBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+              for (var ti = 0; ti < timeoutBtns.length; ti++) {
+                var tb = document.getElementById(timeoutBtns[ti]);
+                if (tb) tb.disabled = false;
+              }
+            }
+          }, 15000);
+          window.synthBridge.play(midiToPlay).then(function() {
+            clearTimeout(_loadTimeout);
+            headerPlayBtn.textContent = '■ STOP';
+            headerPlayBtn.classList.add('playing');
+            setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
+            var toast = document.getElementById('sectionToast');
+            if (toast && !toast.classList.contains('show') && arrangement.length > 0) {
+              if (window.synthBridge.onPlayStateChange) {
+                window.synthBridge.onPlayStateChange(true);
+              }
+            }
+          }).catch(function() {
             headerPlayBtn.disabled = false;
             headerPlayBtn.textContent = '▶ PLAY';
-            headerPlayBtn.classList.remove('playing');
-            // Re-enable nav buttons that were disabled on play start
-            var timeoutBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-            for (var ti = 0; ti < timeoutBtns.length; ti++) {
-              var tb = document.getElementById(timeoutBtns[ti]);
-              if (tb) tb.disabled = false;
+            var failBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+            for (var fi = 0; fi < failBtns.length; fi++) {
+              var fb = document.getElementById(failBtns[fi]);
+              if (fb) fb.disabled = false;
             }
-          }
-        }, 15000);
-        window.synthBridge.play(midiToPlay).then(function() {
-          clearTimeout(_loadTimeout);
-          headerPlayBtn.textContent = '■ STOP';
-          headerPlayBtn.classList.add('playing');
-          // Brief cooldown before allowing stop
-          setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
-          // Ensure chord toast is shown (fallback for first-play race on iOS)
-          var toast = document.getElementById('sectionToast');
-          if (toast && !toast.classList.contains('show') && arrangement.length > 0) {
-            // Force the tracking onPlayStateChange if it hasn't fired yet
-            if (window.synthBridge.onPlayStateChange) {
-              window.synthBridge.onPlayStateChange(true);
-            }
-          }
-        }).catch(function() {
-          headerPlayBtn.disabled = false;
-          headerPlayBtn.textContent = '▶ PLAY';
-          // Re-enable nav buttons on play failure
-          var failBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-          for (var fi = 0; fi < failBtns.length; fi++) {
-            var fb = document.getElementById(failBtns[fi]);
-            if (fb) fb.disabled = false;
-          }
+          });
         });
+      }).catch(function() {
+        // Synth init failed
+        headerPlayBtn.disabled = false;
+        headerPlayBtn.textContent = '▶ PLAY';
+        var failBtns2 = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+        for (var fi2 = 0; fi2 < failBtns2.length; fi2++) {
+          var fb2 = document.getElementById(failBtns2[fi2]);
+          if (fb2) fb2.disabled = false;
+        }
       });
     }
   };
