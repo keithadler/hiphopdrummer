@@ -893,6 +893,133 @@ function analyzeBeat() {
     lines.push('Each instrument follows the same chord progressions as the bass and EP. Load the MIDI into separate tracks in your DAW.');
   }
 
+  // === HOW THE BAND WORKS TOGETHER ===
+  lines.push('');
+  lines.push('🤝 <b>HOW THE BAND WORKS TOGETHER</b>');
+  lines.push('Every instrument in this beat reacts to the others — they\'re not playing independently:');
+  lines.push('• The <b>bass follows the kick</b> — when the kick hits, the bass hits. When the kick rests, the bass breathes. They\'re one unit.');
+  lines.push('• The <b>bass drops out on the snare</b> — beats 2 and 4 belong to the snare. The bass gives it room by resting or playing softer.');
+  lines.push('• The <b>EP/pad rests on loud snare hits</b> — the keys don\'t fight the backbeat. They comp around it.');
+  lines.push('• The <b>EP thins when hats are busy</b> — dense 16th-note hats mean the EP plays less. Sparse hats mean the EP fills more space.');
+  lines.push('• The <b>horn stabs lock to the kick</b> — they hit where the kick hits, creating unison moments of maximum impact.');
+  lines.push('• The <b>pad swells into the chorus</b> — velocity ramps up in the last 2 bars of the verse, building energy for the section change.');
+  lines.push('• The <b>breakdown strips everything down</b> — drums thin, bass simplifies, keys get quieter, creating contrast for the last chorus re-entry.');
+  lines.push('This is how a real band plays. Every musician listens to every other musician. The space between instruments is as important as the notes.');
+
+  // === WHAT TO LISTEN FOR ===
+  lines.push('');
+  lines.push('👂 <b>WHAT TO LISTEN FOR</b>');
+  lines.push('Play the beat and focus your ears on one instrument at a time:');
+  lines.push('• <b>Kick:</b> Where does it land? Beat 1 is the anchor. Syncopated kicks (and-of-2, and-of-3) create the bounce.');
+  lines.push('• <b>Snare:</b> Is it exactly on 2 and 4, or slightly behind? That micro-timing is the pocket.');
+  lines.push('• <b>Hats:</b> Are they 8th notes or 16th notes? Do the upbeats (and-positions) swing? That\'s the ride hand doing the work.');
+  lines.push('• <b>Ghost notes:</b> Can you barely hear them? Good. They\'re felt, not heard. Turn up the volume and listen for the soft snare and kick hits between the main pattern.');
+  lines.push('• <b>Bass:</b> Does it follow the kick or play its own rhythm? Listen for the moments it drops out — that\'s intentional breathing.');
+  if (typeof EP_STYLES !== 'undefined' && (EP_STYLES[songFeel] || EP_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    lines.push('• <b>Electric piano:</b> Listen for the chord changes — do the notes move smoothly or jump? That\'s voice leading. Notice how it gets quieter when the drums are busy.');
+  }
+  if (typeof PAD_STYLES !== 'undefined' && (PAD_STYLES[songFeel] || PAD_STYLES[(typeof resolveBaseFeel === 'function' ? resolveBaseFeel(songFeel) : songFeel)])) {
+    lines.push('• <b>Synth pad:</b> It\'s underneath everything — a warm (or eerie) harmonic bed. You might not notice it until it\'s gone. That\'s the point.');
+  }
+  lines.push('• <b>Fills:</b> Listen at the end of each section. The hats drop out, the snare builds or goes silent, and then the next section crashes in. That contrast is what makes the downbeat hit hard.');
+
+  // === PRACTICE GUIDE ===
+  lines.push('');
+  lines.push('🥁 <b>HOW TO PRACTICE WITH THIS BEAT</b>');
+  lines.push('This isn\'t just for listening — it\'s for playing along:');
+  lines.push('');
+  lines.push('<b>For drummers:</b>');
+  lines.push('1. Click 🔁 Loop to loop the current section.');
+  lines.push('2. Start with just the kick and snare — match the pattern on your kit or practice pad.');
+  lines.push('3. Add the hi-hat pattern. Focus on matching the velocity — loud on downbeats, soft on upbeats.');
+  lines.push('4. Now add ghost notes. These are the hardest part. Keep them at 30-40% of your full stroke.');
+  lines.push('5. Play along with the full beat. If you can match the dynamics, you\'re playing at a professional level.');
+  lines.push('');
+  lines.push('<b>For keys players:</b>');
+  lines.push('1. Look at the chord overlay during playback — it shows you what to play.');
+  lines.push('2. Start by just hitting the root note on beat 1 of each bar.');
+  lines.push('3. Add the full chord voicing. Match the rhythm of the EP/pad part.');
+  lines.push('4. Disable the EP in Preferences and play your own part over the drums and bass.');
+  lines.push('5. Export the EP MIDI and study the voicings in your DAW — then play them yourself.');
+  lines.push('');
+  lines.push('<b>For rappers:</b>');
+  lines.push('1. Hit Play (or spacebar) and freestyle. The arrangement has intros and outros built in.');
+  lines.push('2. Use the Flow Guide above to match your syllable count to the beat.');
+  lines.push('3. Loop a section to practice a specific verse or hook.');
+  lines.push('4. Export the WAV for recording sessions — it includes all instruments with master FX.');
+
+  // === UNDERSTANDING VELOCITY ===
+  lines.push('');
+  lines.push('📊 <b>UNDERSTANDING VELOCITY</b>');
+  lines.push('The numbers in the grid cells (like 78% or 45%) are <b>velocity</b> — how hard the hit is played. This is the most important concept in drum programming:');
+  lines.push('• <b>100% (127 MIDI)</b> — Full force. Snare backbeat on 2 and 4. The loudest hit a drummer plays.');
+  lines.push('• <b>70-95%</b> — Accent. Strong but not maximum. Kick on beat 1, open hat on the and-of-4.');
+  lines.push('• <b>30-50%</b> — Ghost note. Barely audible. Felt more than heard. This is what separates a groove from a pattern.');
+  lines.push('• <b>Below 30%</b> — Almost silent. Used for the softest ghost kicks and rimshots.');
+  lines.push('The difference between a beginner and a pro is dynamics. A beginner programs every hit at 100%. A pro uses the full range — the contrast between loud and soft IS the groove. If you only learn one thing from this tool, learn to hear and program velocity.');
+
+  // === STYLE HISTORY ===
+  lines.push('');
+  lines.push('📜 <b>STYLE HISTORY</b>');
+  var historyMap = {
+    normal: 'Boom bap emerged in New York in the late 1980s when producers like Marley Marl started sampling breakbeats and programming them on the E-mu SP-1200 and Akai MPC60. DJ Premier, Pete Rock, and Large Professor refined it into the tight, swung, ghost-note-heavy style that defined the golden era. The name comes from the sound: boom (kick) bap (snare).',
+    dilla: 'J Dilla changed everything in the late 1990s by playing MPC pads in real time and keeping the imperfections. His beats on "Donuts" and Slum Village records sound "drunk" — the kick drifts behind the beat, ghost notes scatter everywhere, and nothing is quantized. Every lo-fi and neo-soul producer since is working in his shadow.',
+    gfunk: 'G-Funk was born when Dr. Dre sampled Parliament-Funkadelic and slowed it down for "The Chronic" (1992). The signature sound — 16th-note hats with 3-level dynamics, sustained synth pads, and that whistle lead — comes directly from Bernie Worrell\'s keyboard work with P-Funk. DJ Quik and Battlecat each developed their own variations.',
+    memphis: 'Memphis rap started in the early 1990s with Three 6 Mafia, DJ Paul, and Juicy J making beats on cheap equipment and distributing them on cassette tapes. The lo-fi quality, eerie choir pads, and sparse 808 patterns became the aesthetic. This sound directly influenced modern trap and phonk decades later.',
+    crunk: 'Crunk emerged from Atlanta in the early 2000s, pioneered by Lil Jon. The defining characteristic is maximum velocity on every element — no ghost notes, no dynamic variation, no subtlety. The energy comes from density and volume, not groove. It\'s the opposite of every other hip hop style.',
+    oldschool: 'Old school hip hop (1979-1986) used drum machines — the Roland TR-808, LinnDrum, and Oberheim DMX — programmed with nearly straight timing. Run-DMC, LL Cool J, and Boogie Down Productions defined the sound: mechanical, punchy, and direct. No ghost notes, no swing, no fills in the modern sense.',
+    griselda: 'The Griselda revival (2010s-present) brought back the raw, sample-based boom bap aesthetic with modern production quality. Daringer and Beat Butcha use Phrygian harmony (the sinister bII chord) and sparse, punchy drums that reference RZA\'s Wu-Tang productions.',
+    phonk: 'Phonk is Memphis rap filtered through SoundCloud — SpaceGhostPurrp, DJ Smokey, and Soudiere took the eerie choir pads, distorted 808s, and slow tempos of Three 6 Mafia and added modern production techniques. The cowbell, lo-fi vocal samples, and hypnotic repetition are the signatures.'
+  };
+  var historyText = historyMap[songFeelBase] || historyMap.normal;
+  lines.push(historyText);
+
+  // === BUILD FROM SCRATCH ===
+  lines.push('');
+  lines.push('🔨 <b>BUILD THIS BEAT FROM SCRATCH</b>');
+  lines.push('Want to recreate this beat yourself? Here\'s the step-by-step creative process:');
+  lines.push('1. <b>Set BPM to ' + bpm + '</b> and swing to ' + swing + '% in your DAW or drum machine.');
+  lines.push('2. <b>Program the kick</b> — start with just beat 1 (step 1). Then add the second kick hit. For this beat, the kick pattern has ' + (function(){ var c=0; for(var i=0;i<16;i++) if(baseKick[i]) c++; return c; })() + ' hits per bar.');
+  lines.push('3. <b>Add the snare on 2 and 4</b> (steps 5 and 13) at full velocity. This is the backbeat — the most important element.');
+  lines.push('4. <b>Add hi-hats</b> — start with 8th notes (every other step). Accent the downbeats (steps 1, 5, 9, 13) louder than the upbeats.');
+  lines.push('5. <b>Add ghost snares</b> — soft hits (30-45%) on the "e" and "ah" positions between the main snare hits. Start with one or two, then add more.');
+  lines.push('6. <b>Add the bass</b> — root note on beat 1, following the kick pattern. Add a 5th or octave on beat 3 for movement.');
+  lines.push('7. <b>Add chords</b> — sustained whole notes for pads, rhythmic stabs for comping. Start with the root chord, add the IV on bar 3.');
+  lines.push('8. <b>Build the arrangement</b> — copy your verse, make a chorus with a busier kick, strip down for the breakdown, bring everything back for the last chorus.');
+  lines.push('9. <b>Add fills</b> — at the end of each section, drop the hats and add a snare roll or silence. The contrast makes the next section hit harder.');
+  lines.push('10. <b>Humanize</b> — add small velocity variations to every hit. Nothing should be at exactly the same volume twice.');
+
+  // === NEXT STEPS ===
+  lines.push('');
+  lines.push('🚀 <b>NEXT STEPS — FROM BEAT TO FINISHED TRACK</b>');
+  lines.push('You have a complete beat. Here\'s how to turn it into a finished production:');
+  lines.push('1. <b>Export the ZIP</b> — it contains MIDI for every instrument, WAV audio, chord sheets, and DAW setup guides.');
+  lines.push('2. <b>Load into your DAW</b> — import the MIDI files onto separate tracks. The HOW_TO_USE files tell you exactly how.');
+  lines.push('3. <b>Replace the sounds</b> — swap the GM instruments for your own samples, plugins, or hardware synths. The patterns stay the same.');
+  lines.push('4. <b>Add your own elements</b> — vocal chops, sample loops, scratches, ad-libs. The beat is the foundation, not the finished product.');
+  lines.push('5. <b>Mix</b> — the master FX on the WAV export gives you a starting point (compression, EQ, reverb). In your DAW, process each track individually.');
+  lines.push('6. <b>Sidechain the pad/EP to the kick</b> — this creates the "pumping" effect that gives the beat space and energy.');
+  lines.push('7. <b>Add vinyl texture</b> — a subtle crackle layer and slight pitch wobble turns a clean beat into a warm, lived-in production.');
+  lines.push('8. <b>Record vocals</b> — the arrangement has intros and outros built in. Press record and go.');
+
+  // === GLOSSARY ===
+  lines.push('');
+  lines.push('📖 <b>GLOSSARY</b>');
+  lines.push('Key terms used throughout this analysis:');
+  lines.push('• <b>Backbeat</b> — The snare hit on beats 2 and 4. The rhythmic anchor of virtually all popular music.');
+  lines.push('• <b>Ghost note</b> — A very soft hit (30-50% velocity) that adds texture without being consciously heard. The secret ingredient of groove.');
+  lines.push('• <b>Swing</b> — Delaying every other 16th note to create an uneven "long-short" rhythm. 50% = straight, 66% = heavy shuffle.');
+  lines.push('• <b>Pocket</b> — The feel of the beat — whether it sits right on the grid, slightly behind (laid back), or slightly ahead (pushing).');
+  lines.push('• <b>Voice leading</b> — Moving smoothly between chords by holding common tones and moving other notes by the smallest possible interval.');
+  lines.push('• <b>Dorian mode</b> — A minor scale with a raised 6th degree. Makes the IV chord major instead of minor. The warm sound of G-Funk and neo-soul.');
+  lines.push('• <b>Phrygian mode</b> — A minor scale with a lowered 2nd degree. Creates the sinister half-step tension of Memphis, dark, and Griselda styles.');
+  lines.push('• <b>Velocity</b> — How hard a note is played, measured 1-127 in MIDI. Controls volume and often tone/timbre.');
+  lines.push('• <b>BPM</b> — Beats per minute. The tempo of the song. Hip hop typically ranges from 68 (Memphis) to 150 (crunk).');
+  lines.push('• <b>Fill</b> — A rhythmic variation at the end of a section that signals the transition to the next section.');
+  lines.push('• <b>Choke group</b> — A setting that makes one sound cut off another (e.g., closed hat cuts off open hat).');
+  lines.push('• <b>Comping</b> — Short for "accompanying" — the rhythmic chord patterns a keyboard player uses to support the groove.');
+  lines.push('• <b>Shell voicing</b> — A chord with only the root, 3rd, and 7th (no 5th). Open and sparse, leaving room for the bass.');
+
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
   lines.push('🔬 <b>TECHNIQUE SPOTLIGHT</b>');
