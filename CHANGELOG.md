@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.22] - 2026-04-04
+
+### Fixed
+- Root cause of playback not working without opening Preferences first: synthBridge onPlayStateChange and onTimeUpdate were setter-only properties (no getter), so reading them returned undefined and the force-call in the play handler never executed
+- Added getters for both callback properties in synth-bridge.mjs and rebuilt synth.js
+- Play handler now has inline fallback button disable if callback is still null
+- Removed QR code sharing (reverted to simple link share)
+
 ## [1.21] - 2026-04-04
 
 ### Fixed
