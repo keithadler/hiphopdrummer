@@ -339,30 +339,23 @@ midi-player::part(play-button){color:var(--accent-green)}
   #aboutBeatPanel{position:static;max-height:none}
   .brand{font-size:17px}
   .credit{margin-left:auto;font-size:11px;letter-spacing:0}
-  /* Controls: 2 rows — buttons on top, info centered below */
+  /* Controls: single row — everything compact */
   .controls-bar{
     display:flex;
-    flex-wrap:wrap;
-    gap:6px;
+    flex-wrap:nowrap;
+    gap:4px;
     align-items:center;
-    justify-content:center;
   }
-  /* Row 1: all buttons via order */
-  .btn-play-header{order:1;font-size:13px;height:36px;padding:0 14px}
-  .btn-gen{order:2;font-size:13px;height:36px;padding:0 12px}
-  .btn-export{order:3;font-size:12px;height:34px;padding:0 10px;margin-left:auto}
-  .btn-share{order:4;font-size:12px;height:34px;padding:0 10px}
-  .btn-history{order:5;font-size:12px;height:34px;padding:0 10px}
-  .btn-prefs{order:6;font-size:12px;height:34px;padding:0 10px}
-  /* Row 2: info groups centered, forced to new line */
-  .ctrl-style{order:8}
-  .ctrl-group{order:9;height:34px;padding:3px 8px}
-  .ctrl-label{font-size:13px}
-  .ctrl-input{font-size:15px}
-  .ctrl-input-wide{max-width:140px;font-size:13px}
-  /* Force line break before info row */
-  .ctrl-style::before{content:'';width:0;order:7}
-  .controls-bar::before{content:'';flex-basis:100%;height:0;order:7}
+  .btn-play-header{font-size:11px;height:30px;padding:0 10px;min-width:70px}
+  .btn-gen{font-size:11px;height:30px;padding:0 8px}
+  .ctrl-group{height:28px;padding:2px 5px;gap:3px}
+  .ctrl-label{font-size:10px;letter-spacing:0.5px}
+  .ctrl-input{font-size:12px;width:auto}
+  .ctrl-input-wide{max-width:90px;font-size:11px}
+  .btn-export{margin-left:auto;font-size:10px;height:28px;padding:0 7px}
+  .btn-share{font-size:10px;height:28px;padding:0 7px}
+  .btn-history{font-size:10px;height:28px;padding:0 7px}
+  .btn-prefs{font-size:10px;height:28px;padding:0 7px}
   .grid-row{overflow-x:hidden}
   .cell{flex:1;min-width:0}
   .row-label{width:70px;font-size:13px;padding-right:4px}
