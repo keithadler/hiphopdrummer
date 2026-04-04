@@ -163,6 +163,8 @@ document.getElementById('regenGo').onclick = function() {
     window._editMode = false;
     var editBtnEl = document.getElementById('playerEditBtn');
     if (editBtnEl) editBtnEl.classList.remove('edit-active');
+    var gridElReset = document.getElementById('gridR');
+    if (gridElReset) gridElReset.classList.remove('grid-edit-mode');
     // Clear undo state
     if (typeof _undoState !== 'undefined') { _undoState = null; }
     var undoBtnEl = document.getElementById('btnUndo');
@@ -1158,6 +1160,9 @@ function initPlayerControls() {
       window._editMode = !window._editMode;
       editBtn.classList.toggle('edit-active', window._editMode);
       editBtn.title = window._editMode ? 'Edit mode ON — click cells to add/edit/delete' : 'Edit mode — click cells to add/edit/delete hits';
+      // Visual indicator on the grid itself
+      var gridR = document.getElementById('gridR');
+      if (gridR) gridR.classList.toggle('grid-edit-mode', window._editMode);
     };
   }
 
@@ -2189,6 +2194,8 @@ function initPlaybackTracking() {
         window._editMode = false;
         var eb = document.getElementById('playerEditBtn');
         if (eb) eb.classList.remove('edit-active');
+        var gr = document.getElementById('gridR');
+        if (gr) gr.classList.remove('grid-edit-mode');
       }
       // Close velocity editor if open
       if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
@@ -2234,6 +2241,11 @@ function initPlaybackTracking() {
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
         try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc === null || sc !== 'false'); } catch(e) { _showChordsOverlay = true; }
+        // Loop mode: always follow playhead, never show chord toast
+        if (window._loopSection) {
+          _followPlayhead = true;
+          _showChordsOverlay = false;
+        }
         _touchPauseFollow = false;
         // Immediately show the first section's overlay (don't wait for onTimeUpdate)
         if (_showChordsOverlay && arrangement.length > 0) {
