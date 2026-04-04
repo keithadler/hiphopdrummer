@@ -2,6 +2,13 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.24] - 2026-04-04
+
+### Fixed
+- All preferences loaded fresh on every play press: MIDI rebuilt with current bass on/off and BPM, drum kit and bass sound applied before and after play
+- Guard getElementById for btnGen/btnExport/btnHistory prevents crash when SW serves stale HTML
+- Playback no longer requires opening Preferences first
+
 ## [1.23] - 2026-04-04
 
 ### Changed
