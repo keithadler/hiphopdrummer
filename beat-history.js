@@ -272,11 +272,15 @@ function renderBeatHistorySlots() {
     var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     // Slot number: newest (idx 0) = highest slot number
     var slotNumber = history.length - idx;
-    return '<div class="history-slot" data-idx="' + idx + '">'
+    var isCurrent = (idx === 0);
+    var deleteBtn = isCurrent
+      ? '<span class="history-slot-current" title="Currently editing">● current</span>'
+      : '<button class="history-slot-delete" data-idx="' + idx + '" title="Delete">×</button>';
+    return '<div class="history-slot' + (isCurrent ? ' history-slot-active' : '') + '" data-idx="' + idx + '">'
       + '<div class="history-slot-header">'
       + '<span class="history-slot-number">Slot ' + slotNumber + '</span>'
       + '<span class="history-slot-date">' + dateStr + '</span>'
-      + '<button class="history-slot-delete" data-idx="' + idx + '" title="Delete">×</button>'
+      + deleteBtn
       + '</div>'
       + '<div class="history-slot-info">'
       + '<span class="history-slot-style">' + beat.songStyle + '</span>'
@@ -284,7 +288,7 @@ function renderBeatHistorySlots() {
       + '<span class="history-slot-bpm">' + beat.bpm + ' BPM</span>'
       + '<span class="history-slot-swing">' + beat.swing + '% swing</span>'
       + '</div>'
-      + '<button class="history-slot-load" data-idx="' + idx + '">Load Beat</button>'
+      + '<button class="history-slot-load" data-idx="' + idx + '"' + (isCurrent ? ' disabled title="This is the beat you\'re currently editing"' : '') + '>' + (isCurrent ? 'Current Beat' : 'Load Beat') + '</button>'
       + '</div>';
   }).join('');
   
@@ -307,6 +311,8 @@ function renderBeatHistorySlots() {
       e.preventDefault();
       e.stopPropagation();
       var idx = parseInt(btn.dataset.idx);
+      // Safety guard: never delete the current beat (idx 0)
+      if (idx === 0) return;
       if (confirm('Delete this beat from history?')) {
         history.splice(idx, 1);
         saveBeatHistory(history);
