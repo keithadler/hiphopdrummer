@@ -825,6 +825,8 @@ function initBeatHistoryHandlers() {
     if (_headerEditorEl && _headerEditorEl.parentNode) _headerEditorEl.parentNode.removeChild(_headerEditorEl);
     _headerEditorEl = null;
     document.removeEventListener('click', _headerEditorOutside);
+    var scrollArea = document.querySelector('.scroll-area');
+    if (scrollArea) scrollArea.removeEventListener('scroll', _hideHeaderEditor);
   }
   function _headerEditorOutside(e) {
     if (_headerEditorEl && !_headerEditorEl.contains(e.target)) _hideHeaderEditor();
@@ -1014,6 +1016,12 @@ function initPlayerControls() {
         }).catch(function() {
           headerPlayBtn.disabled = false;
           headerPlayBtn.textContent = '▶ PLAY';
+          // Re-enable nav buttons on play failure
+          var failBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+          for (var fi = 0; fi < failBtns.length; fi++) {
+            var fb = document.getElementById(failBtns[fi]);
+            if (fb) fb.disabled = false;
+          }
         });
       });
     }
@@ -1067,7 +1075,7 @@ function initPlayerControls() {
         loopBtn.classList.remove('loop-active');
         loopBtn.textContent = '🔁 Loop';
         // Re-enable buttons
-        var reenBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+        var reenBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerWavBtn'];
         for (var ri = 0; ri < reenBtns.length; ri++) {
           var rb = document.getElementById(reenBtns[ri]);
           if (rb) rb.disabled = false;
@@ -1084,7 +1092,7 @@ function initPlayerControls() {
       loopBtn.classList.add('loop-active');
       loopBtn.textContent = '■ Stop';
       // Disable all other buttons
-      var disBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn'];
+      var disBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo','playerWavBtn'];
       for (var di = 0; di < disBtns.length; di++) {
         var db = document.getElementById(disBtns[di]);
         if (db) db.disabled = true;
