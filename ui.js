@@ -1307,7 +1307,6 @@ function _applyUndo() {
   if (!_undoState) return;
   // Don't undo during playback
   if (window.synthBridge && window.synthBridge.isPlaying) return;
-  if (window._loopSection) return;
   patterns = _undoState.patterns;
   _undoState = null;
   var btn = document.getElementById('btnUndo');
@@ -1346,6 +1345,7 @@ function _flushEditToHistory() {
 window.addEventListener('beforeunload', function() { if (_saveEditTimer) _flushEditToHistory(); });
 
 function _afterEdit() {
+  _hideVelEditor();
   renderGrid();
   if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
   _saveEditToHistory();
@@ -1433,7 +1433,7 @@ function _hideVelEditor() {
     var rowLabel = e.target.closest('.row-label');
 
     // Click on row label: play that instrument at default velocity
-    if (rowLabel && !cell && window.synthBridge && !window.synthBridge.isPlaying && !window._loopSection) {
+    if (rowLabel && !cell && window.synthBridge && !window.synthBridge.isPlaying) {
       var row = rowLabel.dataset.row;
       if (row && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], 100, 250);
@@ -1459,7 +1459,7 @@ function _hideVelEditor() {
     if (!pat || !pat[row]) return;
 
     // Edit mode OFF: show tooltip + play sound (educational mode)
-    if (!window._editMode || (window.synthBridge && window.synthBridge.isPlaying) || window._loopSection) {
+    if (!window._editMode || (window.synthBridge && window.synthBridge.isPlaying)) {
       _showCellTooltip(cell);
       if (window.synthBridge && cell.classList.contains('on') && MIDI_NOTE_MAP[row] !== undefined) {
         window.synthBridge.playNote(9, MIDI_NOTE_MAP[row], pat[row][step], 200);
@@ -1491,7 +1491,12 @@ function _hideVelEditor() {
     var cell = e.target.closest('.cell');
     if (!cell) return;
     e.preventDefault();
-    _showCellTooltip(cell);
+    if (window._editMode && !window.synthBridge.isPlaying) {
+      // Simulate click in edit mode
+      cell.click();
+    } else {
+      _showCellTooltip(cell);
+    }
   });
 
   // Undo button
