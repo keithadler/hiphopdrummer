@@ -285,6 +285,14 @@
           <div class="prefs-hint">Only instruments that match the current style will play. Unchecking an instrument silences it even if the style supports it.</div>
         </div>
         <div class="regen-field">
+          <label class="regen-label">Instrument Mode</label>
+          <select id="prefsInstrMode" class="regen-select">
+            <option value="strict">Strict — same part every play</option>
+            <option value="improvise">Improvise — varies each play</option>
+          </select>
+          <div class="prefs-hint">Strict: melodic instruments (EP, pad, lead, organ, horns, vibes, clav) play the same part every time — good for learning and practicing. Improvise: they regenerate with slight variations each play — like a live band. Bass and drums are always consistent.</div>
+        </div>
+        <div class="regen-field">
           <label class="regen-label">Playback</label>
           <label class="export-check"><input type="checkbox" id="prefsFollowPlayhead"> Follow playhead during playback</label>
           <div class="prefs-hint">When enabled, the page scrolls to keep the current section visible during playback.</div>

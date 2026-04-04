@@ -368,6 +368,10 @@ function showPrefsDialog() {
     var el = document.getElementById('prefs' + inst.charAt(0).toUpperCase() + inst.slice(1) + 'Playback');
     if (el) el.checked = on;
   });
+  // Restore instrument mode (default: strict)
+  var instrMode = 'strict';
+  try { instrMode = localStorage.getItem('hhd_instr_mode') || 'strict'; } catch(e) {}
+  document.getElementById('prefsInstrMode').value = instrMode;
   // Restore bass sound preference (default: 33 = Electric Bass Finger)
   var bassSound = '33';
   try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
@@ -419,6 +423,8 @@ document.getElementById('prefsSave').onclick = function() {
     var el = document.getElementById('prefs' + inst.charAt(0).toUpperCase() + inst.slice(1) + 'Playback');
     if (el) { try { localStorage.setItem('hhd_' + inst + '_playback', el.checked ? 'true' : 'false'); } catch(e) {} }
   });
+  var instrMode = document.getElementById('prefsInstrMode').value;
+  try { localStorage.setItem('hhd_instr_mode', instrMode); } catch(e) {}
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
@@ -718,6 +724,7 @@ function initBeatHistoryHandlers() {
     'hhd_horn_playback': 'true',
     'hhd_vibes_playback': 'true',
     'hhd_clav_playback': 'true',
+    'hhd_instr_mode': 'strict',
     'hhd_bass_sound': '33',
     'hhd_follow_playhead': 'false',
     'hhd_show_chords': 'true',
