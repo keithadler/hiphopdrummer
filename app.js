@@ -440,12 +440,23 @@ document.getElementById('prefsSave').onclick = function() {
 
 /**
  * Keyboard shortcuts:
+ *   Space  — play/stop
  *   R      — open New Beat dialog
+ *   E      — toggle edit mode
+ *   L      — toggle loop mode
+ *   T      — open tap tempo
+ *   ←/→    — navigate sections (previous/next)
  *   Escape — close dialog
  *   Enter  — confirm dialog and generate
  */
 document.addEventListener('keydown', function(e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  // Don't handle shortcuts when a dialog is open (except Escape/Enter)
+  var dialogOpen = document.getElementById('regenOverlay').style.display !== 'none'
+    || document.getElementById('exportOverlay').style.display !== 'none'
+    || document.getElementById('prefsOverlay').style.display !== 'none'
+    || document.getElementById('aboutOverlay').style.display !== 'none';
+
   if (e.key === 'Escape') {
     hideRegenDialog();
     hideExportDialog();
@@ -457,6 +468,7 @@ document.addEventListener('keydown', function(e) {
     document.getElementById('regenGo').click();
     return;
   }
+  if (dialogOpen) return;
   if (e.key === 'r' || e.key === 'R') {
     e.preventDefault();
     showRegenDialog();
@@ -469,6 +481,37 @@ document.addEventListener('keydown', function(e) {
     var playBtn = document.getElementById('headerPlayBtn');
     if (playBtn) playBtn.click();
   }
+  // E — toggle edit mode
+  if ((e.key === 'e' || e.key === 'E') && !e.ctrlKey && !e.metaKey) {
+    var editBtn = document.getElementById('playerEditBtn');
+    if (editBtn && !editBtn.disabled) { e.preventDefault(); editBtn.click(); }
+  }
+  // L — toggle loop mode
+  if ((e.key === 'l' || e.key === 'L') && !e.ctrlKey && !e.metaKey) {
+    var loopBtn = document.getElementById('playerLoopBtn');
+    if (loopBtn && !loopBtn.disabled) { e.preventDefault(); loopBtn.click(); }
+  }
+  // T — open tap tempo
+  if ((e.key === 't' || e.key === 'T') && !e.ctrlKey && !e.metaKey) {
+    if (window.synthBridge && window.synthBridge.isPlaying) return;
+    e.preventDefault();
+    if (typeof _showTapOverlay === 'function') { _tapTimes = []; _showTapOverlay(); }
+  }
+  // ← → — navigate sections
+  if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
+    if (window.synthBridge && window.synthBridge.isPlaying) return;
+    e.preventDefault();
+    if (typeof arrIdx !== 'undefined' && arrIdx > 0 && typeof _selectArrItem === 'function') {
+      _selectArrItem(arrIdx - 1);
+    }
+  }
+  if (e.key === 'ArrowRight' && !e.ctrlKey && !e.metaKey) {
+    if (window.synthBridge && window.synthBridge.isPlaying) return;
+    e.preventDefault();
+    if (typeof arrIdx !== 'undefined' && typeof arrangement !== 'undefined' && arrIdx < arrangement.length - 1 && typeof _selectArrItem === 'function') {
+      _selectArrItem(arrIdx + 1);
+    }
+  }
 });
 
 // ── Role Tips ──
@@ -476,11 +519,11 @@ document.addEventListener('keydown', function(e) {
 var ROLE_TIPS = {
   producer: {
     title: '🎛 Producer / Beat Maker',
-    html: '<p>This tool is your co-pilot. Every beat generates a unique drum and bass arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. 808 subs in Memphis/phonk sit near-grid for that locked, hypnotic feel. Shakers follow the hat groove. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP. Beat history saves your last 100 generations.</p>'
+    html: '<p>This tool is your co-pilot. Every beat generates a unique drum and bass arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>Tap Tempo</h3><p>Got a tempo in your head from a sample you\'re chopping? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along. The app detects your tempo from 4+ taps — way faster than dialing in a number.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>Swing Visualization</h3><p>The grid now shows swing visually — odd-numbered steps (the "and" positions) are offset to the right proportional to the swing amount. At 50% (straight) there\'s no offset. At 66% (heavy) you can see the displacement. This makes the timing relationship visible instead of abstract.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. 808 subs in Memphis/phonk sit near-grid for that locked, hypnotic feel. Shakers follow the hat groove. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP. Beat history saves your last 100 generations.</p>'
   },
   rapper: {
     title: '🎤 Rapper / MC',
-    html: '<p>Hit play and rap. Full drums and bass, ready to go — no setup needed.</p><h3>Your Workflow</h3><p>Generate a beat, hit <b>Play</b> (or spacebar), and freestyle. The <b>Flow Guide</b> in About This Beat gives you syllable counts per bar based on the actual kick pattern. It names the beat positions where kicks land — those are your rhythmic anchors.</p><h3>What to Use</h3><p>Export the <b>WAV</b> for practice beats, demo sessions, or cipher backing tracks. The arrangement has intros and outros built in — press record and go. Try different styles: Dilla wants you to drift behind the pocket, G-Funk wants smooth and effortless, Memphis wants slow and deliberate.</p><h3>The Chords</h3><p>During playback, the chord overlay shows what a keyboardist would play. If you\'re writing hooks, these are your melodic anchors.</p>'
+    html: '<p>Hit play and rap. Full drums and bass, ready to go — no setup needed.</p><h3>Your Workflow</h3><p>Generate a beat, hit <b>Play</b> (or spacebar), and freestyle. The <b>Flow Guide</b> in About This Beat gives you syllable counts per bar based on the actual kick pattern. It names the beat positions where kicks land — those are your rhythmic anchors.</p><h3>Tap Tempo</h3><p>Got a tempo in your head? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along — the app detects your tempo from 4+ taps. Way faster than dialing in a number when you already feel the groove.</p><h3>What to Use</h3><p>Export the <b>WAV</b> for practice beats, demo sessions, or cipher backing tracks. The arrangement has intros and outros built in — press record and go. Try different styles: Dilla wants you to drift behind the pocket, G-Funk wants smooth and effortless, Memphis wants slow and deliberate.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>The Chords</h3><p>During playback, the chord overlay shows what a keyboardist would play. If you\'re writing hooks, these are your melodic anchors.</p>'
   },
   dj: {
     title: '🎧 DJ / Turntablist',
@@ -504,7 +547,7 @@ var ROLE_TIPS = {
   },
   learner: {
     title: '🎓 Learning Production',
-    html: '<p>Every beat is a free lesson. The tool doesn\'t just generate patterns — it explains <em>why</em> every hit is where it is.</p><h3>Your Workflow</h3><p>Generate a beat, then read <b>About This Beat</b>. It covers tempo, swing, style, key, chord progressions, flow guide, reference tracks, technique spotlights, and more. Click any grid cell to understand its velocity. The <b>Sample Hunting Guide</b> tells you exactly what to search for on Splice or Tracklib.</p><h3>How to Learn</h3><p>Generate 10 beats in the same style. Compare the kick patterns, ghost placements, fills, and bass lines. That\'s how you internalize a style deeply enough to program it yourself. Then try hand-programming from the grid using the Drum Machine Workflow section.</p><h3>What You Get</h3><p>MIDI files for any DAW, MPC patterns for Akai hardware, WAV audio, chord sheets, beat sheet PDFs, and setup guides for 9 DAWs. Your beats are yours — commercial releases, demos, anything.</p>'
+    html: '<p>Every beat is a free lesson. The tool doesn\'t just generate patterns — it explains <em>why</em> every hit is where it is.</p><h3>Your Workflow</h3><p>Generate a beat, then read <b>About This Beat</b>. It covers tempo, swing, style, key, chord progressions, flow guide, reference tracks, technique spotlights, and more. Click any grid cell to understand its velocity. The <b>Sample Hunting Guide</b> tells you exactly what to search for on Splice or Tracklib.</p><h3>See the Swing</h3><p>The grid now shows swing visually — odd-numbered steps are offset to the right proportional to the swing amount. This makes the timing relationship visible instead of abstract. Compare a 54% swing (barely visible offset) to a 66% swing (heavy displacement) and you\'ll understand what swing actually does to the groove.</p><h3>Tap Tempo</h3><p>Double-click the BPM display (or press <b>T</b>) and tap along to any song or sample. The app detects your tempo from 4+ taps. Great for matching a beat to a sample you\'re chopping.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>How to Learn</h3><p>Generate 10 beats in the same style. Compare the kick patterns, ghost placements, fills, and bass lines. That\'s how you internalize a style deeply enough to program it yourself. Then try hand-programming from the grid using the Drum Machine Workflow section.</p><h3>What You Get</h3><p>MIDI files for any DAW, MPC patterns for Akai hardware, WAV audio, chord sheets, beat sheet PDFs, and setup guides for 9 DAWs. Your beats are yours — commercial releases, demos, anything.</p>'
   },
   samplehead: {
     title: '💿 Sample Head / Digger',
@@ -792,16 +835,121 @@ function initBeatHistoryHandlers() {
     }, 10);
   }
 
-  document.getElementById('bpm').onclick = function() {
-    _showHeaderEditor(this, 60, 160, 1, function(val) {
-      document.getElementById('bpm').textContent = val;
-      if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
-      if (typeof renderArr === 'function') renderArr();
-      // Update player total time display
-      var totalEl = document.getElementById('playerTotal');
-      if (totalEl && typeof calcArrTime === 'function') totalEl.textContent = calcArrTime(true);
-      if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
+  // ── Tap Tempo ──
+  // Tap the BPM display 4+ times to detect tempo from your taps.
+  // Single click still opens the slider editor.
+  var _tapTimes = [];
+  var _tapTimeout = null;
+  var _tapOverlay = null;
+
+  function _applyBpm(val) {
+    document.getElementById('bpm').textContent = val;
+    if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+    if (typeof renderArr === 'function') renderArr();
+    var totalEl = document.getElementById('playerTotal');
+    if (totalEl && typeof calcArrTime === 'function') totalEl.textContent = calcArrTime(true);
+    if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
+  }
+
+  function _showTapOverlay() {
+    if (_tapOverlay) return;
+    _tapOverlay = document.createElement('div');
+    _tapOverlay.className = 'tap-tempo-overlay';
+    _tapOverlay.innerHTML = '<div class="tap-tempo-dialog">'
+      + '<div class="tap-tempo-bpm" id="tapBpmDisplay">—</div>'
+      + '<div class="tap-tempo-hint">Keep tapping to refine</div>'
+      + '<div class="tap-tempo-count" id="tapCount">0 taps</div>'
+      + '<div class="tap-tempo-actions">'
+      + '<button class="btn regen-cancel" id="tapCancel">Cancel</button>'
+      + '<button class="btn regen-go" id="tapApply" disabled>Apply</button>'
+      + '</div></div>';
+    document.body.appendChild(_tapOverlay);
+    document.getElementById('tapCancel').onclick = _closeTapOverlay;
+    document.getElementById('tapApply').onclick = function() {
+      var bpmText = document.getElementById('tapBpmDisplay').textContent;
+      var bpm = parseInt(bpmText);
+      if (bpm >= 60 && bpm <= 160) _applyBpm(bpm);
+      _closeTapOverlay();
+    };
+    // Tap anywhere in the overlay to register a tap
+    _tapOverlay.addEventListener('click', function(e) {
+      if (e.target.tagName === 'BUTTON') return;
+      _registerTap();
     });
+    // Also accept spacebar and T key while overlay is open
+    _tapOverlay._keyHandler = function(e) {
+      if (e.key === ' ' || e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        _registerTap();
+      }
+      if (e.key === 'Escape') _closeTapOverlay();
+      if (e.key === 'Enter') {
+        var bpmText = document.getElementById('tapBpmDisplay').textContent;
+        var bpm = parseInt(bpmText);
+        if (bpm >= 60 && bpm <= 160) _applyBpm(bpm);
+        _closeTapOverlay();
+      }
+    };
+    document.addEventListener('keydown', _tapOverlay._keyHandler);
+  }
+
+  function _closeTapOverlay() {
+    if (_tapOverlay) {
+      if (_tapOverlay._keyHandler) document.removeEventListener('keydown', _tapOverlay._keyHandler);
+      if (_tapOverlay.parentNode) _tapOverlay.parentNode.removeChild(_tapOverlay);
+      _tapOverlay = null;
+    }
+    _tapTimes = [];
+  }
+
+  function _registerTap() {
+    var now = performance.now();
+    // Discard taps older than 3 seconds (user paused)
+    _tapTimes = _tapTimes.filter(function(t) { return now - t < 3000; });
+    _tapTimes.push(now);
+
+    var countEl = document.getElementById('tapCount');
+    var bpmEl = document.getElementById('tapBpmDisplay');
+    var applyBtn = document.getElementById('tapApply');
+    if (countEl) countEl.textContent = _tapTimes.length + ' tap' + (_tapTimes.length !== 1 ? 's' : '');
+
+    if (_tapTimes.length >= 2) {
+      // Average the intervals between taps
+      var intervals = [];
+      for (var i = 1; i < _tapTimes.length; i++) {
+        intervals.push(_tapTimes[i] - _tapTimes[i - 1]);
+      }
+      var avgMs = intervals.reduce(function(a, b) { return a + b; }, 0) / intervals.length;
+      var bpm = Math.round(60000 / avgMs);
+      bpm = Math.max(60, Math.min(160, bpm));
+      if (bpmEl) bpmEl.textContent = bpm;
+      if (applyBtn && _tapTimes.length >= 4) applyBtn.disabled = false;
+    }
+
+    // Pulse animation on the BPM display
+    if (bpmEl) {
+      bpmEl.classList.remove('tap-pulse');
+      void bpmEl.offsetWidth;
+      bpmEl.classList.add('tap-pulse');
+    }
+  }
+
+  document.getElementById('bpm').onclick = function(e) {
+    if (window.synthBridge && window.synthBridge.isPlaying) return;
+    // Double-click or long-press opens tap tempo; single click opens slider
+    // We use a short delay to distinguish single from double click
+    if (_tapTimeout) { clearTimeout(_tapTimeout); _tapTimeout = null; }
+    if (e.detail === 2) {
+      // Double-click: open tap tempo
+      _tapTimes = [];
+      _showTapOverlay();
+      return;
+    }
+    var bpmEl = this;
+    _tapTimeout = setTimeout(function() {
+      _tapTimeout = null;
+      _showHeaderEditor(bpmEl, 60, 160, 1, _applyBpm);
+    }, 250);
   };
 
   document.getElementById('swing').onclick = function() {
