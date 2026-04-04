@@ -210,11 +210,121 @@ function getSynthState() {
 }
 
 /**
+ * Generate a synthetic room impulse response for convolver reverb.
+ * Creates a short (0.4s) exponentially decaying noise burst that
+ * simulates a small, tight room — the kind of space you'd hear on
+ * a classic hip hop record mixed in a small studio.
+ * @param {number} sampleRate
+ * @returns {AudioBuffer}
+ */
+function _generateRoomIR(sampleRate) {
+  const length = Math.floor(sampleRate * 0.4); // 400ms decay
+  const ir = new AudioBuffer({ sampleRate, numberOfChannels: 2, length });
+  const L = ir.getChannelData(0);
+  const R = ir.getChannelData(1);
+  for (let i = 0; i < length; i++) {
+    const t = i / length;
+    // Exponential decay with early reflections emphasis
+    const env = Math.exp(-t * 8) * (1 - t);
+    // Slightly different noise per channel for stereo width
+    L[i] = (Math.random() * 2 - 1) * env * 0.3;
+    R[i] = (Math.random() * 2 - 1) * env * 0.3;
+  }
+  return ir;
+}
+
+/**
+ * Apply master FX chain to a rendered AudioBuffer using OfflineAudioContext.
+ * Chain: HPF (30Hz) → Compressor → Low-mid cut EQ → High shelf EQ → Reverb send
+ * @param {AudioBuffer} dryBuffer - The dry rendered audio
+ * @returns {Promise<AudioBuffer>} Processed audio
+ */
+async function _applyMasterFx(dryBuffer) {
+  const sr = dryBuffer.sampleRate;
+  const len = dryBuffer.length;
+  // Extra length for reverb tail
+  const tailSamples = Math.ceil(sr * 0.5);
+  const offline = new OfflineAudioContext(2, len + tailSamples, sr);
+
+  // Source
+  const src = offline.createBufferSource();
+  src.buffer = dryBuffer;
+
+  // 1. High-pass filter — remove sub-rumble below 30Hz
+  const hpf = offline.createBiquadFilter();
+  hpf.type = "highpass";
+  hpf.frequency.value = 30;
+  hpf.Q.value = 0.7;
+
+  // 2. Compressor — gentle glue compression
+  const comp = offline.createDynamicsCompressor();
+  comp.threshold.value = -18;  // catch the loudest hits
+  comp.knee.value = 8;         // soft knee for musical compression
+  comp.ratio.value = 3.5;      // moderate ratio
+  comp.attack.value = 0.012;   // 12ms — let transients through
+  comp.release.value = 0.15;   // 150ms — release before next hit
+
+  // 3. Low-mid cut — reduce boxiness at 350Hz
+  const eqCut = offline.createBiquadFilter();
+  eqCut.type = "peaking";
+  eqCut.frequency.value = 350;
+  eqCut.Q.value = 1.5;
+  eqCut.gain.value = -2.5;
+
+  // 4. High shelf — add air and presence above 8kHz
+  const eqShelf = offline.createBiquadFilter();
+  eqShelf.type = "highshelf";
+  eqShelf.frequency.value = 8000;
+  eqShelf.gain.value = 1.5;
+
+  // 5. Makeup gain — compensate for compression
+  const makeup = offline.createGain();
+  makeup.gain.value = 1.25; // ~+2dB
+
+  // Dry path: src → hpf → comp → eqCut → eqShelf → makeup → destination
+  src.connect(hpf);
+  hpf.connect(comp);
+  comp.connect(eqCut);
+  eqCut.connect(eqShelf);
+  eqShelf.connect(makeup);
+  makeup.connect(offline.destination);
+
+  // 6. Reverb send — short room reverb mixed low
+  const ir = _generateRoomIR(sr);
+  const convolver = offline.createConvolver();
+  convolver.buffer = ir;
+  const reverbSend = offline.createGain();
+  reverbSend.gain.value = 0.12; // 12% wet — subtle room, not a wash
+  // Pre-delay: 10ms gap before reverb (separates dry from wet)
+  const preDelay = offline.createDelay(0.05);
+  preDelay.delayTime.value = 0.01;
+  // Reverb EQ — filter the reverb return to keep it dark
+  const reverbHpf = offline.createBiquadFilter();
+  reverbHpf.type = "highpass";
+  reverbHpf.frequency.value = 400; // no low-end in the reverb
+  const reverbLpf = offline.createBiquadFilter();
+  reverbLpf.type = "lowpass";
+  reverbLpf.frequency.value = 4000; // no harsh highs in the reverb
+
+  // Send from post-EQ to reverb chain
+  makeup.connect(preDelay);
+  preDelay.connect(convolver);
+  convolver.connect(reverbHpf);
+  reverbHpf.connect(reverbLpf);
+  reverbLpf.connect(reverbSend);
+  reverbSend.connect(offline.destination);
+
+  src.start(0);
+  return offline.startRendering();
+}
+
+/**
  * Render MIDI bytes to a WAV blob using offline audio context.
  * @param {Uint8Array} midiBytes - Complete MIDI file bytes
+ * @param {boolean} [applyFx=false] - Whether to apply master FX chain
  * @returns {Promise<Blob>} WAV file as a Blob
  */
-async function renderToWav(midiBytes) {
+async function renderToWav(midiBytes, applyFx) {
   await initSynth();
 
   const sampleRate = 44100;
@@ -251,12 +361,14 @@ async function renderToWav(midiBytes) {
   }
 
   // Mix dry + effects into final buffer
-  // (SpessaSynth also renders wet/effects but we skip that for simplicity)
   const audioBuffer = new AudioBuffer({ sampleRate, numberOfChannels: 2, length: totalSamples });
   audioBuffer.copyToChannel(dryL, 0);
   audioBuffer.copyToChannel(dryR, 1);
 
-  const wavData = audioBufferToWav(audioBuffer);
+  // Apply master FX chain if requested
+  const finalBuffer = applyFx ? await _applyMasterFx(audioBuffer) : audioBuffer;
+
+  const wavData = audioBufferToWav(finalBuffer);
   return new Blob([wavData], { type: "audio/wav" });
 }
 

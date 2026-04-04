@@ -476,7 +476,7 @@ function exportMIDI(opts) {
     // Full mix (drums + bass)
     if (opts.wav) {
       wavChain = wavChain.then(function() {
-        return window.synthBridge.renderToWav(window._currentMidiBytes).then(function(blob) {
+        return window.synthBridge.renderToWav(window._currentMidiBytes, opts.masterFx).then(function(blob) {
           return blob.arrayBuffer();
         }).then(function(buf) {
           folder.file('hiphop_beat_' + bpm + 'bpm.wav', new Uint8Array(buf));
@@ -489,7 +489,7 @@ function exportMIDI(opts) {
       wavChain = wavChain.then(function() {
         if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Drums Stem...</strong><br><br><div class="progress-spinner"></div></div>';
         var drumsMidi = buildMidiBytes(arrangement, bpm);
-        return window.synthBridge.renderToWav(drumsMidi).then(function(blob) {
+        return window.synthBridge.renderToWav(drumsMidi, opts.masterFx).then(function(blob) {
           return blob.arrayBuffer();
         }).then(function(buf) {
           folder.file('hiphop_beat_' + bpm + 'bpm_drums.wav', new Uint8Array(buf));
@@ -502,7 +502,7 @@ function exportMIDI(opts) {
       wavChain = wavChain.then(function() {
         if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Bass Stem...</strong><br><br><div class="progress-spinner"></div></div>';
         var bassMidi = buildBassMidiBytes(arrangement, bpm);
-        return window.synthBridge.renderToWav(bassMidi).then(function(blob) {
+        return window.synthBridge.renderToWav(bassMidi, opts.masterFx).then(function(blob) {
           return blob.arrayBuffer();
         }).then(function(buf) {
           folder.file('hiphop_beat_' + bpm + 'bpm_bass.wav', new Uint8Array(buf));
