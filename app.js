@@ -1124,7 +1124,7 @@ function initPlayerControls() {
       if (typeof _saveUndo === 'function') _saveUndo();
       // Regenerate just this section's pattern
       if (typeof generatePattern === 'function') {
-        generatePattern(curSec);
+        patterns[curSec] = generatePattern(curSec);
         // Apply groove and humanization
         var len = secSteps[curSec] || 32;
         var feel = secFeels[curSec] || songFeel || 'normal';
