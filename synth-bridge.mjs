@@ -252,5 +252,7 @@ window.synthBridge = {
   playNote: playNote,
   set onTimeUpdate(fn) { onTimeUpdate = fn; },
   set onPlayStateChange(fn) { onPlayStateChange = fn; },
-  get isPlaying() { return isPlaying; }
+  get isPlaying() { return isPlaying; },
+  get audioContext() { return audioContext; },
+  get synth() { return synth; }
 };

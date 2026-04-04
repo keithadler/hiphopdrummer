@@ -1382,6 +1382,255 @@ function getRoleSectionTip(sec, role) {
 /**
  * Track the full song MIDI player's position and highlight the
  * current section in the arrangement + show its pattern in the grid.
+// =============================================
+// Visual FX Module — 10 playback visual enhancements
+// =============================================
+var _vfx = {
+  trailEls: [],       // cursor trail elements
+  glowTimers: {},     // row glow clear timers
+  analyser: null,     // Web Audio analyser node
+  vizCtx: null,       // canvas 2d context
+  vizRAF: null,       // requestAnimationFrame id
+  vizData: null,      // frequency data array
+  breatheEl: null,    // BPM breathing element
+  lastFillSection: '' // track fill countdown per section
+};
+
+/** 1. Cursor trail — leave fading ghost on previous 3 steps */
+function vfxCursorTrail(stepIdx) {
+  // Clear old trail
+  for (var i = 0; i < _vfx.trailEls.length; i++) {
+    _vfx.trailEls[i].classList.remove('cursor-trail');
+  }
+  _vfx.trailEls = [];
+  if (stepIdx < 1) return;
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  // Trail the previous 3 steps
+  for (var t = 1; t <= 3; t++) {
+    var prev = stepIdx - t;
+    if (prev < 0) break;
+    var els = gridR.querySelectorAll('.cell[data-step="' + prev + '"], .beat-num[data-step="' + prev + '"]');
+    for (var j = 0; j < els.length; j++) {
+      els[j].classList.add('cursor-trail');
+      _vfx.trailEls.push(els[j]);
+    }
+  }
+}
+
+/** 2. Hit flash — cells brighten when cursor lands on active hit */
+function vfxHitFlash(stepIdx) {
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  var cells = gridR.querySelectorAll('.cell.on[data-step="' + stepIdx + '"]');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.remove('hit-flash');
+    void cells[i].offsetWidth;
+    cells[i].classList.add('hit-flash');
+  }
+}
+
+/** 8. Grid row glow on hit — row label glows in instrument color */
+function vfxRowGlow(stepIdx) {
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  var cells = gridR.querySelectorAll('.cell.on[data-step="' + stepIdx + '"]');
+  for (var i = 0; i < cells.length; i++) {
+    var row = cells[i].parentElement;
+    if (!row) continue;
+    var label = row.querySelector('.row-label');
+    if (!label) continue;
+    var inst = label.dataset.row;
+    if (!inst) continue;
+    // Add glow class
+    label.classList.add('row-glow', 'glow-' + inst);
+    // Clear after 200ms
+    if (_vfx.glowTimers[inst]) clearTimeout(_vfx.glowTimers[inst]);
+    _vfx.glowTimers[inst] = setTimeout(function(l, cls) {
+      l.classList.remove('row-glow', cls);
+    }.bind(null, label, 'glow-' + inst), 200);
+  }
+}
+
+/** 6. Fill countdown — last 4 steps before section end glow red */
+function vfxFillCountdown(stepIdx, sectionSteps) {
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  var remaining = sectionSteps - stepIdx - 1;
+  // Only show in last 4 steps
+  if (remaining > 3 || remaining < 0) return;
+  var level = remaining + 1; // 1=closest to end, 4=furthest
+  var cells = gridR.querySelectorAll('.cell[data-step="' + stepIdx + '"]');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.add('fill-countdown-' + level);
+  }
+}
+
+/** 5. BPM breathing — player panel border pulses at tempo */
+function vfxStartBpmBreathe(bpm) {
+  var el = document.getElementById('playerControls');
+  if (!el) return;
+  _vfx.breatheEl = el;
+  var period = 60 / bpm; // seconds per beat
+  el.style.setProperty('--bpm-period', period + 's');
+  el.classList.add('bpm-breathe');
+}
+function vfxStopBpmBreathe() {
+  if (_vfx.breatheEl) {
+    _vfx.breatheEl.classList.remove('bpm-breathe');
+    _vfx.breatheEl = null;
+  }
+}
+
+/** 10. Beat drop — radial pulse on first beat of chorus/lastchorus */
+function vfxBeatDrop(sec) {
+  if (sec !== 'chorus' && sec !== 'chorus2' && sec !== 'lastchorus') return;
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  gridR.classList.remove('beat-drop');
+  void gridR.offsetWidth;
+  gridR.classList.add('beat-drop');
+}
+
+/** 9. Arrangement progress bar — update fill width and section markers */
+function vfxUpdateProgress(currentTime, duration) {
+  var fill = document.getElementById('arrProgressFill');
+  if (!fill || duration <= 0) return;
+  var pct = Math.min(100, (currentTime / duration) * 100);
+  fill.style.width = pct + '%';
+}
+function vfxBuildProgressMarkers(sectionTimeMap, totalDuration) {
+  var container = document.getElementById('arrProgressMarkers');
+  if (!container || totalDuration <= 0) return;
+  container.innerHTML = '';
+  for (var i = 1; i < sectionTimeMap.length; i++) {
+    var mark = document.createElement('div');
+    mark.className = 'arr-progress-mark';
+    mark.style.left = ((sectionTimeMap[i].start / totalDuration) * 100) + '%';
+    container.appendChild(mark);
+  }
+}
+
+/** 7. Audio visualizer — frequency bars using Web Audio API analyser */
+function vfxStartVisualizer() {
+  var canvas = document.getElementById('vizCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  _vfx.vizCtx = ctx;
+
+  // Try to connect to the real AudioContext analyser
+  if (!_vfx.analyser && window.synthBridge && window.synthBridge.audioContext && window.synthBridge.synth) {
+    try {
+      var ac = window.synthBridge.audioContext;
+      var analyser = ac.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
+      // Connect synth output through analyser
+      window.synthBridge.synth.connect(analyser);
+      analyser.connect(ac.destination);
+      _vfx.analyser = analyser;
+      _vfx.vizData = new Uint8Array(analyser.frequencyBinCount);
+    } catch(e) {
+      // Fall back to simulated visualizer
+      _vfx.analyser = null;
+    }
+  }
+
+  _vfx.vizActive = true;
+  var barCount = 32;
+
+  function drawFrame() {
+    if (!_vfx.vizActive) return;
+    var w = canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+    var h = canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+    ctx.clearRect(0, 0, w, h);
+
+    if (_vfx.analyser && _vfx.vizData) {
+      // Real analyser data
+      _vfx.analyser.getByteFrequencyData(_vfx.vizData);
+      var sliceW = w / barCount;
+      for (var i = 0; i < barCount; i++) {
+        var val = _vfx.vizData[Math.floor(i * _vfx.vizData.length / barCount)] / 255;
+        var barH = val * h;
+        var hue = 200 + (i / barCount) * 60; // blue to cyan
+        ctx.fillStyle = 'hsla(' + hue + ',70%,55%,' + (0.4 + val * 0.6) + ')';
+        ctx.fillRect(i * sliceW + 1, h - barH, sliceW - 2, barH);
+      }
+    } else {
+      // Simulated visualizer based on current beat position
+      var time = Date.now() / 1000;
+      var sliceW = w / barCount;
+      for (var i = 0; i < barCount; i++) {
+        var phase = Math.sin(time * 3 + i * 0.4) * 0.3 + 0.3;
+        var wave = Math.sin(time * 6 + i * 0.8) * 0.15;
+        var val = Math.max(0, phase + wave);
+        var barH = val * h;
+        var hue = 200 + (i / barCount) * 60;
+        ctx.fillStyle = 'hsla(' + hue + ',70%,55%,' + (0.3 + val * 0.5) + ')';
+        ctx.fillRect(i * sliceW + 1, h - barH, sliceW - 2, barH);
+      }
+    }
+    _vfx.vizRAF = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+}
+
+function vfxStopVisualizer() {
+  _vfx.vizActive = false;
+  if (_vfx.vizRAF) { cancelAnimationFrame(_vfx.vizRAF); _vfx.vizRAF = null; }
+  var canvas = document.getElementById('vizCanvas');
+  if (canvas) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+/** 4. Section color themes — add sec-* class to arrangement cards and grid labels */
+function vfxSectionClass(sec) {
+  if (!sec) return '';
+  if (sec === 'intro') return 'sec-intro';
+  if (sec === 'verse' || sec === 'verse2') return 'sec-verse';
+  if (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') return 'sec-chorus';
+  if (sec === 'bridge') return 'sec-bridge';
+  if (sec === 'breakdown') return 'sec-breakdown';
+  if (sec === 'outro') return 'sec-outro';
+  if (sec === 'pre') return 'sec-pre';
+  return '';
+}
+
+/** Clear all VFX state on playback stop */
+function vfxClearAll() {
+  // Clear trail
+  for (var i = 0; i < _vfx.trailEls.length; i++) {
+    _vfx.trailEls[i].classList.remove('cursor-trail');
+  }
+  _vfx.trailEls = [];
+  // Clear glow timers
+  for (var k in _vfx.glowTimers) { clearTimeout(_vfx.glowTimers[k]); }
+  _vfx.glowTimers = {};
+  // Clear fill countdown classes
+  var gridR = document.getElementById('gridR');
+  if (gridR) {
+    var fcs = gridR.querySelectorAll('[class*="fill-countdown"]');
+    for (var i = 0; i < fcs.length; i++) {
+      fcs[i].classList.remove('fill-countdown-1','fill-countdown-2','fill-countdown-3','fill-countdown-4');
+    }
+    gridR.classList.remove('beat-drop');
+  }
+  // Stop breathing and visualizer
+  vfxStopBpmBreathe();
+  vfxStopVisualizer();
+  // Reset progress bar
+  var fill = document.getElementById('arrProgressFill');
+  if (fill) fill.style.width = '0';
+}
+
+// =============================================
+// End Visual FX Module
+// =============================================
+
+/**
+ * Playback tracking — syncs grid cursor, section overlays, and VFX.
  *
  * Builds a time-to-section map from the arrangement and secSteps,
  * then polls the player's currentTime to detect section changes.
@@ -1536,6 +1785,10 @@ function initPlaybackTracking() {
     if (_followPlayhead && !_touchPauseFollow && _cachedCursorEls.length > 0) {
       _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     }
+    // Visual FX on each step
+    vfxCursorTrail(stepIdx);
+    vfxHitFlash(stepIdx);
+    vfxRowGlow(stepIdx);
   }
 
   function updateCurrentSection(currentTime) {
@@ -1595,6 +1848,8 @@ function initPlaybackTracking() {
         void gridEl.offsetWidth; // force reflow to restart animation
         gridEl.classList.add('section-flash');
       }
+      // VFX: Beat drop on chorus sections
+      vfxBeatDrop(curSec);
       // Follow playhead: scroll the current section into view
       if (_followPlayhead && !_touchPauseFollow) {
         var activeCard = document.querySelector('.arr-item.playing');
@@ -1604,7 +1859,14 @@ function initPlaybackTracking() {
     if (foundIdx >= 0) {
       // Use cached BPM/secPerStep instead of reading DOM every frame
       var currentStep = Math.floor((currentTime - sectionStartTime) / _cachedSecPerStep);
-      if (currentStep >= 0 && currentStep < sectionSteps) highlightStep(currentStep);
+      if (currentStep >= 0 && currentStep < sectionSteps) {
+        highlightStep(currentStep);
+        // VFX: Fill countdown in last 4 steps of section
+        vfxFillCountdown(currentStep, sectionSteps);
+      }
+      // VFX: Progress bar
+      var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
+      vfxUpdateProgress(currentTime, totalDur);
     }
   }
 
@@ -1653,6 +1915,8 @@ function initPlaybackTracking() {
         var toast = document.getElementById('sectionToast');
         if (toast) toast.classList.remove('show');
         _chordToastVisible = false;
+        // VFX: Clear all visual effects on stop
+        vfxClearAll();
       }
       if (playing) {
         lastTrackedSection = -1;
@@ -1660,6 +1924,11 @@ function initPlaybackTracking() {
         _lastActiveBar = -1;
         window._playbackControlsBarTabs = true;
         buildSectionTimeMap();
+        // VFX: Start BPM breathing, visualizer, and progress markers
+        vfxStartBpmBreathe(_cachedBpm);
+        vfxStartVisualizer();
+        var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
+        vfxBuildProgressMarkers(sectionTimeMap, totalDur);
         // Cache follow-playhead preference for this playback session
         try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
         try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc === null || sc !== 'false'); } catch(e) { _showChordsOverlay = true; }
