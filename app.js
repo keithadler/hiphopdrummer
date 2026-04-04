@@ -180,6 +180,80 @@ document.getElementById('regenGo').onclick = function() {
 /** New Beat button: show the dialog */
 document.getElementById('btnGen').onclick = showRegenDialog;
 
+/** Share button: encode beat into URL and copy to clipboard */
+document.getElementById('btnShare').onclick = function() {
+  try {
+    // Build compact beat data — only essential fields
+    var shareData = {
+      b: parseInt(document.getElementById('bpm').textContent) || 90,
+      s: parseInt(document.getElementById('swing').textContent) || 62,
+      k: document.getElementById('songKey').textContent || '',
+      f: songFeel || 'normal',
+      a: arrangement.slice(),
+      ss: {},
+      sf: {},
+      p: {}
+    };
+    // Sparse pattern encoding — only store non-zero values
+    arrangement.forEach(function(sec) {
+      if (shareData.ss[sec]) return;
+      shareData.ss[sec] = secSteps[sec] || 32;
+      shareData.sf[sec] = secFeels[sec] || '';
+      var pat = patterns[sec];
+      if (!pat) return;
+      var sp = {};
+      ROWS.forEach(function(r) {
+        var hits = [];
+        var len = secSteps[sec] || 32;
+        for (var i = 0; i < len; i++) {
+          if (pat[r][i] > 0) hits.push(i + ':' + pat[r][i]);
+        }
+        if (hits.length > 0) sp[r] = hits.join(',');
+      });
+      shareData.p[sec] = sp;
+    });
+    var json = JSON.stringify(shareData);
+    var encoded = btoa(unescape(encodeURIComponent(json)));
+    var url = window.location.origin + window.location.pathname + '#beat=' + encoded;
+    
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function() {
+        showShareToast('Link copied! Share it with anyone.');
+      }).catch(function() {
+        showShareFallback(url);
+      });
+    } else {
+      showShareFallback(url);
+    }
+  } catch(e) {
+    console.error('Share failed:', e);
+    showShareToast('Could not create share link.');
+  }
+};
+
+function showShareToast(msg) {
+  var toast = document.getElementById('exportToast');
+  if (toast) {
+    toast.innerHTML = '<div style="padding:16px;text-align:center"><strong>' + msg + '</strong></div>';
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 3000);
+  }
+}
+
+function showShareFallback(url) {
+  // Fallback for browsers without clipboard API
+  var input = document.createElement('input');
+  input.value = url;
+  input.style.cssText = 'position:fixed;top:-100px';
+  document.body.appendChild(input);
+  input.select();
+  input.setSelectionRange(0, 99999);
+  try { document.execCommand('copy'); showShareToast('Link copied! Share it with anyone.'); }
+  catch(e) { showShareToast('Copy this link: ' + url.substring(0, 60) + '...'); }
+  document.body.removeChild(input);
+}
+
 /** Export button: show the export dialog */
 document.getElementById('btnExport').onclick = showExportDialog;
 
@@ -282,6 +356,29 @@ function showPrefsDialog() {
   var saved = '0';
   try { saved = localStorage.getItem('hhd_drumkit') || '0'; } catch(e) {}
   document.getElementById('prefsDrumKit').value = saved;
+  
+  // Wire kit preview on change
+  var kitSelect = document.getElementById('prefsDrumKit');
+  kitSelect.onchange = function() {
+    if (!window.synthBridge) return;
+    var kit = parseInt(kitSelect.value) || 0;
+    window.synthBridge.setDrumKit(kit);
+    // Play a quick kick-snare-hat preview
+    setTimeout(function() { window.synthBridge.playNote(9, 36, 100, 200); }, 0);    // kick
+    setTimeout(function() { window.synthBridge.playNote(9, 42, 80, 150); }, 200);   // hat
+    setTimeout(function() { window.synthBridge.playNote(9, 38, 110, 200); }, 400);  // snare
+    setTimeout(function() { window.synthBridge.playNote(9, 42, 70, 150); }, 600);   // hat
+  };
+  
+  // Wire bass sound preview on change
+  var bassSelect = document.getElementById('prefsBassSound');
+  bassSelect.onchange = function() {
+    if (!window.synthBridge) return;
+    var prog = parseInt(bassSelect.value) || 33;
+    window.synthBridge.setBassProgram(prog);
+    // Play a quick bass note preview
+    setTimeout(function() { window.synthBridge.playNote(0, 36, 90, 400); }, 0);
+  };
   // Restore bass playback preference (default: on)
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
@@ -564,8 +661,93 @@ function initBeatHistoryHandlers() {
  *   5. Start playback tracking
  */
 (function() {
-  // Try to load last beat from history
-  var historyLoaded = false;
+  // Check for shared beat in URL hash
+  var sharedBeatLoaded = false;
+  if (window.location.hash && window.location.hash.indexOf('#beat=') === 0) {
+    try {
+      var encoded = window.location.hash.substring(6);
+      var json = decodeURIComponent(escape(atob(encoded)));
+      var shareData = JSON.parse(json);
+      
+      // Restore the shared beat
+      document.getElementById('bpm').textContent = shareData.b || 90;
+      document.getElementById('swing').textContent = shareData.s || 62;
+      document.getElementById('songKey').textContent = shareData.k || '';
+      songFeel = shareData.f || 'normal';
+      arrangement = shareData.a || [];
+      
+      // Restore secSteps and secFeels
+      secSteps = {};
+      secFeels = {};
+      for (var sk in shareData.ss) { secSteps[sk] = shareData.ss[sk]; }
+      for (var sk in shareData.sf) { secFeels[sk] = shareData.sf[sk]; }
+      
+      // Restore patterns from sparse encoding
+      patterns = {};
+      for (var sec in shareData.p) {
+        var pat = {};
+        ROWS.forEach(function(r) { pat[r] = new Array(STEPS).fill(0); });
+        var sp = shareData.p[sec];
+        for (var r in sp) {
+          var hits = sp[r].split(',');
+          for (var h = 0; h < hits.length; h++) {
+            var parts = hits[h].split(':');
+            var step = parseInt(parts[0]);
+            var vel = parseInt(parts[1]);
+            if (!isNaN(step) && !isNaN(vel)) pat[r][step] = vel;
+          }
+        }
+        patterns[sec] = pat;
+      }
+      
+      // Set style display
+      var styleEl = document.getElementById('songStyle');
+      if (styleEl && STYLE_DATA[songFeel]) styleEl.textContent = STYLE_DATA[songFeel].label;
+      
+      // Set key data for chord sheet
+      _forcedKey = shareData.k || null;
+      
+      // Build UI
+      curSec = arrangement[0] || 'verse';
+      arrIdx = 0;
+      renderGrid();
+      renderArr();
+      
+      // Run analyzeBeat to set _lastChosenKey and build About panel
+      var aboutEl = document.getElementById('aboutBeat');
+      if (aboutEl && typeof analyzeBeat === 'function') {
+        aboutEl.innerHTML = analyzeBeat();
+        if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+        if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+        if (typeof buildAboutSummary === 'function') buildAboutSummary();
+      }
+      _forcedKey = null;
+      
+      updateMidiPlayer();
+      if (typeof buildChordSheet === 'function') buildChordSheet();
+      
+      // Save shared beat to history
+      if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function') {
+        var beatData = captureBeatState();
+        var hist = loadBeatHistory();
+        hist.unshift(beatData);
+        if (typeof MAX_HISTORY_SLOTS !== 'undefined' && hist.length > MAX_HISTORY_SLOTS) {
+          hist = hist.slice(0, MAX_HISTORY_SLOTS);
+        }
+        saveBeatHistory(hist);
+      }
+      
+      sharedBeatLoaded = true;
+      // Clear the hash so refreshing doesn't re-load the shared beat
+      if (history.replaceState) history.replaceState(null, '', window.location.pathname);
+      console.log('Loaded shared beat:', shareData.f, 'at', shareData.b, 'BPM in', shareData.k);
+    } catch(e) {
+      console.warn('Failed to load shared beat:', e);
+    }
+  }
+  
+  // Try to load last beat from history (skip if shared beat was loaded)
+  var historyLoaded = sharedBeatLoaded;
   if (typeof loadBeatHistory === 'function') {
     var history = loadBeatHistory();
     if (history && history.length > 0) {
