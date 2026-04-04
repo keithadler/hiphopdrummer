@@ -2202,10 +2202,12 @@ function initPlaybackTracking() {
             window._loopRestartPending = true;
             setTimeout(function() {
               window._loopRestartPending = false;
-              if (window._loopSection && window._loopMidiBytes) {
-                window.synthBridge.play(window._loopMidiBytes);
+              if (window._loopSection && window._loopMidiBytes && window.synthBridge) {
+                // Seek to beginning and replay instead of full re-init
+                window.synthBridge.seek(0);
+                window.synthBridge.resume();
               }
-            }, 100);
+            }, 150);
           }
           return; // Don't clear cursor/VFX — loop continues
         }
