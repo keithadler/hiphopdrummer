@@ -5,6 +5,7 @@ All notable changes to Hip Hop Drummer are documented in this file.
 ## [1.27] - 2026-04-04
 
 ### Added
+- Electric Piano generator: style-aware chord comping for Dilla/jazz/G-Funk/lo-fi/Nujabes/bounce/halftime — voice leading, per-note velocity humanization, bar variation, Dorian IV, drum interaction, pendulum arp, EP analysis section, EP WAV stem, DAW guide mentions
 - Master FX chain on WAV export: HPF → glue compressor → EQ (350Hz cut, 8kHz shelf) → room reverb with pre-delay. Checkbox in export dialog, always on for quick WAV download
 - Tap tempo: double-click BPM display or press T — detects tempo from 4+ taps
 - Keyboard shortcuts: Space (play/stop), R (new beat), T (tap tempo), E (edit), L (loop), ←/→ (navigate sections)

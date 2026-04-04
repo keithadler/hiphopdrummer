@@ -634,10 +634,13 @@ function updateMidiPlayer() {
     try { window.synthBridge.stop(); } catch(e) {}
   }
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  // Check bass playback preference
+  // Check bass and EP playback preferences
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
-  var midiBytes = bassOn ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
+  var epOn = true;
+  try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
+  // Use combined MIDI if bass OR EP is enabled (combined handles both channels)
+  var midiBytes = (bassOn || epOn) ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
 
   // Store the current MIDI bytes globally for WAV export and playback
   window._currentMidiBytes = midiBytes;

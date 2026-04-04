@@ -258,6 +258,16 @@ function buildHelpAbleton(bpm, swing, noSwing) {
     '- For open/closed hat choke: select both hat pads, right-click,',
     '  set them to the same Choke Group (e.g. Group 1).',
     '',
+    'ELECTRIC PIANO TRACK',
+    '--------------------',
+    '- The Electric Piano/ subfolder contains EP .mid files (MIDI channel 3).',
+    '- Create a second MIDI track and drag an EP section .mid onto it.',
+    '- Load an electric piano instrument: Ableton\'s Electric preset,',
+    '  or any warm EP/keys plugin (Keyscape, Lounge Lizard, etc.).',
+    '- GM program 4 (Electric Piano 1) if using a GM-compatible plugin.',
+    '- The EP is only generated for styles that use it (Dilla, jazz,',
+    '  G-Funk, lo-fi, Nujabes, bounce). Other styles will have no EP files.',
+    '',
   ]);
   lines = lines.concat(_footerSection());
   return lines.join('\r\n');

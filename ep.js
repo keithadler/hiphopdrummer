@@ -209,10 +209,13 @@ function generateEPPattern(sec, bpm) {
   }
 
   var epFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
-  epFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(epFeel) : epFeel;
-  if (!EP_STYLES[epFeel]) return [];
-
-  var style = EP_COMP_STYLES[epFeel] || EP_COMP_STYLES.dilla;
+  var epFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(epFeel) : epFeel;
+  // Check both the original feel and the resolved base — regional variants
+  // like normal_queens have their own EP_STYLES entry
+  if (!EP_STYLES[epFeel] && !EP_STYLES[epFeelBase]) return [];
+  // Use the more specific feel for style lookup if it has an entry
+  var styleLookup = EP_COMP_STYLES[epFeel] ? epFeel : epFeelBase;
+  var style = EP_COMP_STYLES[styleLookup] || EP_COMP_STYLES.dilla;
 
   var keyData = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
   if (!keyData) {
@@ -241,8 +244,8 @@ function generateEPPattern(sec, bpm) {
     return rootNote;
   }
 
-  var bassFeel = epFeel;
-  var progPool = (typeof CHORD_PROGRESSIONS !== 'undefined') ? (CHORD_PROGRESSIONS[bassFeel] || CHORD_PROGRESSIONS.normal) : [['i','i','iv','i','i','iv','v','i']];
+  var bassFeel = styleLookup;
+  var progPool = (typeof CHORD_PROGRESSIONS !== 'undefined') ? (CHORD_PROGRESSIONS[bassFeel] || CHORD_PROGRESSIONS[epFeelBase] || CHORD_PROGRESSIONS.normal) : [['i','i','iv','i','i','iv','v','i']];
   var progression;
   if (typeof _sectionProgressions !== 'undefined' && _sectionProgressions[sec]) {
     progression = _sectionProgressions[sec];
@@ -257,7 +260,7 @@ function generateEPPattern(sec, bpm) {
   if (isIntroOutro) {
     for (var bar = 0; bar < totalBars; bar++) {
       if (maybe(0.5)) {
-        var notes = buildEPVoicing(rootNote, 'i', 'shell', style.register, style.spread, epFeel, prevNotes);
+        var notes = buildEPVoicing(rootNote, 'i', 'shell', style.register, style.spread, styleLookup, prevNotes);
         prevNotes = notes;
         events.push({ step: bar * 16, notes: notes, vels: _epHumanizeChordVel(notes, Math.max(30, style.velBase - 20)), dur: 0.8, timingOffset: 0 });
       }
@@ -281,7 +284,7 @@ function generateEPPattern(sec, bpm) {
 
     var chordRoot = degreeToNote(progDegree);
     // FIX 1: Pass previous voicing for voice leading
-    var chordNotes = buildEPVoicing(chordRoot, progDegree, style.voicing, style.register, style.spread, epFeel, prevNotes);
+    var chordNotes = buildEPVoicing(chordRoot, progDegree, style.voicing, style.register, style.spread, styleLookup, prevNotes);
     prevNotes = chordNotes;
     var vel = v(style.velBase, style.velRange);
     var behind = style.behind;
