@@ -472,20 +472,10 @@ document.getElementById('prefsSave').onclick = function() {
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
   try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
 
-  // Always apply drum kit and bass sound via synth bridge
-  // Init synth first if needed (user gesture from Save button click satisfies iOS AudioContext requirement)
+  // Apply drum kit and bass sound via synth bridge
   if (window.synthBridge) {
-    var _kitVal = parseInt(kit) || 0;
-    var _bassVal = parseInt(bassSound) || 33;
-    if (window.synthBridge.init) {
-      window.synthBridge.init().then(function() {
-        window.synthBridge.setDrumKit(_kitVal);
-        window.synthBridge.setBassProgram(_bassVal);
-      }).catch(function() {});
-    } else {
-      window.synthBridge.setDrumKit(_kitVal);
-      window.synthBridge.setBassProgram(_bassVal);
-    }
+    window.synthBridge.setDrumKit(parseInt(kit) || 0);
+    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -1094,13 +1084,13 @@ function initPlayerControls() {
         }
       }, 800);
     } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
-      // Disable non-play buttons immediately when starting playback
+      // Disable non-play buttons immediately
       var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
         var nb = document.getElementById(navBtnsImmediate[ni]);
         if (nb) nb.disabled = true;
       }
-      // If loop mode is on, build section MIDI instead of full song
+      // Build the MIDI to play (loop section or full song)
       var midiToPlay = window._currentMidiBytes;
       if (window._loopSection && curSec && patterns[curSec]) {
         var loopBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -1109,73 +1099,45 @@ function initPlayerControls() {
         midiToPlay = loopBassOn ? buildCombinedMidiBytes([curSec], loopBpm) : buildMidiBytes([curSec], loopBpm);
         window._loopMidiBytes = midiToPlay;
       }
-      // CRITICAL: Init synth SYNCHRONOUSLY in this click handler.
-      // Safari requires AudioContext creation in a user gesture's synchronous path.
-      // synthBridge.init() creates the AudioContext immediately, then loads SoundFont async.
-      // The countdown runs during the SoundFont load, so both complete around the same time.
+      // Init synth in user gesture context (Safari AudioContext requirement)
+      // This is fire-and-forget — synthBridge.play() also calls initSynth() internally
+      if (window.synthBridge && window.synthBridge.init) {
+        try { window.synthBridge.init(); } catch(e) {}
+      }
       headerPlayBtn.disabled = true;
-      headerPlayBtn.textContent = '⏳ LOADING';
-      var _initPromise = (window.synthBridge && window.synthBridge.init) ? window.synthBridge.init() : Promise.resolve();
-      _initPromise.then(function() {
-        // Apply saved preferences now that synth is ready
-        try {
-          var sk = localStorage.getItem('hhd_drumkit') || '0';
-          window.synthBridge.setDrumKit(parseInt(sk) || 0);
-          var sb = localStorage.getItem('hhd_bass_sound') || '33';
-          window.synthBridge.setBassProgram(parseInt(sb) || 33);
-        } catch(e) {}
-        // Ensure playback tracking is connected before playing
-        // (connectTracking polls every 50ms for synthBridge — it should connect now that init is done)
-        function _waitForTracking(cb, attempts) {
-          if (window._playbackTrackingConnected || attempts > 20) { cb(); return; }
-          setTimeout(function() { _waitForTracking(cb, attempts + 1); }, 50);
-        }
-        _waitForTracking(function() {
-          // Now start countdown, then play
-        playCountdown(function() {
-          var _loadTimeout = setTimeout(function() {
-            if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
-              headerPlayBtn.disabled = false;
-              headerPlayBtn.textContent = '▶ PLAY';
-              headerPlayBtn.classList.remove('playing');
-              var timeoutBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-              for (var ti = 0; ti < timeoutBtns.length; ti++) {
-                var tb = document.getElementById(timeoutBtns[ti]);
-                if (tb) tb.disabled = false;
-              }
-            }
-          }, 15000);
-          window.synthBridge.play(midiToPlay).then(function() {
-            clearTimeout(_loadTimeout);
-            headerPlayBtn.textContent = '■ STOP';
-            headerPlayBtn.classList.add('playing');
-            setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
-            var toast = document.getElementById('sectionToast');
-            if (toast && !toast.classList.contains('show') && arrangement.length > 0) {
-              if (window.synthBridge.onPlayStateChange) {
-                window.synthBridge.onPlayStateChange(true);
-              }
-            }
-          }).catch(function() {
+      // Start countdown, then play
+      playCountdown(function() {
+        headerPlayBtn.textContent = '⏳ LOADING';
+        var _loadTimeout = setTimeout(function() {
+          if (headerPlayBtn.textContent.indexOf('LOADING') >= 0) {
             headerPlayBtn.disabled = false;
             headerPlayBtn.textContent = '▶ PLAY';
-            var failBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-            for (var fi = 0; fi < failBtns.length; fi++) {
-              var fb = document.getElementById(failBtns[fi]);
-              if (fb) fb.disabled = false;
-            }
-          });
+            headerPlayBtn.classList.remove('playing');
+            var tBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+            for (var ti = 0; ti < tBtns.length; ti++) { var tb = document.getElementById(tBtns[ti]); if (tb) tb.disabled = false; }
+          }
+        }, 15000);
+        window.synthBridge.play(midiToPlay).then(function() {
+          clearTimeout(_loadTimeout);
+          // Apply preferences after synth is guaranteed initialized
+          try {
+            window.synthBridge.setDrumKit(parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0);
+            window.synthBridge.setBassProgram(parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33);
+          } catch(e) {}
+          headerPlayBtn.textContent = '■ STOP';
+          headerPlayBtn.classList.add('playing');
+          setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
+          // Force tracking callbacks if they haven't fired yet
+          if (window.synthBridge.onPlayStateChange) {
+            window.synthBridge.onPlayStateChange(true);
+          }
+        }).catch(function() {
+          clearTimeout(_loadTimeout);
+          headerPlayBtn.disabled = false;
+          headerPlayBtn.textContent = '▶ PLAY';
+          var fBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+          for (var fi = 0; fi < fBtns.length; fi++) { var fb = document.getElementById(fBtns[fi]); if (fb) fb.disabled = false; }
         });
-        }, 0); // end _waitForTracking
-      }).catch(function() {
-        // Synth init failed
-        headerPlayBtn.disabled = false;
-        headerPlayBtn.textContent = '▶ PLAY';
-        var failBtns2 = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
-        for (var fi2 = 0; fi2 < failBtns2.length; fi2++) {
-          var fb2 = document.getElementById(failBtns2[fi2]);
-          if (fb2) fb2.disabled = false;
-        }
       });
     }
   };
