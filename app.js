@@ -932,10 +932,14 @@ function initPlayerControls() {
         window._loopMidiBytes = midiToPlay;
       }
       // Init synth in user gesture context (Safari AudioContext requirement)
-      // This is fire-and-forget — synthBridge.play() also calls initSynth() internally
       if (window.synthBridge && window.synthBridge.init) {
         try { window.synthBridge.init(); } catch(e) {}
       }
+      // Apply drum kit and bass sound immediately (synth may already be initialized from a previous play)
+      try {
+        window.synthBridge.setDrumKit(parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0);
+        window.synthBridge.setBassProgram(parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33);
+      } catch(e) {}
       headerPlayBtn.disabled = true;
       // Start countdown, then play
       playCountdown(function() {
