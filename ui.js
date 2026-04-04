@@ -212,6 +212,8 @@ function renderGrid() {
       var firstBtn = bt.querySelector('.bar-btn');
       if (firstBtn) firstBtn.classList.add('bar-btn-active');
 
+      // Disconnect previous observer if any
+      if (window._gridBarObserver) { try { window._gridBarObserver.disconnect(); } catch(e) {} }
       var barObserver = new IntersectionObserver(function(entries) {
         if (window._playbackControlsBarTabs) return;
         entries.forEach(function(entry) {
@@ -227,6 +229,7 @@ function renderGrid() {
         var lbl = document.getElementById('grid-page-' + ob);
         if (lbl) barObserver.observe(lbl);
       }
+      window._gridBarObserver = barObserver;
     }, 100);
   }
 }
@@ -1271,6 +1274,8 @@ function explainCell(instrument, step, velocity) {
 function _showCellTooltip(cell) {
   // Don't show tooltips during playback — they obscure the chord overlay
   if (window.synthBridge && window.synthBridge.isPlaying) return;
+  // Don't show tooltips on empty cells
+  if (!cell.classList.contains('on')) return;
   var step = parseInt(cell.dataset.step);
   if (isNaN(step)) return;
   var row = cell.parentElement;
