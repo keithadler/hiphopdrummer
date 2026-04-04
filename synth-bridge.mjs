@@ -397,6 +397,16 @@ function setBassProgram(program) {
 }
 
 /**
+ * Change the electric piano sound (MIDI program on channel 2).
+ * @param {number} program - GM program number (4=Electric Piano 1, etc.)
+ */
+function setEPProgram(program) {
+  if (synth) {
+    synth.programChange(2, program);
+  }
+}
+
+/**
  * Play a single note on a given channel.
  * Used for auditioning drum hits when clicking grid cells.
  * @param {number} channel - MIDI channel (9 for drums, 0 for bass)
@@ -426,6 +436,7 @@ window.synthBridge = {
   renderToWav: renderToWav,
   setDrumKit: setDrumKit,
   setBassProgram: setBassProgram,
+  setEPProgram: setEPProgram,
   playNote: playNote,
   set onTimeUpdate(fn) { onTimeUpdate = fn; },
   get onTimeUpdate() { return onTimeUpdate; },

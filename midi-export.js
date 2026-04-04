@@ -439,6 +439,39 @@ function exportMIDI(opts) {
     });
   }
 
+  // Electric Piano exports — EP MIDI goes in MIDI Patterns/EP/, MPC EP goes in MPC/EP/
+  if (opts.epMidi || opts.epMpc) {
+    var epMidiFolder = (opts.epMidi && midiFolder) ? midiFolder.folder('Electric Piano') : null;
+    var epMpcFolder  = (opts.epMpc && mpcFolder)   ? mpcFolder.folder('Electric Piano')  : null;
+    // Full song EP
+    if (epMidiFolder) {
+      var epFull = buildEPMidiBytes(arrangement, bpm, noSwing);
+      if (epFull.length > 30) { // only include if there are actual notes (not just header)
+        epMidiFolder.file('EP_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', epFull);
+      }
+    }
+    // Individual section EP
+    var epExported = {};
+    var epIdx = 1;
+    arrangement.forEach(function(sec) {
+      if (epExported[sec]) return;
+      epExported[sec] = true;
+      var padIdx = epIdx < 10 ? '0' + epIdx : '' + epIdx;
+      var secName = SL[sec] || sec;
+      var barCount = Math.ceil((secSteps[sec] || 32) / 16);
+      var epBaseName = padIdx + '_ep_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
+      var epBytes = buildEPMidiBytes([sec], bpm, noSwing);
+      if (epBytes.length > 30) {
+        if (epMidiFolder) epMidiFolder.file('EP_MIDI_' + epBaseName + swingTag + '.mid', epBytes);
+        if (epMpcFolder) {
+          var epMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
+          epMpcFolder.file('EP_MPC_' + epMpcName + '.mpcpattern', buildEPMpcPattern([sec], bpm));
+        }
+      }
+      epIdx++;
+    });
+  }
+
   // DAW help files — only include selected DAWs
   var dawMap = {
     ableton:   function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },
@@ -618,7 +651,7 @@ function updateMidiPlayer() {
  * @returns {Uint8Array} Complete MIDI file bytes
  */
 function buildCombinedMidiBytes(sectionList, bpm) {
-  var ppq = 96, drumCh = 9, bassCh = 0;
+  var ppq = 96, drumCh = 9, bassCh = 0, epCh = 2;
   var ticksPerStep = ppq / 4;
   var noteDurTicks = Math.floor(ticksPerStep * 0.75);
   var events = [];
@@ -690,6 +723,31 @@ function buildCombinedMidiBytes(sectionList, bpm) {
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
       events.push({ tick: stepTick + durTicks, type: 'off', ch: bassCh, note: e.note });
     });
+
+    // Electric Piano events (channel 2) — generated per section
+    var epOn = true;
+    try { var epPref = localStorage.getItem('hhd_ep_playback'); if (epPref !== null) epOn = (epPref !== 'false'); } catch(e2) {}
+    if (epOn && typeof generateEPPattern === 'function') {
+      var epEvents = generateEPPattern(sec, bpm);
+      var epFeel = swingFeel;
+      if (/^intro_[abc]$/.test(secFeels[sec] || '')) epFeel = 'sparse';
+      if (/^outro_/.test(secFeels[sec] || '')) epFeel = 'sparse';
+      var epSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[epFeel]) ? INSTRUMENT_SWING[epFeel].hat * 0.8 : 0.8;
+      var epSwing = Math.round(baseSwingAmount * epSwingMult);
+      for (var epi = 0; epi < epEvents.length; epi++) {
+        var epE = epEvents[epi];
+        var epStepInBar = epE.step % 16;
+        var epSwingOff = (epStepInBar % 2 === 1) ? epSwing : 0;
+        var epTimingOff = epE.timingOffset || 0;
+        var epStepTick = secTickStart + (epE.step * ticksPerStep) + epSwingOff + epTimingOff;
+        if (epStepTick < 0) epStepTick = 0;
+        var epDurTicks = Math.max(1, Math.floor(ticksPerStep * epE.dur));
+        for (var epni = 0; epni < epE.notes.length; epni++) {
+          events.push({ tick: epStepTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epE.vel)) });
+          events.push({ tick: epStepTick + epDurTicks, type: 'off', ch: epCh, note: epE.notes[epni] });
+        }
+      }
+    }
   });
 
   // Sort: by tick, note-offs before note-ons at same tick
@@ -728,6 +786,11 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   var drumKitProgram = 0;
   try { var dkPref = localStorage.getItem('hhd_drumkit'); if (dkPref) drumKitProgram = parseInt(dkPref) || 0; } catch(e) {}
   td.push(0, 0xC0 | drumCh, drumKitProgram);
+
+  // Program change on channel 2: Electric Piano (GM 4 = Electric Piano 1)
+  var epProgram = 4;
+  try { var epPref = localStorage.getItem('hhd_ep_sound'); if (epPref) epProgram = parseInt(epPref) || 4; } catch(e) {}
+  td.push(0, 0xC0 | epCh, epProgram);
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)

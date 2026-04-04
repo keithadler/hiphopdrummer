@@ -233,6 +233,8 @@ function showExportDialog() {
     if (typeof saved.mpc === 'boolean') document.getElementById('expMpc').checked = saved.mpc;
     if (typeof saved.bassMidi === 'boolean') document.getElementById('expBassMidi').checked = saved.bassMidi;
     if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
+    if (typeof saved.epMidi === 'boolean') document.getElementById('expEPMidi').checked = saved.epMidi;
+    if (typeof saved.epMpc === 'boolean') document.getElementById('expEPMpc').checked = saved.epMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
@@ -281,6 +283,8 @@ document.getElementById('exportGo').onclick = function() {
     mpc:         document.getElementById('expMpc').checked,
     bassMidi:    document.getElementById('expBassMidi').checked,
     bassMpc:     document.getElementById('expBassMpc').checked,
+    epMidi:      document.getElementById('expEPMidi').checked,
+    epMpc:       document.getElementById('expEPMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
     wav:         document.getElementById('expWav').checked,
@@ -345,6 +349,10 @@ function showPrefsDialog() {
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
   document.getElementById('prefsBassPlayback').checked = bassOn;
+  // Restore EP playback preference (default: on)
+  var epOn = true;
+  try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
+  document.getElementById('prefsEPPlayback').checked = epOn;
   // Restore bass sound preference (default: 33 = Electric Bass Finger)
   var bassSound = '33';
   try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
@@ -386,6 +394,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_drumkit', kit); } catch(e) {}
   var bassOn = document.getElementById('prefsBassPlayback').checked;
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
+  var epOn = document.getElementById('prefsEPPlayback').checked;
+  try { localStorage.setItem('hhd_ep_playback', epOn ? 'true' : 'false'); } catch(e) {}
   var bassSound = document.getElementById('prefsBassSound').value;
   try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
@@ -407,6 +417,7 @@ document.getElementById('prefsSave').onclick = function() {
   if (window.synthBridge) {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
     window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
+    window.synthBridge.setEPProgram(4);
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -671,6 +682,7 @@ function initBeatHistoryHandlers() {
   var defaults = {
     'hhd_drumkit': '0',
     'hhd_bass_playback': 'true',
+    'hhd_ep_playback': 'true',
     'hhd_bass_sound': '33',
     'hhd_follow_playhead': 'false',
     'hhd_show_chords': 'true',
@@ -767,6 +779,7 @@ function initBeatHistoryHandlers() {
                 window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
                 var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
                 window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
+                window.synthBridge.setEPProgram(4);
               } catch(e) {}
             }).catch(function() {});
           }
@@ -1106,10 +1119,11 @@ function initPlayerControls() {
         }, 15000);
         window.synthBridge.play(midiToPlay).then(function() {
           clearTimeout(_loadTimeout);
-          // Apply drum kit + bass sound (synth is now guaranteed initialized)
+          // Apply drum kit + bass sound + EP (synth is now guaranteed initialized)
           try {
             window.synthBridge.setDrumKit(_prefs.kit);
             window.synthBridge.setBassProgram(_prefs.bass);
+            window.synthBridge.setEPProgram(4); // GM Electric Piano 1
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
