@@ -15,7 +15,7 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .controls-bar{display:flex;align-items:center;gap:10px;width:100%}
 .ctrl-group{display:flex;align-items:center;gap:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;height:36px}
 .ctrl-label{font-family:var(--mono);font-size:18px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:500}
-.ctrl-input{background:transparent;color:var(--accent-blue);border:none;font-family:var(--mono);font-size:19px;font-weight:700;width:36px;text-align:center;outline:none}
+.ctrl-input{background:transparent;color:var(--accent-blue);border:none;font-family:var(--mono);font-size:19px;font-weight:700;width:36px;text-align:center;outline:none;cursor:pointer}
 .ctrl-input-wide{width:auto;max-width:160px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:clip;position:relative}
 .ctrl-input-wide .marquee-inner{display:inline-block;animation:marquee-scroll 6s linear infinite;padding-right:2em}
 @keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -115,9 +115,10 @@ midi-player::part(play-button){color:var(--accent-green)}
 .player-btn-sm{font-size:14px;color:var(--text-muted)}
 .player-btn-sm:hover{color:var(--accent-blue)}
 /* Velocity editor popup */
-.vel-editor{position:fixed;z-index:300;background:var(--bg-raised);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;color:var(--text-primary)}
+.vel-editor,.header-editor{position:fixed;z-index:300;background:var(--bg-raised);border:1px solid var(--accent-blue);border-radius:var(--radius-md);padding:8px 12px;box-shadow:0 4px 20px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;color:var(--text-primary)}
 .vel-editor input[type=range]{width:100px;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none}
 .vel-editor input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-blue);cursor:pointer}
+.header-editor input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-blue);cursor:pointer}
 .vel-editor-val{min-width:32px;text-align:center;color:var(--accent-blue);font-weight:700}
 .vel-editor-del{background:none;border:none;color:var(--accent-red);font-size:16px;cursor:pointer;padding:2px 4px}
 .vel-editor-del:hover{color:#fff}
