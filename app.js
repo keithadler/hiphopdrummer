@@ -441,9 +441,19 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
 
   // Always apply drum kit and bass sound via synth bridge
+  // Init synth first if needed (user gesture from Save button click satisfies iOS AudioContext requirement)
   if (window.synthBridge) {
-    window.synthBridge.setDrumKit(parseInt(kit) || 0);
-    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
+    var _kitVal = parseInt(kit) || 0;
+    var _bassVal = parseInt(bassSound) || 33;
+    if (window.synthBridge.init) {
+      window.synthBridge.init().then(function() {
+        window.synthBridge.setDrumKit(_kitVal);
+        window.synthBridge.setBassProgram(_bassVal);
+      }).catch(function() {});
+    } else {
+      window.synthBridge.setDrumKit(_kitVal);
+      window.synthBridge.setBassProgram(_bassVal);
+    }
   }
   // Rebuild MIDI player only if not currently playing (avoids stopping playback)
   if (!window.synthBridge || !window.synthBridge.isPlaying) {
@@ -787,13 +797,27 @@ function initBeatHistoryHandlers() {
       setTimeout(function() {
         var playBtn = document.getElementById('headerPlayBtn');
         if (playBtn) playBtn.disabled = false;
-        // Apply saved drum kit and bass sound preferences on startup
-        try {
-          var savedKit = localStorage.getItem('hhd_drumkit') || '0';
-          window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
-          var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
-          window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
-        } catch(e) {}
+        // Pre-initialize synth on first user interaction (iOS requires user gesture for AudioContext)
+        var _synthInitDone = false;
+        function _initSynthOnGesture() {
+          if (_synthInitDone) return;
+          _synthInitDone = true;
+          document.removeEventListener('touchstart', _initSynthOnGesture);
+          document.removeEventListener('click', _initSynthOnGesture);
+          if (window.synthBridge && window.synthBridge.init) {
+            window.synthBridge.init().then(function() {
+              // Now synth is ready — apply saved preferences
+              try {
+                var savedKit = localStorage.getItem('hhd_drumkit') || '0';
+                window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
+                var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
+                window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
+              } catch(e) {}
+            }).catch(function() {});
+          }
+        }
+        document.addEventListener('touchstart', _initSynthOnGesture, { once: true, passive: true });
+        document.addEventListener('click', _initSynthOnGesture, { once: true });
       }, remaining);
     } else if (_bootAttempts >= _maxBootAttempts) {
       // SpessaSynth failed to load after 5 seconds
@@ -987,6 +1011,11 @@ function initPlayerControls() {
         try { var lbp = localStorage.getItem('hhd_bass_playback'); if (lbp !== null) loopBassOn = (lbp !== 'false'); } catch(e) {}
         midiToPlay = loopBassOn ? buildCombinedMidiBytes([curSec], loopBpm) : buildMidiBytes([curSec], loopBpm);
         window._loopMidiBytes = midiToPlay;
+      }
+      // Pre-init synth NOW while still in user gesture context (iOS AudioContext requirement)
+      // This must happen before the countdown delay or iOS will block audio
+      if (window.synthBridge && window.synthBridge.init) {
+        window.synthBridge.init().catch(function() {});
       }
       // Start countdown, then play
       playCountdown(function() {
