@@ -995,6 +995,15 @@ function initPlayerControls() {
       }
       renderGrid();
       if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      // Rebuild About This Beat to reflect the new pattern
+      var aboutEl = document.getElementById('aboutBeat');
+      if (aboutEl && typeof analyzeBeat === 'function') {
+        aboutEl.innerHTML = analyzeBeat();
+        if (typeof makeAboutCollapsible === 'function') makeAboutCollapsible();
+        if (typeof applyGlossaryHighlights === 'function') applyGlossaryHighlights();
+        if (typeof buildAboutSummary === 'function') buildAboutSummary();
+        if (typeof buildChordSheet === 'function') buildChordSheet();
+      }
       if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
     };
   }
