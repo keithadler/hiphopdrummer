@@ -219,7 +219,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .beat-num.cursor-trail{color:rgba(80,255,160,.3);transition:color .3s ease-out}
 /* FX: Hit flash — cell brightens when cursor lands on active hit */
 .cell.hit-flash{animation:hit-pop .2s ease-out}
-@keyframes hit-pop{0%{filter:brightness(1.8);transform:scale(1.08)}100%{filter:brightness(1);transform:scale(1)}}
+@keyframes hit-pop{0%{filter:brightness(1.8)}100%{filter:brightness(1)}}
 /* FX: Row glow — row label glows in instrument color on hit */
 .row-label.row-glow{transition:color .15s,text-shadow .15s}
 .row-label.glow-kick{color:#d04040;text-shadow:0 0 8px rgba(208,64,64,.6)}
@@ -238,14 +238,12 @@ midi-player::part(play-button){color:var(--accent-green)}
 .grid-page-label.sec-intro{color:#50c0e0}
 .grid-page-label.sec-verse{color:var(--text-dim)}
 .grid-page-label.sec-chorus{color:#e8a020}
-.grid-page-label.sec-bridge{color:#b070d0}
 .grid-page-label.sec-breakdown{color:#70b870}
 .grid-page-label.sec-outro{color:#d04040}
 .grid-page-label.sec-pre{color:#c0b030}
 .arr-item.sec-intro{border-left:3px solid #50c0e0}
 .arr-item.sec-verse{border-left:3px solid var(--text-dim)}
 .arr-item.sec-chorus{border-left:3px solid #e8a020}
-.arr-item.sec-bridge{border-left:3px solid #b070d0}
 .arr-item.sec-breakdown{border-left:3px solid #70b870}
 .arr-item.sec-outro{border-left:3px solid #d04040}
 .arr-item.sec-pre{border-left:3px solid #c0b030}
@@ -261,10 +259,10 @@ midi-player::part(play-button){color:var(--accent-green)}
 .audio-visualizer canvas{width:100%;height:100%;display:block}
 
 /* FX: Fill countdown — steps glow before a fill */
-.cell.fill-countdown-1{box-shadow:inset 0 -2px 0 0 rgba(224,72,72,.6)}
-.cell.fill-countdown-2{box-shadow:inset 0 -2px 0 0 rgba(224,72,72,.4)}
-.cell.fill-countdown-3{box-shadow:inset 0 -2px 0 0 rgba(224,72,72,.25)}
-.cell.fill-countdown-4{box-shadow:inset 0 -2px 0 0 rgba(224,72,72,.12)}
+.cell.fill-countdown-1{border-bottom:2px solid rgba(224,72,72,.7)}
+.cell.fill-countdown-2{border-bottom:2px solid rgba(224,72,72,.5)}
+.cell.fill-countdown-3{border-bottom:2px solid rgba(224,72,72,.3)}
+.cell.fill-countdown-4{border-bottom:2px solid rgba(224,72,72,.15)}
 
 /* FX: Beat drop — radial pulse on section start */
 .beat-drop{animation:beat-drop-pulse .5s ease-out}

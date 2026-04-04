@@ -1611,8 +1611,8 @@ function vfxSectionClass(sec) {
   if (sec === 'intro') return 'sec-intro';
   if (sec === 'verse' || sec === 'verse2') return 'sec-verse';
   if (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') return 'sec-chorus';
-  if (sec === 'bridge') return 'sec-bridge';
   if (sec === 'breakdown') return 'sec-breakdown';
+  if (sec === 'instrumental') return 'sec-breakdown';
   if (sec === 'outro') return 'sec-outro';
   if (sec === 'pre') return 'sec-pre';
   return '';

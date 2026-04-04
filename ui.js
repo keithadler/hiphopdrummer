@@ -59,7 +59,9 @@ function _applyMarquee(el, text) {
   // Check overflow after a frame so layout is computed
   requestAnimationFrame(function() {
     if (el.scrollWidth > el.clientWidth + 2) {
-      el.innerHTML = '<span class="marquee-inner">' + text + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + text + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
+      // Escape HTML entities for safe innerHTML
+      var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      el.innerHTML = '<span class="marquee-inner">' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
       el.classList.add('marquee-active');
     }
   });
