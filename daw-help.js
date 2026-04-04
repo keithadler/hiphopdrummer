@@ -208,6 +208,21 @@ function buildHelpGeneral(bpm, swing, noSwing) {
     'dark, etc.), the EP folder will be empty or absent — that\'s correct.',
     'Not every hip hop style uses keys.',
     '',
+    'SYNTH PAD MIDI',
+    '--------------',
+    'The MIDI Patterns/Synth Pad/ subfolder contains pad .mid files for',
+    'dark styles (Memphis, phonk, dark, Griselda, crunk, hard, sparse).',
+    'Load these into a separate track with a synth pad sound.',
+    'The pad is on MIDI channel 4 (channel index 3).',
+    '',
+    'Recommended GM programs by style:',
+    '  Memphis/Phonk: GM 52 (Choir Aahs) — eerie, atmospheric',
+    '  Dark/Griselda/Hard/Sparse: GM 48 (String Ensemble) — cold, cinematic',
+    '  Crunk: GM 81 (Sawtooth Lead) — aggressive synth stabs',
+    '',
+    'If your style uses electric piano instead (Dilla, jazz, G-Funk),',
+    'the Synth Pad folder will be empty — that\'s correct.',
+    '',
   ]).concat(_footerSection()).join('\r\n');
 }
 

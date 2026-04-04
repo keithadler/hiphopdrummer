@@ -472,6 +472,38 @@ function exportMIDI(opts) {
     });
   }
 
+  // Synth Pad exports — Pad MIDI goes in MIDI Patterns/Synth Pad/, MPC in MPC/Synth Pad/
+  if (opts.padMidi || opts.padMpc) {
+    var padMidiFolder = (opts.padMidi && midiFolder) ? midiFolder.folder('Synth Pad') : null;
+    var padMpcFolder  = (opts.padMpc && mpcFolder)   ? mpcFolder.folder('Synth Pad')  : null;
+    if (padMidiFolder && typeof buildPadMidiBytes === 'function') {
+      var padFull = buildPadMidiBytes(arrangement, bpm, noSwing);
+      if (padFull.length > 30) {
+        padMidiFolder.file('Pad_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', padFull);
+      }
+    }
+    var padExported = {};
+    var padIdx = 1;
+    arrangement.forEach(function(sec) {
+      if (padExported[sec]) return;
+      padExported[sec] = true;
+      if (typeof buildPadMidiBytes !== 'function') return;
+      var padIdx2 = padIdx < 10 ? '0' + padIdx : '' + padIdx;
+      var secName = SL[sec] || sec;
+      var barCount = Math.ceil((secSteps[sec] || 32) / 16);
+      var padBaseName = padIdx2 + '_pad_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
+      var padBytes = buildPadMidiBytes([sec], bpm, noSwing);
+      if (padBytes.length > 30) {
+        if (padMidiFolder) padMidiFolder.file('Pad_MIDI_' + padBaseName + swingTag + '.mid', padBytes);
+        if (padMpcFolder && typeof buildPadMpcPattern === 'function') {
+          var padMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
+          padMpcFolder.file('Pad_MPC_' + padMpcName + '.mpcpattern', buildPadMpcPattern([sec], bpm));
+        }
+      }
+      padIdx++;
+    });
+  }
+
   // DAW help files — only include selected DAWs
   var dawMap = {
     ableton:   function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_ABLETON.txt',   buildHelpAbleton(bpm, swingVal, noSwing)); },
@@ -553,6 +585,21 @@ function exportMIDI(opts) {
             return blob.arrayBuffer();
           }).then(function(buf) {
             folder.file('hiphop_beat_' + bpm + 'bpm_ep.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Pad-only stem
+    if (opts.wavPad && typeof buildPadMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var padMidi = buildPadMidiBytes(arrangement, bpm);
+        if (padMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Pad Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(padMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_pad.wav', new Uint8Array(buf));
           });
         }
       });

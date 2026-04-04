@@ -235,13 +235,15 @@ function showExportDialog() {
     if (typeof saved.bassMpc === 'boolean') document.getElementById('expBassMpc').checked = saved.bassMpc;
     if (typeof saved.epMidi === 'boolean') document.getElementById('expEPMidi').checked = saved.epMidi;
     if (typeof saved.epMpc === 'boolean') document.getElementById('expEPMpc').checked = saved.epMpc;
-    if (typeof saved.wavEP === 'boolean') document.getElementById('expWavEP').checked = saved.wavEP;
+    if (typeof saved.padMidi === 'boolean') document.getElementById('expPadMidi').checked = saved.padMidi;
+    if (typeof saved.padMpc === 'boolean') document.getElementById('expPadMpc').checked = saved.padMpc;
     if (typeof saved.pdf === 'boolean') document.getElementById('expPdf').checked = saved.pdf;
     if (typeof saved.chordSheet === 'boolean') document.getElementById('expChordSheet').checked = saved.chordSheet;
     if (typeof saved.wav === 'boolean') document.getElementById('expWav').checked = saved.wav;
     if (typeof saved.wavDrums === 'boolean') document.getElementById('expWavDrums').checked = saved.wavDrums;
     if (typeof saved.wavBass === 'boolean') document.getElementById('expWavBass').checked = saved.wavBass;
     if (typeof saved.wavEP === 'boolean') document.getElementById('expWavEP').checked = saved.wavEP;
+    if (typeof saved.wavPad === 'boolean') document.getElementById('expWavPad').checked = saved.wavPad;
     if (typeof saved.masterFx === 'boolean') document.getElementById('expMasterFx').checked = saved.masterFx;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
@@ -287,12 +289,15 @@ document.getElementById('exportGo').onclick = function() {
     bassMpc:     document.getElementById('expBassMpc').checked,
     epMidi:      document.getElementById('expEPMidi').checked,
     epMpc:       document.getElementById('expEPMpc').checked,
+    padMidi:     document.getElementById('expPadMidi').checked,
+    padMpc:      document.getElementById('expPadMpc').checked,
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
     wav:         document.getElementById('expWav').checked,
     wavDrums:    document.getElementById('expWavDrums').checked,
     wavBass:     document.getElementById('expWavBass').checked,
     wavEP:       document.getElementById('expWavEP').checked,
+    wavPad:      document.getElementById('expWavPad').checked,
     masterFx:    document.getElementById('expMasterFx').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })
@@ -542,7 +547,7 @@ document.addEventListener('keydown', function(e) {
 var ROLE_TIPS = {
   producer: {
     title: '🎛 Producer / Beat Maker',
-    html: '<p>This tool is your co-pilot. Every beat generates a unique drum, bass, and electric piano arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>Electric Piano</h3><p>Styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce) get auto-generated electric piano chords — voice-led voicings, per-note velocity humanization, drum-reactive comping. Disable it in Preferences if you want to play your own keys, or export the EP MIDI to study the voicings.</p><h3>Tap Tempo</h3><p>Got a tempo in your head from a sample you\'re chopping? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along. The app detects your tempo from 4+ taps — way faster than dialing in a number.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, EP MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP.</p>'
+    html: '<p>This tool is your co-pilot. Every beat generates a unique drum, bass, and keys/pad arrangement with authentic swing, dynamics, fills, and transitions — ready to customize.</p><h3>Your Workflow</h3><p>Hit <b>New Beat</b>, pick a style, and generate. Export the MIDI and load it into your DAW or MPC. Swap the drum samples for your own, adjust ghost note velocities, re-voice the bass with your synth or 808. The patterns are musically correct — you\'re not starting from a blank grid.</p><h3>Electric Piano &amp; Synth Pad</h3><p>Styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce) get auto-generated electric piano chords. Dark styles (Memphis, phonk, Griselda, crunk, hard) get atmospheric synth pads — choir, strings, or synth stabs depending on the style. Disable either in Preferences if you want to play your own, or export the MIDI to study the voicings.</p><h3>Tap Tempo</h3><p>Got a tempo in your head from a sample you\'re chopping? <b>Double-click the BPM display</b> (or press <b>T</b>) and tap along. The app detects your tempo from 4+ taps — way faster than dialing in a number.</p><h3>Keyboard Shortcuts</h3><p><b>Space</b> = play/stop, <b>R</b> = new beat, <b>T</b> = tap tempo, <b>E</b> = edit mode, <b>L</b> = loop, <b>←/→</b> = navigate sections.</p><h3>What to Study</h3><p>Click any grid cell to hear the hit and understand its velocity. Read <b>About This Beat</b> for accent curves, ghost clustering, and fill techniques. The <b>per-instrument swing</b> shows you relationships most producers miss — Dilla\'s hats swing harder than his kick. Generate 10 beats in the same style and compare.</p><h3>Exports</h3><p>MIDI files, MPC .mpcpattern files, WAV audio, bass MIDI, EP MIDI, chord sheet PDFs, and setup guides for 9 DAWs. Everything in one ZIP.</p>'
   },
   rapper: {
     title: '🎤 Rapper / MC',
