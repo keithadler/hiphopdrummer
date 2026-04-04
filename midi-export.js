@@ -796,6 +796,8 @@ function vl(val) {
  * Uses SpessaSynth via the synthBridge global.
  */
 function updateMidiPlayer() {
+  // Clear instrument cache so new beats get fresh patterns
+  if (typeof _clearInstrCache === 'function') _clearInstrCache();
   // Stop any existing playback when generating a new beat
   if (window.synthBridge) {
     try { window.synthBridge.stop(); } catch(e) {}
@@ -837,6 +839,26 @@ function updateMidiPlayer() {
  * @param {number} bpm - Tempo
  * @returns {Uint8Array} Complete MIDI file bytes
  */
+/**
+ * Cached instrument patterns for "strict" mode.
+ * Cleared on every new beat generation so patterns regenerate with the new beat.
+ * When mode is "strict", patterns are generated once and reused on subsequent plays.
+ */
+var _instrCache = {};
+
+function _clearInstrCache() { _instrCache = {}; }
+
+function _getCachedOrGenerate(name, genFn, sec, bpm) {
+  var mode = 'strict';
+  try { mode = localStorage.getItem('hhd_instr_mode') || 'strict'; } catch(e) {}
+  if (mode === 'strict') {
+    var key = name + ':' + sec;
+    if (!_instrCache[key]) { _instrCache[key] = genFn(sec, bpm); }
+    return _instrCache[key];
+  }
+  return genFn(sec, bpm);
+}
+
 function buildCombinedMidiBytes(sectionList, bpm) {
   var ppq = 96, drumCh = 9, bassCh = 0, epCh = 2;
   var ticksPerStep = ppq / 4;
@@ -915,7 +937,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var epOn = true;
     try { var epPref = localStorage.getItem('hhd_ep_playback'); if (epPref !== null) epOn = (epPref !== 'false'); } catch(e2) {}
     if (epOn && typeof generateEPPattern === 'function') {
-      var epEvents = generateEPPattern(sec, bpm);
+      var epEvents = _getCachedOrGenerate('ep', generateEPPattern, sec, bpm);
       var epFeel = swingFeel;
       if (/^intro_[abc]$/.test(secFeels[sec] || '')) epFeel = 'sparse';
       if (/^outro_/.test(secFeels[sec] || '')) epFeel = 'sparse';
@@ -946,7 +968,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var padOn = true;
     try { var padPref = localStorage.getItem('hhd_pad_playback'); if (padPref !== null) padOn = (padPref !== 'false'); } catch(e3) {}
     if (padOn && typeof generatePadPattern === 'function') {
-      var padEvents = generatePadPattern(sec, bpm);
+      var padEvents = _getCachedOrGenerate('pad', generatePadPattern, sec, bpm);
       var padCh = 3;
       var padSwingMult = 0.3;
       var padSwing = Math.round(baseSwingAmount * padSwingMult);
@@ -970,7 +992,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var leadOn = true;
     try { var lp = localStorage.getItem('hhd_lead_playback'); if (lp !== null) leadOn = (lp !== 'false'); } catch(e4) {}
     if (leadOn && typeof generateLeadPattern === 'function') {
-      var leadEvents = generateLeadPattern(sec, bpm);
+      var leadEvents = _getCachedOrGenerate('lead', generateLeadPattern, sec, bpm);
       var leadCh = 4;
       var leadSwing = Math.round(baseSwingAmount * 0.9);
       for (var li = 0; li < leadEvents.length; li++) {
@@ -993,7 +1015,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var organOn = true;
     try { var op = localStorage.getItem('hhd_organ_playback'); if (op !== null) organOn = (op !== 'false'); } catch(e5) {}
     if (organOn && typeof generateOrganPattern === 'function') {
-      var organEvents = generateOrganPattern(sec, bpm);
+      var organEvents = _getCachedOrGenerate('organ', generateOrganPattern, sec, bpm);
       var organCh = 5;
       var organSwing = Math.round(baseSwingAmount * 0.4);
       for (var oi = 0; oi < organEvents.length; oi++) {
@@ -1015,7 +1037,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var hornOn = true;
     try { var hp = localStorage.getItem('hhd_horn_playback'); if (hp !== null) hornOn = (hp !== 'false'); } catch(e6) {}
     if (hornOn && typeof generateHornPattern === 'function') {
-      var hornEvents = generateHornPattern(sec, bpm);
+      var hornEvents = _getCachedOrGenerate('horn', generateHornPattern, sec, bpm);
       var hornCh = 6; var hornSwing = Math.round(baseSwingAmount * 0.8);
       for (var hi = 0; hi < hornEvents.length; hi++) {
         var hE = hornEvents[hi]; var hSIB = hE.step % 16;
@@ -1033,7 +1055,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var vibesOn = true;
     try { var vp = localStorage.getItem('hhd_vibes_playback'); if (vp !== null) vibesOn = (vp !== 'false'); } catch(e7) {}
     if (vibesOn && typeof generateVibesPattern === 'function') {
-      var vibesEvts = generateVibesPattern(sec, bpm);
+      var vibesEvts = _getCachedOrGenerate('vibes', generateVibesPattern, sec, bpm);
       var vibesCh = 7; var vibesSwing = Math.round(baseSwingAmount * 1.0);
       for (var vbi = 0; vbi < vibesEvts.length; vbi++) {
         var vbE = vibesEvts[vbi]; var vbSIB = vbE.step % 16;
@@ -1051,7 +1073,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
     var clavOn = true;
     try { var cp2 = localStorage.getItem('hhd_clav_playback'); if (cp2 !== null) clavOn = (cp2 !== 'false'); } catch(e8) {}
     if (clavOn && typeof generateClavPattern === 'function') {
-      var clavEvts = generateClavPattern(sec, bpm);
+      var clavEvts = _getCachedOrGenerate('clav', generateClavPattern, sec, bpm);
       var clavCh = 8; var clavSwing = Math.round(baseSwingAmount * 1.1);
       for (var cli = 0; cli < clavEvts.length; cli++) {
         var clE = clavEvts[cli]; var clSIB = clE.step % 16;
