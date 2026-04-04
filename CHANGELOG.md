@@ -2,6 +2,58 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.30] - 2026-04-04
+
+### Added — 9 Instruments
+- Drums + Bass (all 25 styles)
+- Electric Piano: 30 musicality features, voice leading, crushed chords, sus resolutions, motif comping, drum interaction (12 styles)
+- Synth Pad: 10 musicality features, Phrygian bII, detuned chorus, kick-locked crunk stabs (7 styles)
+- Synth Lead: G-Funk whistle melody, pentatonic scales, slides, 2-bar motifs (4 styles)
+- Organ: sustained drawbar layer for jazz/Nujabes, layers with EP (4 styles)
+- Horn Stabs: brass section chord hits, kick-locked, for boom bap/big/driving/chopbreak/oldschool (6 styles)
+- Vibraphone: bell-like arpeggiated tones for Nujabes/jazzy (2 styles)
+- Clavinet: funky percussive 16th-note comping for bounce/G-Funk DJ Quik (2 styles)
+- Every style now has at least one harmonic instrument beyond drums and bass
+
+### Added — Production Techniques
+- Beat drops: breakdown last 4 steps silent, pre-chorus drops before chorus, mid-verse 1-beat silence
+- Intro build-in: instruments add bar by bar (bar 1 = hats only, bar 2 = hats + kick, bar 3+ = full)
+- Outro fade-out: instruments strip bar by bar (reverse of intro)
+- Double-time hats: 16th notes in last 2 bars of last chorus and pre-chorus
+- Snare roll build: velocity-ramping 16th-note roll in last 4 steps of pre-chorus
+- Master FX on WAV export: HPF → compressor → EQ → room reverb
+
+### Added — Educational Content
+- Skill-level learning paths (beginner/intermediate/advanced)
+- Practice guide for drummers, keys players, and rappers
+- "How the Band Works Together" — instrument interaction explanation
+- "What to Listen For" — per-instrument listening guide
+- "Understanding Velocity" — dynamics tutorial
+- "Why These Chords Work" — harmonic theory (I=home, IV=question, V=tension)
+- "Build This Beat From Scratch" — 10-step walkthrough referencing actual kick pattern
+- Style history per feel (boom bap origins, Dilla revolution, G-Funk from P-Funk, Memphis cassettes)
+- Style-specific mixing tips with WHY explanations
+- "Common Mistakes" — what NOT to do per style
+- Fill musical logic — why each fill style works for its genre
+- Key-specific sample search terms (copy-paste for Splice/Tracklib)
+- Arrangement arc explanation (tension-release structure)
+- Quick glossary at top + full glossary at bottom
+- "What Would They Do Differently" for all 25 styles (Memphis, phonk, Griselda, crunk, oldschool added)
+- "Next Steps" — from beat to finished track (8-step guide with mixing tips)
+
+### Added — Features
+- Tap tempo (double-click BPM or press T)
+- Keyboard shortcuts (Space/R/E/L/T/arrows)
+- Swing visualization on grid (translateX on odd steps)
+- Current beat protected from deletion in history
+
+### Fixed
+- EP plays in all sections when song's primary feel is EP-enabled
+- EP styleLookup resolution fixed
+- Reliable end-of-song stop via songEnded event
+- Swing visualization uses translateX (flex:1 was absorbing margins)
+- Duplicate wavEP preference restore removed
+
 ## [1.29] - 2026-04-04
 
 ### Added
