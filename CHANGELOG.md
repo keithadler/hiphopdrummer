@@ -2,6 +2,20 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.27] - 2026-04-04
+
+### Added
+- Master FX chain on WAV export: HPF → glue compressor → EQ (350Hz cut, 8kHz shelf) → room reverb with pre-delay. Checkbox in export dialog, always on for quick WAV download
+- Tap tempo: double-click BPM display or press T — detects tempo from 4+ taps
+- Keyboard shortcuts: Space (play/stop), R (new beat), T (tap tempo), E (edit), L (loop), ←/→ (navigate sections)
+- Swing visualization on grid: odd steps shift right via translateX proportional to swing amount
+- MPC production guide: layering kicks/snares/hats, drum bus FX chain, sampled break as bottom layer
+
+### Fixed
+- Swing visualization now works: uses translateX instead of margin-left (flex:1 was absorbing margins)
+- Reliable end-of-song stop: uses SpessaSynth songEnded event instead of polling currentTime >= duration
+- Current beat protected from deletion in history — shows "● current" label instead of delete button, Load button disabled
+
 ## [1.26] - 2026-04-04
 
 ### Added
