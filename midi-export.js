@@ -543,6 +543,21 @@ function exportMIDI(opts) {
       });
     }
     
+    // EP-only stem
+    if (opts.wavEP && typeof buildEPMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var epMidi = buildEPMidiBytes(arrangement, bpm);
+        if (epMidi.length > 30) { // only render if there are actual EP notes
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering EP Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(epMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_ep.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
     wavPromise = wavChain.then(function() {
       if (toast) toast.classList.remove('show');
     }).catch(function(err) {
@@ -743,7 +758,8 @@ function buildCombinedMidiBytes(sectionList, bpm) {
         if (epStepTick < 0) epStepTick = 0;
         var epDurTicks = Math.max(1, Math.floor(ticksPerStep * epE.dur));
         for (var epni = 0; epni < epE.notes.length; epni++) {
-          events.push({ tick: epStepTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epE.vel)) });
+          var epNoteVel = (epE.vels && epE.vels[epni] !== undefined) ? epE.vels[epni] : (epE.vel || 60);
+          events.push({ tick: epStepTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epNoteVel)) });
           events.push({ tick: epStepTick + epDurTicks, type: 'off', ch: epCh, note: epE.notes[epni] });
         }
       }
