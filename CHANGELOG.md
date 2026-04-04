@@ -2,6 +2,31 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.17] - 2026-04-03
+
+### Added
+- Wake Lock API: screen stays on during playback (supported browsers)
+- iOS "Add to Home Screen" install banner for first-time visitors
+- Click BPM in header to adjust with slider popup (60-160)
+- Click Swing in header to adjust with slider popup (50-75), updates swing description
+- No-AI-subscription messaging in About dialog and README
+
+### Changed
+- Loop redesigned as play/stop: plays current section on repeat, all other buttons disable
+- Docs updated to emphasize no subscription, no cloud, no account required
+
+### Fixed
+- Header editors close on playback start, scroll, and new beat generation
+- Loading timeout (15s) now re-enables all nav buttons, not just play
+- Swing description updates when swing is changed via slider
+- Header editor slider thumb visible on iOS Safari (webkit pseudo-element)
+- BPM/Swing editors blocked during loop playback
+- Failsafe poll skips during loop (no button flash)
+- Loop button text resets on new beat generation
+- Stale loop MIDI bytes cleared on new beat
+- Velocity editor closes on section switch (stale pat reference)
+- Undo blocked during playback and loop, btnUndo in all disable lists
+
 ## [1.16] - 2026-04-03
 
 ### Added

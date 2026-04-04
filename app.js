@@ -145,6 +145,8 @@ document.getElementById('regenGo').onclick = function() {
   
   // Defer generation to next frame so the loading overlay renders
   setTimeout(function() {
+    // Close any open editors
+    if (typeof _hideHeaderEditor === 'function') _hideHeaderEditor();
     // Generate the new beat
     generateAll({ style: style, key: key, bpm: bpm });
     updateMidiPlayer();
@@ -817,6 +819,69 @@ function initBeatHistoryHandlers() {
   // Initialize beat history handlers
   initBeatHistoryHandlers();
   
+  // ── BPM and Swing click-to-edit ──
+  var _headerEditorEl = null;
+  function _hideHeaderEditor() {
+    if (_headerEditorEl && _headerEditorEl.parentNode) _headerEditorEl.parentNode.removeChild(_headerEditorEl);
+    _headerEditorEl = null;
+    document.removeEventListener('click', _headerEditorOutside);
+  }
+  function _headerEditorOutside(e) {
+    if (_headerEditorEl && !_headerEditorEl.contains(e.target)) _hideHeaderEditor();
+  }
+  function _showHeaderEditor(el, min, max, step, onApply) {
+    _hideHeaderEditor();
+    if (window.synthBridge && window.synthBridge.isPlaying) return;
+    if (window._loopSection) return;
+    var val = parseInt(el.textContent) || min;
+    var div = document.createElement('div');
+    div.className = 'header-editor';
+    div.innerHTML = '<input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '" style="width:120px;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer">'
+      + '<span class="vel-editor-val">' + val + '</span>';
+    var rect = el.getBoundingClientRect();
+    div.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - 200)) + 'px';
+    div.style.top = (rect.bottom + 4) + 'px';
+    document.body.appendChild(div);
+    _headerEditorEl = div;
+    var slider = div.querySelector('input');
+    var valSpan = div.querySelector('.vel-editor-val');
+    slider.oninput = function() { valSpan.textContent = slider.value; };
+    slider.onchange = function() {
+      onApply(parseInt(slider.value));
+      _hideHeaderEditor();
+    };
+    setTimeout(function() {
+      document.addEventListener('click', _headerEditorOutside);
+      var scrollArea = document.querySelector('.scroll-area');
+      if (scrollArea) scrollArea.addEventListener('scroll', _hideHeaderEditor, { once: true });
+    }, 10);
+  }
+
+  document.getElementById('bpm').onclick = function() {
+    _showHeaderEditor(this, 60, 160, 1, function(val) {
+      document.getElementById('bpm').textContent = val;
+      if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      if (typeof renderArr === 'function') renderArr();
+      if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
+    });
+  };
+
+  document.getElementById('swing').onclick = function() {
+    _showHeaderEditor(this, 50, 75, 1, function(val) {
+      document.getElementById('swing').textContent = val;
+      // Update swing description
+      var desc = document.getElementById('swingDesc');
+      if (desc) {
+        if (val >= 66) desc.textContent = ' heavy';
+        else if (val >= 58) desc.textContent = ' natural';
+        else if (val >= 52) desc.textContent = ' light';
+        else desc.textContent = ' straight';
+      }
+      if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
+    });
+  };
+
   // Show welcome screen on first visit
   initWelcome();
 })();
@@ -924,6 +989,12 @@ function initPlayerControls() {
             headerPlayBtn.disabled = false;
             headerPlayBtn.textContent = '▶ PLAY';
             headerPlayBtn.classList.remove('playing');
+            // Re-enable nav buttons that were disabled on play start
+            var timeoutBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs','playerEditBtn','playerRegenSecBtn','btnUndo'];
+            for (var ti = 0; ti < timeoutBtns.length; ti++) {
+              var tb = document.getElementById(timeoutBtns[ti]);
+              if (tb) tb.disabled = false;
+            }
           }
         }, 15000);
         window.synthBridge.play(window._currentMidiBytes).then(function() {
@@ -2111,6 +2182,8 @@ function initPlaybackTracking() {
       }
       // Close velocity editor if open
       if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
+      // Close header editors if open
+      if (playing && typeof _hideHeaderEditor === 'function') _hideHeaderEditor();
       if (!playing) {
         // Loop restart: if loop is active and playback ended naturally, restart
         if (window._loopSection && window._loopMidiBytes && window.synthBridge) {
@@ -2128,6 +2201,8 @@ function initPlaybackTracking() {
         _chordToastVisible = false;
         // VFX: Clear all visual effects on stop
         vfxClearAll();
+        // Release wake lock
+        if (typeof _releaseWakeLock === 'function') _releaseWakeLock();
       }
       if (playing) {
         lastTrackedSection = -1;
@@ -2138,6 +2213,8 @@ function initPlaybackTracking() {
         // VFX: Start BPM breathing, visualizer, and progress markers
         vfxStartBpmBreathe(_cachedBpm);
         vfxStartVisualizer();
+        // Wake lock: prevent screen from sleeping during playback
+        if (typeof _requestWakeLock === 'function') _requestWakeLock();
         var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
         vfxBuildProgressMarkers(sectionTimeMap, totalDur);
         // Cache follow-playhead preference for this playback session
@@ -2191,6 +2268,19 @@ function initPlaybackTracking() {
   connectTracking();
 
   // Stop playback when screen locks or tab becomes hidden (iOS/mobile)
+  // Use Wake Lock API to prevent screen lock during playback
+  var _wakeLock = null;
+  async function _requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        _wakeLock = await navigator.wakeLock.request('screen');
+        _wakeLock.addEventListener('release', function() { _wakeLock = null; });
+      }
+    } catch(e) {}
+  }
+  function _releaseWakeLock() {
+    if (_wakeLock) { try { _wakeLock.release(); } catch(e) {} _wakeLock = null; }
+  }
   document.addEventListener('visibilitychange', function() {
     if (document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
       window._loopSection = false;
@@ -2198,6 +2288,11 @@ function initPlaybackTracking() {
       var lb = document.getElementById('playerLoopBtn');
       if (lb) { lb.classList.remove('loop-active'); lb.textContent = '🔁 Loop'; }
       window.synthBridge.stop();
+      _releaseWakeLock();
+    }
+    // Re-acquire wake lock when tab becomes visible again during playback
+    if (!document.hidden && window.synthBridge && window.synthBridge.isPlaying) {
+      _requestWakeLock();
     }
   });
 }
