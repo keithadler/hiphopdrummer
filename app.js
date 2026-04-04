@@ -420,8 +420,10 @@ document.getElementById('prefsSave').onclick = function() {
     window.synthBridge.setDrumKit(parseInt(kit) || 0);
     window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
   }
-  // Always rebuild the MIDI player (picks up bass on/off, drum kit, bass sound)
-  if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  // Rebuild MIDI player only if not currently playing (avoids stopping playback)
+  if (!window.synthBridge || !window.synthBridge.isPlaying) {
+    if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+  }
   // Always rebuild chord sheet
   if (typeof buildChordSheet === 'function') buildChordSheet();
   // Re-render grid if velocity mode changed
@@ -834,10 +836,21 @@ function initPlayerControls() {
       if (seekBar) seekBar.value = 0;
       headerPlayBtn.textContent = '▶ PLAY';
       headerPlayBtn.classList.remove('playing');
-      // Brief cooldown so user can't accidentally re-trigger play immediately
+      // Brief cooldown so user can't accidentally re-trigger play or other actions
       headerPlayBtn.disabled = true;
-      setTimeout(function() { headerPlayBtn.disabled = false; }, 800);
-    } else if (window._currentMidiBytes) {
+      var cooldownBtns = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
+      for (var ci = 0; ci < cooldownBtns.length; ci++) {
+        var cb = document.getElementById(cooldownBtns[ci]);
+        if (cb) cb.disabled = true;
+      }
+      setTimeout(function() {
+        headerPlayBtn.disabled = false;
+        for (var ci = 0; ci < cooldownBtns.length; ci++) {
+          var cb = document.getElementById(cooldownBtns[ci]);
+          if (cb) cb.disabled = false;
+        }
+      }, 800);
+    } else if (window._currentMidiBytes && !headerPlayBtn.disabled) {
       // Disable non-play buttons immediately when starting playback
       var navBtnsImmediate = ['btnGen','btnExport','btnShare','btnHistory','btnPrefs'];
       for (var ni = 0; ni < navBtnsImmediate.length; ni++) {
@@ -1597,6 +1610,8 @@ function vfxStartVisualizer() {
 
 function vfxStopVisualizer() {
   _vfx.vizActive = false;
+  _vfx.vizW = 0;
+  _vfx.vizH = 0;
   if (_vfx.vizRAF) { cancelAnimationFrame(_vfx.vizRAF); _vfx.vizRAF = null; }
   var canvas = document.getElementById('vizCanvas');
   if (canvas) {
