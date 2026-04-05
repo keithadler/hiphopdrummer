@@ -306,6 +306,11 @@ function analyzeBeat() {
   };
 
   var feelKeys = keyData[songFeelBase] || keyData.normal;
+  // For regional variants, restrict to the variant's key pool from STYLE_DATA
+  var allowedRoots = null;
+  if (typeof STYLE_DATA !== 'undefined' && STYLE_DATA[songFeel] && STYLE_DATA[songFeel].keys) {
+    allowedRoots = STYLE_DATA[songFeel].keys;
+  }
   var chosenKey = feelKeys.keys[0];
   if (typeof _forcedKey !== 'undefined' && _forcedKey) {
     // Search current feel's pool first
@@ -324,7 +329,13 @@ function analyzeBeat() {
       }
     }
   } else {
-    chosenKey = pick(feelKeys.keys);
+    // Filter to only keys allowed by STYLE_DATA for this specific style/variant
+    var keyPool = feelKeys.keys;
+    if (allowedRoots) {
+      var filtered = keyPool.filter(function(k) { return allowedRoots.indexOf(k.root) >= 0; });
+      if (filtered.length > 0) keyPool = filtered;
+    }
+    chosenKey = pick(keyPool);
   }
 
   var keyEl = document.getElementById('songKey');
