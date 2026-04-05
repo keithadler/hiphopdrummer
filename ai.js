@@ -1889,6 +1889,11 @@ var BPMS = [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110,120,125,130,135,140,
 function generateAll(opts) {
   opts = opts || {};
   var bpm = opts.bpm ? parseInt(opts.bpm) : pick(BPMS);
+  // If a style is selected but BPM is Auto, use the style's curated BPM pool
+  if (!opts.bpm && opts.style && STYLE_DATA[opts.style]) {
+    var sd = STYLE_DATA[opts.style];
+    bpm = pick(sd.bpms || BPMS);
+  }
   document.getElementById('bpm').textContent = bpm;
 
   // Select a song-level feel palette for coherent style across all sections.
