@@ -2747,6 +2747,163 @@ test('Export dialog stem checkboxes have stem-check class', function() {
   }
 });
 
+// ═══════════════════════════════════════════════════════════
+// MAJOR KEY CORRECTNESS — verify major keys use major intervals
+// ═══════════════════════════════════════════════════════════
+
+// === Test: Major keys produce major 3rds, not minor 3rds ===
+test('Major keys: EP uses major 3rd (4 semitones), not minor 3rd (3)', function() {
+  var majorCases = [
+    { style: 'bounce', key: 'C' },
+    { style: 'bounce', key: 'G' },
+    { style: 'bounce', key: 'Bb' },
+    { style: 'bounce', key: 'D' },
+    { style: 'bounce', key: 'F' },
+    { style: 'big', key: 'G' },
+    { style: 'big', key: 'Bb' }
+  ];
+
+  majorCases.forEach(function(tc) {
+    _domElements = {};
+    generateAll({ style: tc.style, key: tc.key });
+    var keyData = _lastChosenKey;
+    assert(keyData, tc.style + '/' + tc.key + ': key data should be set');
+    assert(keyData.type === 'major', tc.style + '/' + tc.key + ': should be major key, got ' + keyData.type);
+
+    var rootSemi = NOTE_TO_SEMI[tc.key.replace(/maj7$|7$/, '')] || 0;
+    var major3rdPC = (rootSemi + 4) % 12;
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    var hasMajor3rd = false;
+    var totalEPNotes = 0;
+
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      var epEvents = generateEPPattern(sec, bpm);
+      for (var ei = 0; ei < epEvents.length; ei++) {
+        if (!epEvents[ei].notes) continue;
+        for (var ni = 0; ni < epEvents[ei].notes.length; ni++) {
+          var pc = epEvents[ei].notes[ni] % 12;
+          totalEPNotes++;
+          if (pc === major3rdPC) hasMajor3rd = true;
+        }
+      }
+    }
+
+    if (totalEPNotes > 0) {
+      assert(hasMajor3rd, tc.style + '/' + tc.key + ': EP should contain major 3rd (pitch class ' + major3rdPC + ')');
+    }
+  });
+  _forcedKey = null;
+});
+
+// === Test: Major keys — combined MIDI all instruments in key ===
+test('Major keys: combined MIDI all instruments in key', function() {
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  localStorage.setItem('hhd_bass_playback', 'true');
+  localStorage.setItem('hhd_ep_playback', 'true');
+  localStorage.setItem('hhd_pad_playback', 'true');
+  localStorage.setItem('hhd_lead_playback', 'true');
+  localStorage.setItem('hhd_organ_playback', 'true');
+  localStorage.setItem('hhd_horn_playback', 'true');
+  localStorage.setItem('hhd_vibes_playback', 'true');
+  localStorage.setItem('hhd_clav_playback', 'true');
+
+  var melodicChannels = [0, 2, 3, 4, 5, 6, 7, 8];
+  var chNames = { 0: 'Bass', 2: 'EP', 3: 'Pad', 4: 'Lead', 5: 'Organ', 6: 'Horns', 7: 'Vibes', 8: 'Clav' };
+
+  var majorCases = [
+    { style: 'bounce', key: 'C' },
+    { style: 'bounce', key: 'G' },
+    { style: 'bounce', key: 'Bb' },
+    { style: 'bounce', key: 'D' },
+    { style: 'bounce', key: 'F' },
+    { style: 'big', key: 'G' },
+    { style: 'big', key: 'Bb' },
+    { style: 'big', key: 'C' }
+  ];
+
+  majorCases.forEach(function(tc) {
+    _domElements = {};
+    if (typeof _instrumentCache !== 'undefined') {
+      for (var k in _instrumentCache) delete _instrumentCache[k];
+    }
+    generateAll({ style: tc.style, key: tc.key });
+    var keyData = _lastChosenKey;
+    if (!keyData) return;
+    assert(keyData.type === 'major', tc.style + '/' + tc.key + ': should be major, got ' + keyData.type);
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    var bytes = buildCombinedMidiBytes(arrangement, bpm);
+    var channelNotes = _parseMidiNoteOns(bytes);
+
+    for (var ci = 0; ci < melodicChannels.length; ci++) {
+      var ch = melodicChannels[ci];
+      var notes = channelNotes[ch];
+      if (!notes || notes.length === 0) continue;
+
+      var wrongNotes = 0;
+      for (var ni = 0; ni < notes.length; ni++) {
+        if (!allowed.has(notes[ni] % 12)) wrongNotes++;
+      }
+      var wrongPct = (wrongNotes / notes.length * 100);
+      assert(wrongPct <= 5,
+        'MAJOR ' + tc.style + '/' + tc.key + ' ' + chNames[ch] + ': ' +
+        wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + notes.length + ')');
+    }
+  });
+  _forcedKey = null;
+});
+
+// === Test: Minor keys still work correctly after major key fix ===
+test('Minor keys: still use minor 3rd after major key fix', function() {
+  var minorCases = [
+    { style: 'normal', key: 'Cm' },
+    { style: 'dilla', key: 'Dm7' },
+    { style: 'gfunk', key: 'Gm7' },
+    { style: 'memphis', key: 'Fm' },
+    { style: 'dark', key: 'Abm' },
+    { style: 'griselda', key: 'Am' }
+  ];
+
+  minorCases.forEach(function(tc) {
+    _domElements = {};
+    generateAll({ style: tc.style, key: tc.key });
+    var keyData = _lastChosenKey;
+    assert(keyData, tc.style + '/' + tc.key + ': key data should be set');
+
+    var rootSemi = NOTE_TO_SEMI[tc.key.replace(/m7$|m9$|m$/, '')] || 0;
+    var minor3rdPC = (rootSemi + 3) % 12;
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    var hasMinor3rd = false;
+    var totalNotes = 0;
+    for (var si = 0; si < arrangement.length; si++) {
+      var epEvents = generateEPPattern(arrangement[si], bpm);
+      for (var ei = 0; ei < epEvents.length; ei++) {
+        if (!epEvents[ei].notes) continue;
+        for (var ni = 0; ni < epEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (epEvents[ei].notes[ni] % 12 === minor3rdPC) hasMinor3rd = true;
+        }
+      }
+      var padEvents = generatePadPattern(arrangement[si], bpm);
+      for (ei = 0; ei < padEvents.length; ei++) {
+        if (!padEvents[ei].notes) continue;
+        for (ni = 0; ni < padEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (padEvents[ei].notes[ni] % 12 === minor3rdPC) hasMinor3rd = true;
+        }
+      }
+    }
+    if (totalNotes > 0) {
+      assert(hasMinor3rd, tc.style + '/' + tc.key + ': should contain minor 3rd (pitch class ' + minor3rdPC + ')');
+    }
+  });
+  _forcedKey = null;
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
