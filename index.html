@@ -64,7 +64,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.32</div>
+            <div class="about-version">Release 1.33</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — drums, bass, chords, fills, and a full song arrangement assembled from scratch. What's your role?</p>
@@ -220,16 +220,26 @@
             <button class="export-toggle" id="exportDawToggle">Deselect all</button>
           </div>
           <div class="regen-field">
-            <label class="regen-label">Other</label>
+            <label class="regen-label">Audio</label>
+            <div class="export-checks">
+              <label class="export-check"><input type="checkbox" id="expWav" checked> WAV full mix <span class="export-note">(all instruments — ready to use as-is)</span></label>
+              <label class="export-check"><input type="checkbox" id="expWavDrums"> WAV drums stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavBass"> WAV bass stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavEP"> WAV electric piano stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavPad"> WAV synth pad stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavLead"> WAV synth lead stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavOrgan"> WAV organ stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavHorns"> WAV horn stabs stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavVibes"> WAV vibraphone stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavClav"> WAV clavinet stem</label>
+              <label class="export-check"><input type="checkbox" id="expMasterFx" checked> Apply master FX to WAV <span class="export-note">(compression, EQ, room reverb)</span></label>
+            </div>
+          </div>
+          <div class="regen-field">
+            <label class="regen-label">Documents</label>
             <div class="export-checks">
               <label class="export-check"><input type="checkbox" id="expPdf" checked> PDF beat sheet</label>
               <label class="export-check"><input type="checkbox" id="expChordSheet" checked> Chord sheet PDF <span class="export-note">(piano diagrams for keys/bass players)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWav" checked> WAV audio file <span class="export-note">(rendered beat — drums + bass)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWavDrums"> WAV drums stem <span class="export-note">(drums only)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWavBass"> WAV bass stem <span class="export-note">(bass only)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWavEP"> WAV electric piano stem <span class="export-note">(EP only — styles that use it)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWavPad"> WAV synth pad stem <span class="export-note">(pad only — dark styles)</span></label>
-              <label class="export-check"><input type="checkbox" id="expMasterFx" checked> Apply master FX to WAV <span class="export-note">(compression, EQ, room reverb — sounds like a finished mix)</span></label>
             </div>
           </div>
         </div>
@@ -315,7 +325,7 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.32</div>
+          <div class="about-version">Release 1.33</div>
           <div class="about-author">by <a href="https://github.com/keithadler" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>

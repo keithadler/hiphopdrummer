@@ -650,7 +650,7 @@ function exportMIDI(opts) {
 
   // WAV audio export (async — render before generating ZIP)
   var wavPromise = null;
-  var needsAnyWav = (opts.wav || opts.wavDrums || opts.wavBass) && window.synthBridge && window._currentMidiBytes;
+  var needsAnyWav = (opts.wav || opts.wavDrums || opts.wavBass || opts.wavEP || opts.wavPad || opts.wavLead || opts.wavOrgan || opts.wavHorns || opts.wavVibes || opts.wavClav) && window.synthBridge && window._currentMidiBytes;
   if (needsAnyWav) {
     var toast = document.getElementById('exportToast');
     if (toast) {
@@ -722,6 +722,81 @@ function exportMIDI(opts) {
             return blob.arrayBuffer();
           }).then(function(buf) {
             folder.file('hiphop_beat_' + bpm + 'bpm_pad.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Lead-only stem
+    if (opts.wavLead && typeof buildLeadMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var leadMidi = buildLeadMidiBytes(arrangement, bpm);
+        if (leadMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Lead Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(leadMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_lead.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Organ-only stem
+    if (opts.wavOrgan && typeof buildOrganMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var organMidi = buildOrganMidiBytes(arrangement, bpm);
+        if (organMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Organ Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(organMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_organ.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Horns-only stem
+    if (opts.wavHorns && typeof buildHornMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var hornMidi = buildHornMidiBytes(arrangement, bpm);
+        if (hornMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Horns Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(hornMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_horns.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Vibes-only stem
+    if (opts.wavVibes && typeof buildVibesMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var vibesMidi = buildVibesMidiBytes(arrangement, bpm);
+        if (vibesMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Vibes Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(vibesMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_vibes.wav', new Uint8Array(buf));
+          });
+        }
+      });
+    }
+    
+    // Clav-only stem
+    if (opts.wavClav && typeof buildClavMidiBytes === 'function') {
+      wavChain = wavChain.then(function() {
+        var clavMidi = buildClavMidiBytes(arrangement, bpm);
+        if (clavMidi.length > 30) {
+          if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Clav Stem...</strong><br><br><div class="progress-spinner"></div></div>';
+          return window.synthBridge.renderToWav(clavMidi, opts.masterFx).then(function(blob) {
+            return blob.arrayBuffer();
+          }).then(function(buf) {
+            folder.file('hiphop_beat_' + bpm + 'bpm_clav.wav', new Uint8Array(buf));
           });
         }
       });

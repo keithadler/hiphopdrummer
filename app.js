@@ -278,6 +278,11 @@ function showExportDialog() {
     if (typeof saved.wavBass === 'boolean') document.getElementById('expWavBass').checked = saved.wavBass;
     if (typeof saved.wavEP === 'boolean') document.getElementById('expWavEP').checked = saved.wavEP;
     if (typeof saved.wavPad === 'boolean') document.getElementById('expWavPad').checked = saved.wavPad;
+    if (typeof saved.wavLead === 'boolean') document.getElementById('expWavLead').checked = saved.wavLead;
+    if (typeof saved.wavOrgan === 'boolean') document.getElementById('expWavOrgan').checked = saved.wavOrgan;
+    if (typeof saved.wavHorns === 'boolean') document.getElementById('expWavHorns').checked = saved.wavHorns;
+    if (typeof saved.wavVibes === 'boolean') document.getElementById('expWavVibes').checked = saved.wavVibes;
+    if (typeof saved.wavClav === 'boolean') document.getElementById('expWavClav').checked = saved.wavClav;
     if (typeof saved.masterFx === 'boolean') document.getElementById('expMasterFx').checked = saved.masterFx;
     if (saved.daws && Array.isArray(saved.daws)) {
       document.querySelectorAll('.daw-check').forEach(function(c) {
@@ -328,6 +333,11 @@ document.getElementById('exportGo').onclick = function() {
     wavBass:     document.getElementById('expWavBass').checked,
     wavEP:       document.getElementById('expWavEP').checked,
     wavPad:      document.getElementById('expWavPad').checked,
+    wavLead:     document.getElementById('expWavLead').checked,
+    wavOrgan:    document.getElementById('expWavOrgan').checked,
+    wavHorns:    document.getElementById('expWavHorns').checked,
+    wavVibes:    document.getElementById('expWavVibes').checked,
+    wavClav:     document.getElementById('expWavClav').checked,
     masterFx:    document.getElementById('expMasterFx').checked,
     daws: Array.from(document.querySelectorAll('.daw-check'))
                .filter(function(c) { return c.checked; })

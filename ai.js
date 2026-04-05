@@ -2019,6 +2019,15 @@ function generateAll(opts) {
   var styleEl = document.getElementById('songStyle');
   if (styleEl) {
     var label = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;
+    // Append drum kit and bass sound names to the style label
+    var _kitNames = { 0: 'Standard Kit', 8: 'Room Kit', 16: 'Power Kit', 24: 'Electronic Kit', 25: 'TR-808 Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
+    var _bassNames = { 33: 'Finger Bass', 34: 'Pick Bass', 35: 'Fretless Bass', 36: 'Slap Bass', 38: 'Synth Bass 1', 39: 'Synth Bass 2' };
+    var _sd = STYLE_DATA[songFeel];
+    if (_sd) {
+      var kitName = _kitNames[_sd.drumKit] || '';
+      var bassName = _bassNames[_sd.bassSound] || '';
+      if (kitName || bassName) label += ' — ' + kitName + (kitName && bassName ? ' + ' : '') + bassName;
+    }
     styleEl.textContent = label;
     if (typeof _applyMarquee === 'function') _applyMarquee(styleEl, label);
   }

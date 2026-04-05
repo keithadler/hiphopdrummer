@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.33] - 2026-04-04
+
+### Added
+- WAV stems for all 9 instruments: lead, organ, horns, vibes, clav stems join existing drums, bass, EP, pad stems in the export dialog
+- Style marquee now scrolls "Classic Boom Bap — Standard Kit + Finger Bass" so users see which drum kit and bass sound are active
+
+### Changed
+- Export dialog split into clearer sections: MIDI Files, Instrument Tracks, DAW Help Files, Audio, Documents (was "Other")
+- WAV full mix description corrected from "drums + bass" to "all instruments — ready to use as-is"
+- MPC pad map in DOCS.md now includes A10/Shaker (was missing)
+
 ## [1.32] - 2026-04-04
 
 ### Changed — Documentation
