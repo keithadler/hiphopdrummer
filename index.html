@@ -64,7 +64,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.40</div>
+            <div class="about-version">Release 1.41</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. Each style gets its own drum kit and bass sound. What's your role?</p>
@@ -336,7 +336,7 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.40</div>
+          <div class="about-version">Release 1.41</div>
           <div class="about-author">by <a href="https://github.com/keithadler" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>
@@ -465,16 +465,8 @@
             var newWorker = reg.installing;
             newWorker.addEventListener('statechange', function() {
               if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-                // New version installed — show modal update dialog
-                var overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';
-                overlay.innerHTML = '<div style="background:#1c1c26;border:1px solid #363650;border-radius:10px;padding:28px 32px;max-width:360px;text-align:center;font-family:JetBrains Mono,monospace">'
-                  + '<div style="font-size:18px;font-weight:700;color:#50a0ff;letter-spacing:1px;margin-bottom:12px">Update Available</div>'
-                  + '<p style="font-size:14px;color:#9090a8;line-height:1.6;margin-bottom:20px">A new version of Hip Hop Drummer has been downloaded. Reload to get the latest features and fixes.</p>'
-                  + '<button id="updateReloadBtn" style="background:#50a0ff;color:#fff;border:none;padding:10px 28px;border-radius:4px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:1px">RELOAD NOW</button>'
-                  + '</div>';
-                document.body.appendChild(overlay);
-                document.getElementById('updateReloadBtn').onclick = function() { window.location.reload(); };
+                // New version installed — auto-reload to get fresh code
+                window.location.reload();
               }
             });
           });
