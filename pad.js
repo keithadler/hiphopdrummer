@@ -48,6 +48,8 @@ function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
   var intervals;
   var isDim = (degree === '#idim');
   var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  if (degree === 'i' && keyIsMajor) isMaj = true;
 
   if (isDim) { intervals = [0, 3, 6, 9]; }
   else if (isMaj) {

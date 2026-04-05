@@ -64,7 +64,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.33</div>
+            <div class="about-version">Release 1.34</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. Each style gets its own drum kit and bass sound. What's your role?</p>
@@ -326,13 +326,13 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.33</div>
+          <div class="about-version">Release 1.34</div>
           <div class="about-author">by <a href="https://github.com/keithadler" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>
       <div class="about-scroll">
         <p>Every time you hit New Beat, a unique arrangement is generated from scratch — not selected from presets, not pulled from a library. The drums, bass line, up to 7 melodic instruments, fills, transitions, chord progressions, and song structure are all assembled in real time from hundreds of musical rules and thousands of possible combinations. Each style gets its own drum kit and bass sound automatically — TR-808 for G-Funk and Memphis, Brush Kit for Nujabes, Synth Bass for dark styles, Slap Bass for bounce. No two beats are ever the same.</p>
-        <p>No AI subscription required. No cloud. No account. The musical knowledge of 40 years of hip hop production is encoded directly into the code — it runs entirely in your browser, works offline, and everything you create is yours.</p>
+        <p>No AI subscription required. No cloud. No account. The musical knowledge of 40 years of hip hop production is encoded directly into the code — it runs entirely in your browser, works offline, and everything you create is yours. The goal isn't just the beat — it's the song, the session, the set, the freestyle, the record that comes after. This is the spark.</p>
 
         <h3>🥁 Drums + 🎸 Bass, Together</h3>
         <p>This isn't just a drum machine. Every beat generates a complete <em>drums and bass</em> production — two instruments that lock together the way they do in a real session. The bass follows the kick pattern, uses style-correct chord progressions, plays passing tones and ghost notes between hits, slides between pitches for G-Funk, drops to sub octaves for 808 styles, and breathes with intentional rests. It even generates 2-bar motifs and varies them across the song — the way a real bassist develops a part.</p>
@@ -396,7 +396,8 @@
         <p>The suggested key section gives you a starting point with I/IV/V chords, 3-chord combos, and style-matched alternate progressions (Andalusian cadence, ii-V-I turnarounds, neo-soul turnarounds, trap minor). The drums, bass, electric piano, and synth pads are the foundation — everything you add makes it yours.</p>
 
         <h3>🎛 For Producers</h3>
-        <p>Use it as a starting point or a learning tool — or both. Generate a beat in the style you want, export the MIDI, and customize it in your DAW or MPC. Swap the kick samples, adjust ghost note velocities, add your own fills, re-voice the bass with your own synth or 808. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid.</p>
+        <p>Use it as a starting point or a learning tool — or both. Generate a beat in the style you want, export the MIDI, and customize it in your DAW or MPC. Each style auto-selects the right drum kit and bass sound (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis — shown in the style display). Swap the samples, adjust ghost note velocities, add your own fills, re-voice the bass with your own synth or 808. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid.</p>
+        <p><b>WAV stems:</b> Export individual WAV files for every instrument — drums, bass, EP, pad, lead, organ, horns, vibes, clav. Import them into your DAW as separate tracks for mixing, or use the full mix WAV as-is. The "Select all stems" button in the export dialog checks all 9 at once.</p>
         <p>Study the patterns to level up your own programming. Click any cell to hear the hit and understand why it's at that velocity. Read the About This Beat panel — it explains accent curves, ghost clustering, pocket-delayed snares, fill construction, and bar variation techniques that most tutorials never cover. Generate 10 beats in the same style and compare the kick patterns, ghost placements, and fills. That's how you internalize a style deeply enough to program it yourself.</p>
         <p>The per-instrument swing is something most producers don't think about. Dilla's hats swing 30% harder than his kick. Premier's ghost snares float while his kicks are mechanical. G-Funk bass swings slightly harder than the kick for that smooth bounce. This tool shows you those relationships — once you see them, you'll hear them in every record.</p>
 
@@ -410,6 +411,18 @@
       </div>
       <div class="regen-actions">
         <button class="btn regen-cancel" id="aboutClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- What Next dialog — shown after beat generation with role-specific advice -->
+  <div id="whatNextOverlay" class="regen-overlay" style="display:none">
+    <div class="regen-dialog role-tips-dialog">
+      <div class="regen-title" id="whatNextTitle">🎵 Your Beat Is Ready</div>
+      <div class="about-scroll" id="whatNextContent"></div>
+      <div class="regen-actions">
+        <label class="export-check" style="margin-right:auto;font-size:11px"><input type="checkbox" id="whatNextDontShow"> Don't show this again</label>
+        <button class="btn regen-go" id="whatNextClose">Let's Go</button>
       </div>
     </div>
   </div>

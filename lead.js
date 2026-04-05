@@ -44,6 +44,8 @@ function _leadScaleNotes(chordRoot, degree, register) {
   var pentatonic = [0, 3, 5, 7, 10];
   // Add chord tones that aren't in pentatonic
   var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  if (degree === 'i' && keyIsMajor) isMaj = true;
   if (isMaj) pentatonic = [0, 2, 4, 7, 9]; // major pentatonic
 
   var notes = [];

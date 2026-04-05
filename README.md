@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Release 1.33
+# 🥁 Hip Hop Drummer — Release 1.34
 
 Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
@@ -8,7 +8,11 @@ Generate unique hip hop drum, bass, and instrument arrangements from scratch —
 
 I grew up on KRS-One and LL Cool J. I'm a musician, and one thing that's always slowed my creation process is drum programming. I'd have an idea for a track — a sample chopped up, a bassline ready to go — but I'd spend hours tweaking kick placement and ghost note velocity before I even got to the music.
 
-So I built Hip Hop Drummer as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop beats. Every beat it generates comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs.
+This tool exists to get you past that wall and into the creative zone — fast. Whether you're a rapper who needs a beat to write to right now, a producer who wants a starting point that's already musically correct, a DJ building a library of original productions, a keyboardist looking for a rhythm section to jam with, or a student trying to understand why Dilla's drums feel the way they do — Hip Hop Drummer gives you something real to work with immediately.
+
+Every beat is production-ready. 9 instruments playing together, style-matched sounds, full song arrangements with intros and outros, WAV stems you can import into any DAW. But the real goal isn't the beat — it's the song, the session, the set, the freestyle, the record that comes after. This tool is the spark. What you build from it is yours.
+
+I built it as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop. Every beat comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs. And when you're done learning, you hit export and start making music.
 
 ## Who This Is For
 
@@ -18,11 +22,11 @@ This tool meets you where you are. Whether you've never programmed a drum patter
 
 **If you're a working producer** — use it as a starting point. Generate a beat in the style you want, export the MIDI, and customize it. Swap the kick samples, adjust the ghost note velocities, add your own fills. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid. Up to 9 instruments give you a complete production: drums, bass, EP, pad, lead, organ, horns, vibes, and clav — all locked to the same chords. The MIDI gives you everything you need to re-voice with your own sounds.
 
-**If you're a rapper** — just rap over it. Hit play, open the mic, and go. The flow guide gives you syllable counts per bar based on the actual kick pattern density. It tells you where the landing points are — which beats to hit with your hardest syllables. The BPM and swing are already set for the style. Export the WAV and you've got a practice beat, a demo backing track, or a freestyle session ready to go.
+**If you're a rapper** — just rap over it. Hit play, open the mic, and go. The flow guide gives you syllable counts per bar based on the actual kick pattern density. It tells you where the landing points are — which beats to hit with your hardest syllables. The BPM and swing are already set for the style. Export the WAV — it's a full mix with all instruments, ready to use as a practice beat, demo backing track, or freestyle session.
 
 **If you're a DJ** — these are scratch-ready. The arrangements have intros, breakdowns, and outros built in. Export the WAV, load it on your deck, and cut over it. The drum patterns are authentic enough to blend with real records. Use the breakdown sections for scratching — the drums thin out and give you space. Layer it with your crate finds.
 
-**If you're a musician** — the chord sheet and key suggestions give you everything you need to jam along. The bass MIDI shows you what a session bassist would play. The EP, organ, and vibes parts show you what a keyboardist would comp. The modal harmony (Dorian for G-Funk, Phrygian for dark styles) gives you the actual theory behind why these progressions work. Play keys over it, add guitar, lay down a horn line. The beat is the foundation — build on it.
+**If you're a musician** — the chord sheet and key suggestions give you everything you need to jam along. The bass MIDI shows you what a session bassist would play. The EP, organ, and vibes parts show you what a keyboardist would comp. The modal harmony (Dorian for G-Funk, Phrygian for dark styles) gives you the actual theory behind why these progressions work. Export individual WAV stems to hear any instrument in isolation — drums, bass, EP, pad, lead, organ, horns, vibes, or clav. Play keys over it, add guitar, lay down a horn line. The beat is the foundation — build on it.
 
 ## 40+ Years of Production Knowledge, Encoded
 
@@ -34,7 +38,6 @@ The drum engine models over 60 distinct behaviors per style: kick placement libr
 ### Bass
 The bass locks to the kick drum, uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches with Moog-style glissando for G-Funk, drops to sub octaves on beat 1 for 808 styles, and breathes with intentional rests on weak beats. It generates 2-bar motifs and repeats them with mutations — the way a session player develops a part over a song. Section-ending bass fills complement the drum fills: jazzy styles get walking diatonic runs, Dilla gets soft chromatic dissolves, 808 styles drop out and let the sub tail ring, boom bap gets chromatic walk-ups into the next section. Drums and bass are the rhythmic foundation — always consistent regardless of playback mode.
 
-### Electric Piano
 ### Electric Piano
 30 musicality features modeled from how session keyboardists actually comp in hip hop:
 
@@ -186,7 +189,7 @@ Hit **NEW BEAT** and a complete, unique arrangement is generated from scratch �
 - **Player touch profiles** — Premier, Questlove, Dilla, Lil Jon, DJ Paul, Daringer, DMX/LinnDrum
 - **Dynamic arrangement arc** — energy builds across the song like a real performance
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
-- **WAV audio export** — rendered full mix with master FX (HPF → compressor → EQ → room reverb), plus individual stems (drums, bass, EP, pad)
+- **WAV audio export** — rendered full mix with master FX (HPF → compressor → EQ → room reverb), plus individual WAV stems for all 9 instruments (drums, bass, EP, pad, lead, organ, horns, vibes, clav)
 - **MIDI + MPC export** — full song + individual sections for all 9 instruments, GM channels 1-10
 - **Chord sheet** — visual piano keyboard diagrams with feel-aware voicings
 - **PDF beat sheet** — printable color-coded pattern grids with full analysis
@@ -227,7 +230,7 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-14,000+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, all 7 melodic instrument generators (EP, pad, lead, organ, horns, vibes, clav), per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined multi-instrument MIDI, section transitions, bar variations, extreme BPMs, beat drops, strict/improvise mode, forced dialog options, beat history capacity, and all 35+ About This Beat sections.
+15,000+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, all 7 melodic instrument generators (EP, pad, lead, organ, horns, vibes, clav), per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined multi-instrument MIDI, section transitions, bar variations, extreme BPMs, beat drops, strict/improvise mode, forced dialog options, beat history capacity, and all 35+ About This Beat sections.
 
 ## How It Works
 
@@ -263,7 +266,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── synth.js           — Bundled synth engine (built from synth-bridge.mjs)
 ├── spessasynth_processor.min.js — AudioWorklet processor for SpessaSynth
 ├── GeneralUserGS.sf3  — GeneralUser GS SoundFont (10MB, all GM instruments + drum kits)
-├── tests.js           — Automated test suite (node tests.js — 14,000+ assertions, zero deps)
+├── tests.js           — Automated test suite (node tests.js — 15,000+ assertions, zero deps)
 ├── sw.js              — Service worker for PWA offline support
 ├── manifest.json      — PWA manifest for installable app
 ├── package.json       — npm config (SpessaSynth + esbuild)

@@ -1,112 +1,96 @@
 # Contributing to Hip Hop Drummer
 
-Thanks for your interest in contributing! This project is pure vanilla JS with zero dependencies — let's keep it that way.
+Thanks for your interest in contributing! This project is vanilla JS with one build step (esbuild bundles the synth module).
 
 ## Guidelines
 
-1. **No frameworks, no build tools.** Everything runs by opening `index.html` in a browser.
-2. **No external audio files.** All sounds are synthesized via the embedded MIDI player.
-3. **Keep it musical.** Pattern generation changes should be reviewed by someone who actually makes beats.
-4. **Test in Chrome and Safari** at minimum before submitting.
+1. **No frameworks.** Everything runs by opening `index.html` in a browser.
+2. **One build step.** Only `synth-bridge.mjs` requires bundling via `npm run build`. All other files work with edit-and-refresh.
+3. **No external audio files.** All sounds come from the GeneralUser GS SoundFont via SpessaSynth.
+4. **Keep it musical.** Pattern generation changes should sound right to someone who actually makes beats.
+5. **Test in Chrome and Safari** at minimum before submitting.
 
 ## How to Contribute
 
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes
-4. Run `node tests.js` — all assertions must pass
-5. Test by opening `index.html` locally
-6. Submit a pull request with a clear description
+4. Run `npm run build` if you edited `synth-bridge.mjs`
+5. Run `node tests.js` — all assertions must pass (15,000+)
+6. Test by opening `index.html` locally
+7. Submit a pull request with a clear description
 
 ## Architecture
 
 The project is split into focused modules:
 
-- **`patterns.js`** — Constants, state, section/row definitions, `STYLE_DATA` for the regen dialog
-- **`ai.js`** — Generation pipeline, feel/swing pools, kick libraries, `FEEL_PALETTES`, section orchestration
-- **`writers.js`** — All `write*()` bar writers, intro/outro, fills
+- **`patterns.js`** — Constants, state, `STYLE_DATA` (with `drumKit` and `bassSound` per style), `INSTRUMENT_SWING`, regional variants, player profiles
+- **`ai.js`** — Generation pipeline, 218 kick patterns, feel/swing pools, `FEEL_PALETTES`, section orchestration, beat drops, arrangement arc
+- **`writers.js`** — All `write*()` drum bar writers, intro/outro, fills
 - **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
-- **`analysis.js`** — `analyzeBeat()` educational text generator, `keyData` per feel
-- **`ui.js`** — Grid rendering, arrangement editor, tooltips, glossary
-- **`midi-export.js`** — MIDI file writer, MPC pattern builder, ZIP export, MIDI player, export dialog logic
-- **`daw-help.js`** — DAW-specific help file builders (11 functions, one per DAW/platform)
-- **`pdf-export.js`** — PDF beat sheet generator
+- **`bass.js`** — Bass line generator, `CHORD_PROGRESSIONS`, `BASS_STYLES`, call-and-response, fills, MIDI/MPC export
+- **`ep.js`** — Electric piano generator (30 musicality features, 12 styles, MIDI ch 2)
+- **`pad.js`** — Synth pad generator (10 musicality features, 7 dark styles, MIDI ch 3)
+- **`lead.js`** — Synth lead generator (G-Funk whistle, pentatonic melody, MIDI ch 4)
+- **`organ.js`** — Organ generator (sustained drawbar, jazz/Nujabes, MIDI ch 5)
+- **`horns.js`** — Horn stabs generator (brass section, boom bap/big/driving, MIDI ch 6)
+- **`vibes.js`** — Vibraphone generator (bell-like arpeggios, Nujabes/jazzy, MIDI ch 7)
+- **`clav.js`** — Clavinet generator (funky 16th-note comping, bounce/G-Funk, MIDI ch 8)
+- **`analysis.js`** — `analyzeBeat()` educational text generator (30+ collapsible sections), key selection, chord progressions
+- **`ui.js`** — Grid rendering, arrangement editor, chord sheet, tooltips, glossary, marquee
+- **`midi-export.js`** — MIDI file writer, MPC pattern builder, combined 9-instrument MIDI, WAV stem rendering, ZIP export, strict/improvise cache
+- **`daw-help.js`** — DAW-specific help file builders (9 DAWs + MPC, all mention 9 instruments)
+- **`pdf-export.js`** — PDF beat sheet + chord sheet PDF generator
 - **`beat-history.js`** — Beat history storage and UI (last 100 beats in localStorage)
-- **`app.js`** — Main controller, New Beat dialog, Export dialog, event wiring, playback cursor, visual FX module, share beat, preferences
-- **`tests.js`** — Automated test suite (11,000+ assertions, zero dependencies, `node tests.js`)
+- **`app.js`** — Main controller, New Beat / Export / Preferences / About dialogs, keyboard shortcuts, playback, visual FX
+- **`synth-bridge.mjs`** — SpessaSynth integration (ES module, bundled to `synth.js` by esbuild)
+- **`tests.js`** — Automated test suite (15,000+ assertions, zero dependencies)
 
 ## Key Concepts
 
-- **Feels** — 19 style types that control every aspect of pattern generation. Each feel has its own kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile.
-- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 16 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent. Palette format: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`.
-- **New Beat Dialog** — `showRegenDialog()` in `app.js` populates three dropdowns (style, key, BPM). Style shows producers and filters key/BPM to only show authentic options. Key shows a rap mood description. All fields optional. `generateAll(opts)` accepts `{style, key, bpm}` overrides.
-- **Export Dialog** — `showExportDialog()` in `app.js`. Three sections: MIDI files (full song, sections, MPC patterns), DAW help files (9 DAWs, individually toggleable), PDF. `exportMIDI(opts)` accepts `{fullSong, sections, mpc, pdf, daws[]}` and only builds the selected content.
-- **STYLE_DATA** — Defined in `patterns.js`. Maps each feel key to `{label, bpmRange, keys[], artists, ...}`. Used by the New Beat dialog. Must be kept in sync with `keyData` in `analysis.js`.
-- **Kick Libraries** — Every feel has a dedicated kick pattern library (4-10 patterns). The general 30-pattern library is the fallback for unlisted feels.
-- **Ghost Density** — A per-song random value (0.5–1.8) clamped per feel (chopbreak floors at 1.0, lofi/memphis cap at 1.0, crunk caps at 0.4). Scales all ghost note probabilities.
-- **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` (interlock, choke, clustering) → `applyGroove()` (per-instrument accents) → `humanizeVelocities()` (micro-velocity jitter). Each stage is a separate function.
-- **Bar Writers** — Each instrument has dedicated writer functions (`writeBarK`, `writeSnA/B`, `writeHA/B`, `writeOpenHat`, `writeClap`, `writeRimshot`, `writeRide`, `writeCR`). New feels must be handled in every relevant writer.
-- **Section-Level Overrides** — `generatePattern()` temporarily overrides `hatPatternType`, `baseSnareGhostA/B`, and `ghostDensity` per section before calling writers, then restores them.
-- **10 Instrument Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker. Adding a new row requires updates to `patterns.js` (ROWS, RN), `ai.js` (writer + generation calls), `midi-export.js` (MIDI_NOTE_MAP), `pdf-export.js` (rowColors), and `styles.css` (cell color).
-- **Educational Content** — `analyzeBeat()` generates dynamic learning content using `pick()` to randomly select from content pools. Each pool is an array of strings.
+- **25 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
+- **9 Instruments** — Drums (ch 10), Bass (ch 1), EP (ch 2), Pad (ch 3), Lead (ch 4), Organ (ch 5), Horns (ch 6), Vibes (ch 7), Clav (ch 8). Each has its own generator, MIDI builder, and MPC pattern builder.
+- **Style-Matched Sounds** — `STYLE_DATA` in `patterns.js` includes `drumKit` and `bassSound` fields. Each style auto-selects the right GM drum kit and bass program (TR-808 for G-Funk, Brush Kit for Nujabes, etc.).
+- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 22 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.
+- **Beat Drops** — `_isDrumDrop()` in `midi-export.js` checks if all drums are silent at a step. ALL instruments skip events during drops.
+- **Strict vs Improvise** — `_instrumentCache` in `midi-export.js` caches instrument patterns in Strict mode. Improvise clears the cache each play.
+- **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` → `applyGroove()` → `humanizeVelocities()`. Each stage is a separate function.
+- **Export Dialog** — 5 sections: MIDI Files, Instrument Tracks, DAW Help Files, Audio (full mix + 9 WAV stems + master FX), Documents (PDF beat sheet + chord sheet).
+- **10 Drum Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker.
+- **Educational Content** — `analyzeBeat()` generates 30+ collapsible sections with skill-level paths, style history, technique spotlights, and more.
 
 ## Adding a New Feel
 
-1. Add the feel name to the relevant sections in `FEELS` (`ai.js`) — at minimum `verse`, `verse2`. Consider `breakdown`, `instrumental`, `pre`, `chorus` if appropriate.
+1. Add the feel name to `FEELS` sections in `ai.js` (verse, verse2, breakdown, etc.)
 2. Add a swing pool entry in `SWING_POOLS` (`ai.js`)
-3. Add a palette entry in `FEEL_PALETTES` (`ai.js`) — `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`
-4. Add a dedicated kick library in `genBasePatterns()` (`ai.js`) — select from it when `paletteFeel0` matches. Also handle verse 2 kick selection.
-5. Handle the feel in every `write*()` function in `writers.js`:
-   - `writeBarK` — kick velocity and density
-   - `writeSnA` / `writeSnB` — snare backbeat velocity, ghost snare behavior
-   - `writeGKA` / `writeGKB` — ghost kick (or skip entirely)
-   - `writeHA` / `writeHB` — hi-hat pattern and dynamics
-   - `writeOpenHat` — open hat behavior (or skip)
-   - `writeClap` — clap probability and velocity
-   - `writeRimshot` — rimshot behavior (or skip)
-   - `writeRide` — ride cymbal (or skip)
-   - `writeShaker` — shaker (or skip)
-   - `addFill` — fill style at section endings
-   - `writeCR` — crash cymbal probability adjustment
-6. Add feel-specific behavior in `applyGroove()` (`groove.js`) — hat accent spread, kick accent curve, velocity arc (skip for mechanical feels)
-7. Add feel-specific jitter scaling in `humanizeVelocities()` (`groove.js`)
-8. Add feel-specific ghost clustering probability in `postProcessPattern()` (`groove.js`)
-9. Add ghost density bias in `generateAll()` (`ai.js`) if the feel needs clamping
-10. Add hat type override in `generatePattern()` (`ai.js`) — e.g. force `'8th'` for old school
-11. Add `useRide` override in `genBasePatterns()` (`ai.js`) if the feel should force ride on/off
-12. Add style description in `analyzeBeat()` (`analysis.js`):
-    - `styleNames` and `styleDescs` objects
-    - `keyData` entry with 4-5 keys, each with I/IV/V chords and context
-    - Flow guide line (`if (songFeel === '...')`)
-    - Reference tracks, difficulty scoring, TRY THIS exercise, LISTEN FOR prompt
-13. Add feel coherence entry in the `compatMap` for verse2 (`ai.js`)
-14. Add an entry to `STYLE_DATA` in `patterns.js` — `{label, bpmRange, keys[], artists}`. Keys must match roots in `keyData` in `analysis.js`.
+3. Add a palette entry in `FEEL_PALETTES` (`ai.js`)
+4. Add a dedicated kick library in `genBasePatterns()` (`ai.js`)
+5. Handle the feel in every `write*()` function in `writers.js`
+6. Add feel-specific behavior in `applyGroove()` and `humanizeVelocities()` (`groove.js`)
+7. Add ghost clustering probability in `postProcessPattern()` (`groove.js`)
+8. Add ghost density bias in `generateAll()` (`ai.js`)
+9. Add an entry to `STYLE_DATA` in `patterns.js` — include `drumKit` and `bassSound`
+10. Add `INSTRUMENT_SWING` entry in `patterns.js`
+11. Add `CHORD_PROGRESSIONS` entry in `bass.js`
+12. Add `BASS_STYLES` entry in `bass.js`
+13. Decide which melodic instruments apply — add the feel to the style lookup in each generator (ep.js, pad.js, lead.js, organ.js, horns.js, vibes.js, clav.js)
+14. Add style description, key data, flow guide, and reference tracks in `analyzeBeat()` (`analysis.js`)
 15. Add `KEY_MOODS` entries in `patterns.js` for any new key roots
-16. Update `tests.js` — add the feel to the expected count in `'STYLE_DATA has all N feels'`
+16. Update `tests.js` — add the feel to expected counts
 17. Run `node tests.js` — all assertions must pass
 
-## Adding Educational Content
+## Adding a New Melodic Instrument
 
-The `analyzeBeat()` function in `analysis.js` contains several content pools that rotate randomly on each generation:
-
-- `spotlights` — In-depth explanations of single production concepts (16 entries)
-- `didYouKnow` — Short production facts and trivia (26 entries)
-- `history` — Deeper stories about producers, gear, and techniques (15 entries)
-- `mistakes` — Common beginner pitfalls with explanations (17 entries)
-- `equipment` — Gear-specific programming guides (6 entries)
-- `keyData` — Key/chord suggestions per feel (4-5 keys each, 19 feels covered). Each key entry includes I/IV/V chords, relative companion, and chord combos used to generate the alternate progressions section
-- `exercises` — Beat-specific challenges (conditional on pattern characteristics)
-- `listenFor` — Ear training prompts (conditional on pattern characteristics)
-
-The alternate progressions section computes chord names dynamically from `chosenKey.relNote` (which encodes bIII, bVI, bVII) and `chosenKey.v` (for the major V in the Andalusian cadence). Adding a new progression requires only adding a `lines.push()` call in the appropriate style block — no new data needed.
-
-Each pool uses `pick()` to select one random entry per generation. Keep entries self-contained and aim for 2-4 sentences.
-
-## Keyboard Shortcuts
-
-- **R** — open the New Beat dialog
-- **Escape** — close the dialog without generating
-- **Enter** — confirm the dialog and generate
+1. Create a new file (e.g. `strings.js`) with `generateStringsPattern(sec, bpm)` and `buildStringsMidiBytes(sectionList, bpm, noSwing)`
+2. Add a `<script>` tag in `index.html` before `midi-export.js`
+3. Add the instrument to `buildCombinedMidiBytes()` in `midi-export.js` — assign a MIDI channel, add the event loop with `_isDrumDrop()` check
+4. Add a playback preference checkbox in the Preferences dialog (`index.html`)
+5. Add save/restore logic in `app.js` (`showPrefsDialog`, `prefsSave`)
+6. Add a WAV stem export option in the Export dialog (`index.html`) with `.stem-check` class
+7. Add the stem rendering chain in `exportMIDI()` (`midi-export.js`)
+8. Add the instrument to the combined MIDI key correctness test in `tests.js`
+9. Update `STYLE_DATA` to indicate which styles use the instrument
+10. Document in README, DOCS.md, about dialog, and role tips
 
 ## Code Style
 
@@ -118,10 +102,9 @@ Each pool uses `pick()` to select one random entry per generation. Keep entries 
 ## Areas We'd Love Help With
 
 - **Better audio** — Real drum samples via Web Audio API instead of GM SoundFont
-- **Grid editing** — Click-to-toggle cells, drag to set velocity
-- **More educational content** — Add entries to any of the content pools in `analyzeBeat()`
 - **More style feels** — Trap (requires 32-step grid), Drill, Afrobeats, Reggaeton
-- **Accessibility** — Keyboard navigation improvements, screen reader support enhancements
+- **More educational content** — Add entries to content pools in `analyzeBeat()`
+- **Accessibility** — Keyboard navigation improvements, screen reader support, ARIA labels on grid cells
 
 ## Reporting Issues
 
