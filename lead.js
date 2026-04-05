@@ -40,13 +40,11 @@ function _leadScaleNotes(chordRoot, degree, register) {
   if (register === 'high') { while (base < 72) base += 12; while (base > 84) base -= 12; }
   else { while (base < 60) base += 12; while (base > 72) base -= 12; }
 
-  // Minor pentatonic from chord root: 0, 3, 5, 7, 10
+  // Pentatonic scale based on actual chord quality from key data
+  var ci = _getChordIntervals(degree);
+  var isMajChord = (ci.third === 4);
   var pentatonic = [0, 3, 5, 7, 10];
-  // Add chord tones that aren't in pentatonic
-  var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
-  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
-  if (degree === 'i' && keyIsMajor) isMaj = true;
-  if (isMaj) pentatonic = [0, 2, 4, 7, 9]; // major pentatonic
+  if (isMajChord) pentatonic = [0, 2, 4, 7, 9]; // major pentatonic
 
   var notes = [];
   for (var oct = -1; oct <= 1; oct++) {

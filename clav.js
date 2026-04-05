@@ -14,13 +14,14 @@ var CLAV_COMP_STYLES = {
   gfunk_quik: { velBase: 65, velRange: 12, density: 0.5,  register: 'mid', program: 7 }
 };
 
-function _clavScaleNotes(chordRoot, register) {
+function _clavScaleNotes(chordRoot, register, degree) {
   var base = chordRoot;
   while (base < 48) base += 12;
   if (register === 'mid') { while (base < 60) base += 12; while (base > 72) base -= 12; }
   else { while (base < 48) base += 12; while (base > 60) base -= 12; }
-  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
-  var pentatonic = keyIsMajor ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10];
+  var ci = _getChordIntervals(degree);
+  var isMajChord = (ci.third === 4);
+  var pentatonic = isMajChord ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10];
   var notes = [];
   for (var i = 0; i < pentatonic.length; i++) {
     var n = base + pentatonic[i];
@@ -83,7 +84,7 @@ function generateClavPattern(sec, bpm) {
     if (sec === 'breakdown' && maybe(0.7)) continue;
 
     var chordRoot = degreeToNote(progDegree);
-    var scaleNotes = _clavScaleNotes(chordRoot, style.register);
+    var scaleNotes = _clavScaleNotes(chordRoot, style.register, progDegree);
     if (scaleNotes.length === 0) continue;
 
     var motif = (bar % 2 === 0) ? motifA : motifB;

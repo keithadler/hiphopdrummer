@@ -59,35 +59,15 @@ function buildEPVoicing(root, degree, voicingType, register, spread, epFeel, pre
 
   var intervals;
   var isDim = (degree === '#idim');
-  var isMajBorrowed = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
-  var isDorianIV = (degree === 'iv' && EP_DORIAN_IV[epFeel]);
-  // Check if the key is major — if so, the root chord 'i' should use major intervals
-  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
-  var isRootMajor = (degree === 'i' && keyIsMajor);
 
   if (isDim) { intervals = [0, 3, 6, 9]; }
-  else if (isMajBorrowed || isDorianIV || isRootMajor) {
-    // Check if this borrowed chord should use major 7th (11) vs dominant 7th (10)
-    // bVII from relNote might be 'Fmaj7' (major 7th) not 'F7' (dominant)
-    var useMaj7 = false;
-    if (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) {
-      var relParts = (_lastChosenKey.relNote || '').split(',');
-      var chordName = '';
-      if (degree === 'bVII' && relParts[1]) chordName = relParts[1].trim();
-      else if (degree === 'bVI' && relParts[2]) chordName = relParts[2].trim();
-      else if (degree === 'bIII' && relParts[0]) chordName = relParts[0].trim();
-      if (/maj7|maj9/.test(chordName)) useMaj7 = true;
-    }
-    var maj7th = useMaj7 ? 11 : 10;
-    if (voicingType === 'ninth') intervals = [0, 4, 7, maj7th, 14];
-    else if (voicingType === 'seventh') intervals = [0, 4, 7, maj7th];
-    else if (voicingType === 'shell') intervals = [0, 4, maj7th];
-    else intervals = [0, 4, 7];
-  } else {
-    if (voicingType === 'ninth') intervals = [0, 3, 7, 10, 14];
-    else if (voicingType === 'seventh') intervals = [0, 3, 7, 10];
-    else if (voicingType === 'shell') intervals = [0, 3, 10];
-    else intervals = [0, 3, 7];
+  else {
+    // Get the correct intervals from the key data chord name
+    var ci = _getChordIntervals(degree);
+    if (voicingType === 'ninth' && ci.seventh >= 0) intervals = [0, ci.third, ci.fifth, ci.seventh, 14];
+    else if (voicingType === 'seventh' && ci.seventh >= 0) intervals = [0, ci.third, ci.fifth, ci.seventh];
+    else if (voicingType === 'shell' && ci.seventh >= 0) intervals = [0, ci.third, ci.seventh];
+    else intervals = [0, ci.third, ci.fifth];
   }
 
   var notes = [];
