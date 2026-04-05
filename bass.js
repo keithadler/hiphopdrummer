@@ -70,22 +70,26 @@ function _getChordIntervals(degree) {
   if (degree === 'i') raw = key.i || '';
   else if (degree === 'iv') raw = key.iv || '';
   else if (degree === 'v') raw = key.v || '';
-  else if (degree === 'ii') raw = key.ii || key.i || '';
-  else if (degree === 'bII') raw = key.bII || key.i || '';
-  else if (degree === 'bIII') {
-    var relParts = (key.relNote || '').split(',');
-    raw = (relParts[0] || '').trim();
-  }
-  else if (degree === 'bVI') {
-    var relParts2 = (key.relNote || '').split(',');
-    raw = (relParts2[2] || '').trim();
-  }
-  else if (degree === 'bVII') {
-    var relParts3 = (key.relNote || '').split(',');
-    raw = (relParts3[1] || '').trim();
-  }
+  else if (degree === 'ii') raw = key.ii || '';
+  else if (degree === 'bII') raw = key.bII || '';
   else if (degree === '#idim') return { third: 3, fifth: 6, seventh: 9 };
+  else if (degree === 'bIII' || degree === 'bVI' || degree === 'bVII') {
+    // Borrowed chords — always major triads. The chord sheet computes these
+    // from relNote for minor keys, but for major keys relNote has diatonic
+    // chords of the relative minor (wrong). Use major triad as the safe default.
+    // If the key data has the chord name in relNote AND it's a minor key, use it.
+    if (key.type === 'minor' || key.type !== 'major') {
+      var relParts = (key.relNote || '').split(',');
+      if (degree === 'bIII' && relParts[0]) raw = relParts[0].trim();
+      else if (degree === 'bVII' && relParts[1]) raw = relParts[1].trim();
+      else if (degree === 'bVI' && relParts[2]) raw = relParts[2].trim();
+    }
+    // If we didn't get a chord name, default to major triad
+    if (!raw) return { third: 4, fifth: 7, seventh: -1 };
+  }
   else raw = key.i || '';
+
+  if (!raw) return { third: 3, fifth: 7, seventh: -1 };
 
   // Parse the chord quality from the name
   var quality = raw.replace(/^[A-G][#b]?/, '');

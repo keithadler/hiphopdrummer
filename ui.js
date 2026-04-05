@@ -968,6 +968,24 @@ function buildChordSheet() {
       ? _sectionProgressions[sec] : null;
 
     // Degree-to-chord mapping with voicing
+    var SEMI_TO_NOTE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    var _rootName = (key.i || 'C').replace(/m7|maj7|m9|maj9|m7b5|m|7|9|6|dim7|dim/g, '');
+    var _rootSemi = NOTE_TO_SEMI[_rootName] || 0;
+
+    function _borrowedChordName(semiAboveRoot) {
+      var noteName = SEMI_TO_NOTE[(_rootSemi + semiAboveRoot) % 12];
+      // For minor keys, try to get the chord name from relNote (has quality info like 'Bbmaj7')
+      if (key.type === 'minor' || key.type !== 'major') {
+        var relParts = (key.relNote || '').split(',');
+        for (var ri = 0; ri < relParts.length; ri++) {
+          var rp = relParts[ri].trim();
+          var rpRoot = rp.replace(/m7|maj7|m9|maj9|m7b5|m|7|9|6|dim7|dim/g, '');
+          if (NOTE_TO_SEMI[rpRoot] === (_rootSemi + semiAboveRoot) % 12) return rp;
+        }
+      }
+      return noteName; // plain major triad
+    }
+
     function degreeChord(deg) {
       var raw, fn, cls;
       if (deg === 'iv') { raw = key.iv; fn = 'IV'; cls = 'chord-four'; }
@@ -975,23 +993,16 @@ function buildChordSheet() {
       else if (deg === 'ii') { raw = key.ii || key.i; fn = 'ii'; cls = 'chord-four'; }
       else if (deg === 'bII') { raw = key.bII || key.i; fn = 'bII'; cls = 'chord-five'; }
       else if (deg === 'bIII') {
-        var r = (key.rel || '').split(' ')[0] || key.i;
-        raw = r; fn = 'bIII'; cls = 'chord-four';
+        raw = _borrowedChordName(3); fn = 'bIII'; cls = 'chord-four';
       }
       else if (deg === 'bVI') {
-        var parts = (key.relNote || '').split(',');
-        raw = (parts[2] || key.iv).trim(); fn = 'bVI'; cls = 'chord-four';
+        raw = _borrowedChordName(8); fn = 'bVI'; cls = 'chord-four';
       }
       else if (deg === 'bVII') {
-        var parts = (key.relNote || '').split(',');
-        raw = (parts[1] || key.v).trim(); fn = 'bVII'; cls = 'chord-five';
+        raw = _borrowedChordName(10); fn = 'bVII'; cls = 'chord-five';
       }
       else if (deg === '#idim') {
-        // Chromatic passing diminished: half step above the root
-        var rootNote = (key.i || 'C').replace(/m7|maj7|m9|maj9|m|7|9/g, '');
-        var SEMI_TO_NOTE = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-        var semi = NOTE_TO_SEMI[rootNote] || 0;
-        var dimRoot = SEMI_TO_NOTE[(semi + 1) % 12];
+        var dimRoot = SEMI_TO_NOTE[(_rootSemi + 1) % 12];
         raw = dimRoot + 'dim'; fn = '#idim'; cls = 'chord-five';
       }
       else { raw = key.i; fn = 'I'; cls = 'chord-root'; }
