@@ -7,6 +7,8 @@ All notable changes to Hip Hop Drummer are documented in this file.
 ### Fixed — Critical
 - Chord sheet / instrument mismatch — the chord sheet displayed correct chord names (Gmaj7, C7, Dm7) read from key data, but the instruments guessed intervals from degree symbols and often played different chords. New shared `_getChordIntervals(degree)` function reads the actual chord name from `_lastChosenKey`, parses the quality (maj7, m7, 7, dim, m, etc.), and returns exact intervals. All 7 melodic instruments (EP, pad, organ, horns, vibes, clav, lead) now use this. The chord sheet and audio are guaranteed to match.
 - Borrowed chord (bVII/bVI/bIII) computation broken for major keys — `degreeChord()` and `_getChordIntervals()` read from `relNote` which stores relative key chords (correct for minor keys, wrong for major keys). For Bb major, bVII mapped to Dm instead of Ab. Now computes from semitone offsets and only uses `relNote` for minor keys.
+- Horns, vibes, clav, and lead `degreeToNote` only handled iv and v — all other degrees (bVII, bVI, bIII, ii, bII, #idim) fell back to the root note, playing the I chord instead. New shared `_degreeToMidiNote(deg)` function handles all degrees correctly.
+- Verified: 151 style/key combos tested (every key in every style's pool), 12,905 instrument-bars checked across all 7 melodic instruments.
 
 ## [1.36] - 2026-04-04
 
