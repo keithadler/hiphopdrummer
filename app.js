@@ -41,6 +41,29 @@ function _getStyleSounds() {
 }
 
 /**
+ * Apply the theme (dark or light) to the body element.
+ * @param {string} theme - 'dark' or 'light'
+ */
+function _applyTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('theme-light');
+  } else {
+    document.body.classList.remove('theme-light');
+  }
+  // Update meta theme-color for mobile browser chrome
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = (theme === 'light') ? '#ffffff' : '#15151c';
+}
+
+// Apply saved theme on boot (before any rendering)
+(function() {
+  try {
+    var savedTheme = localStorage.getItem('hhd_theme') || 'dark';
+    _applyTheme(savedTheme);
+  } catch(e) {}
+})();
+
+/**
  * Populate and show the New Beat dialog.
  * Style dropdown is always full. Key and BPM dropdowns update
  * dynamically when style changes — only showing options valid for
@@ -59,6 +82,11 @@ function showRegenDialog() {
     + styleKeys.map(function(k) {
         return '<option value="' + k + '">' + STYLE_DATA[k].label + '</option>';
       }).join('');
+
+  // Pre-select the last used style (or Auto if none saved)
+  var lastStyle = '';
+  try { lastStyle = localStorage.getItem('hhd_last_style') || ''; } catch(e) {}
+  styleEl.value = lastStyle;
 
   function updateKeyAndBpm() {
     var style = styleEl.value;
@@ -151,6 +179,9 @@ document.getElementById('regenGo').onclick = function() {
   var key   = document.getElementById('regenKey').value || null;
   var bpm   = document.getElementById('regenBpm').value || null;
   hideRegenDialog();
+  
+  // Remember the style choice for next time
+  try { localStorage.setItem('hhd_last_style', style || ''); } catch(e) {}
   
   // Stop playback before generating
   if (window.synthBridge && window.synthBridge.isPlaying) {
@@ -417,6 +448,10 @@ function showPrefsDialog() {
   var velocityMode = 'percent';
   try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
   document.getElementById('prefsVelocity').value = velocityMode;
+  // Restore theme preference (default: dark)
+  var theme = 'dark';
+  try { theme = localStorage.getItem('hhd_theme') || 'dark'; } catch(e) {}
+  document.getElementById('prefsTheme').value = theme;
   // Restore role preference
   var savedRole = '';
   try { savedRole = localStorage.getItem('hhd_user_role') || 'producer'; } catch(e) {}
@@ -458,6 +493,9 @@ document.getElementById('prefsSave').onclick = function() {
   var oldVelocityMode = 'percent';
   try { oldVelocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
   try { localStorage.setItem('hhd_velocity_mode', velocityMode); } catch(e) {}
+  var newTheme = document.getElementById('prefsTheme').value;
+  try { localStorage.setItem('hhd_theme', newTheme); } catch(e) {}
+  _applyTheme(newTheme);
   var newRole = document.getElementById('prefsRole').value;
   var oldRole = '';
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}

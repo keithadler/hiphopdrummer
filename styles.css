@@ -1,6 +1,15 @@
 /* Hip Hop Drummer — Desktop Studio UI. Copyright (c) 2026 Keith Adler — MIT License */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 :root{--bg-deep:#0d0d12;--bg-surface:#15151c;--bg-raised:#1c1c26;--bg-input:#101018;--border:#28283a;--border-light:#363650;--text-primary:#e0e0ea;--text-secondary:#9090a8;--text-muted:#606078;--text-dim:#404058;--accent-red:#e04848;--accent-blue:#50a0ff;--accent-green:#48cc68;--radius-sm:4px;--radius-md:6px;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif}
+/* Light theme — applied via .theme-light on body */
+body.theme-light{--bg-deep:#f0f0f4;--bg-surface:#ffffff;--bg-raised:#f5f5f8;--bg-input:#eaeaef;--border:#d0d0da;--border-light:#b8b8c8;--text-primary:#1a1a2e;--text-secondary:#4a4a60;--text-muted:#7a7a90;--text-dim:#a0a0b0;--accent-red:#d03030;--accent-blue:#2070e0;--accent-green:#28a048}
+body.theme-light .cell.on{color:rgba(255,255,255,.95)}
+body.theme-light .cell{color:var(--text-dim)}
+body.theme-light .chord-piano-white{background:#e8e8e8;border-color:#bbb}
+body.theme-light .chord-piano-black{background:#444;border-color:#333}
+body.theme-light .regen-overlay{background:rgba(0,0,0,.4)}
+body.theme-light .gen-loading{background:rgba(240,240,244,.8)}
+body.theme-light .section-toast{background:rgba(255,255,255,.94);border-color:var(--border)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans);font-size:23px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #app-wrap{display:flex;flex-direction:column;height:100vh}

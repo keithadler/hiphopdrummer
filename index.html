@@ -49,7 +49,7 @@
         </div>
         <button class="btn btn-export" id="btnExport">EXPORT</button>
         <button class="btn btn-history" id="btnHistory" title="Beat History">HISTORY</button>
-        <button class="btn btn-prefs" id="btnPrefs" title="Preferences"><span class="prefs-icon">⚙</span><span class="prefs-text">PREFERENCES</span></button>
+        <button class="btn btn-prefs" id="btnPrefs" title="Preferences"><span class="prefs-icon">⚙</span><span class="prefs-text">PREFS</span></button>
       </div>
     </div>
 
@@ -294,6 +294,14 @@
             <option value="midi">0-127 (MIDI)</option>
           </select>
           <div class="prefs-hint">How velocity values are displayed in the grid cells.</div>
+        </div>
+        <div class="regen-field">
+          <label class="regen-label">Theme</label>
+          <select id="prefsTheme" class="regen-select">
+            <option value="dark">Dark (default)</option>
+            <option value="light">Light</option>
+          </select>
+          <div class="prefs-hint">Changes the app color scheme. Dark is easier on the eyes in studio environments.</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Your Role</label>
