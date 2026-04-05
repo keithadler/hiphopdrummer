@@ -5,6 +5,7 @@
 body.theme-light{--bg-deep:#f0f0f4;--bg-surface:#ffffff;--bg-raised:#f5f5f8;--bg-input:#eaeaef;--border:#d0d0da;--border-light:#b8b8c8;--text-primary:#1a1a2e;--text-secondary:#4a4a60;--text-muted:#7a7a90;--text-dim:#a0a0b0;--accent-red:#d03030;--accent-blue:#2070e0;--accent-green:#28a048}
 body.theme-light .cell.on{color:rgba(255,255,255,.95)}
 body.theme-light .cell{color:var(--text-dim)}
+body.theme-light .brand span{color:var(--accent-blue)}
 body.theme-light .chord-piano-white{background:#e8e8e8;border-color:#bbb}
 body.theme-light .chord-piano-black{background:#444;border-color:#333}
 body.theme-light .regen-overlay{background:rgba(0,0,0,.4)}
