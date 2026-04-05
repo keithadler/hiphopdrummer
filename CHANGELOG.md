@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.40] - 2026-04-04
+
+### Fixed
+- Auto BPM picked from global 68-160 pool instead of style's curated list — moved BPM selection after style/palette is chosen so it always uses the correct pool
+- Auto key for regional variants (gfunk_dre, gfunk_battlecat, etc.) picked from parent's wider key pool — now filters by STYLE_DATA[style].keys
+- Big/Anthem, Driving, and Sparse styles generated random style when selected — missing FEEL_PALETTES entries added
+- All Auto (style + key + BPM): verified 100 trials — always picks BPM and key from the randomly chosen style's valid lists
+
+### Added
+- Curated `bpms` arrays in STYLE_DATA for all 25 styles — dropdown and Auto selection use the same pool
+
 ## [1.39] - 2026-04-04
 
 ### Fixed
