@@ -333,6 +333,12 @@ var FEEL_PALETTES = [
   ['nujabes', 'jazzy', 'lofi', 'normal'],
   // Old School / Drum Machine
   ['oldschool', 'big', 'hard', 'driving'],
+  // Big / Anthem (was missing — fell back to random)
+  ['big', 'big', 'bounce', 'driving'],
+  // Driving (was missing)
+  ['driving', 'big', 'hard', 'driving'],
+  // Sparse (was missing)
+  ['sparse', 'dark', 'sparse', 'halftime'],
 ];
 
 var SWING_POOLS = {
