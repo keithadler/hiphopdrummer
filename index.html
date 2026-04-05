@@ -458,8 +458,10 @@
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
         .then(function(reg) {
+          // Force update check on every page load
+          reg.update();
           // Check for updates every time the app loads
           reg.addEventListener('updatefound', function() {
             var newWorker = reg.installing;

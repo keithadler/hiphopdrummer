@@ -463,12 +463,13 @@ function exportMIDI(opts) {
 
   // Electric Piano exports
   if (opts.instrMidi || opts.instrMpc) {
-    var epMidiFolder = (opts.instrMidi && midiFolder) ? midiFolder.folder('Electric Piano') : null;
-    var epMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Electric Piano')  : null;
+    var epMidiFolder = null;
+    var epMpcFolder = null;
     // Full song EP
-    if (epMidiFolder) {
+    if (opts.instrMidi && midiFolder) {
       var epFull = buildEPMidiBytes(arrangement, bpm, noSwing);
-      if (epFull.length > 100) { // only include if there are actual notes (not just header)
+      if (epFull.length > 100) {
+        epMidiFolder = midiFolder.folder('Electric Piano');
         epMidiFolder.file('EP_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', epFull);
       }
     }
@@ -484,6 +485,8 @@ function exportMIDI(opts) {
       var epBaseName = padIdx + '_ep_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       var epBytes = buildEPMidiBytes([sec], bpm, noSwing);
       if (epBytes.length > 100) {
+        if (!epMidiFolder && opts.instrMidi && midiFolder) epMidiFolder = midiFolder.folder('Electric Piano');
+        if (!epMpcFolder && opts.instrMpc && mpcFolder) epMpcFolder = mpcFolder.folder('Electric Piano');
         if (epMidiFolder) epMidiFolder.file('EP_MIDI_' + epBaseName + swingTag + '.mid', epBytes);
         if (epMpcFolder) {
           var epMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
@@ -496,12 +499,13 @@ function exportMIDI(opts) {
 
   // Synth Pad exports
   if (opts.instrMidi || opts.instrMpc) {
-    var padMidiFolder = (opts.instrMidi && midiFolder) ? midiFolder.folder('Synth Pad') : null;
-    var padMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Synth Pad')  : null;
-    if (padMidiFolder && typeof buildPadMidiBytes === 'function') {
+    var padMidiFolder = null;
+    var padMpcFolder = null;
+    if (typeof buildPadMidiBytes === 'function') {
       var padFull = buildPadMidiBytes(arrangement, bpm, noSwing);
       if (padFull.length > 100) {
-        padMidiFolder.file('Pad_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', padFull);
+        if (opts.instrMidi && midiFolder) padMidiFolder = midiFolder.folder('Synth Pad');
+        if (padMidiFolder) padMidiFolder.file('Pad_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', padFull);
       }
     }
     var padExported = {};
@@ -516,6 +520,8 @@ function exportMIDI(opts) {
       var padBaseName = padIdx2 + '_pad_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       var padBytes = buildPadMidiBytes([sec], bpm, noSwing);
       if (padBytes.length > 100) {
+        if (!padMidiFolder && opts.instrMidi && midiFolder) padMidiFolder = midiFolder.folder('Synth Pad');
+        if (!padMpcFolder && opts.instrMpc && mpcFolder) padMpcFolder = mpcFolder.folder('Synth Pad');
         if (padMidiFolder) padMidiFolder.file('Pad_MIDI_' + padBaseName + swingTag + '.mid', padBytes);
         if (padMpcFolder && typeof buildPadMpcPattern === 'function') {
           var padMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
