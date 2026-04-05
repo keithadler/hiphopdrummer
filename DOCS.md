@@ -272,8 +272,12 @@ Bass reacts to drum context: snare deference (drops/softens on loud backbeats), 
 
 ## Melodic Instrument Generators
 
-### Electric Piano (ep.js) — MIDI Channel 2
-30 musicality features across 3 rounds of refinement. Enabled for 12 styles: Dilla, jazzy, Nujabes, lo-fi, G-Funk (all variants), bounce, Queens, Long Island, halftime. GM program 4 (Electric Piano 1).
+### Keys / Piano (ep.js) — MIDI Channel 2
+30 musicality features across 3 rounds of refinement. Enabled for 12 styles: Dilla, jazzy, Nujabes, lo-fi, G-Funk (all variants), bounce, Queens, Long Island, halftime. The GM program is style-dependent via `STYLE_DATA.epProgram`:
+- **Acoustic Grand Piano (program 0)**: jazzy, nujabes, normal_queens — sampled piano from jazz records
+- **Electric Piano 1 (program 4)**: Dilla, lo-fi, G-Funk, bounce, halftime, Long Island — Rhodes/Wurlitzer sound
+
+In your DAW, swap the MIDI for any keyboard sound — the voicings work with piano, Rhodes, Wurlitzer, Clavinet, or synth pads.
 
 Voice leading and chord technique:
 - **Voice-led inversions**: common tones held between chords — moving Cm7→Fm7 keeps C and Eb stationary while root and 5th move. Minimizes hand movement the way a real keyboardist plays.

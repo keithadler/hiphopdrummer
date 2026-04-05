@@ -286,6 +286,8 @@
           <div class="prefs-hint">Displays the current section name and chord progression as an overlay while playing.</div>
           <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsCountdown" checked> Count in before playback (3-2-1)</label>
           <div class="prefs-hint">Plays a 3-2-1 countdown at the song's BPM before starting playback.</div>
+          <label class="export-check" style="margin-top:6px"><input type="checkbox" id="prefsWhatNext" checked> Show "What's Next" after generating a beat</label>
+          <div class="prefs-hint">Role-specific tips on what to do with your beat — export, write lyrics, dig for samples, etc.</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Velocity Indicator</label>
@@ -367,8 +369,8 @@
         • <em>Bass MIDI</em> — separate bass .mid files (channel 1) so you can load them into a synth, 808, or Keygroup track.<br>
         • <em>MPC .mpcpattern files</em> — ready for Akai MPC Live, MPC One, MPC X, Force. Chromatic C1 pad layout. Straight grid — set swing on the device.<br>
         • <em>Bass MPC patterns</em> — load into a Keygroup or plugin track alongside the drum patterns.<br>
-        • <em>Electric Piano MIDI</em> — EP .mid files (channel 2) for styles that use it: Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce. Voice-led chord voicings with style-aware comping rhythms.<br>
-        • <em>Electric Piano MPC patterns</em> — load into a Keygroup or plugin track for EP chords on your MPC.<br>
+        • <em>Piano / EP MIDI</em> — keys .mid files (channel 2) with the right sound per style: acoustic grand piano for jazz/Nujabes/Queens, electric piano for Dilla/G-Funk/lo-fi/bounce. Voice-led chord voicings with style-aware comping. Swap for any Rhodes, Wurlitzer, or synth in your DAW.<br>
+        • <em>Piano / EP MPC patterns</em> — load into a Keygroup or plugin track for keyboard chords on your MPC.<br>
         • <em>Synth Pad MIDI</em> — pad .mid files (channel 3) for dark styles: Memphis choir, phonk detuned pads, Griselda strings, crunk synth stabs.<br>
         • <em>Synth Lead MIDI</em> — lead .mid files (channel 4) for G-Funk: pentatonic melody with slides.<br>
         • <em>Organ MIDI</em> — organ .mid files (channel 5) for jazz/Nujabes: sustained harmonic layer.<br>
@@ -396,7 +398,7 @@
 
         <h3>🎸 For Musicians</h3>
         <p>The chord sheet gives you everything you need to play along. Piano keyboard diagrams show the exact voicings for each section — triads for boom bap, 7th chords for jazz, 9ths for Dilla, min7 for G-Funk. The voicings change with the style because the harmony is modal, not just "minor key." G-Funk uses Dorian mode — the IV chord is C7 (major), not Cm7, and that raised 6th is what makes it sound warm and funky instead of dark. Memphis and Griselda use Phrygian — the bII chord (Db in the key of Cm) creates that sinister half-step tension.</p>
-        <p><b>Electric Piano:</b> For styles that use it (Dilla, jazz, G-Funk, lo-fi, Nujabes, bounce, halftime), the app generates a complete electric piano part automatically. It comps in style-appropriate rhythms — sustained chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated tones for Nujabes, pad-style for G-Funk, stabs for bounce. The voicings use voice leading (common tones held between chords), per-note velocity humanization, and react to the drums. G-Funk and Dilla use Dorian IV (dominant 7th). Disable it in Preferences to play your own part instead, or export the EP MIDI to study the voicings.</p>
+        <p><b>Keys (Piano / EP):</b> The app generates a complete keyboard part automatically — acoustic grand piano for jazz, Nujabes, and Queens (the sampled piano sound from jazz records), electric piano (Rhodes/Wurlitzer) for Dilla, G-Funk, lo-fi, bounce, and halftime. It comps in style-appropriate rhythms — sustained chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated tones for Nujabes, pad-style for G-Funk, stabs for bounce. The voicings use voice leading (common tones held between chords), per-note velocity humanization, and react to the drums. In your DAW, swap the MIDI for any keyboard sound you want — the voicings work with any piano, Rhodes, Wurlitzer, or synth.</p>
         <p><b>Synth Pad:</b> For darker styles (Memphis, phonk, dark, Griselda, crunk, hard), the app generates atmospheric synth pads — choir sounds for Memphis/phonk (with a detuned chorus effect), string ensembles for dark/Griselda, and aggressive sawtooth stabs for crunk.</p>
         <p><b>More instruments:</b> G-Funk gets a mono synth lead (the signature whistle melody with slides). Jazz and Nujabes get organ (sustained drawbar underneath the EP) and vibraphone (bell-like arpeggiated tones). Bounce and G-Funk DJ Quik get clavinet (funky percussive 16th-note comping). Boom bap, big, driving, chopbreak, and old school get horn stabs (short brass chord hits locked to the kick). Every style has at least one harmonic instrument beyond drums and bass.</p>
         <p>The bass MIDI is a masterclass in hip hop bass playing. It's not just root notes on the kick — it uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches for G-Funk, drops to sub octaves on beat 1 for weight, and breathes with intentional rests on weak beats. Load the bass MIDI into your DAW and study the note choices — then play your own version on top.</p>
@@ -429,7 +431,7 @@
       <div class="regen-title" id="whatNextTitle">🎵 Your Beat Is Ready</div>
       <div class="about-scroll" id="whatNextContent"></div>
       <div class="regen-actions">
-        <label class="export-check" style="margin-right:auto;font-size:11px"><input type="checkbox" id="whatNextDontShow"> Don't show this again</label>
+        <label class="export-check" style="margin-right:auto;font-size:11px;align-items:center"><input type="checkbox" id="whatNextDontShow"> Don't show this again</label>
         <button class="btn regen-go" id="whatNextClose">Let's Go</button>
       </div>
     </div>

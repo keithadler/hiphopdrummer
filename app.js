@@ -446,6 +446,10 @@ function showPrefsDialog() {
   var countdownOn = true;
   try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd !== 'false'); } catch(e) {}
   document.getElementById('prefsCountdown').checked = countdownOn;
+  // Restore What's Next preference (default: on)
+  var whatNextOn = true;
+  try { var wn = localStorage.getItem('hhd_skip_whatnext'); if (wn !== null) whatNextOn = (wn !== 'true'); } catch(e) {}
+  document.getElementById('prefsWhatNext').checked = whatNextOn;
   // Restore velocity indicator preference (default: percent)
   var velocityMode = 'percent';
   try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
@@ -491,6 +495,8 @@ document.getElementById('prefsSave').onclick = function() {
   try { localStorage.setItem('hhd_show_chords', showChords ? 'true' : 'false'); } catch(e) {}
   var countdown = document.getElementById('prefsCountdown').checked;
   try { localStorage.setItem('hhd_countdown', countdown ? 'true' : 'false'); } catch(e) {}
+  var whatNextOn = document.getElementById('prefsWhatNext').checked;
+  try { localStorage.setItem('hhd_skip_whatnext', whatNextOn ? 'false' : 'true'); } catch(e) {}
   var velocityMode = document.getElementById('prefsVelocity').value;
   var oldVelocityMode = 'percent';
   try { oldVelocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
