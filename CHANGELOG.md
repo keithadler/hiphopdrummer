@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.39] - 2026-04-04
+
+### Fixed
+- Auto BPM now picks from the style's curated BPM pool — was picking from a global 68-160 range, producing out-of-range tempos (e.g. 135 BPM on G-Funk which caps at 100)
+- BPM dropdown and Auto selection use the exact same `bpms` array from STYLE_DATA — guaranteed to match
+- Added curated `bpms` arrays to all 25 styles with style-appropriate tempos
+
+### Fixed (from 1.38)
+- Chord sheet piano diagram no longer applies voice leading — showed inverted note order (D-Eb-G-Bb instead of Eb-G-Bb-D for Ebmaj7)
+- Note names below piano always display root-first
+
 ## [1.38] - 2026-04-04
 
 ### Fixed
