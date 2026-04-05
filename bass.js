@@ -114,6 +114,27 @@ function _getChordIntervals(degree) {
 }
 
 /**
+ * Convert a chord degree to a MIDI root note using _lastChosenKey.
+ * Shared by all melodic instruments to ensure consistent root note computation.
+ * @param {string} deg - Chord degree ('i', 'iv', 'v', 'bVII', etc.)
+ * @returns {number} MIDI note number
+ */
+function _degreeToMidiNote(deg) {
+  var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
+  if (!key) return 36; // C1 fallback
+  var root = noteToMidi(bassChordRoot(key.i));
+  if (deg === 'iv') return noteToMidi(bassChordRoot(key.iv));
+  if (deg === 'v') return noteToMidi(bassChordRoot(key.v));
+  if (deg === 'ii') { var n = root + 2; return n > 48 ? n - 12 : n; }
+  if (deg === 'bII') return key.bII ? noteToMidi(bassChordRoot(key.bII)) : ((root + 1 > 48) ? root + 1 - 12 : root + 1);
+  if (deg === 'bIII') { var n2 = root + 3; return n2 > 48 ? n2 - 12 : n2; }
+  if (deg === 'bVI') { var n3 = root + 8; return n3 > 48 ? n3 - 12 : n3; }
+  if (deg === 'bVII') { var n4 = root + 10; return n4 > 48 ? n4 - 12 : n4; }
+  if (deg === '#idim') { var n5 = root + 1; return n5 > 48 ? n5 - 12 : n5; }
+  return root;
+}
+
+/**
  * Stores the chord progression chosen for each section during bass generation.
  * Keys are section ids, values are arrays of degree strings (e.g. ['i','iv','i','v']).
  * Read by the playback chord overlay to show the correct chords.

@@ -52,7 +52,7 @@ function generateClavPattern(sec, bpm) {
   var rootNote = noteToMidi(bassChordRoot(keyData.i));
   var fourthNote = noteToMidi(bassChordRoot(keyData.iv));
   var vChordRoot = noteToMidi(bassChordRoot(keyData.v));
-  function degreeToNote(deg) { if (deg === 'iv') return fourthNote; if (deg === 'v') return vChordRoot; return rootNote; }
+  function degreeToNote(deg) { if (deg === 'iv') return fourthNote; if (deg === 'v') return vChordRoot; return _degreeToMidiNote(deg); }
 
   var progPool = (typeof CHORD_PROGRESSIONS !== 'undefined') ? (CHORD_PROGRESSIONS[styleLookup] || CHORD_PROGRESSIONS[clavFeelBase] || CHORD_PROGRESSIONS.normal) : [['i','i','iv','i']];
   var progression;
