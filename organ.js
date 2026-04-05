@@ -278,5 +278,5 @@ function buildOrganMidiBytes(sectionList, bpm, noSwing) {
 }
 
 function buildOrganMpcPattern(sectionList, bpm) {
-  return buildOrganMidiBytes(sectionList, bpm, true);
+  return _buildInstrumentMpcPattern(generateOrganPattern, sectionList, bpm);
 }

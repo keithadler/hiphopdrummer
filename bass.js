@@ -1555,6 +1555,133 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
  * @param {number} bpm
  * @returns {string}
  */
+/**
+ * Shared MPC pattern builder for melodic instruments.
+ * Takes an array of {step, note, vel, dur, timingOffset} events and returns MPC JSON.
+ */
+function _buildMelodicMpcPattern(events, sectionList, bpm) {
+  var mpcPPQ = 960;
+  var srcPPQ = 96;
+  var ticksPerStep = srcPPQ / 4;
+  var noteEvents = [];
+  var tickPos = 0;
+  var evtIdx = 0;
+
+  sectionList.forEach(function(sec) {
+    var len = secSteps[sec] || 32;
+    while (evtIdx < events.length && events[evtIdx]._sec === sec) {
+      var e = events[evtIdx];
+      var stepTick = tickPos + (e.step * ticksPerStep) + (e.timingOffset || 0);
+      if (stepTick < 0) stepTick = 0;
+      var mpcStart = Math.round(mpcPPQ * stepTick / srcPPQ);
+      var durTicks = Math.max(1, Math.floor(ticksPerStep * (e.dur || 0.5)));
+      var mpcLen = Math.round(mpcPPQ * durTicks / srcPPQ);
+      var velFloat = (Math.min(127, Math.max(1, e.vel)) / 127).toString(10);
+      if (velFloat.length > 17) velFloat = velFloat.substring(0, 17);
+      if (e.notes) {
+        for (var ni = 0; ni < e.notes.length; ni++) {
+          var nVel = e.vels ? (Math.min(127, Math.max(1, e.vels[ni])) / 127).toString(10) : velFloat;
+          if (nVel.length > 17) nVel = nVel.substring(0, 17);
+          noteEvents.push({ time: mpcStart, len: mpcLen, note: e.notes[ni], vel: nVel });
+        }
+      } else if (e.note !== undefined) {
+        noteEvents.push({ time: mpcStart, len: mpcLen, note: e.note, vel: velFloat });
+      }
+      evtIdx++;
+    }
+    tickPos += len * ticksPerStep;
+  });
+
+  noteEvents.sort(function(a, b) { return a.time - b.time; });
+
+  var eol = '\r\n';
+  var lines = ['{', '    "pattern": {', '        "length": 9223372036854775807,', '        "events": ['];
+  var staticEvents = [
+    { type: 1, time: 0, len: 0, one: 0, two: '0.0', modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 32, two: '0.0', modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 130, two: '0.787401556968689', modVal: '0.0' }
+  ];
+  var totalEvents = staticEvents.length + noteEvents.length;
+  var idx = 0;
+  staticEvents.forEach(function(e) {
+    var comma = (idx < totalEvents - 1) ? ',' : '';
+    idx++;
+    lines.push('            { "type": ' + e.type + ', "time": ' + e.time + ', "len": ' + e.len + ', "1": ' + e.one + ', "2": ' + e.two + ', "3": 0, "mod": 0, "modVal": ' + e.modVal + ' }' + comma);
+  });
+  noteEvents.forEach(function(e) {
+    var comma = (idx < totalEvents - 1) ? ',' : '';
+    idx++;
+    lines.push('            { "type": 2, "time": ' + e.time + ', "len": ' + e.len + ', "1": ' + e.note + ', "2": ' + e.vel + ', "3": 0, "mod": 0, "modVal": 0 }' + comma);
+  });
+  lines.push('        ]', '    }', '}');
+  return lines.join(eol) + eol;
+}
+
+/**
+ * Generic MPC pattern builder for any instrument that has a generateXPattern function.
+ * @param {Function} generateFn - The pattern generator (e.g. generateEPPattern)
+ * @param {string[]} sectionList - Sections to include
+ * @param {number} bpm
+ * @returns {string} MPC JSON
+ */
+function _buildInstrumentMpcPattern(generateFn, sectionList, bpm) {
+  var mpcPPQ = 960;
+  var srcPPQ = 96;
+  var ticksPerStep = srcPPQ / 4;
+  var noteEvents = [];
+  var tickPos = 0;
+
+  sectionList.forEach(function(sec) {
+    var events = generateFn(sec, bpm);
+    var len = secSteps[sec] || 32;
+    for (var i = 0; i < events.length; i++) {
+      var e = events[i];
+      var stepTick = tickPos + (e.step * ticksPerStep) + (e.timingOffset || 0);
+      if (stepTick < 0) stepTick = 0;
+      var mpcStart = Math.round(mpcPPQ * stepTick / srcPPQ);
+      var durTicks = Math.max(1, Math.floor(ticksPerStep * (e.dur || 0.5)));
+      var mpcLen = Math.round(mpcPPQ * durTicks / srcPPQ);
+      if (e.notes) {
+        for (var ni = 0; ni < e.notes.length; ni++) {
+          var vel = e.vels ? e.vels[ni] : (e.vel || 80);
+          var velFloat = (Math.min(127, Math.max(1, vel)) / 127).toString(10);
+          if (velFloat.length > 17) velFloat = velFloat.substring(0, 17);
+          noteEvents.push({ time: mpcStart, len: mpcLen, note: e.notes[ni], vel: velFloat });
+        }
+      } else if (e.note !== undefined && !e.dead) {
+        var velFloat2 = (Math.min(127, Math.max(1, e.vel || 80)) / 127).toString(10);
+        if (velFloat2.length > 17) velFloat2 = velFloat2.substring(0, 17);
+        noteEvents.push({ time: mpcStart, len: mpcLen, note: e.note, vel: velFloat2 });
+      }
+    }
+    tickPos += len * ticksPerStep;
+  });
+
+  noteEvents.sort(function(a, b) { return a.time - b.time; });
+
+  var eol = '\r\n';
+  var lines = ['{', '    "pattern": {', '        "length": 9223372036854775807,', '        "events": ['];
+  var staticEvents = [
+    { type: 1, time: 0, len: 0, one: 0, two: '0.0', modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 32, two: '0.0', modVal: '0.0' },
+    { type: 1, time: 0, len: 0, one: 130, two: '0.787401556968689', modVal: '0.0' }
+  ];
+  var totalEvents = staticEvents.length + noteEvents.length;
+  var idx = 0;
+  staticEvents.forEach(function(e) {
+    var comma = (idx < totalEvents - 1) ? ',' : '';
+    idx++;
+    lines.push('            { "type": ' + e.type + ', "time": ' + e.time + ', "len": ' + e.len + ', "1": ' + e.one + ', "2": ' + e.two + ', "3": 0, "mod": 0, "modVal": ' + e.modVal + ' }' + comma);
+  });
+  noteEvents.forEach(function(e) {
+    var comma = (idx < totalEvents - 1) ? ',' : '';
+    idx++;
+    lines.push('            { "type": 2, "time": ' + e.time + ', "len": ' + e.len + ', "1": ' + e.note + ', "2": ' + e.vel + ', "3": 0, "mod": 0, "modVal": 0 }' + comma);
+  });
+  lines.push('        ]', '    }', '}');
+  return lines.join(eol) + eol;
+}
+
 function buildBassMpcPattern(sectionList, bpm) {
   var mpcPPQ = 960;
   var srcPPQ = 96;

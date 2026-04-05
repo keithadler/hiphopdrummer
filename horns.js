@@ -218,4 +218,4 @@ function buildHornMidiBytes(sectionList, bpm, noSwing) {
   fileData.set(td, hdrLen + trkHdrLen);
   return fileData;
 }
-function buildHornMpcPattern(sl, bpm) { return buildHornMidiBytes(sl, bpm, true); }
+function buildHornMpcPattern(sl, bpm) { return _buildInstrumentMpcPattern(generateHornPattern, sl, bpm); }

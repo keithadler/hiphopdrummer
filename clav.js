@@ -152,4 +152,4 @@ function buildClavMidiBytes(sectionList, bpm, noSwing) {
   fileData.set([0x4D,0x54,0x72,0x6B, (trkLen>>24)&0xFF,(trkLen>>16)&0xFF,(trkLen>>8)&0xFF,trkLen&0xFF], hdrLen);
   fileData.set(td, hdrLen + trkHdrLen); return fileData;
 }
-function buildClavMpcPattern(sl, bpm) { return buildClavMidiBytes(sl, bpm, true); }
+function buildClavMpcPattern(sl, bpm) { return _buildInstrumentMpcPattern(generateClavPattern, sl, bpm); }
