@@ -156,6 +156,9 @@ function generateLeadPattern(sec, bpm) {
     var barInPhrase = bar % progression.length;
     var progDegree = progression[barInPhrase];
 
+    // Turnaround on last bar — match bass and chord sheet
+    if (bar === totalBars - 1 && totalBars > 4) progDegree = 'v';
+
     // Rest bars — bar 4 and bar 8 of phrases
     if (totalBars >= 8 && (bar % 4 === 3) && maybe(0.4)) continue;
     // Intro/outro: very sparse

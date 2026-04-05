@@ -53,7 +53,17 @@ function buildPadVoicing(root, degree, voicingType, register, prevNotes) {
 
   if (isDim) { intervals = [0, 3, 6, 9]; }
   else if (isMaj) {
-    if (voicingType === 'seventh') intervals = [0, 4, 7, 10];
+    var useMaj7 = false;
+    if (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) {
+      var relParts = (_lastChosenKey.relNote || '').split(',');
+      var cn = '';
+      if (degree === 'bVII' && relParts[1]) cn = relParts[1].trim();
+      else if (degree === 'bVI' && relParts[2]) cn = relParts[2].trim();
+      else if (degree === 'bIII' && relParts[0]) cn = relParts[0].trim();
+      if (/maj7|maj9/.test(cn)) useMaj7 = true;
+    }
+    var m7 = useMaj7 ? 11 : 10;
+    if (voicingType === 'seventh') intervals = [0, 4, 7, m7];
     else intervals = [0, 4, 7];
   } else {
     if (voicingType === 'seventh') intervals = [0, 3, 7, 10];
@@ -226,8 +236,8 @@ function generatePadPattern(sec, bpm) {
     var progDegree = progression[barInPhrase];
     var barSeed = barSeeds[bar];
 
-    // Turnaround on last bar
-    if (bar === totalBars - 1 && totalBars > 4 && styleLookup !== 'crunk') {
+    // Turnaround on last bar — match bass and chord sheet
+    if (bar === totalBars - 1 && totalBars > 4 && styleLookup !== 'crunk' && styleLookup !== 'memphis' && styleLookup !== 'oldschool') {
       progDegree = 'v';
     }
 

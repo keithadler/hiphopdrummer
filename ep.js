@@ -67,9 +67,21 @@ function buildEPVoicing(root, degree, voicingType, register, spread, epFeel, pre
 
   if (isDim) { intervals = [0, 3, 6, 9]; }
   else if (isMajBorrowed || isDorianIV || isRootMajor) {
-    if (voicingType === 'ninth') intervals = [0, 4, 7, 10, 14];
-    else if (voicingType === 'seventh') intervals = [0, 4, 7, 10];
-    else if (voicingType === 'shell') intervals = [0, 4, 10];
+    // Check if this borrowed chord should use major 7th (11) vs dominant 7th (10)
+    // bVII from relNote might be 'Fmaj7' (major 7th) not 'F7' (dominant)
+    var useMaj7 = false;
+    if (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) {
+      var relParts = (_lastChosenKey.relNote || '').split(',');
+      var chordName = '';
+      if (degree === 'bVII' && relParts[1]) chordName = relParts[1].trim();
+      else if (degree === 'bVI' && relParts[2]) chordName = relParts[2].trim();
+      else if (degree === 'bIII' && relParts[0]) chordName = relParts[0].trim();
+      if (/maj7|maj9/.test(chordName)) useMaj7 = true;
+    }
+    var maj7th = useMaj7 ? 11 : 10;
+    if (voicingType === 'ninth') intervals = [0, 4, 7, maj7th, 14];
+    else if (voicingType === 'seventh') intervals = [0, 4, 7, maj7th];
+    else if (voicingType === 'shell') intervals = [0, 4, maj7th];
     else intervals = [0, 4, 7];
   } else {
     if (voicingType === 'ninth') intervals = [0, 3, 7, 10, 14];
@@ -416,9 +428,9 @@ function generateEPPattern(sec, bpm) {
     var nextDegree = progression[(barInPhrase + 1) % progression.length];
     var doAnticipation = (bar < totalBars - 1) && maybe(0.2) && (style.rhythm === 'comp' || style.rhythm === 'whole' || style.rhythm === 'pad');
 
-    // Turnaround on last bar
-    if (bar === totalBars - 1 && totalBars > 4) {
-      if (bassFeel === 'jazzy' || bassFeel === 'nujabes' || bassFeel === 'dilla') progDegree = 'v';
+    // Turnaround on last bar — match bass and chord sheet
+    if (bar === totalBars - 1 && totalBars > 4 && bassFeel !== 'crunk' && bassFeel !== 'oldschool' && bassFeel !== 'memphis') {
+      progDegree = 'v';
     }
 
     var chordRoot = degreeToNote(progDegree);
