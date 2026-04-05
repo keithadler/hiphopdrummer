@@ -346,10 +346,23 @@ function renderArr(skipMidiUpdate) {
     var secMin = Math.floor(secTime / 60);
     var timeStr = secMin > 0 ? secMin + ':' + (secSec < 10 ? '0' : '') + secSec : secSec + 's';
     var feelTag = secFeels[s] ? '<span class="feel-tag">' + (STYLE_DATA[secFeels[s]] ? STYLE_DATA[secFeels[s]].label : secFeels[s]) + '</span>' : '';
+    // Instrument icons — show which melodic instruments play in this section
+    var instrIcons = '';
+    var secFeel = secFeels[s] || songFeel || 'normal';
+    var secFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
+    var songFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel || 'normal') : (songFeel || 'normal');
+    if (typeof EP_STYLES !== 'undefined' && (EP_STYLES[secFeel] || EP_STYLES[secFeelBase] || EP_STYLES[songFeel] || EP_STYLES[songFeelBase])) instrIcons += '🎹';
+    if (typeof PAD_STYLES !== 'undefined' && (PAD_STYLES[secFeel] || PAD_STYLES[secFeelBase] || PAD_STYLES[songFeel] || PAD_STYLES[songFeelBase])) instrIcons += '🎛';
+    if (typeof LEAD_STYLES !== 'undefined' && (LEAD_STYLES[secFeel] || LEAD_STYLES[secFeelBase] || LEAD_STYLES[songFeel] || LEAD_STYLES[songFeelBase])) instrIcons += '🎵';
+    if (typeof ORGAN_STYLES !== 'undefined' && (ORGAN_STYLES[secFeel] || ORGAN_STYLES[secFeelBase] || ORGAN_STYLES[songFeel] || ORGAN_STYLES[songFeelBase])) instrIcons += '🔘';
+    if (typeof HORN_STYLES !== 'undefined' && (HORN_STYLES[secFeel] || HORN_STYLES[secFeelBase] || HORN_STYLES[songFeel] || HORN_STYLES[songFeelBase])) instrIcons += '🎺';
+    if (typeof VIBES_STYLES !== 'undefined' && (VIBES_STYLES[secFeel] || VIBES_STYLES[secFeelBase] || VIBES_STYLES[songFeel] || VIBES_STYLES[songFeelBase])) instrIcons += '🔔';
+    if (typeof CLAV_STYLES !== 'undefined' && (CLAV_STYLES[secFeel] || CLAV_STYLES[secFeelBase] || CLAV_STYLES[songFeel] || CLAV_STYLES[songFeelBase])) instrIcons += '🪕';
+    var instrSpan = instrIcons ? '<span class="arr-instruments">' + instrIcons + '</span>' : '';
     var secClass = typeof vfxSectionClass === 'function' ? vfxSectionClass(s) : '';
     return '<div class="arr-item' + (i === arrIdx ? ' playing' : '') + (secClass ? ' ' + secClass : '') + '" draggable="true" data-i="' + i + '" tabindex="0" role="button" aria-label="' + SL[s] + ', ' + bars + ' bars. Arrow keys to reorder, Enter to select, Delete to remove.">'
       + '<span class="arr-move" data-dir="left" data-i="' + i + '"' + (i === 0 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move left">◀</span>'
-      + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>'
+      + '<span class="arr-name">' + SL[s] + '</span>' + feelTag + '<span class="bar-count">' + bars + 'bar ' + timeStr + '</span>' + instrSpan
       + '<span class="arr-move" data-dir="right" data-i="' + i + '"' + (i === arrangement.length - 1 ? ' style="visibility:hidden"' : '') + ' role="button" aria-label="Move right">▶</span>'
       + '<span class="rm" data-i="' + i + '" title="Remove" role="button" tabindex="0" aria-label="Remove ' + SL[s] + '">&times;</span></div>';
   }).join('');
