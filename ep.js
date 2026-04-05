@@ -687,5 +687,5 @@ function buildEPMidiBytes(sectionList, bpm, noSwing) {
 }
 
 function buildEPMpcPattern(sectionList, bpm) {
-  return buildEPMidiBytes(sectionList, bpm, true);
+  return _buildInstrumentMpcPattern(generateEPPattern, sectionList, bpm);
 }

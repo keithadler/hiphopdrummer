@@ -315,5 +315,5 @@ function buildLeadMidiBytes(sectionList, bpm, noSwing) {
 }
 
 function buildLeadMpcPattern(sectionList, bpm) {
-  return buildLeadMidiBytes(sectionList, bpm, true);
+  return _buildInstrumentMpcPattern(generateLeadPattern, sectionList, bpm);
 }

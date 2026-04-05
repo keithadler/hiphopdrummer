@@ -418,5 +418,5 @@ function buildPadMidiBytes(sectionList, bpm, noSwing) {
 }
 
 function buildPadMpcPattern(sectionList, bpm) {
-  return buildPadMidiBytes(sectionList, bpm, true);
+  return _buildInstrumentMpcPattern(generatePadPattern, sectionList, bpm);
 }
