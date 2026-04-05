@@ -127,12 +127,10 @@ function showRegenDialog() {
     // Update key mood for the current selection
     updateKeyMood();
 
-    // BPM — only show BPMs in the style's range
+    // BPM — use the style's curated BPM pool if available, otherwise filter by range
     bpmEl.innerHTML = '<option value="">Auto</option>';
-    var allBpms = [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110,120,125,130,135,140,145,150,155,160];
-    var bpms = data
-      ? allBpms.filter(function(b) { return b >= data.bpmRange[0] && b <= data.bpmRange[1]; })
-      : allBpms;
+    var bpms = (data && data.bpms) ? data.bpms
+      : [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110,120,125,130,135,140,145,150,155,160];
     bpms.forEach(function(b) {
       var zone = '';
       if (b <= 74) zone = ' — slow & heavy';
