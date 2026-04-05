@@ -2,6 +2,24 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.36] - 2026-04-04
+
+### Added
+- Acoustic piano for jazz/Nujabes/Queens — `STYLE_DATA.epProgram` selects GM Acoustic Grand Piano (program 0) for jazz-influenced, Nujabes, and Queens boom bap styles. All other EP styles keep Electric Piano 1 (program 4). Style marquee shows "Acoustic Piano" or "Electric Piano" accordingly
+- "Show What's Next" preference toggle in Playback section — syncs with the dialog's "Don't show again" checkbox
+
+### Fixed — Critical
+- Borrowed chord voicing mismatch — chord sheet displayed Fmaj7 (F-A-C-E) for bVII but instruments played F7 (F-A-C-Eb). EP, pad, and organ voicing builders now check `_lastChosenKey.relNote` for maj7 quality and use major 7th interval (11) instead of dominant 7th (10) when appropriate
+- EP turnaround — now applies to all styles (matching bass and chord sheet), not just jazzy/nujabes/dilla. Was causing chord sheet to show V chord on last bar while EP played the original progression degree
+- Pad turnaround — now excludes memphis/oldschool to match bass and chord sheet
+- Lead turnaround — was completely missing, now matches all other instruments
+- What's Next checkbox alignment — fixed misaligned checkbox/text with align-items:center
+
+### Changed
+- PREFS button text (was PREFERENCES)
+- README/DOCS: EP section renamed to "Keys (Piano / Electric Piano)", explains acoustic vs electric piano per style, mentions swapping for Rhodes/Wurlitzer in DAW
+- About dialog: "Piano / EP" in What You Get and For Musicians sections
+
 ## [1.35] - 2026-04-04
 
 ### Added
