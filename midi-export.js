@@ -1225,9 +1225,9 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   if (typeof _cSd.drumKit === 'number') drumKitProgram = _cSd.drumKit;
   td.push(0, 0xC0 | drumCh, drumKitProgram);
 
-  // Program change on channel 2: Electric Piano (GM 4 = Electric Piano 1)
+  // Program change on channel 2: Piano/EP (style-dependent: 0=Acoustic Grand, 4=Electric Piano 1)
   var epProgram = 4;
-  try { var epPref = localStorage.getItem('hhd_ep_sound'); if (epPref) epProgram = parseInt(epPref) || 4; } catch(e) {}
+  if (typeof _cSd.epProgram === 'number') epProgram = _cSd.epProgram;
   td.push(0, 0xC0 | epCh, epProgram);
 
   // Program change on channel 3: Synth Pad (determined by style)

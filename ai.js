@@ -2022,11 +2022,14 @@ function generateAll(opts) {
     // Append drum kit and bass sound names to the style label
     var _kitNames = { 0: 'Standard Kit', 8: 'Room Kit', 16: 'Power Kit', 24: 'Electronic Kit', 25: 'TR-808 Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
     var _bassNames = { 33: 'Finger Bass', 34: 'Pick Bass', 35: 'Fretless Bass', 36: 'Slap Bass', 38: 'Synth Bass 1', 39: 'Synth Bass 2' };
+    var _epNames = { 0: 'Acoustic Piano', 4: 'Electric Piano' };
     var _sd = STYLE_DATA[songFeel];
     if (_sd) {
       var kitName = _kitNames[_sd.drumKit] || '';
       var bassName = _bassNames[_sd.bassSound] || '';
-      if (kitName || bassName) label += ' — ' + kitName + (kitName && bassName ? ' + ' : '') + bassName;
+      var epName = (typeof _sd.epProgram === 'number') ? (_epNames[_sd.epProgram] || '') : '';
+      var parts = [kitName, bassName, epName].filter(function(s) { return s; });
+      if (parts.length) label += ' — ' + parts.join(' + ');
     }
     styleEl.textContent = label;
     if (typeof _applyMarquee === 'function') _applyMarquee(styleEl, label);

@@ -156,11 +156,11 @@ function emptyPat() {
 var STYLE_DATA = {
   normal:    { label: 'Classic Boom Bap',  bpmRange: [85, 98], keys: ['Cm','Dm','Am','Gm','Em','Fm','Bbm'],          artists: 'DJ Premier, Pete Rock, Buckwild, Large Professor, Eric B. & Rakim', drumKit: 0, bassSound: 33 },
   normal_bronx: { label: 'Boom Bap — Bronx', bpmRange: [88, 98], keys: ['Cm','Dm','Am','Gm','Fm'],            artists: 'DJ Premier, Gangstarr, KRS-One, Buckwild — tight, minimal, punchy', drumKit: 0, bassSound: 33 },
-  normal_queens: { label: 'Boom Bap — Queens', bpmRange: [85, 98], keys: ['Am','Dm','Em','Cm','Gm'],           artists: 'Large Professor, Nas, Marley Marl, MC Shan — jazzy, sample-heavy', drumKit: 0, bassSound: 33 },
+  normal_queens: { label: 'Boom Bap — Queens', bpmRange: [85, 98], keys: ['Am','Dm','Em','Cm','Gm'],           artists: 'Large Professor, Nas, Marley Marl, MC Shan — jazzy, sample-heavy', drumKit: 0, bassSound: 33, epProgram: 0 },
   normal_li: { label: 'Boom Bap — Long Island', bpmRange: [85, 100], keys: ['Fmaj7','Dm','Am','Gm','Dm7'],      artists: 'De La Soul, A Tribe Called Quest, Leaders of the New School — playful, loose', drumKit: 8, bassSound: 33 },
   halftime:  { label: 'Halftime',          bpmRange: [70, 90],  keys: ['Cm','Fm','Bbm','Gm','Am','Dm'],              artists: 'Havoc (Mobb Deep), RZA (Wu-Tang), Alchemist', drumKit: 0, bassSound: 39 },
   hard:      { label: 'Hard / Aggressive', bpmRange: [88, 100], keys: ['Cm','Bbm','Dm','Am','Fm','Gm','Em'],         artists: 'Havoc, DJ Premier, Onyx, M.O.P., early Mobb Deep', drumKit: 16, bassSound: 34 },
-  jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 98], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7','Am7','Gm7','Em7','Cm7'], artists: 'Q-Tip, Pete Rock, De La Soul, Guru (Jazzmatazz), Buckwild', drumKit: 32, bassSound: 33 },
+  jazzy:     { label: 'Jazz-Influenced',   bpmRange: [80, 98], keys: ['Fmaj7','Bbmaj7','Ebmaj7','Abmaj7','Dm7','Am7','Gm7','Em7','Cm7'], artists: 'Q-Tip, Pete Rock, De La Soul, Guru (Jazzmatazz), Buckwild', drumKit: 32, bassSound: 33, epProgram: 0 },
   dark:      { label: 'Dark Minimal',      bpmRange: [68, 88],  keys: ['Cm','Abm','Fm','Bbm','Gm','Ebm','Dbm'],        artists: 'RZA, Daringer, Havoc, Griselda, Westside Gunn', drumKit: 0, bassSound: 39 },
   bounce:    { label: 'Bounce',            bpmRange: [92, 105], keys: ['G','C','Gm','Cm','Bb','D','F'],              artists: 'Easy Mo Bee, Puff Daddy, Craig Mack, Bad Boy era', drumKit: 0, bassSound: 36 },
   big:       { label: 'Big / Anthem',      bpmRange: [90, 105], keys: ['Cm','G','Bb','Am','C','D'],                artists: 'DJ Premier, Pete Rock, Easy Mo Bee, large-scale productions', drumKit: 16, bassSound: 33 },
@@ -177,7 +177,7 @@ var STYLE_DATA = {
   memphis:   { label: 'Memphis',           bpmRange: [68, 85],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm','Abm'],         artists: 'Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo, Koopsta Knicca', drumKit: 25, bassSound: 38 },
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 92],  keys: ['Cm','Dm','Am','Fm','Gm','Bbm','Ebm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway', drumKit: 0, bassSound: 39 },
   phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 140],  keys: ['Cm','Fm','Bbm','Gm','Am','Ebm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp', drumKit: 24, bassSound: 38 },
-  nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 95],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto', drumKit: 40, bassSound: 35 },
+  nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 95],  keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto', drumKit: 40, bassSound: 35, epProgram: 0 },
   oldschool: { label: 'Old School',        bpmRange: [95, 115], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Herbie Luv Bug, Boogie Down Productions, Whodini, UTFO, Eric B. & Rakim', drumKit: 24, bassSound: 38 }
 };
 
