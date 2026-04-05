@@ -837,8 +837,18 @@ function buildChordSheet() {
     }
     html += '</div>';
 
-    // Note names below keyboard
-    var noteNames = notes.map(function(n) { return NOTE_NAMES[n]; });
+    // Note names below keyboard — always show root position (root first)
+    var rootFirst = notes.slice().sort(function(a, b) {
+      // Sort so the root (first note from chordNotes before voice leading) comes first
+      return a - b;
+    });
+    // Rotate so the chord root is first
+    var chordRoot = chordNotes(chordName)[0];
+    while (rootFirst.length > 0 && rootFirst[0] !== chordRoot) {
+      rootFirst.push(rootFirst.shift());
+      if (rootFirst.length > 10) break; // safety
+    }
+    var noteNames = rootFirst.map(function(n) { return NOTE_NAMES[n]; });
     html += '<div class="chord-sheet-notes">' + noteNames.join(' · ') + '</div>';
     return html;
   }
