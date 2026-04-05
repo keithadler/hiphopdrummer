@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.45] - 2026-04-04
+
+### Fixed
+- Empty instrument folders in export — EP and Pad folders were created before checking for content. Now uses lazy folder creation, only when files with actual notes exist.
+- Aggressive SW cache busting — added `updateViaCache: 'none'` and `reg.update()` on every page load. Browsers now always check for new sw.js instead of serving stale cached code.
+
 ## [1.44] - 2026-04-04
 
 ### Fixed
