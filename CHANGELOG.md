@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.38] - 2026-04-04
+
+### Fixed
+- Chord sheet piano diagram no longer applies voice leading — was reordering pitch classes on a 1-octave keyboard where it has no meaning (Ebmaj7 showed D-Eb-G-Bb instead of Eb-G-Bb-D). Now shows root position directly.
+- Note names below piano diagram always display root-first order matching the chord label.
+
 ## [1.37] - 2026-04-04
 
 ### Fixed — Critical
