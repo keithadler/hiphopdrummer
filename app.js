@@ -307,6 +307,15 @@ function showExportDialog() {
       toggle.textContent = anyChecked ? 'Select all' : 'Deselect all';
     };
   }
+  var stemToggle = document.getElementById('exportStemToggle');
+  if (stemToggle) {
+    stemToggle.onclick = function() {
+      var checks = document.querySelectorAll('.stem-check');
+      var anyChecked = Array.from(checks).some(function(c) { return c.checked; });
+      checks.forEach(function(c) { c.checked = !anyChecked; });
+      stemToggle.textContent = anyChecked ? 'Select all stems' : 'Deselect all stems';
+    };
+  }
 })();
 
 function hideExportDialog() {

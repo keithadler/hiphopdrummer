@@ -533,7 +533,8 @@ Clicking EXPORT opens a dialog with sections:
 - **MIDI Files** — Full song .mid (all sections in order), Individual section .mid files, Bake swing into MIDI timing toggle, Akai MPC .mpcpattern files. Each independently toggleable.
 - **Instrument Tracks** — Instrument .mid files (bass, EP, pad, lead, organ, horns, vibes, clav — per section, only for instruments that play in each section), Instrument .mpcpattern files (for Keygroup/Plugin tracks on MPC). Two master toggles replace per-instrument checkboxes.
 - **DAW Help Files** — Step-by-step import guides for 9 DAWs, all checked by default. "Deselect all / Select all" toggle. Supported: Ableton Live, Logic Pro, FL Studio, GarageBand (macOS + iOS), Pro Tools, Reason (ReDrum + Kong), Reaper, Studio One (Impact XT), Maschine.
-- **Other** — PDF beat sheet, Chord sheet PDF, WAV audio (full mix with all instruments), WAV drums stem, WAV bass stem, WAV EP stem, WAV pad stem, Master FX toggle.
+- **Audio** — WAV full mix (all instruments), WAV stems for each instrument (drums, bass, EP, pad, lead, organ, horns, vibes, clav), "Select all stems" toggle, Master FX toggle (HPF → compressor → EQ → room reverb).
+- **Documents** — PDF beat sheet, Chord sheet PDF.
 
 Export only creates files/folders when there's actual content — no empty files.
 
