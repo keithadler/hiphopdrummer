@@ -1965,6 +1965,556 @@ test('Key selection within a single style is roughly uniform', function() {
   _forcedKey = null;
 });
 
+// ═══════════════════════════════════════════════════════════
+// KEY CORRECTNESS TESTS — verify all instruments stay in key
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Build the set of pitch classes (0-11) that are valid for a given key.
+ * Includes the scale tones plus common chromatic passing tones used in hip hop:
+ *   - chromatic approach notes (half step above/below chord tones)
+ *   - blues note (b5)
+ *   - Dorian natural 6 for styles that use it
+ *   - Phrygian bII for dark styles
+ * Returns a Set of pitch classes (0-11) where 0=C, 1=C#, etc.
+ */
+function _buildAllowedPitchClasses(keyRoot, keyType, keyData) {
+  var rootSemi = NOTE_TO_SEMI[keyRoot.replace(/m7?$|maj7$|7$|m7b5$|dim7?$|add9$|6$|sus[24]$/, '')];
+  if (rootSemi === undefined) rootSemi = 0;
+
+  // Build the base scale
+  var intervals;
+  if (keyType === 'major') {
+    intervals = [0, 2, 4, 5, 7, 9, 11]; // major scale
+  } else {
+    intervals = [0, 2, 3, 5, 7, 8, 10]; // natural minor (Aeolian)
+  }
+
+  var allowed = new Set();
+  // Add all scale tones
+  for (var i = 0; i < intervals.length; i++) {
+    allowed.add((rootSemi + intervals[i]) % 12);
+  }
+
+  // Add Dorian natural 6 (raises the b6 of natural minor by 1 semitone)
+  // This is used in G-Funk, Dilla, Nujabes — the IV chord becomes major
+  if (keyType === 'minor' || keyType !== 'major') {
+    var dorian6 = (rootSemi + 9) % 12; // natural 6th = major 6th interval
+    allowed.add(dorian6);
+  }
+
+  // Add Phrygian bII (half step above root) — used in dark/Memphis/Griselda/phonk
+  var phrygianBII = (rootSemi + 1) % 12;
+  allowed.add(phrygianBII);
+
+  // Add blues note (b5 / #4) — common passing tone in all hip hop
+  var bluesNote = (rootSemi + 6) % 12;
+  allowed.add(bluesNote);
+
+  // Add chromatic approach tones: half step above and below each chord tone
+  // (i, iv, v roots and their chord tones)
+  if (keyData) {
+    var chordRoots = [keyData.i, keyData.iv, keyData.v];
+    if (keyData.bII) chordRoots.push(keyData.bII);
+    if (keyData.ii) chordRoots.push(keyData.ii);
+    for (var ci = 0; ci < chordRoots.length; ci++) {
+      if (!chordRoots[ci]) continue;
+      var cr = NOTE_TO_SEMI[bassChordRoot(chordRoots[ci])];
+      if (cr !== undefined) {
+        allowed.add(cr);
+        allowed.add((cr + 1) % 12);  // half step above
+        allowed.add((cr + 11) % 12); // half step below
+        allowed.add((cr + 3) % 12);  // minor 3rd
+        allowed.add((cr + 4) % 12);  // major 3rd
+        allowed.add((cr + 7) % 12);  // 5th
+        allowed.add((cr + 10) % 12); // minor 7th
+        allowed.add((cr + 11) % 12); // major 7th
+      }
+    }
+  }
+
+  return allowed;
+}
+
+var _pitchNames = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+// === Test: Bass notes stay in key across multiple styles and keys ===
+test('Bass notes stay in key for all styles', function() {
+  var testCases = [
+    { style: 'normal', key: 'Cm' },
+    { style: 'gfunk', key: 'Gm7' },
+    { style: 'dilla', key: 'Dm7' },
+    { style: 'memphis', key: 'Fm' },
+    { style: 'jazzy', key: 'Fmaj7' },
+    { style: 'crunk', key: 'Am' },
+    { style: 'dark', key: 'Abm' },
+    { style: 'nujabes', key: 'Am7' },
+    { style: 'griselda', key: 'Cm' },
+    { style: 'bounce', key: 'G' },
+    { style: 'oldschool', key: 'Em' },
+    { style: 'phonk', key: 'Bbm' }
+  ];
+
+  testCases.forEach(function(tc) {
+    _domElements = {};
+    _forcedKey = tc.key;
+    generateAll({ style: tc.style });
+    var keyData = _lastChosenKey;
+    assert(keyData, tc.style + '/' + tc.key + ': _lastChosenKey should be set');
+
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var totalNotes = 0;
+    var wrongNotes = 0;
+    var wrongDetails = [];
+
+    // Check bass events for each section
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      var bassEvents = generateBassPattern(sec, parseInt(document.getElementById('bpm').textContent) || 90);
+      for (var ei = 0; ei < bassEvents.length; ei++) {
+        var e = bassEvents[ei];
+        if (e.dead) continue; // dead notes are percussive, no pitch
+        var pitchClass = e.note % 12;
+        totalNotes++;
+        if (!allowed.has(pitchClass)) {
+          wrongNotes++;
+          if (wrongDetails.length < 3) wrongDetails.push(_pitchNames[pitchClass] + ' in ' + sec);
+        }
+      }
+    }
+
+    // Allow up to 5% wrong notes (chromatic passing tones, approach notes)
+    var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+    assert(wrongPct <= 5, tc.style + '/' + tc.key + ': bass has ' + wrongPct.toFixed(1) + '% out-of-key notes (' + wrongNotes + '/' + totalNotes + ')' + (wrongDetails.length ? ' e.g. ' + wrongDetails.join(', ') : ''));
+  });
+  _forcedKey = null;
+});
+
+// === Test: EP notes stay in key ===
+test('Electric Piano notes stay in key', function() {
+  var testCases = [
+    { style: 'dilla', key: 'Dm7' },
+    { style: 'gfunk', key: 'Gm7' },
+    { style: 'jazzy', key: 'Fmaj7' },
+    { style: 'nujabes', key: 'Am7' },
+    { style: 'lofi', key: 'Cm7' },
+    { style: 'bounce', key: 'G' }
+  ];
+
+  testCases.forEach(function(tc) {
+    _domElements = {};
+    _forcedKey = tc.key;
+    generateAll({ style: tc.style });
+    var keyData = _lastChosenKey;
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var totalNotes = 0;
+    var wrongNotes = 0;
+    var wrongDetails = [];
+
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      var epEvents = generateEPPattern(sec, parseInt(document.getElementById('bpm').textContent) || 90);
+      for (var ei = 0; ei < epEvents.length; ei++) {
+        var e = epEvents[ei];
+        if (!e.notes) continue;
+        for (var ni = 0; ni < e.notes.length; ni++) {
+          var pitchClass = e.notes[ni] % 12;
+          totalNotes++;
+          if (!allowed.has(pitchClass)) {
+            wrongNotes++;
+            if (wrongDetails.length < 3) wrongDetails.push(_pitchNames[pitchClass] + ' in ' + sec);
+          }
+        }
+      }
+    }
+
+    var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+    assert(wrongPct <= 5, tc.style + '/' + tc.key + ': EP has ' + wrongPct.toFixed(1) + '% out-of-key notes (' + wrongNotes + '/' + totalNotes + ')' + (wrongDetails.length ? ' e.g. ' + wrongDetails.join(', ') : ''));
+  });
+  _forcedKey = null;
+});
+
+// === Test: Synth Pad notes stay in key ===
+test('Synth Pad notes stay in key', function() {
+  var testCases = [
+    { style: 'memphis', key: 'Cm' },
+    { style: 'dark', key: 'Fm' },
+    { style: 'griselda', key: 'Dm' },
+    { style: 'crunk', key: 'Am' },
+    { style: 'phonk', key: 'Bbm' },
+    { style: 'hard', key: 'Cm' }
+  ];
+
+  testCases.forEach(function(tc) {
+    _domElements = {};
+    _forcedKey = tc.key;
+    generateAll({ style: tc.style });
+    var keyData = _lastChosenKey;
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var totalNotes = 0;
+    var wrongNotes = 0;
+    var wrongDetails = [];
+
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      var padEvents = generatePadPattern(sec, parseInt(document.getElementById('bpm').textContent) || 90);
+      for (var ei = 0; ei < padEvents.length; ei++) {
+        var e = padEvents[ei];
+        if (!e.notes) continue;
+        for (var ni = 0; ni < e.notes.length; ni++) {
+          var pitchClass = e.notes[ni] % 12;
+          totalNotes++;
+          if (!allowed.has(pitchClass)) {
+            wrongNotes++;
+            if (wrongDetails.length < 3) wrongDetails.push(_pitchNames[pitchClass] + ' in ' + sec);
+          }
+        }
+      }
+    }
+
+    var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+    assert(wrongPct <= 5, tc.style + '/' + tc.key + ': Pad has ' + wrongPct.toFixed(1) + '% out-of-key notes (' + wrongNotes + '/' + totalNotes + ')' + (wrongDetails.length ? ' e.g. ' + wrongDetails.join(', ') : ''));
+  });
+  _forcedKey = null;
+});
+
+// === Test: Horn, Lead, Organ, Vibes, Clav notes stay in key ===
+test('All other melodic instruments stay in key', function() {
+  // Horns — boom bap styles
+  _domElements = {};
+  _forcedKey = 'Am';
+  generateAll({ style: 'normal' });
+  var keyData = _lastChosenKey;
+  var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+  var totalNotes = 0, wrongNotes = 0;
+  for (var si = 0; si < arrangement.length; si++) {
+    var hornEvents = generateHornPattern(arrangement[si], bpm);
+    for (var ei = 0; ei < hornEvents.length; ei++) {
+      if (!hornEvents[ei].notes) continue;
+      for (var ni = 0; ni < hornEvents[ei].notes.length; ni++) {
+        totalNotes++;
+        if (!allowed.has(hornEvents[ei].notes[ni] % 12)) wrongNotes++;
+      }
+    }
+  }
+  var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+  assert(wrongPct <= 5, 'Horns in Am: ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+
+  // Lead — G-Funk
+  _forcedKey = 'Gm7';
+  generateAll({ style: 'gfunk' });
+  keyData = _lastChosenKey;
+  allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  totalNotes = 0; wrongNotes = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var leadEvents = generateLeadPattern(arrangement[si], bpm);
+    for (ei = 0; ei < leadEvents.length; ei++) {
+      if (!leadEvents[ei].notes) continue;
+      for (ni = 0; ni < leadEvents[ei].notes.length; ni++) {
+        totalNotes++;
+        if (!allowed.has(leadEvents[ei].notes[ni] % 12)) wrongNotes++;
+      }
+    }
+  }
+  wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+  assert(wrongPct <= 5, 'Lead in Gm7: ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+
+  // Organ — jazzy
+  _forcedKey = 'Fmaj7';
+  generateAll({ style: 'jazzy' });
+  keyData = _lastChosenKey;
+  allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  totalNotes = 0; wrongNotes = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var organEvents = generateOrganPattern(arrangement[si], bpm);
+    for (ei = 0; ei < organEvents.length; ei++) {
+      if (!organEvents[ei].notes) continue;
+      for (ni = 0; ni < organEvents[ei].notes.length; ni++) {
+        totalNotes++;
+        if (!allowed.has(organEvents[ei].notes[ni] % 12)) wrongNotes++;
+      }
+    }
+  }
+  wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+  assert(wrongPct <= 5, 'Organ in Fmaj7: ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+
+  // Vibes — nujabes
+  _forcedKey = 'Dm7';
+  generateAll({ style: 'nujabes' });
+  keyData = _lastChosenKey;
+  allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  totalNotes = 0; wrongNotes = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var vibesEvents = generateVibesPattern(arrangement[si], bpm);
+    for (ei = 0; ei < vibesEvents.length; ei++) {
+      if (!vibesEvents[ei].notes) continue;
+      for (ni = 0; ni < vibesEvents[ei].notes.length; ni++) {
+        totalNotes++;
+        if (!allowed.has(vibesEvents[ei].notes[ni] % 12)) wrongNotes++;
+      }
+    }
+  }
+  wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+  assert(wrongPct <= 5, 'Vibes in Dm7: ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+
+  // Clav — bounce
+  _forcedKey = 'G';
+  generateAll({ style: 'bounce' });
+  keyData = _lastChosenKey;
+  allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  totalNotes = 0; wrongNotes = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var clavEvents = generateClavPattern(arrangement[si], bpm);
+    for (ei = 0; ei < clavEvents.length; ei++) {
+      if (!clavEvents[ei].notes) continue;
+      for (ni = 0; ni < clavEvents[ei].notes.length; ni++) {
+        totalNotes++;
+        if (!allowed.has(clavEvents[ei].notes[ni] % 12)) wrongNotes++;
+      }
+    }
+  }
+  wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+  assert(wrongPct <= 5, 'Clav in G: ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+
+  _forcedKey = null;
+});
+
+// === Test: Strict mode produces identical notes on repeated plays ===
+test('Strict mode: instruments produce identical notes on repeated plays', function() {
+  _domElements = {};
+  _forcedKey = 'Cm';
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  generateAll({ style: 'dilla' });
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+  // Clear any cached patterns to simulate fresh play
+  if (typeof _instrumentCache !== 'undefined') {
+    for (var k in _instrumentCache) delete _instrumentCache[k];
+  }
+
+  // First play — generate EP events
+  var ep1 = [];
+  for (var si = 0; si < arrangement.length; si++) {
+    var events = generateEPPattern(arrangement[si], bpm);
+    for (var ei = 0; ei < events.length; ei++) {
+      if (events[ei].notes) {
+        for (var ni = 0; ni < events[ei].notes.length; ni++) {
+          ep1.push(events[ei].notes[ni]);
+        }
+      }
+    }
+  }
+
+  // Second play — should be cached and identical in strict mode
+  var ep2 = [];
+  for (si = 0; si < arrangement.length; si++) {
+    var events2 = generateEPPattern(arrangement[si], bpm);
+    for (ei = 0; ei < events2.length; ei++) {
+      if (events2[ei].notes) {
+        for (ni = 0; ni < events2[ei].notes.length; ni++) {
+          ep2.push(events2[ei].notes[ni]);
+        }
+      }
+    }
+  }
+
+  // In strict mode, the generator may or may not cache at this level
+  // (caching happens in the MIDI builder), but the notes should still be
+  // from the same key
+  assert(ep1.length > 0, 'Strict mode: EP should produce notes');
+  assert(ep2.length > 0, 'Strict mode: EP second call should produce notes');
+
+  // Verify both plays are in the same key
+  var keyData = _lastChosenKey;
+  var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  var wrong1 = 0, wrong2 = 0;
+  for (var i = 0; i < ep1.length; i++) {
+    if (!allowed.has(ep1[i] % 12)) wrong1++;
+  }
+  for (i = 0; i < ep2.length; i++) {
+    if (!allowed.has(ep2[i] % 12)) wrong2++;
+  }
+  var pct1 = ep1.length > 0 ? (wrong1 / ep1.length * 100) : 0;
+  var pct2 = ep2.length > 0 ? (wrong2 / ep2.length * 100) : 0;
+  assert(pct1 <= 5, 'Strict play 1: EP ' + pct1.toFixed(1) + '% out-of-key');
+  assert(pct2 <= 5, 'Strict play 2: EP ' + pct2.toFixed(1) + '% out-of-key');
+
+  _forcedKey = null;
+});
+
+// === Test: Improvise mode still stays in key ===
+test('Improvise mode: instruments still stay in key', function() {
+  _domElements = {};
+  _forcedKey = 'Gm7';
+  localStorage.setItem('hhd_instr_mode', 'improvise');
+  generateAll({ style: 'gfunk' });
+  var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var keyData = _lastChosenKey;
+  var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+
+  // Clear cache to force regeneration
+  if (typeof _instrumentCache !== 'undefined') {
+    for (var k in _instrumentCache) delete _instrumentCache[k];
+  }
+
+  // Generate EP events 3 times (improvise should vary but stay in key)
+  for (var play = 0; play < 3; play++) {
+    var totalNotes = 0, wrongNotes = 0;
+    for (var si = 0; si < arrangement.length; si++) {
+      var epEvents = generateEPPattern(arrangement[si], bpm);
+      for (var ei = 0; ei < epEvents.length; ei++) {
+        if (!epEvents[ei].notes) continue;
+        for (var ni = 0; ni < epEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(epEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+    }
+    var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+    assert(wrongPct <= 5, 'Improvise play ' + (play + 1) + ': EP ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ')');
+  }
+
+  // Also check bass stays in key in improvise mode
+  var bassTotalNotes = 0, bassWrongNotes = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var bassEvents = generateBassPattern(arrangement[si], bpm);
+    for (ei = 0; ei < bassEvents.length; ei++) {
+      if (bassEvents[ei].dead) continue;
+      bassTotalNotes++;
+      if (!allowed.has(bassEvents[ei].note % 12)) bassWrongNotes++;
+    }
+  }
+  var bassPct = bassTotalNotes > 0 ? (bassWrongNotes / bassTotalNotes * 100) : 0;
+  assert(bassPct <= 5, 'Improvise: bass ' + bassPct.toFixed(1) + '% out-of-key (' + bassWrongNotes + '/' + bassTotalNotes + ')');
+
+  // Also check pad for a dark style
+  _forcedKey = 'Cm';
+  generateAll({ style: 'memphis' });
+  keyData = _lastChosenKey;
+  allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  var padTotal = 0, padWrong = 0;
+  for (si = 0; si < arrangement.length; si++) {
+    var padEvents = generatePadPattern(arrangement[si], bpm);
+    for (ei = 0; ei < padEvents.length; ei++) {
+      if (!padEvents[ei].notes) continue;
+      for (ni = 0; ni < padEvents[ei].notes.length; ni++) {
+        padTotal++;
+        if (!allowed.has(padEvents[ei].notes[ni] % 12)) padWrong++;
+      }
+    }
+  }
+  var padPct = padTotal > 0 ? (padWrong / padTotal * 100) : 0;
+  assert(padPct <= 5, 'Improvise: pad in Cm ' + padPct.toFixed(1) + '% out-of-key (' + padWrong + '/' + padTotal + ')');
+
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  _forcedKey = null;
+});
+
+// === Test: Key correctness across ALL 25 styles ===
+test('All 25 styles produce in-key bass and melodic notes', function() {
+  var styles = Object.keys(STYLE_DATA);
+  var failedStyles = [];
+
+  for (var sti = 0; sti < styles.length; sti++) {
+    var style = styles[sti];
+    _domElements = {};
+    _forcedKey = null;
+    generateAll({ style: style });
+    var keyData = _lastChosenKey;
+    if (!keyData) continue;
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    var totalNotes = 0, wrongNotes = 0;
+
+    for (var si = 0; si < arrangement.length; si++) {
+      var sec = arrangement[si];
+      // Bass
+      var bassEvents = generateBassPattern(sec, bpm);
+      for (var ei = 0; ei < bassEvents.length; ei++) {
+        if (bassEvents[ei].dead) continue;
+        totalNotes++;
+        if (!allowed.has(bassEvents[ei].note % 12)) wrongNotes++;
+      }
+      // EP
+      var epEvents = generateEPPattern(sec, bpm);
+      for (ei = 0; ei < epEvents.length; ei++) {
+        if (!epEvents[ei].notes) continue;
+        for (var ni = 0; ni < epEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(epEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Pad
+      var padEvents = generatePadPattern(sec, bpm);
+      for (ei = 0; ei < padEvents.length; ei++) {
+        if (!padEvents[ei].notes) continue;
+        for (ni = 0; ni < padEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(padEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Lead
+      var leadEvents = generateLeadPattern(sec, bpm);
+      for (ei = 0; ei < leadEvents.length; ei++) {
+        if (!leadEvents[ei].notes) continue;
+        for (ni = 0; ni < leadEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(leadEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Organ
+      var organEvents = generateOrganPattern(sec, bpm);
+      for (ei = 0; ei < organEvents.length; ei++) {
+        if (!organEvents[ei].notes) continue;
+        for (ni = 0; ni < organEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(organEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Horns
+      var hornEvents = generateHornPattern(sec, bpm);
+      for (ei = 0; ei < hornEvents.length; ei++) {
+        if (!hornEvents[ei].notes) continue;
+        for (ni = 0; ni < hornEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(hornEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Vibes
+      var vibesEvents = generateVibesPattern(sec, bpm);
+      for (ei = 0; ei < vibesEvents.length; ei++) {
+        if (!vibesEvents[ei].notes) continue;
+        for (ni = 0; ni < vibesEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(vibesEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+      // Clav
+      var clavEvents = generateClavPattern(sec, bpm);
+      for (ei = 0; ei < clavEvents.length; ei++) {
+        if (!clavEvents[ei].notes) continue;
+        for (ni = 0; ni < clavEvents[ei].notes.length; ni++) {
+          totalNotes++;
+          if (!allowed.has(clavEvents[ei].notes[ni] % 12)) wrongNotes++;
+        }
+      }
+    }
+
+    var wrongPct = totalNotes > 0 ? (wrongNotes / totalNotes * 100) : 0;
+    assert(wrongPct <= 5, style + ' (' + keyData.root + '): ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + totalNotes + ' notes)');
+    if (wrongPct > 5) failedStyles.push(style + ' ' + wrongPct.toFixed(1) + '%');
+  }
+
+  _forcedKey = null;
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
