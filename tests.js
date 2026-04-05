@@ -2515,6 +2515,218 @@ test('All 25 styles produce in-key bass and melodic notes', function() {
   _forcedKey = null;
 });
 
+// ═══════════════════════════════════════════════════════════
+// COMBINED MIDI KEY CORRECTNESS — test the actual MIDI bytes
+// that get built for playback (all instruments together)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Parse MIDI bytes and extract all note-on events per channel.
+ * Returns { channelNotes: { 0: [note, note, ...], 2: [...], ... } }
+ */
+function _parseMidiNoteOns(bytes) {
+  var channelNotes = {};
+  // Scan for note-on events (0x9n where n is channel, velocity > 0)
+  for (var i = 0; i < bytes.length - 2; i++) {
+    var status = bytes[i];
+    if ((status & 0xF0) === 0x90) {
+      var ch = status & 0x0F;
+      var note = bytes[i + 1];
+      var vel = bytes[i + 2];
+      if (vel > 0 && note < 128) {
+        if (!channelNotes[ch]) channelNotes[ch] = [];
+        channelNotes[ch].push(note);
+      }
+    }
+  }
+  return channelNotes;
+}
+
+// === Test: Combined MIDI bytes — all melodic channels in key (Strict mode) ===
+test('Combined MIDI: all instruments in key together (Strict)', function() {
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  // Enable all instruments
+  localStorage.setItem('hhd_bass_playback', 'true');
+  localStorage.setItem('hhd_ep_playback', 'true');
+  localStorage.setItem('hhd_pad_playback', 'true');
+  localStorage.setItem('hhd_lead_playback', 'true');
+  localStorage.setItem('hhd_organ_playback', 'true');
+  localStorage.setItem('hhd_horn_playback', 'true');
+  localStorage.setItem('hhd_vibes_playback', 'true');
+  localStorage.setItem('hhd_clav_playback', 'true');
+
+  var testCases = [
+    { style: 'dilla', key: 'Dm7' },     // EP + organ
+    { style: 'gfunk', key: 'Gm7' },     // EP + lead + clav
+    { style: 'memphis', key: 'Cm' },     // pad
+    { style: 'normal', key: 'Am' },      // horns
+    { style: 'nujabes', key: 'Fmaj7' }, // EP + organ + vibes
+    { style: 'crunk', key: 'Dm' },       // pad
+    { style: 'bounce', key: 'G' }        // EP + clav
+  ];
+
+  // Channel map: 0=bass, 2=EP, 3=pad, 4=lead, 5=organ, 6=horns, 7=vibes, 8=clav, 9=drums
+  var melodicChannels = [0, 2, 3, 4, 5, 6, 7, 8];
+  var chNames = { 0: 'Bass', 2: 'EP', 3: 'Pad', 4: 'Lead', 5: 'Organ', 6: 'Horns', 7: 'Vibes', 8: 'Clav' };
+
+  testCases.forEach(function(tc) {
+    _domElements = {};
+    _forcedKey = tc.key;
+    // Clear instrument cache
+    if (typeof _instrumentCache !== 'undefined') {
+      for (var k in _instrumentCache) delete _instrumentCache[k];
+    }
+    generateAll({ style: tc.style });
+    var keyData = _lastChosenKey;
+    assert(keyData, tc.style + '/' + tc.key + ': key data should be set');
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    // Build the actual combined MIDI that would be played
+    var bytes = buildCombinedMidiBytes(arrangement, bpm);
+    assert(bytes && bytes.length > 0, tc.style + ': combined MIDI should have bytes');
+
+    // Parse note-on events from the MIDI bytes
+    var channelNotes = _parseMidiNoteOns(bytes);
+
+    // Check each melodic channel
+    for (var ci = 0; ci < melodicChannels.length; ci++) {
+      var ch = melodicChannels[ci];
+      var notes = channelNotes[ch];
+      if (!notes || notes.length === 0) continue; // instrument not active for this style
+
+      var wrongNotes = 0;
+      var wrongExamples = [];
+      for (var ni = 0; ni < notes.length; ni++) {
+        var pc = notes[ni] % 12;
+        if (!allowed.has(pc)) {
+          wrongNotes++;
+          if (wrongExamples.length < 3) wrongExamples.push(_pitchNames[pc] + '(MIDI ' + notes[ni] + ')');
+        }
+      }
+      var wrongPct = (wrongNotes / notes.length * 100);
+      assert(wrongPct <= 5,
+        tc.style + '/' + tc.key + ' ' + chNames[ch] + ' (ch' + ch + '): ' +
+        wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + notes.length + ')' +
+        (wrongExamples.length ? ' e.g. ' + wrongExamples.join(', ') : ''));
+    }
+  });
+  _forcedKey = null;
+});
+
+// === Test: Combined MIDI bytes — Improvise mode still in key ===
+test('Combined MIDI: all instruments in key together (Improvise)', function() {
+  localStorage.setItem('hhd_instr_mode', 'improvise');
+  localStorage.setItem('hhd_bass_playback', 'true');
+  localStorage.setItem('hhd_ep_playback', 'true');
+  localStorage.setItem('hhd_pad_playback', 'true');
+  localStorage.setItem('hhd_lead_playback', 'true');
+  localStorage.setItem('hhd_organ_playback', 'true');
+  localStorage.setItem('hhd_horn_playback', 'true');
+  localStorage.setItem('hhd_vibes_playback', 'true');
+  localStorage.setItem('hhd_clav_playback', 'true');
+
+  var melodicChannels = [0, 2, 3, 4, 5, 6, 7, 8];
+  var chNames = { 0: 'Bass', 2: 'EP', 3: 'Pad', 4: 'Lead', 5: 'Organ', 6: 'Horns', 7: 'Vibes', 8: 'Clav' };
+
+  // Test 3 different styles, 2 plays each (improvise regenerates)
+  var testCases = [
+    { style: 'gfunk', key: 'Cm7' },
+    { style: 'dark', key: 'Fm' },
+    { style: 'jazzy', key: 'Bbmaj7' }
+  ];
+
+  testCases.forEach(function(tc) {
+    _domElements = {};
+    _forcedKey = tc.key;
+    generateAll({ style: tc.style });
+    var keyData = _lastChosenKey;
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    for (var play = 0; play < 2; play++) {
+      // Clear cache to force regeneration in improvise mode
+      if (typeof _instrumentCache !== 'undefined') {
+        for (var k in _instrumentCache) delete _instrumentCache[k];
+      }
+
+      var bytes = buildCombinedMidiBytes(arrangement, bpm);
+      var channelNotes = _parseMidiNoteOns(bytes);
+
+      for (var ci = 0; ci < melodicChannels.length; ci++) {
+        var ch = melodicChannels[ci];
+        var notes = channelNotes[ch];
+        if (!notes || notes.length === 0) continue;
+
+        var wrongNotes = 0;
+        for (var ni = 0; ni < notes.length; ni++) {
+          if (!allowed.has(notes[ni] % 12)) wrongNotes++;
+        }
+        var wrongPct = (wrongNotes / notes.length * 100);
+        assert(wrongPct <= 5,
+          'Improvise play ' + (play + 1) + ' ' + tc.style + '/' + tc.key + ' ' + chNames[ch] +
+          ': ' + wrongPct.toFixed(1) + '% out-of-key (' + wrongNotes + '/' + notes.length + ')');
+      }
+    }
+  });
+
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  _forcedKey = null;
+});
+
+// === Test: All 25 styles — combined MIDI key correctness ===
+test('All 25 styles: combined MIDI all instruments in key', function() {
+  localStorage.setItem('hhd_instr_mode', 'strict');
+  localStorage.setItem('hhd_bass_playback', 'true');
+  localStorage.setItem('hhd_ep_playback', 'true');
+  localStorage.setItem('hhd_pad_playback', 'true');
+  localStorage.setItem('hhd_lead_playback', 'true');
+  localStorage.setItem('hhd_organ_playback', 'true');
+  localStorage.setItem('hhd_horn_playback', 'true');
+  localStorage.setItem('hhd_vibes_playback', 'true');
+  localStorage.setItem('hhd_clav_playback', 'true');
+
+  var melodicChannels = [0, 2, 3, 4, 5, 6, 7, 8];
+  var chNames = { 0: 'Bass', 2: 'EP', 3: 'Pad', 4: 'Lead', 5: 'Organ', 6: 'Horns', 7: 'Vibes', 8: 'Clav' };
+  var styles = Object.keys(STYLE_DATA);
+
+  for (var sti = 0; sti < styles.length; sti++) {
+    var style = styles[sti];
+    _domElements = {};
+    _forcedKey = null;
+    if (typeof _instrumentCache !== 'undefined') {
+      for (var k in _instrumentCache) delete _instrumentCache[k];
+    }
+    generateAll({ style: style });
+    var keyData = _lastChosenKey;
+    if (!keyData) continue;
+    var allowed = _buildAllowedPitchClasses(keyData.root, keyData.type, keyData);
+    var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+
+    var bytes = buildCombinedMidiBytes(arrangement, bpm);
+    var channelNotes = _parseMidiNoteOns(bytes);
+
+    var styleTotalNotes = 0, styleWrongNotes = 0;
+    for (var ci = 0; ci < melodicChannels.length; ci++) {
+      var ch = melodicChannels[ci];
+      var notes = channelNotes[ch];
+      if (!notes || notes.length === 0) continue;
+
+      for (var ni = 0; ni < notes.length; ni++) {
+        styleTotalNotes++;
+        if (!allowed.has(notes[ni] % 12)) styleWrongNotes++;
+      }
+    }
+
+    var wrongPct = styleTotalNotes > 0 ? (styleWrongNotes / styleTotalNotes * 100) : 0;
+    assert(wrongPct <= 5,
+      style + ' (' + keyData.root + ') combined MIDI: ' + wrongPct.toFixed(1) + '% out-of-key (' +
+      styleWrongNotes + '/' + styleTotalNotes + ' melodic notes)');
+  }
+
+  _forcedKey = null;
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
