@@ -355,6 +355,26 @@ function exportMIDI(opts) {
   var keyEl = document.getElementById('songKey');
   var keyStr = keyEl ? keyEl.textContent.replace(/[^a-zA-Z0-9#b]/g, '') : '';
   var zip = new JSZip();
+  // Fix timezone issue: JSZip stores dates in DOS format without timezone.
+  // macOS Finder can show "Tomorrow" if the UTC offset makes the date roll over.
+  // Set a consistent date for all files.
+  var _zipDate = new Date();
+  var _origFile = zip.file.bind(zip);
+  zip.file = function(name, data, opts) { return _origFile(name, data, Object.assign({ date: _zipDate }, opts || {})); };
+  var _origFolder = zip.folder.bind(zip);
+  zip.folder = function(name) {
+    var f = _origFolder(name);
+    var _fOrigFile = f.file.bind(f);
+    f.file = function(n, d, o) { return _fOrigFile(n, d, Object.assign({ date: _zipDate }, o || {})); };
+    var _fOrigFolder = f.folder.bind(f);
+    f.folder = function(n) {
+      var sf = _fOrigFolder(n);
+      var _sfOrigFile = sf.file.bind(sf);
+      sf.file = function(n2, d2, o2) { return _sfOrigFile(n2, d2, Object.assign({ date: _zipDate }, o2 || {})); };
+      return sf;
+    };
+    return f;
+  };
   var folderName = 'hiphop_' + bpm + 'bpm' + (keyStr && keyStr !== '—' ? '_' + keyStr : '');
   var folder = zip.folder(folderName);
   var swingVal = parseInt(document.getElementById('swing').textContent) || 62;
