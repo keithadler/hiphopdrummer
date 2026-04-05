@@ -503,7 +503,7 @@ function generateBassPattern(sec, bpm) {
       // Correct intervals relative to current chord root
       var fifth = currentRoot + 7;
       if (fifth > 48) fifth -= 12;
-      var minor7th = currentRoot + 10;
+      var minor7th = currentRoot + ((keyData && keyData.type === 'major') ? 11 : 10);
       if (minor7th > 48) minor7th -= 12;
 
       var shouldPlay = false;
@@ -657,13 +657,14 @@ function generateBassPattern(sec, bpm) {
         var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
-          // Diatonic walk: uses minor scale intervals (root, b3, 4, 5, b7) for minor keys
+          // Diatonic walk: uses scale intervals based on key type
+          var _isMajKey = (keyData && keyData.type === 'major');
           if (pos === 9) { midiNote = currentRoot - 2; }
           else if (pos === 10) { midiNote = currentRoot; }
-          else if (pos === 11) { midiNote = currentRoot + 3; }  // minor 3rd
+          else if (pos === 11) { midiNote = currentRoot + (_isMajKey ? 4 : 3); }  // major 3rd or minor 3rd
           else if (pos === 12) { midiNote = currentRoot + 5; }  // perfect 4th
           else if (pos === 13) { midiNote = currentRoot + 7; }  // perfect 5th
-          else if (pos === 14) { midiNote = currentRoot + 10; } // minor 7th
+          else if (pos === 14) { midiNote = currentRoot + (_isMajKey ? 11 : 10); } // major 7th or minor 7th
           else if (pos === 15) { midiNote = nextRoot - 1; }     // chromatic approach
           if (midiNote > 48) midiNote -= 12;
           if (midiNote < 24) midiNote += 12;
@@ -944,7 +945,9 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
       var fillProb = stepCtx[s].isSparseBar ? 0.25 : 0.12;
       if (maybe(fillProb)) {
         // Play a passing tone — chromatic approach, 3rd, 4th, 5th, or b7
-        var fillChoices = [rootNote - 1, rootNote + 3, rootNote + 5, rootNote + 7, rootNote + 10];
+        // Use major 3rd (4 semitones) for major keys, minor 3rd (3) for minor
+        var third = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major') ? 4 : 3;
+        var fillChoices = [rootNote - 1, rootNote + third, rootNote + 5, rootNote + 7, rootNote + 10];
         var fillNote = pick(fillChoices);
         if (fillNote > 48) fillNote -= 12;
         if (fillNote < 24) fillNote += 12;

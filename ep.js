@@ -61,9 +61,12 @@ function buildEPVoicing(root, degree, voicingType, register, spread, epFeel, pre
   var isDim = (degree === '#idim');
   var isMajBorrowed = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
   var isDorianIV = (degree === 'iv' && EP_DORIAN_IV[epFeel]);
+  // Check if the key is major — if so, the root chord 'i' should use major intervals
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  var isRootMajor = (degree === 'i' && keyIsMajor);
 
   if (isDim) { intervals = [0, 3, 6, 9]; }
-  else if (isMajBorrowed || isDorianIV) {
+  else if (isMajBorrowed || isDorianIV || isRootMajor) {
     if (voicingType === 'ninth') intervals = [0, 4, 7, 10, 14];
     else if (voicingType === 'seventh') intervals = [0, 4, 7, 10];
     else if (voicingType === 'shell') intervals = [0, 4, 10];

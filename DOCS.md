@@ -1,6 +1,6 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.33)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.34)
 
-Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, style-matched drum kits and bass sounds, 218 kick patterns, 14,000+ test assertions.
+Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, style-matched drum kits and bass sounds, 218 kick patterns, 15,000+ test assertions.
 
 ## Hip Hop Styles
 
@@ -633,12 +633,12 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 - **Rendering** — Vanilla DOM, CSS flexbox/grid, responsive layout with sticky mobile header
 - **Export** — JSZip for MIDI/MPC bundles, jsPDF for beat sheets and chord sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
-- **Testing** — Node.js test suite (14,000+ assertions, zero dependencies)
+- **Testing** — Node.js test suite (15,000+ assertions, zero dependencies)
 - **Dependencies** — JSZip, jsPDF, SpessaSynth (bundled via esbuild)
 
 ## Testing
 
-Run `node tests.js` — zero dependencies, runs in Node.js. 14,000+ assertions.
+Run `node tests.js` — zero dependencies, runs in Node.js. 15,000+ assertions.
 
 Covers:
 - All JS files parse without syntax errors

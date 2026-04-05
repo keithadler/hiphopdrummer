@@ -209,6 +209,8 @@ document.getElementById('regenGo').onclick = function() {
     var _genDelay = Math.max(0, 1000 - _genElapsed);
     setTimeout(function() {
       if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+      // Show role-specific "What Next" advice
+      _showWhatNext();
     }, _genDelay);
     
     // Scroll to top of the page so the user sees the new beat
@@ -640,6 +642,169 @@ document.getElementById('roleTipsOverlay').onclick = function(e) {
   if (e.target === this) this.style.display = 'none';
 };
 
+// ── What Next Dialog — role-specific actionable advice after beat generation ──
+
+var WHAT_NEXT = {
+  producer: {
+    title: '🎛 Your Beat Is Ready — Here\'s What to Do',
+    html: function(style, key, bpm) {
+      return '<p>This is a complete production — <b>' + style + '</b> at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> with drums, bass, and style-matched instruments all playing together. It\'s ready to use right now.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and listen to the full arrangement. Pay attention to how the instruments interact — the bass locks to the kick, the melodic instruments react to the drums, the energy builds across sections.</p>'
+        + '<p><b>2. Export the ZIP</b> — you get MIDI for every instrument on separate channels, MPC patterns, WAV stems for mixing, chord sheets, and setup guides for your DAW. Load the MIDI into your session and swap the sounds for your own.</p>'
+        + '<p><b>3. Make it yours</b> — add your own samples, re-voice the bass with your 808 or synth, adjust the ghost note velocities, layer your own textures. The patterns are musically correct — you\'re customizing, not starting from scratch.</p>'
+        + '<p><b>4. Read About This Beat</b> — the analysis explains every production decision. Study it, then apply those techniques to your own beats.</p>'
+        + '<p>This is production-ready material. Use it as a starting point, a learning tool, or export the WAV and release it. Your beat, your call.</p>';
+    }
+  },
+  rapper: {
+    title: '🎤 Your Beat Is Ready — Time to Write',
+    html: function(style, key, bpm) {
+      return '<p>You\'ve got a full <b>' + style + '</b> beat at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> — drums, bass, and instruments all locked in. This is ready to rap over right now.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> (or press Space) and freestyle. Feel the groove. Where do the kicks land? That\'s where your hardest syllables go.</p>'
+        + '<p><b>2. Check the Flow Guide</b> in About This Beat — it tells you exactly how many syllables fit per bar at this BPM, and names the beat positions where the kicks land. Use those as your rhythmic anchors.</p>'
+        + '<p><b>3. Write to it</b> — loop a section (press L), open your notes app, and start writing bars. The chord overlay shows you the melodic anchors for hooks.</p>'
+        + '<p><b>4. Export the WAV</b> — click the ⬇ button next to the player or use EXPORT for the full package. You\'ve got a demo-ready backing track with a full arrangement (intro, verses, chorus, outro).</p>'
+        + '<p><b>5. Record</b> — the arrangement has intros and outros built in. Press record in your DAW or phone and go. No setup needed.</p>'
+        + '<p>This beat is yours. Use it for demos, freestyles, ciphers, or release it. No royalties, no restrictions.</p>';
+    }
+  },
+  dj: {
+    title: '🎧 Your Beat Is Ready — Drop It in Your Set',
+    html: function(style, key, bpm) {
+      return '<p>Full <b>' + style + '</b> production at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> — complete song structure with intro, verses, breakdowns, and outro. This sounds like a record.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and listen to the arrangement. The breakdowns thin out to just kick and hat — that\'s your window for scratching and transitions.</p>'
+        + '<p><b>2. Export the WAV</b> — it\'s a full mix with all instruments and master FX applied. Drop it on a deck and it blends with real records.</p>'
+        + '<p><b>3. Build a library</b> — generate beats across styles and tempos. Boom bap at 90 for head-nod sets, G-Funk at 98 for West Coast vibes, Memphis at 72 for dark sessions. Every beat is unique.</p>'
+        + '<p><b>4. Layer with your crates</b> — the key is shown in the header. Filter your samples by that key for instant harmonic matching.</p>'
+        + '<p>These are scratch-ready, DJ-ready productions. Use them in sets, blend them with vinyl, or build entire mixes around them.</p>';
+    }
+  },
+  keys: {
+    title: '🎹 Your Beat Is Ready — Play Along',
+    html: function(style, key, bpm) {
+      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the chord sheet shows you exactly what to play, and the app is already comping the keyboard parts for you.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and watch the chord overlay — it highlights the current chord with a piano diagram as the song plays.</p>'
+        + '<p><b>2. Play along</b> — follow the voicings on screen. The chord sheet in About This Beat shows the full progression with hand-split guidance per style.</p>'
+        + '<p><b>3. Disable the EP in Preferences</b> and play your own part over the rhythm section. The generated part is a reference — learn from it, then make it yours.</p>'
+        + '<p><b>4. Export the EP MIDI</b> to study the voicings in your DAW, or export the WAV stem to hear the EP part isolated.</p>'
+        + '<p>The harmony is real — Dorian IV for G-Funk warmth, Phrygian bII for dark menace, ii-V turnarounds for jazz. This is how session keyboardists actually play.</p>';
+    }
+  },
+  bassist: {
+    title: '🎸 Your Beat Is Ready — Lock In',
+    html: function(style, key, bpm) {
+      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the bass line is already generated, locked to the kick pattern with style-correct intervals and passing tones.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and listen to how the bass interacts with the kick. It drops out on loud snare backbeats, fills gaps when the kick is sparse, and builds its own section-ending fills.</p>'
+        + '<p><b>2. Export the bass MIDI</b> and load it into your DAW. Study the note choices — 5ths, minor 7ths, chromatic approaches, hammer-ons. Then play your own version on top.</p>'
+        + '<p><b>3. Export the bass WAV stem</b> to hear the bass part isolated. Compare it to the full mix to understand how it sits in the pocket.</p>'
+        + '<p><b>4. Jam along</b> — the chord overlay shows the progression. Follow the root movement and add your own fills.</p>'
+        + '<p>The bass reacts to the drums the way a real session player does. Study that relationship — it\'s what separates a bass player from someone who plays bass.</p>';
+    }
+  },
+  guitarist: {
+    title: '🎸 Your Beat Is Ready — Add Your Sound',
+    html: function(style, key, bpm) {
+      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the chord overlay shows guitar diagrams so you can play along in real time.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and follow the chord overlay — it shows fretboard diagrams for each chord as the song plays.</p>'
+        + '<p><b>2. Find your role</b> — verse: rhythm guitar on 2 and 4 with the snare. Chorus: open chords, let them ring. Breakdown: single notes or silence.</p>'
+        + '<p><b>3. Export the WAV</b> and record your guitar over it in your DAW. The arrangement has natural spaces for guitar — especially the breakdowns and intros.</p>'
+        + '<p><b>4. Check the Sample Hunting Guide</b> in About This Beat for guitar-based sample suggestions that match this style and key.</p>'
+        + '<p>The beat is the foundation. Your guitar makes it a song.</p>';
+    }
+  },
+  drummer: {
+    title: '🥁 Your Beat Is Ready — Study the Pattern',
+    html: function(style, key, bpm) {
+      return '<p><b>' + style + '</b> at <b>' + bpm + ' BPM</b> with <b>' + key + '</b> — 218 curated kick patterns, per-instrument accent curves, ghost note clustering, and named player profiles. This is how the greats program.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Study the grid</b> — click any cell to hear the hit at its velocity and understand why it\'s there. The velocity percentages ARE the dynamics.</p>'
+        + '<p><b>2. Read About This Beat</b> — it explains accent curves, ghost clustering, pocket-delayed snares, and fill construction. Techniques most tutorials never cover.</p>'
+        + '<p><b>3. Export the MIDI</b> and load it into your e-kit or practice pad. Play along and match the dynamics — the ghost notes, accents, and fills are all at the right velocities.</p>'
+        + '<p><b>4. Toggle Edit mode</b> (press E) and try modifying the pattern. Add ghost notes, move kicks, change velocities. Then compare your version to the original.</p>'
+        + '<p>Generate 10 beats in the same style and compare the patterns. That\'s how you internalize a style deeply enough to program it yourself.</p>';
+    }
+  },
+  samplehead: {
+    title: '💿 Your Beat Is Ready — Start Digging',
+    html: function(style, key, bpm) {
+      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the Sample Hunting Guide tells you exactly what to dig for, what key to filter by, and where to chop.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Check the key</b> — filter Splice or Tracklib by <b>' + key + '</b>. Samples in the relative major/minor use the same notes but sound brighter or darker.</p>'
+        + '<p><b>2. Read the Sample Hunting Guide</b> in About This Beat — it names specific genres, decades, and artists to dig through based on this style.</p>'
+        + '<p><b>3. Export the MIDI to your MPC or DAW</b> — load the drum patterns, then layer your samples on top. The patterns give you the groove; your samples give it the soul.</p>'
+        + '<p><b>4. Use the section tips</b> — verse: your main 2-4 bar loop. Chorus: counter-melody or vocal chop. Breakdown: raw uncut sample, reversed or filtered. Last chorus: everything at once.</p>'
+        + '<p>The beat is the skeleton. Your samples are the flesh. Export it, load it up, and start chopping.</p>';
+    }
+  },
+  learner: {
+    title: '🎓 Your Beat Is Ready — Here\'s How to Learn From It',
+    html: function(style, key, bpm) {
+      return '<p>This is a complete <b>' + style + '</b> beat at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> — generated from the same techniques used by Premier, Dilla, Dre, and RZA. Every decision in this beat is explained.</p>'
+        + '<h3>Your Next Move</h3>'
+        + '<p><b>1. Hit Play</b> and just listen. Don\'t analyze yet — feel the groove first. Where does your head nod? That\'s the pocket.</p>'
+        + '<p><b>2. Read About This Beat</b> — start with "Start Here" at the top. It gives you a learning path based on your level (beginner → intermediate → advanced).</p>'
+        + '<p><b>3. Click any grid cell</b> to hear that hit and understand why it\'s at that velocity. The tooltip explains the accent curve and style rules that shaped it.</p>'
+        + '<p><b>4. Export the MIDI</b> and load it into your DAW or MPC. Reverse-engineer it — change one thing at a time and hear how it affects the groove.</p>'
+        + '<p><b>5. Try the exercises</b> — the "Try This" section in About This Beat gives you beat-specific challenges. The "Build This Beat From Scratch" walkthrough teaches you to recreate it step by step.</p>'
+        + '<p>Every beat you generate is a free lesson. The patterns are production-ready — use them to learn, then use what you learn to make your own.</p>';
+    }
+  }
+};
+
+/**
+ * Show the "What Next" dialog with role-specific actionable advice.
+ * Called after beat generation. Respects the "don't show again" preference.
+ */
+function _showWhatNext() {
+  // Check if user opted out
+  try { if (localStorage.getItem('hhd_skip_whatnext') === 'true') return; } catch(e) {}
+  
+  var role = 'producer';
+  try { role = localStorage.getItem('hhd_user_role') || 'producer'; } catch(e) {}
+  
+  var tips = WHAT_NEXT[role];
+  if (!tips) return;
+  
+  // Get current beat info for personalized content
+  var style = '';
+  try { style = document.getElementById('songStyle').textContent || ''; } catch(e) {}
+  // Strip the kit/bass suffix from the style name for cleaner display
+  var dashIdx = style.indexOf(' — ');
+  if (dashIdx > 0) style = style.substring(0, dashIdx);
+  
+  var key = '';
+  try { key = document.getElementById('songKey').textContent || ''; } catch(e) {}
+  var bpm = '';
+  try { bpm = document.getElementById('bpm').textContent || '90'; } catch(e) {}
+  
+  var titleEl = document.getElementById('whatNextTitle');
+  var contentEl = document.getElementById('whatNextContent');
+  if (titleEl) titleEl.textContent = tips.title;
+  if (contentEl) contentEl.innerHTML = tips.html(style, key, bpm);
+  
+  document.getElementById('whatNextOverlay').style.display = 'flex';
+}
+
+document.getElementById('whatNextClose').onclick = function() {
+  // Save "don't show again" preference if checked
+  var dontShow = document.getElementById('whatNextDontShow');
+  if (dontShow && dontShow.checked) {
+    try { localStorage.setItem('hhd_skip_whatnext', 'true'); } catch(e) {}
+  }
+  document.getElementById('whatNextOverlay').style.display = 'none';
+};
+document.getElementById('whatNextOverlay').onclick = function(e) {
+  if (e.target === this) {
+    document.getElementById('whatNextClose').click();
+  }
+};
+
 function initWelcome() {
   var savedRole = null;
   try { savedRole = localStorage.getItem('hhd_user_role'); } catch(e) {}
@@ -806,6 +971,13 @@ function initBeatHistoryHandlers() {
   // Show the app
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
+  
+  // Show "What Next" dialog for returning users (first-time users get the welcome flow instead)
+  var _hasRole = false;
+  try { _hasRole = !!localStorage.getItem('hhd_user_role'); } catch(e) {}
+  if (_hasRole && typeof _showWhatNext === 'function') {
+    setTimeout(_showWhatNext, 500); // slight delay so the UI settles first
+  }
   
   // Initialize player controls and tracking
   initPlayerControls();

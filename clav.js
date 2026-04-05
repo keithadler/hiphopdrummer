@@ -19,7 +19,8 @@ function _clavScaleNotes(chordRoot, register) {
   while (base < 48) base += 12;
   if (register === 'mid') { while (base < 60) base += 12; while (base > 72) base -= 12; }
   else { while (base < 48) base += 12; while (base > 60) base -= 12; }
-  var pentatonic = [0, 3, 5, 7, 10];
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  var pentatonic = keyIsMajor ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10];
   var notes = [];
   for (var i = 0; i < pentatonic.length; i++) {
     var n = base + pentatonic[i];

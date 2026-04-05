@@ -35,6 +35,8 @@ function buildHornVoicing(root, degree, voicingType, register, prevNotes) {
 
   var intervals;
   var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  if (degree === 'i' && keyIsMajor) isMaj = true;
   if (degree === '#idim') intervals = [0, 3, 6];
   else if (isMaj) intervals = [0, 4, 7];
   else intervals = [0, 3, 7]; // minor triad — tight cluster for punch

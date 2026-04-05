@@ -36,6 +36,8 @@ function buildOrganVoicing(root, degree, voicingType, register, prevNotes) {
   var intervals;
   var isDim = (degree === '#idim');
   var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
+  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
+  if (degree === 'i' && keyIsMajor) isMaj = true;
   // Organ uses Dorian IV for jazz styles (same as EP)
   var isDorianIV = (degree === 'iv') && (typeof EP_DORIAN_IV !== 'undefined') && EP_DORIAN_IV[degree]; // not style-dependent for organ
 
