@@ -1894,13 +1894,6 @@ var BPMS = [68,70,72,75,78,80,85,88,90,92,95,98,100,105,110,120,125,130,135,140,
  */
 function generateAll(opts) {
   opts = opts || {};
-  var bpm = opts.bpm ? parseInt(opts.bpm) : pick(BPMS);
-  // If a style is selected but BPM is Auto, use the style's curated BPM pool
-  if (!opts.bpm && opts.style && STYLE_DATA[opts.style]) {
-    var sd = STYLE_DATA[opts.style];
-    bpm = pick(sd.bpms || BPMS);
-  }
-  document.getElementById('bpm').textContent = bpm;
 
   // Select a song-level feel palette for coherent style across all sections.
   // If a style override is provided, find the palette that starts with that feel.
@@ -1910,11 +1903,23 @@ function generateAll(opts) {
       if (FEEL_PALETTES[pi][0] === opts.style) { matchPalette = FEEL_PALETTES[pi]; break; }
     }
     songPalette = matchPalette || pick(FEEL_PALETTES);
-    // Also pre-set songFeel so swing pool and ghost density use the right feel
     songFeel = opts.style;
   } else {
     songPalette = pick(FEEL_PALETTES);
   }
+
+  // BPM: use the forced value, or pick from the style's curated pool.
+  // The style is either opts.style (user selected) or songPalette[0] (randomly chosen).
+  var effectiveStyle = opts.style || songPalette[0];
+  var bpm;
+  if (opts.bpm) {
+    bpm = parseInt(opts.bpm);
+  } else if (STYLE_DATA[effectiveStyle] && STYLE_DATA[effectiveStyle].bpms) {
+    bpm = pick(STYLE_DATA[effectiveStyle].bpms);
+  } else {
+    bpm = pick(BPMS);
+  }
+  document.getElementById('bpm').textContent = bpm;
 
   // If a key override is provided, store it so analyzeBeat() uses it
   if (opts.key) {
