@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.46] - 2026-04-04
+
+### Fixed — Critical
+- MPC patterns for all 7 melodic instruments (EP, pad, lead, organ, horns, vibes, clav) were returning raw MIDI bytes instead of MPC JSON format — patterns loaded on MPC but had zero playable notes. Added shared `_buildInstrumentMpcPattern()` that generates proper MPC JSON with type-2 note events, 960 PPQ timing, and velocity floats. Drums and bass were already correct.
+- EP icon not showing on sections where EP plays (e.g. halftime pre-chorus in a dark song) — mutual exclusion logic fixed to match actual generator behavior.
+
 ## [1.45] - 2026-04-04
 
 ### Fixed
