@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.43] - 2026-04-04
+
+### Added
+- Instrument icons on arrangement cards — 🎹 piano/EP, 🎛 pad, 🎵 lead, 🔘 organ, 🎺 horns, 🔔 vibes, 🪕 clav shown after bar count/time for each section
+
+### Fixed
+- Empty instrument files in export — MIDI files with only headers (62-86 bytes, no note events) were exported. Raised threshold from 30 to 100 bytes. Sections where an instrument doesn't play no longer produce files.
+
 ## [1.42] - 2026-04-04
 
 ### Fixed
