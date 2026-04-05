@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#15151c">
-  <meta name="description" content="Learn hip hop drum programming by generating and studying authentic patterns. 25 styles from old school to modern boom bap, with MIDI and MPC export.">
+  <meta name="description" content="Generate unique hip hop beats with 9 instruments — drums, bass, EP, synth pad, lead, organ, horns, vibes, clavinet. 25 styles, WAV stems, MIDI/MPC export, chord sheets. Free, no account, runs in your browser.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -67,7 +67,7 @@
             <div class="about-version">Release 1.33</div>
           </div>
         </div>
-        <p class="welcome-intro">Every beat is uniquely generated — drums, bass, chords, fills, and a full song arrangement assembled from scratch. What's your role?</p>
+        <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. Each style gets its own drum kit and bass sound. What's your role?</p>
         <div class="welcome-roles">
           <button class="btn welcome-role" data-role="producer">🎛 Producer / Beat Maker</button>
           <button class="btn welcome-role" data-role="rapper">🎤 Rapper / MC</button>
@@ -223,15 +223,16 @@
             <label class="regen-label">Audio</label>
             <div class="export-checks">
               <label class="export-check"><input type="checkbox" id="expWav" checked> WAV full mix <span class="export-note">(all instruments — ready to use as-is)</span></label>
-              <label class="export-check"><input type="checkbox" id="expWavDrums"> WAV drums stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavBass"> WAV bass stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavEP"> WAV electric piano stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavPad"> WAV synth pad stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavLead"> WAV synth lead stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavOrgan"> WAV organ stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavHorns"> WAV horn stabs stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavVibes"> WAV vibraphone stem</label>
-              <label class="export-check"><input type="checkbox" id="expWavClav"> WAV clavinet stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavDrums" class="stem-check"> WAV drums stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavBass" class="stem-check"> WAV bass stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavEP" class="stem-check"> WAV electric piano stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavPad" class="stem-check"> WAV synth pad stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavLead" class="stem-check"> WAV synth lead stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavOrgan" class="stem-check"> WAV organ stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavHorns" class="stem-check"> WAV horn stabs stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavVibes" class="stem-check"> WAV vibraphone stem</label>
+              <label class="export-check"><input type="checkbox" id="expWavClav" class="stem-check"> WAV clavinet stem</label>
+              <button class="export-toggle" id="exportStemToggle">Select all stems</button>
               <label class="export-check"><input type="checkbox" id="expMasterFx" checked> Apply master FX to WAV <span class="export-note">(compression, EQ, room reverb)</span></label>
             </div>
           </div>
@@ -367,6 +368,7 @@
         • <em>Vibraphone MIDI</em> — vibes .mid files (channel 7) for Nujabes/jazzy: bell-like arpeggiated tones.<br>
         • <em>Clavinet MIDI</em> — clav .mid files (channel 8) for bounce/G-Funk: funky percussive comping.<br>
         • <em>WAV audio</em> — rendered full mix with all instruments, ready to use as-is.<br>
+        • <em>WAV stems</em> — individual WAV files for each instrument (drums, bass, EP, pad, lead, organ, horns, vibes, clav) so you can mix them yourself in your DAW.<br>
         • <em>PDF beat sheet</em> — printable color-coded pattern grids with the full analysis.<br>
         • <em>Chord sheet PDF</em> — piano keyboard diagrams with feel-aware voicings for each section.<br>
         • <em>DAW guides</em> — step-by-step setup for Ableton, Logic, FL Studio, Pro Tools, Maschine, Reason, Reaper, Studio One, GarageBand.<br>
@@ -374,13 +376,13 @@
         <p>Everything is uniquely generated. The drums, bass, fills, transitions, and chord progressions are assembled from scratch every time. No two exports are the same. Your beat is yours.</p>
 
         <h3>🎤 For Rappers</h3>
-        <p>Hit play and rap over it — full drums and bass, ready to go. No setup, no loading samples, no programming. Just a beat and your voice.</p>
+        <p>Hit play and rap over it — full production with drums, bass, and style-matched instruments, ready to go. No setup, no loading samples, no programming. Just a beat and your voice.</p>
         <p>The flow guide is built for you. It calculates how many syllables fit per bar based on the actual BPM and kick pattern density — not generic advice, but numbers specific to this beat. It names the exact beat positions where the kicks land (e.g. "beat 1, and-of-2, beat 3") so you know where to place your hardest-hitting syllables. Sparse kick with 2 hits per bar? You have room for dense internal rhyme and multisyllabic schemes. Busy kick with 5 hits? Keep it punchy and direct.</p>
         <p>The style-specific tips tell you how to ride each groove. Dilla beats want you to drift behind the pocket — half-asleep delivery where every word still lands. G-Funk wants smooth and effortless, floating over the bounce. Memphis wants slow and deliberate, every word a threat. Crunk wants short, aggressive call-and-response chants. The beat tells you how to flow if you listen to it.</p>
         <p>Export the WAV and you've got a practice beat, a demo backing track, a freestyle cipher session, or a scratch track for writing. The arrangement has intros and outros already built in — press record and go.</p>
 
         <h3>🎧 For DJs</h3>
-        <p>These are scratch-ready productions, not loops. Full song arrangements with intros that build, verses that groove, breakdowns that strip down to just kick and hat (giving you space to cut), and outros that wind down naturally. The WAV export includes drums and bass together — drop it on a deck and it sounds like a record.</p>
+        <p>These are scratch-ready productions, not loops. Full song arrangements with intros that build, verses that groove, breakdowns that strip down to just kick and hat (giving you space to cut), and outros that wind down naturally. The WAV export is a full mix — drums, bass, and all melodic instruments together. Drop it on a deck and it sounds like a record. Need just the drums? Export individual stems.</p>
         <p>The breakdown sections are where you work. The drums thin out progressively — bar 1 drops the ghost notes, bar 2 drops the claps, bar 3 is just a kick on 1 and sparse hats. That's your window for scratching, drops, and transitions. The last chorus hits hardest after the breakdown — the contrast is built in.</p>
         <p>Generate beats in different styles and tempos to build a library. Classic boom bap at 90 BPM for head-nod sets. G-Funk at 98 for West Coast vibes. Memphis at 72 for dark, slow sessions. Every beat is unique — you'll never run out of material. Layer them with your vinyl finds, blend the tempos, cut between styles.</p>
 
@@ -390,6 +392,7 @@
         <p><b>Synth Pad:</b> For darker styles (Memphis, phonk, dark, Griselda, crunk, hard), the app generates atmospheric synth pads — choir sounds for Memphis/phonk (with a detuned chorus effect), string ensembles for dark/Griselda, and aggressive sawtooth stabs for crunk.</p>
         <p><b>More instruments:</b> G-Funk gets a mono synth lead (the signature whistle melody with slides). Jazz and Nujabes get organ (sustained drawbar underneath the EP) and vibraphone (bell-like arpeggiated tones). Bounce and G-Funk DJ Quik get clavinet (funky percussive 16th-note comping). Boom bap, big, driving, chopbreak, and old school get horn stabs (short brass chord hits locked to the kick). Every style has at least one harmonic instrument beyond drums and bass.</p>
         <p>The bass MIDI is a masterclass in hip hop bass playing. It's not just root notes on the kick — it uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches for G-Funk, drops to sub octaves on beat 1 for weight, and breathes with intentional rests on weak beats. Load the bass MIDI into your DAW and study the note choices — then play your own version on top.</p>
+        <p><b>WAV stems:</b> Export individual WAV files for every instrument — drums, bass, EP, pad, lead, organ, horns, vibes, clav. Hear each part in isolation, study the voicings, or import them into your DAW for mixing practice. The "Select all stems" button in the export dialog checks all 9 at once.</p>
         <p>The suggested key section gives you a starting point with I/IV/V chords, 3-chord combos, and style-matched alternate progressions (Andalusian cadence, ii-V-I turnarounds, neo-soul turnarounds, trap minor). The drums, bass, electric piano, and synth pads are the foundation — everything you add makes it yours.</p>
 
         <h3>🎛 For Producers</h3>

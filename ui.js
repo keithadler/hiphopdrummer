@@ -61,9 +61,12 @@ function _applyMarquee(el, text) {
     // Guard: element may have been removed from DOM during the frame
     if (!el.parentNode) return;
     if (el.scrollWidth > el.clientWidth + 2) {
+      // Scale animation speed with text length — longer text scrolls slower
+      // Base: 6s for ~20 chars, scales up ~0.2s per extra char
+      var duration = Math.max(6, 6 + (text.length - 20) * 0.2);
       // Escape HTML entities for safe innerHTML
       var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      el.innerHTML = '<span class="marquee-inner">' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
+      el.innerHTML = '<span class="marquee-inner" style="animation-duration:' + duration.toFixed(1) + 's">' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
       el.classList.add('marquee-active');
     }
   });
