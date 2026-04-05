@@ -1505,6 +1505,7 @@ function initPlayerControls() {
       }
       renderGrid();
       if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      if (typeof renderArr === 'function') renderArr();
       // Rebuild About This Beat to reflect the new pattern
       var aboutEl = document.getElementById('aboutBeat');
       if (aboutEl && typeof analyzeBeat === 'function') {
