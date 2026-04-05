@@ -2,6 +2,13 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.44] - 2026-04-04
+
+### Fixed
+- Horns suppressed by song-level EP check — horn generator returned empty for ALL sections if the song's primary feel had EP (e.g. halftime with big/anthem choruses). Now checks per-section, so horns play in chorus sections that support them even when the song uses EP elsewhere.
+- Regen section didn't update arrangement card instrument icons — now calls renderArr() after regenerating.
+- Instrument icons on arrangement cards now respect mutual exclusions (EP vs pad, horns only when section doesn't have EP/pad).
+
 ## [1.43] - 2026-04-04
 
 ### Added
