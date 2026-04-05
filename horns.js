@@ -119,7 +119,7 @@ function generateHornPattern(sec, bpm) {
   var vChordRoot = noteToMidi(bassChordRoot(keyData.v));
   function degreeToNote(deg) {
     if (deg === 'iv') return fourthNote; if (deg === 'v') return vChordRoot;
-    return rootNote;
+    return _degreeToMidiNote(deg);
   }
 
   var progPool = (typeof CHORD_PROGRESSIONS !== 'undefined') ? (CHORD_PROGRESSIONS[styleLookup] || CHORD_PROGRESSIONS[hornFeelBase] || CHORD_PROGRESSIONS.normal) : [['i','i','iv','i']];
