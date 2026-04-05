@@ -38,7 +38,9 @@ The drum engine models over 60 distinct behaviors per style: kick placement libr
 ### Bass
 The bass locks to the kick drum, uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches with Moog-style glissando for G-Funk, drops to sub octaves on beat 1 for 808 styles, and breathes with intentional rests on weak beats. It generates 2-bar motifs and repeats them with mutations — the way a session player develops a part over a song. Section-ending bass fills complement the drum fills: jazzy styles get walking diatonic runs, Dilla gets soft chromatic dissolves, 808 styles drop out and let the sub tail ring, boom bap gets chromatic walk-ups into the next section. Drums and bass are the rhythmic foundation — always consistent regardless of playback mode.
 
-### Electric Piano
+### Keys (Piano / Electric Piano)
+The keyboard track automatically selects the right sound for each style — acoustic grand piano for jazz-influenced, Nujabes, and Queens boom bap (the sampled piano from jazz records), electric piano (Rhodes/Wurlitzer) for Dilla, G-Funk, lo-fi, bounce, and halftime. In your DAW, swap it for any piano, Rhodes, Wurlitzer, Clavinet, or synth pad you want — the MIDI voicings work with any keyboard sound.
+
 30 musicality features modeled from how session keyboardists actually comp in hip hop:
 
 - **Voice leading**: common tones held between chords — when moving from Cm7 to Fm7, the C and Eb stay while only the root and 5th move. This is how real keyboardists play, not just jumping to new chord shapes.
