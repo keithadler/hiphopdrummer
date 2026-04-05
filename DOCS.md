@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.32)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.33)
 
 Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, style-matched drum kits and bass sounds, 218 kick patterns, 14,000+ test assertions.
 
@@ -619,6 +619,7 @@ Note mapping uses the **Chromatic C1** layout (MPC default since firmware 2.11) 
 | A07 | 42 (F#1) | Open Hi-Hat |
 | A08 | 43 (G1)  | Ride |
 | A09 | 44 (G#1) | Crash |
+| A10 | 45 (A1)  | Shaker |
 
 Format adapted from [medianmpc](https://github.com/miathedev/medianmpc) by miathedev / Catnip (Jamie Faye Fenton).
 
