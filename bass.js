@@ -349,7 +349,7 @@ var CHORD_PROGRESSIONS = {
   // Hard: stays on root — occasional bVI for tension, always some movement
   hard:      [['i','i','iv','i','i','i','v','i'], ['i','i','i','v','i','i','bVI','i'], ['i','i','bVI','i','i','i','iv','i'], ['i','iv','i','i','i','iv','i','i']],
   // Jazzy: ii-V movement, neo-soul turnarounds with bIII, bVI, and dim passing chords
-  jazzy:     [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','bIII','bVI','ii','i','bIII','bVI','ii'], ['i','#idim','ii','v','i','#idim','ii','v']],
+  jazzy:     [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','#idim','ii','v','i','#idim','ii','v']],
   // Dark: Phrygian bII, Andalusian cadence (i-bVII-bVI-V)
   dark:      [['i','i','i','i','i','i','i','i'], ['i','i','iv','i','i','i','iv','i'], ['i','bII','i','iv','i','bII','i','iv'], ['i','i','bII','i','i','i','bII','i'], ['i','bVII','bVI','v','i','bVII','bVI','v']],
   // Bounce: Soul Loop (I-bVII-IV-I), danceable movement
@@ -373,7 +373,7 @@ var CHORD_PROGRESSIONS = {
   // Phonk: ONE CHORD — modern 808 sub, hypnotic
   phonk:     [['i','i','i','i','i','i','i','i'], ['i','i','i','i','i','i','i','i'], ['i','bII','i','i','i','bII','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','bVII','i','i','i','bVII']],
   // Nujabes: jazz-influenced, ii-V, neo-soul with bIII and dim passing chords
-  nujabes:   [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','bIII','bVI','ii','i','bIII','bVI','ii'], ['i','#idim','ii','v','i','#idim','ii','v']],
+  nujabes:   [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','#idim','ii','v','i','#idim','ii','v']],
   // Old school: simple, drum-machine era — root and IV, occasional bVII
   oldschool: [['i','i','iv','i','i','i','iv','i'], ['i','i','iv','iv','i','i','iv','iv'], ['i','bVII','i','i','i','bVII','i','i'], ['i','iv','i','iv','i','iv','i','iv']],
   // Sparse: minimal, stays on root
