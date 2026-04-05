@@ -164,9 +164,11 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
 
-  // Drum kit program change on channel 10
+  // Drum kit program change on channel 10 — style-matched from STYLE_DATA
   var drumKitProgram = 0;
-  try { var dkPref = localStorage.getItem('hhd_drumkit'); if (dkPref) drumKitProgram = parseInt(dkPref) || 0; } catch(e) {}
+  var _feel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var _sd = STYLE_DATA[_feel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_feel) : 'normal'] || {};
+  if (typeof _sd.drumKit === 'number') drumKitProgram = _sd.drumKit;
   td.push(0, 0xC0 | ch, drumKitProgram);
 
   // Write note-on (0x9n) and note-off (0x80) events with delta-time encoding
@@ -1136,14 +1138,16 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   // Tempo
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
-  // Program change on channel 1: bass sound from preferences
+  // Program change on channel 1: bass sound — style-matched from STYLE_DATA
   var bassProgram = 33;
-  try { var bsPref = localStorage.getItem('hhd_bass_sound'); if (bsPref) bassProgram = parseInt(bsPref) || 33; } catch(e) {}
+  var _cFeel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var _cSd = STYLE_DATA[_cFeel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_cFeel) : 'normal'] || {};
+  if (typeof _cSd.bassSound === 'number') bassProgram = _cSd.bassSound;
   td.push(0, 0xC0 | bassCh, bassProgram);
 
   // Drum kit program change on channel 10 (GM drum kits: 0=Standard, 8=Room, 16=Power, etc.)
   var drumKitProgram = 0;
-  try { var dkPref = localStorage.getItem('hhd_drumkit'); if (dkPref) drumKitProgram = parseInt(dkPref) || 0; } catch(e) {}
+  if (typeof _cSd.drumKit === 'number') drumKitProgram = _cSd.drumKit;
   td.push(0, 0xC0 | drumCh, drumKitProgram);
 
   // Program change on channel 2: Electric Piano (GM 4 = Electric Piano 1)

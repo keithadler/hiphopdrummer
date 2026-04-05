@@ -1440,10 +1440,9 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
   var bassProgram = 33;
-  try { var bsPref = localStorage.getItem('hhd_bass_sound'); if (bsPref) bassProgram = parseInt(bsPref) || 33; } catch(e) {}
-  var drumKit = '';
-  try { drumKit = localStorage.getItem('hhd_drumkit') || ''; } catch(e) {}
-  if (drumKit.indexOf('jazz_kit') >= 0) bassProgram = 0;
+  var _bFeel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var _bSd = STYLE_DATA[_bFeel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_bFeel) : 'normal'] || {};
+  if (typeof _bSd.bassSound === 'number') bassProgram = _bSd.bassSound;
   td.push(0, 0xC0 | ch, bassProgram);
 
   var lastTick = 0;

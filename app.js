@@ -21,6 +21,26 @@
 // ── New Beat Dialog ──
 
 /**
+ * Get the drum kit and bass sound for the current style from STYLE_DATA.
+ * Falls back to Standard Kit (0) and Electric Bass Finger (33).
+ */
+function _getStyleSounds() {
+  var feel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var data = STYLE_DATA[feel];
+  if (!data) {
+    // Try resolving regional variant
+    if (typeof resolveBaseFeel === 'function') {
+      var base = resolveBaseFeel(feel);
+      data = STYLE_DATA[base];
+    }
+  }
+  return {
+    drumKit: (data && typeof data.drumKit === 'number') ? data.drumKit : 0,
+    bassSound: (data && typeof data.bassSound === 'number') ? data.bassSound : 33
+  };
+}
+
+/**
  * Populate and show the New Beat dialog.
  * Style dropdown is always full. Key and BPM dropdowns update
  * dynamically when style changes — only showing options valid for
@@ -148,12 +168,19 @@ document.getElementById('regenGo').onclick = function() {
   
   // Defer generation to next paint so the loading overlay renders
   // Double-rAF ensures the overlay is painted before the synchronous generation blocks
+  var _genStart = Date.now();
   requestAnimationFrame(function() { requestAnimationFrame(function() {
     // Close any open editors
     if (typeof _hideHeaderEditor === 'function') _hideHeaderEditor();
     try {
       // Generate the new beat
       generateAll({ style: style, key: key, bpm: bpm });
+      // Apply style-matched drum kit and bass sound
+      if (window.synthBridge) {
+        var sounds = _getStyleSounds();
+        window.synthBridge.setDrumKit(sounds.drumKit);
+        window.synthBridge.setBassProgram(sounds.bassSound);
+      }
       updateMidiPlayer();
     } catch(e) {
       console.error('Beat generation failed:', e);
@@ -177,8 +204,12 @@ document.getElementById('regenGo').onclick = function() {
     // Rebuild chord sheet after MIDI build so it picks up bass progressions
     if (typeof buildChordSheet === 'function') buildChordSheet();
     
-    // Remove loading indicator
-    if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+    // Remove loading indicator after at least 1 second so the user sees it
+    var _genElapsed = Date.now() - _genStart;
+    var _genDelay = Math.max(0, 1000 - _genElapsed);
+    setTimeout(function() {
+      if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+    }, _genDelay);
     
     // Scroll to top of the page so the user sees the new beat
     var scrollArea = document.querySelector('.scroll-area');
@@ -325,33 +356,6 @@ document.getElementById('aboutOverlay').onclick = function(e) {
 };
 
 function showPrefsDialog() {
-  // Restore saved drumkit preference (now a GM program number)
-  var saved = '0';
-  try { saved = localStorage.getItem('hhd_drumkit') || '0'; } catch(e) {}
-  document.getElementById('prefsDrumKit').value = saved;
-  
-  // Wire kit preview on change
-  var kitSelect = document.getElementById('prefsDrumKit');
-  kitSelect.onchange = function() {
-    if (!window.synthBridge) return;
-    var kit = parseInt(kitSelect.value) || 0;
-    window.synthBridge.setDrumKit(kit);
-    // Play a quick kick-snare-hat preview
-    setTimeout(function() { window.synthBridge.playNote(9, 36, 100, 200); }, 0);    // kick
-    setTimeout(function() { window.synthBridge.playNote(9, 42, 80, 150); }, 200);   // hat
-    setTimeout(function() { window.synthBridge.playNote(9, 38, 110, 200); }, 400);  // snare
-    setTimeout(function() { window.synthBridge.playNote(9, 42, 70, 150); }, 600);   // hat
-  };
-  
-  // Wire bass sound preview on change
-  var bassSelect = document.getElementById('prefsBassSound');
-  bassSelect.onchange = function() {
-    if (!window.synthBridge) return;
-    var prog = parseInt(bassSelect.value) || 33;
-    window.synthBridge.setBassProgram(prog);
-    // Play a quick bass note preview
-    setTimeout(function() { window.synthBridge.playNote(0, 36, 90, 400); }, 0);
-  };
   // Restore bass playback preference (default: on)
   var bassOn = true;
   try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
@@ -376,10 +380,6 @@ function showPrefsDialog() {
   var instrMode = 'strict';
   try { instrMode = localStorage.getItem('hhd_instr_mode') || 'strict'; } catch(e) {}
   document.getElementById('prefsInstrMode').value = instrMode;
-  // Restore bass sound preference (default: 33 = Electric Bass Finger)
-  var bassSound = '33';
-  try { bassSound = localStorage.getItem('hhd_bass_sound') || '33'; } catch(e) {}
-  document.getElementById('prefsBassSound').value = bassSound;
   // Restore follow playhead preference (default: off)
   var followOn = false;
   try { var fp = localStorage.getItem('hhd_follow_playhead'); if (fp !== null) followOn = (fp === 'true'); } catch(e) {}
@@ -413,8 +413,6 @@ document.getElementById('prefsOverlay').onclick = function(e) {
 };
 
 document.getElementById('prefsSave').onclick = function() {
-  var kit = document.getElementById('prefsDrumKit').value;
-  try { localStorage.setItem('hhd_drumkit', kit); } catch(e) {}
   var bassOn = document.getElementById('prefsBassPlayback').checked;
   try { localStorage.setItem('hhd_bass_playback', bassOn ? 'true' : 'false'); } catch(e) {}
   var epOn = document.getElementById('prefsEPPlayback').checked;
@@ -429,8 +427,6 @@ document.getElementById('prefsSave').onclick = function() {
   });
   var instrMode = document.getElementById('prefsInstrMode').value;
   try { localStorage.setItem('hhd_instr_mode', instrMode); } catch(e) {}
-  var bassSound = document.getElementById('prefsBassSound').value;
-  try { localStorage.setItem('hhd_bass_sound', bassSound); } catch(e) {}
   var followPlayhead = document.getElementById('prefsFollowPlayhead').checked;
   try { localStorage.setItem('hhd_follow_playhead', followPlayhead ? 'true' : 'false'); } catch(e) {}
   var showChords = document.getElementById('prefsShowChords').checked;
@@ -446,10 +442,11 @@ document.getElementById('prefsSave').onclick = function() {
   try { oldRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
   try { localStorage.setItem('hhd_user_role', newRole); } catch(e) {}
 
-  // Apply drum kit and bass sound via synth bridge
+  // Apply style-based drum kit and bass sound via synth bridge
   if (window.synthBridge) {
-    window.synthBridge.setDrumKit(parseInt(kit) || 0);
-    window.synthBridge.setBassProgram(parseInt(bassSound) || 33);
+    var sounds = _getStyleSounds();
+    window.synthBridge.setDrumKit(sounds.drumKit);
+    window.synthBridge.setBassProgram(sounds.bassSound);
     window.synthBridge.setEPProgram(4);
     window.synthBridge.setPadProgram(48);
     window.synthBridge.setLeadProgram(80);
@@ -719,7 +716,6 @@ function initBeatHistoryHandlers() {
  */
 (function _ensureDefaults() {
   var defaults = {
-    'hhd_drumkit': '0',
     'hhd_bass_playback': 'true',
     'hhd_ep_playback': 'true',
     'hhd_pad_playback': 'true',
@@ -729,7 +725,6 @@ function initBeatHistoryHandlers() {
     'hhd_vibes_playback': 'true',
     'hhd_clav_playback': 'true',
     'hhd_instr_mode': 'strict',
-    'hhd_bass_sound': '33',
     'hhd_follow_playhead': 'false',
     'hhd_show_chords': 'true',
     'hhd_countdown': 'true',
@@ -819,12 +814,11 @@ function initBeatHistoryHandlers() {
           document.removeEventListener('click', _initSynthOnGesture);
           if (window.synthBridge && window.synthBridge.init) {
             window.synthBridge.init().then(function() {
-              // Now synth is ready — apply saved preferences
+              // Now synth is ready — apply style-based sounds
               try {
-                var savedKit = localStorage.getItem('hhd_drumkit') || '0';
-                window.synthBridge.setDrumKit(parseInt(savedKit) || 0);
-                var savedBass = localStorage.getItem('hhd_bass_sound') || '33';
-                window.synthBridge.setBassProgram(parseInt(savedBass) || 33);
+                var sounds = _getStyleSounds();
+                window.synthBridge.setDrumKit(sounds.drumKit);
+                window.synthBridge.setBassProgram(sounds.bassSound);
                 window.synthBridge.setEPProgram(4);
                 window.synthBridge.setPadProgram(48);
                 window.synthBridge.setLeadProgram(80);
@@ -1080,8 +1074,9 @@ function initPlayerControls() {
       var pd = localStorage.getItem('hhd_pad_playback');
       if (pd !== null) p.padOn = (pd !== 'false');
       p.bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-      p.kit = parseInt(localStorage.getItem('hhd_drumkit') || '0') || 0;
-      p.bass = parseInt(localStorage.getItem('hhd_bass_sound') || '33') || 33;
+      var sounds = _getStyleSounds();
+      p.kit = sounds.drumKit;
+      p.bass = sounds.bassSound;
     } catch(e) {}
     return p;
   }
