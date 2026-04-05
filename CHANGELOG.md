@@ -2,6 +2,11 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.37] - 2026-04-04
+
+### Fixed — Critical
+- Chord sheet / instrument mismatch — the chord sheet displayed correct chord names (Gmaj7, C7, Dm7) read from key data, but the instruments guessed intervals from degree symbols and often played different chords. New shared `_getChordIntervals(degree)` function reads the actual chord name from `_lastChosenKey`, parses the quality (maj7, m7, 7, dim, m, etc.), and returns exact intervals. All 7 melodic instruments (EP, pad, organ, horns, vibes, clav, lead) now use this. The chord sheet and audio are guaranteed to match.
+
 ## [1.36] - 2026-04-04
 
 ### Added
