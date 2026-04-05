@@ -2,6 +2,19 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.32] - 2026-04-04
+
+### Changed — Documentation
+- Removed "professionally reviewed and tuned by working musicians" claims from README, about dialog, and all docs — this was inaccurate
+- README.md: expanded all 7 melodic instrument sections with detailed musical technique descriptions (voice leading mechanics, crushed chord timing, Dorian IV theory, pentatonic scale usage, kick-locked timing, arpeggiation patterns, funk rhythm structure, etc.)
+- DOCS.md: expanded all instrument generator sections with categorized technique breakdowns (chord technique, rhythm/interaction, dynamics/arrangement) and added style-matched sounds table
+- Added style-matched drum kit and bass sound documentation to both README and DOCS
+
+### Changed — Sounds
+- Drum kit and bass sound now hardcoded per style in STYLE_DATA (removed manual preference dropdowns)
+- Each of 25 styles gets the right kit/bass automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.)
+- Loading indicator shows for minimum 1 second
+
 ## [1.31] - 2026-04-04
 
 ### Updated — Documentation

@@ -1,6 +1,6 @@
-# 🥁 Hip Hop Drummer — Release 1.31
+# 🥁 Hip Hop Drummer — Release 1.32
 
-Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Professionally reviewed and tuned by working musicians — every velocity, swing relationship, chord voicing, and rhythmic detail has been verified for authenticity. Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
+Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
 **[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
 
@@ -35,19 +35,103 @@ The drum engine models over 60 distinct behaviors per style: kick placement libr
 The bass locks to the kick drum, uses correct 5th and minor 7th intervals as passing tones, plays chromatic approach notes and hammer-on grace notes, slides between pitches with Moog-style glissando for G-Funk, drops to sub octaves on beat 1 for 808 styles, and breathes with intentional rests on weak beats. It generates 2-bar motifs and repeats them with mutations — the way a session player develops a part over a song. Section-ending bass fills complement the drum fills: jazzy styles get walking diatonic runs, Dilla gets soft chromatic dissolves, 808 styles drop out and let the sub tail ring, boom bap gets chromatic walk-ups into the next section. Drums and bass are the rhythmic foundation — always consistent regardless of playback mode.
 
 ### Electric Piano
-The EP comps in style-appropriate rhythms with 30 musicality features: voice-led inversions (common tones held between chords), per-note velocity humanization, Dorian IV correction, crushed chords (LH leads RH by a few ticks), ghost re-attacks, octave root doubling, motif-based comping, bass interaction, chord anticipation, velocity arc, register shift per section, kick-locked stabs, note-off humanization, melodic top-note movement, independent LH/RH rhythms, sus4→3 resolutions, chromatic approach chords, snare accent unisons, single-note tremolo, section-boundary fills, strategic rest bars, drum-density velocity response, and pedal tone drones. Enabled for 12 styles: Dilla, jazzy, Nujabes, lo-fi, G-Funk (all variants), bounce, Queens, Long Island, halftime.
+### Electric Piano
+30 musicality features modeled from how session keyboardists actually comp in hip hop:
+
+- **Voice leading**: common tones held between chords — when moving from Cm7 to Fm7, the C and Eb stay while only the root and 5th move. This is how real keyboardists play, not just jumping to new chord shapes.
+- **Crushed chords**: the left hand lands 1-3 ticks before the right hand, the way a pianist naturally rolls into a chord. Creates a subtle human feel that straight quantized chords lack.
+- **Per-note velocity humanization**: each note in a chord gets ±8 velocity variation — inner voices softer, root and top note louder. No two chords hit identically.
+- **Dorian IV correction**: in G-Funk, Dilla, and Nujabes styles, the IV chord is dominant 7th (C7, not Cm7) because Dorian mode has a natural 6th degree. This is the warm, funky sound that defines these styles.
+- **Ghost re-attacks**: soft repeated notes between chord changes, like a keyboardist lightly touching the keys to keep the rhythm alive during sustained passages.
+- **Motif-based comping**: 2-bar rhythmic patterns that repeat with variation — the way a session player develops a part rather than playing random rhythms.
+- **Bass interaction**: the EP rests on loud snare backbeats and thins when hats are dense, giving the rhythm section room to breathe.
+- **Chord anticipation**: plays the next chord 1 step early at section boundaries, pulling the listener forward into the new section.
+- **Register shift**: verse plays mid-register, chorus moves up for energy, breakdown drops low for intimacy.
+- **Kick-locked stabs**: short chord hits that land exactly on kick positions for rhythmic punch.
+- **Sus4→3 resolutions**: suspended 4th chords that resolve down to the 3rd — a classic soul/gospel keyboard move.
+- **Chromatic approach chords**: a half-step above or below the target chord, sliding into it for jazz color.
+- **Pedal tone drones**: sustained bass notes under changing chords for G-Funk and Dilla hypnotic feel.
+- **Drum-density velocity response**: plays softer when drums are busy, louder when drums are sparse.
+- **Section fills**: melodic runs at section boundaries, strategic rest bars for breathing room.
+
+Style-specific comping: sustained whole-note chords for Dilla, jazz comping on upbeats for Tribe, arpeggiated broken chords for Nujabes, pad-style washes for G-Funk, short rhythmic stabs for bounce. Enabled for 12 styles.
 
 ### Synth Pad
-Dark atmospheric pads with 10 musicality features: drum density response, velocity arc, bar variation, register shift, bass interaction, swell/fade dynamics, Phrygian bII emphasis, rest bars, chord anticipation, and kick-locked crunk stabs. Covers Memphis, phonk, dark, Griselda, crunk, hard, and sparse styles. Mutually exclusive with EP — each style gets the right harmonic instrument.
+Dark atmospheric pads with 10 musicality features for styles where keys would be wrong:
 
-### Synth Lead, Organ, Horns, Vibes, Clav
-- **Synth Lead**: G-Funk whistle melody with pentatonic scales, slides, and 2-bar motifs
-- **Organ**: sustained drawbar layer for jazz/Nujabes, layers with EP
-- **Horn Stabs**: brass section chord hits for boom bap/big/driving/chopbreak/oldschool
-- **Vibraphone**: bell-like arpeggiated tones for Nujabes/jazzy
-- **Clavinet**: funky percussive 16th-note comping for bounce/G-Funk DJ Quik
+- **Phrygian bII emphasis**: the sinister half-step (Db in Cm) gets extra weight in voicings — this is the interval that makes Memphis and phonk sound menacing.
+- **Swell/fade dynamics**: volume envelopes that breathe with the section — building through verses, peaking at choruses, fading in breakdowns.
+- **Kick-locked crunk stabs**: for crunk style, the pad becomes short aggressive synth hits that land on kick positions instead of sustained chords.
+- **Drum density response**: velocity scales inversely with drum activity — louder when drums are sparse (filling the space), softer when drums are busy (staying out of the way).
+- **Bar variation**: chord extensions change per bar — root position bar 1, first inversion bar 2, add9 bar 3 — so the pad evolves across phrases.
+- **Bass interaction**: avoids the bass register entirely, sitting in the mid-high range to prevent frequency masking.
+- **Rest bars**: strategic silence every 4-8 bars so the pad doesn't become wallpaper.
+
+Covers Memphis (detuned choir), phonk (dark string pads), Griselda (cinematic strings), crunk (aggressive synth stabs), dark/hard/sparse (atmospheric washes). Mutually exclusive with EP.
+
+### Synth Lead
+G-Funk whistle melody — the signature sound of West Coast hip hop:
+
+- **Pentatonic scale**: uses the minor pentatonic (5 notes, no avoid notes) for melodies that always sound right over the chord changes.
+- **Slides/portamento**: notes glide into each other with Moog-style pitch bending, the way a real synth lead is played with the pitch wheel.
+- **2-bar motifs**: melodic phrases that repeat and develop — not random notes, but composed-sounding melodies with call-and-response structure.
+- **Register awareness**: stays in the upper register (C5-C6) to cut through the mix above the EP and pad.
+
+Uses GM Square Lead or Saw Lead. Enabled for G-Funk styles.
+
+### Organ
+Sustained drawbar organ layer that adds harmonic depth to jazz and Nujabes styles:
+
+- **Sustained voicings**: long whole-note chords that provide a warm harmonic bed underneath the EP comping.
+- **Voice-led movement**: smooth transitions between chords with minimal hand movement, the way a jazz organist plays.
+- **Layers with EP**: when both organ and EP are active, the organ holds sustained chords while the EP plays rhythmic comping on top — two complementary roles.
+- **Dynamic response**: softer in verses, fuller in choruses, drops out in breakdowns.
+
+Uses GM Drawbar Organ. Enabled for jazzy, Nujabes, Queens, bounce.
+
+### Horn Stabs
+Brass section chord hits — short, punchy, and rhythmically locked to the drums:
+
+- **Kick-locked timing**: horn hits land exactly on kick drum positions for maximum rhythmic impact — the way horn sections punch in classic boom bap records.
+- **Chord voicings**: 3-4 note brass voicings (root, 3rd, 5th, 7th) that match the current chord progression.
+- **Short duration**: staccato hits (1/16 to 1/8 note) — horns in hip hop are punches, not sustained pads.
+- **Velocity variation**: accented on downbeats, softer on off-beats, following the natural dynamics of a horn section.
+- **Section awareness**: more frequent in choruses, sparser in verses, absent in breakdowns.
+
+Uses GM Brass Section. Enabled for boom bap, big, driving, chopbreak, oldschool.
+
+### Vibraphone
+Bell-like arpeggiated tones that add shimmer to jazz-influenced styles:
+
+- **Arpeggiated patterns**: broken chord tones played one at a time in ascending or descending patterns, the way a vibraphone player uses mallets.
+- **2-bar melodic motifs**: composed phrases that repeat with variation, not random arpeggios.
+- **Soft dynamics**: sits in the background at low velocity, adding color without competing with the EP or organ.
+- **Pedal sustain**: notes ring and overlap, creating the characteristic vibraphone shimmer.
+
+Uses GM Vibraphone. Enabled for Nujabes, jazzy.
+
+### Clavinet
+Funky percussive comping — the Stevie Wonder / Herbie Hancock sound applied to hip hop:
+
+- **16th-note patterns**: rapid rhythmic comping with muted and accented notes, the way a clavinet player chops chords.
+- **Funk rhythms**: syncopated patterns that lock with the hi-hat groove, emphasizing the "and" positions.
+- **Percussive attack**: short note durations with sharp velocity accents — the clavinet is as much a rhythm instrument as a harmonic one.
+- **Style-specific patterns**: bounce gets danceable comping, G-Funk DJ Quik gets raw funk rhythms.
+
+Uses GM Clavinet. Enabled for bounce, G-Funk DJ Quik.
 
 Every style has at least one harmonic instrument beyond drums and bass.
+
+### Style-Matched Sounds
+Each style automatically gets the right drum kit and bass sound — no manual selection needed:
+- **Boom bap / chopbreak**: Standard Kit + Electric Bass (Finger)
+- **Dilla / lo-fi**: Room Kit + Fretless Bass
+- **Jazz / Nujabes**: Jazz Kit or Brush Kit + Fretless Bass
+- **G-Funk / Memphis / crunk**: TR-808 Kit + Synth Bass
+- **Hard / big**: Power Kit + Electric Bass (Pick)
+- **Dark / Griselda / sparse**: Standard Kit + Synth Bass 2
+- **Phonk / old school**: Electronic Kit + Synth Bass
+- **Bounce**: Standard Kit + Slap Bass
 
 ### Harmony
 The harmony is modal, not just minor. G-Funk, Dilla, and Nujabes use Dorian mode — the IV chord is major because Dorian has a natural 6th degree, which makes these styles sound warm and funky. Dark, Griselda, Memphis, and Phonk use Phrygian bII — the sinister half-step drop that defines their menacing character. Jazz-influenced styles include 6th chord voicings and chromatic diminished passing chords for authentic jazz color.
