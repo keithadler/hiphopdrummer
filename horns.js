@@ -100,9 +100,10 @@ function generateHornPattern(sec, bpm) {
   var sectionHasHorn = HORN_STYLES[hornFeel] || HORN_STYLES[hornFeelBase];
   var songHasHorn = (typeof songFeel !== 'undefined') && (HORN_STYLES[songFeel] || HORN_STYLES[songFeelResolved]);
   if (!sectionHasHorn && !songHasHorn) return [];
-  // Don't generate horns if EP, pad, or lead is active
-  if (typeof EP_STYLES !== 'undefined' && (EP_STYLES[songFeel] || EP_STYLES[songFeelResolved])) return [];
-  if (typeof PAD_STYLES !== 'undefined' && (PAD_STYLES[songFeel] || PAD_STYLES[songFeelResolved])) return [];
+  // Don't generate horns if this SECTION's feel uses EP or pad instead
+  var sectionHasEP = (typeof EP_STYLES !== 'undefined') && (EP_STYLES[hornFeel] || EP_STYLES[hornFeelBase]);
+  var sectionHasPad = (typeof PAD_STYLES !== 'undefined') && (PAD_STYLES[hornFeel] || PAD_STYLES[hornFeelBase]);
+  if (sectionHasEP || sectionHasPad) return [];
 
   var styleLookup;
   if (HORN_COMP_STYLES[hornFeel]) styleLookup = hornFeel;
