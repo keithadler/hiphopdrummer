@@ -668,7 +668,9 @@ function buildEPMidiBytes(sectionList, bpm, noSwing) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
   var epProgram = 4;
-  try { var epPref = localStorage.getItem('hhd_ep_sound'); if (epPref) epProgram = parseInt(epPref) || 4; } catch(e) {}
+  var _epFeel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var _epSd = STYLE_DATA[_epFeel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_epFeel) : 'normal'] || {};
+  if (typeof _epSd.epProgram === 'number') epProgram = _epSd.epProgram;
   td.push(0, 0xC0 | ch, epProgram);
 
   var lastTick = 0;

@@ -36,7 +36,8 @@ function _getStyleSounds() {
   }
   return {
     drumKit: (data && typeof data.drumKit === 'number') ? data.drumKit : 0,
-    bassSound: (data && typeof data.bassSound === 'number') ? data.bassSound : 33
+    bassSound: (data && typeof data.bassSound === 'number') ? data.bassSound : 33,
+    epProgram: (data && typeof data.epProgram === 'number') ? data.epProgram : 4
   };
 }
 
@@ -206,11 +207,12 @@ document.getElementById('regenGo').onclick = function() {
     try {
       // Generate the new beat
       generateAll({ style: style, key: key, bpm: bpm });
-      // Apply style-matched drum kit and bass sound
+      // Apply style-matched drum kit, bass sound, and piano/EP program
       if (window.synthBridge) {
         var sounds = _getStyleSounds();
         window.synthBridge.setDrumKit(sounds.drumKit);
         window.synthBridge.setBassProgram(sounds.bassSound);
+        window.synthBridge.setEPProgram(sounds.epProgram);
       }
       updateMidiPlayer();
     } catch(e) {
@@ -506,7 +508,7 @@ document.getElementById('prefsSave').onclick = function() {
     var sounds = _getStyleSounds();
     window.synthBridge.setDrumKit(sounds.drumKit);
     window.synthBridge.setBassProgram(sounds.bassSound);
-    window.synthBridge.setEPProgram(4);
+    window.synthBridge.setEPProgram(sounds.epProgram);
     window.synthBridge.setPadProgram(48);
     window.synthBridge.setLeadProgram(80);
     window.synthBridge.setOrganProgram(16);
@@ -1048,7 +1050,7 @@ function initBeatHistoryHandlers() {
                 var sounds = _getStyleSounds();
                 window.synthBridge.setDrumKit(sounds.drumKit);
                 window.synthBridge.setBassProgram(sounds.bassSound);
-                window.synthBridge.setEPProgram(4);
+                window.synthBridge.setEPProgram(sounds.epProgram);
                 window.synthBridge.setPadProgram(48);
                 window.synthBridge.setLeadProgram(80);
                 window.synthBridge.setOrganProgram(16);
@@ -1306,6 +1308,7 @@ function initPlayerControls() {
       var sounds = _getStyleSounds();
       p.kit = sounds.drumKit;
       p.bass = sounds.bassSound;
+      p.epProgram = sounds.epProgram;
     } catch(e) {}
     return p;
   }
@@ -1403,7 +1406,7 @@ function initPlayerControls() {
           try {
             window.synthBridge.setDrumKit(_prefs.kit);
             window.synthBridge.setBassProgram(_prefs.bass);
-            window.synthBridge.setEPProgram(4); // GM Electric Piano 1
+            window.synthBridge.setEPProgram(_prefs.epProgram);
             window.synthBridge.setPadProgram(48); // GM String Ensemble (overridden by style)
             window.synthBridge.setLeadProgram(80); // GM Square Lead
             window.synthBridge.setOrganProgram(16); // GM Drawbar Organ
