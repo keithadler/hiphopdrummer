@@ -353,14 +353,13 @@ function renderArr(skipMidiUpdate) {
     var secFeel = secFeels[s] || songFeel || 'normal';
     var secFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
     var songFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel || 'normal') : (songFeel || 'normal');
+    // Match actual generator logic:
+    // EP plays if section or song feel supports it
     var _secHasEP = (typeof EP_STYLES !== 'undefined') && (EP_STYLES[secFeel] || EP_STYLES[secFeelBase] || EP_STYLES[songFeel] || EP_STYLES[songFeelBase]);
+    // Pad plays if section or song feel supports it AND the song doesn't have EP (mutually exclusive)
+    var _songHasEP = (typeof EP_STYLES !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase]);
     var _secHasPad = (typeof PAD_STYLES !== 'undefined') && (PAD_STYLES[secFeel] || PAD_STYLES[secFeelBase] || PAD_STYLES[songFeel] || PAD_STYLES[songFeelBase]);
-    // EP and pad are mutually exclusive (pad suppressed if song has EP)
-    if (_secHasEP && _secHasPad) {
-      var _songHasEP = (typeof EP_STYLES !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase]);
-      if (_songHasEP) _secHasPad = false;
-      else _secHasEP = false;
-    }
+    if (_songHasEP) _secHasPad = false; // pad suppressed when song uses EP
     if (_secHasEP) instrIcons += '🎹';
     if (_secHasPad) instrIcons += '🎛';
     if (typeof LEAD_STYLES !== 'undefined' && (LEAD_STYLES[secFeel] || LEAD_STYLES[secFeelBase] || LEAD_STYLES[songFeel] || LEAD_STYLES[songFeelBase])) instrIcons += '🎵';
