@@ -2,6 +2,52 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.35] - 2026-04-04
+
+### Added
+- Dark/light theme preference — light theme overrides all CSS variables (white backgrounds, dark text, adjusted accents). Saved to localStorage, applied on boot before rendering. Meta theme-color updates for mobile browser chrome
+- "What Next" dialog — role-specific actionable advice shown after every beat generation and history load. Tells rappers to write lyrics and export WAV, producers to export MIDI and customize, DJs to build a library, sample heads to dig by key, learners to study the analysis. "Don't show again" checkbox
+- New Beat dialog remembers last style — pre-selects your previous choice (or Auto for first-time users)
+- "Select all stems / Deselect all stems" toggle in export Audio section
+- Major key correctness tests — 7 EP major 3rd tests, 8 combined MIDI major key tests, 6 minor key regression tests
+
+### Fixed — Critical
+- Major key chord voicings — all 8 melodic instruments were playing minor 3rds (Eb) over major keys (C, G, Bb, D, F) instead of major 3rds (E). Fixed in EP, pad, organ, horns, lead, vibes, clav, and bass. Bass diatonic walks and passing tones also corrected for major keys
+- Test approach for forced keys — tests now use `generateAll({style, key})` instead of setting `_forcedKey` directly (which gets cleared by generateAll)
+
+### Changed
+- PREFS button text on desktop (was PREFERENCES)
+- "Why I Built This" in README expanded — emphasizes inspiring songs, sessions, sets, and records, not just learning
+- About dialog intro adds "The goal isn't just the beat — it's the song, the session, the set, the freestyle, the record that comes after"
+- Welcome dialog text updated to mention 9 instruments and style-matched sounds
+- "For Rappers" section updated: "full production with drums, bass, and style-matched instruments"
+- "For DJs" section updated: WAV is full mix, mentions stems
+- "For Musicians" section: mentions WAV stems for isolation
+- "For Producers" section: mentions WAV stems and style-matched sounds
+- Meta description updated to mention 9 instruments and WAV stems
+- manifest.json description updated
+- CONTRIBUTING.md fully rewritten for current architecture (9 instruments, style-matched sounds, 5-section export dialog, "Adding a New Melodic Instrument" guide)
+- README test count updated to 15,000+
+- DOCS.md test count updated to 15,000+
+- Marquee scroll speed scales with text length (longer style names scroll slower)
+- About dialog "What You Get" now lists WAV stems
+- Duplicate "### Electric Piano" header in README fixed
+
+## [1.34] - 2026-04-04
+
+### Added
+- "What Next" dialog (initial implementation) — role-specific advice after beat generation
+- Major key correctness tests (initial)
+- CONTRIBUTING.md rewrite
+
+### Fixed — Critical
+- Major key chord voicings — EP, pad, organ, horns, lead, vibes, clav, and bass all fixed to use major intervals for major keys
+
+### Changed
+- README "Why I Built This" expanded
+- Meta descriptions updated
+- Various stale copy fixes across about dialog, welcome dialog, export dialog
+
 ## [1.33] - 2026-04-04
 
 ### Added
