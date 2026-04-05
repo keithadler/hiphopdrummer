@@ -300,6 +300,8 @@ function renderBeatHistorySlots() {
       var idx = parseInt(btn.dataset.idx);
       restoreBeatState(history[idx]);
       document.getElementById('beatHistoryOverlay').style.display = 'none';
+      // Show What Next dialog after loading a beat from history
+      if (typeof _showWhatNext === 'function') setTimeout(_showWhatNext, 300);
     };
     btn.onclick = handler;
     btn.ontouchend = handler;
