@@ -2,6 +2,18 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.42] - 2026-04-04
+
+### Fixed
+- ZIP file dates showing "Tomorrow" on macOS — JSZip stored dates in DOS format without timezone, causing Finder to show future dates. Now sets explicit local date on all files.
+- Jazz/Nujabes chord progressions — removed broken bIII/bVI borrowed chord progressions that produced dissonant clashing notes on major keys. Jazz now uses proper ii-V-I turnarounds.
+- Light theme: "Drummer" brand text was white on white — now uses accent blue.
+- Service worker missing 7 instrument files (ep.js, pad.js, lead.js, organ.js, horns.js, vibes.js, clav.js) — mobile users got stale cached code.
+- SW update auto-reloads instead of showing a dismissible dialog.
+
+### Verified
+- Full audit: 151 style/key combos, 8,780 chord-instrument bars, 99.8% correct chord tone overlap.
+
 ## [1.41] - 2026-04-04
 
 ### Fixed — Mobile
