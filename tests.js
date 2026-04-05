@@ -382,7 +382,13 @@ test('EP generates patterns for correct styles and skips others', function() {
 test('EP Dorian IV produces major 3rd intervals', function() {
   // Dorian IV: the 3rd should be 4 semitones (major), not 3 (minor)
   var dorianStyles = ['gfunk', 'dilla', 'nujabes'];
+  var dorianKeys = {
+    gfunk: { root: 'Gm7', i: 'Gm7', iv: 'C7', v: 'Dm7', type: 'minor', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7' },
+    dilla: { root: 'Dm7', i: 'Dm7', iv: 'G7', v: 'Am7', type: 'minor', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7' },
+    nujabes: { root: 'Am7', i: 'Am7', iv: 'D7', v: 'Em7', type: 'minor', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7' }
+  };
   dorianStyles.forEach(function(feel) {
+    _lastChosenKey = dorianKeys[feel];
     var voicing = buildEPVoicing(41, 'iv', 'seventh', 'mid', 12, feel, null); // F = MIDI 41
     // Find the 3rd: should be 4 semitones above root (major 3rd)
     var rootPitchClass = voicing[0] % 12;
@@ -393,6 +399,7 @@ test('EP Dorian IV produces major 3rd intervals', function() {
   });
 
   // Non-Dorian: iv should have minor 3rd
+  _lastChosenKey = { root: 'Cm', i: 'Cm', iv: 'Fm', v: 'Gm', type: 'minor', rel: 'Eb major', relNote: 'Eb, Bb, Ab' };
   var voicing = buildEPVoicing(41, 'iv', 'seventh', 'mid', 12, 'halftime', null);
   var rootPitchClass = voicing[0] % 12;
   var has_minor_3rd = voicing.some(function(n) { return (n % 12) === ((rootPitchClass + 3) % 12); });

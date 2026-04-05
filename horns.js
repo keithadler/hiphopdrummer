@@ -34,12 +34,11 @@ function buildHornVoicing(root, degree, voicingType, register, prevNotes) {
   else { while (base < 48) base += 12; while (base > 60) base -= 12; }
 
   var intervals;
-  var isMaj = (degree === 'bII' || degree === 'bIII' || degree === 'bVI' || degree === 'bVII');
-  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
-  if (degree === 'i' && keyIsMajor) isMaj = true;
   if (degree === '#idim') intervals = [0, 3, 6];
-  else if (isMaj) intervals = [0, 4, 7];
-  else intervals = [0, 3, 7]; // minor triad — tight cluster for punch
+  else {
+    var ci = _getChordIntervals(degree);
+    intervals = [0, ci.third, ci.fifth];
+  }
 
   var notes = [];
   for (var i = 0; i < intervals.length; i++) {

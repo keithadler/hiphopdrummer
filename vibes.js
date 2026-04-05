@@ -14,13 +14,14 @@ var VIBES_COMP_STYLES = {
   jazzy:   { velBase: 48, velRange: 12, density: 0.5, register: 'high', program: 11 }
 };
 
-function _vibesScaleNotes(chordRoot, register) {
+function _vibesScaleNotes(chordRoot, register, degree) {
   var base = chordRoot;
   while (base < 48) base += 12;
   if (register === 'high') { while (base < 72) base += 12; while (base > 84) base -= 12; }
   else { while (base < 60) base += 12; while (base > 72) base -= 12; }
-  var keyIsMajor = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major');
-  var pentatonic = keyIsMajor ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10];
+  var ci = _getChordIntervals(degree);
+  var isMajChord = (ci.third === 4); // major 3rd = 4 semitones
+  var pentatonic = isMajChord ? [0, 2, 4, 7, 9] : [0, 3, 5, 7, 10];
   var notes = [];
   for (var oct = -1; oct <= 1; oct++) {
     for (var i = 0; i < pentatonic.length; i++) {
@@ -87,7 +88,7 @@ function generateVibesPattern(sec, bpm) {
     if (sec === 'breakdown' && maybe(0.6)) continue;
 
     var chordRoot = degreeToNote(progDegree);
-    var scaleNotes = _vibesScaleNotes(chordRoot, style.register);
+    var scaleNotes = _vibesScaleNotes(chordRoot, style.register, progDegree);
     if (scaleNotes.length === 0) continue;
 
     var motif = (bar % 2 === 0) ? motifA : motifB;

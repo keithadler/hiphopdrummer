@@ -54,6 +54,62 @@ function noteToMidi(noteName) {
 var _lastChosenKey = null;
 
 /**
+ * Get the chord intervals for a given degree by looking up the actual chord name
+ * from _lastChosenKey. This ensures instruments play the same chord quality
+ * that the chord sheet displays.
+ * @param {string} degree - Chord degree ('i', 'iv', 'v', 'bVII', etc.)
+ * @param {string} feel - Current feel for voiceChord styling
+ * @returns {{ third: number, fifth: number, seventh: number }} Intervals from root
+ */
+function _getChordIntervals(degree) {
+  var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
+  if (!key) return { third: 3, fifth: 7, seventh: -1 }; // default minor triad
+
+  // Get the raw chord name for this degree from key data
+  var raw = '';
+  if (degree === 'i') raw = key.i || '';
+  else if (degree === 'iv') raw = key.iv || '';
+  else if (degree === 'v') raw = key.v || '';
+  else if (degree === 'ii') raw = key.ii || key.i || '';
+  else if (degree === 'bII') raw = key.bII || key.i || '';
+  else if (degree === 'bIII') {
+    var relParts = (key.relNote || '').split(',');
+    raw = (relParts[0] || '').trim();
+  }
+  else if (degree === 'bVI') {
+    var relParts2 = (key.relNote || '').split(',');
+    raw = (relParts2[2] || '').trim();
+  }
+  else if (degree === 'bVII') {
+    var relParts3 = (key.relNote || '').split(',');
+    raw = (relParts3[1] || '').trim();
+  }
+  else if (degree === '#idim') return { third: 3, fifth: 6, seventh: 9 };
+  else raw = key.i || '';
+
+  // Parse the chord quality from the name
+  var quality = raw.replace(/^[A-G][#b]?/, '');
+
+  // Match the same logic as chordNotes() in ui.js
+  if (/^dim7/.test(quality)) return { third: 3, fifth: 6, seventh: 9 };
+  if (/^dim/.test(quality)) return { third: 3, fifth: 6, seventh: -1 };
+  if (/^m7b5/.test(quality)) return { third: 3, fifth: 6, seventh: 10 };
+  if (/^maj9/.test(quality)) return { third: 4, fifth: 7, seventh: 11 };
+  if (/^m9/.test(quality)) return { third: 3, fifth: 7, seventh: 10 };
+  if (/^9$/.test(quality)) return { third: 4, fifth: 7, seventh: 10 };
+  if (/^maj7/.test(quality)) return { third: 4, fifth: 7, seventh: 11 };
+  if (/^m7/.test(quality)) return { third: 3, fifth: 7, seventh: 10 };
+  if (/^m6/.test(quality)) return { third: 3, fifth: 7, seventh: 9 };
+  if (/^6$/.test(quality)) return { third: 4, fifth: 7, seventh: 9 };
+  if (/^7$/.test(quality)) return { third: 4, fifth: 7, seventh: 10 };
+  if (/^m$/.test(quality) || quality === 'min') return { third: 3, fifth: 7, seventh: -1 };
+  // Plain major (no quality suffix)
+  if (quality === '') return { third: 4, fifth: 7, seventh: -1 };
+  // Fallback
+  return { third: 3, fifth: 7, seventh: -1 };
+}
+
+/**
  * Stores the chord progression chosen for each section during bass generation.
  * Keys are section ids, values are arrays of degree strings (e.g. ['i','iv','i','v']).
  * Read by the playback chord overlay to show the correct chords.
