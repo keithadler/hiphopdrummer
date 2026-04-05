@@ -1817,9 +1817,7 @@ test('Preferences persist in localStorage after save', function() {
   localStorage._data = {};
   
   // Simulate saving preferences
-  localStorage.setItem('hhd_drumkit', '8');
   localStorage.setItem('hhd_bass_playback', 'false');
-  localStorage.setItem('hhd_bass_sound', '34');
   localStorage.setItem('hhd_follow_playhead', 'true');
   localStorage.setItem('hhd_show_chords', 'false');
   localStorage.setItem('hhd_countdown', 'false');
@@ -1827,9 +1825,7 @@ test('Preferences persist in localStorage after save', function() {
   localStorage.setItem('hhd_user_role', 'drummer');
   
   // Verify they read back correctly
-  assert(localStorage.getItem('hhd_drumkit') === '8', 'Drum kit should be 8');
   assert(localStorage.getItem('hhd_bass_playback') === 'false', 'Bass playback should be false');
-  assert(localStorage.getItem('hhd_bass_sound') === '34', 'Bass sound should be 34');
   assert(localStorage.getItem('hhd_follow_playhead') === 'true', 'Follow playhead should be true');
   assert(localStorage.getItem('hhd_show_chords') === 'false', 'Show chords should be false');
   assert(localStorage.getItem('hhd_countdown') === 'false', 'Countdown should be false');
@@ -1871,14 +1867,12 @@ test('MIDI export respects bass playback preference', function() {
   localStorage._data = {};
 });
 
-// === Test: MIDI export embeds drum kit program change from preferences ===
-test('MIDI export embeds drum kit from preferences', function() {
+// === Test: MIDI export embeds style-matched drum kit program change ===
+test('MIDI export embeds drum kit from STYLE_DATA', function() {
   _domElements = {};
-  generateAll();
+  // Generate a jazzy beat — Jazz Kit (program 32)
+  generateAll({ style: 'jazzy' });
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  
-  // Set Jazz Kit (program 32)
-  localStorage.setItem('hhd_drumkit', '32');
   var bytes = buildMidiBytes(arrangement, bpm);
   
   // Find program change on channel 10 (0xC9 = program change ch10)
@@ -1886,9 +1880,32 @@ test('MIDI export embeds drum kit from preferences', function() {
   for (var i = 0; i < bytes.length - 1; i++) {
     if (bytes[i] === 0xC9 && bytes[i + 1] === 32) { foundKit = true; break; }
   }
-  assert(foundKit, 'MIDI should contain drum kit program change 32 (Jazz Kit)');
+  assert(foundKit, 'Jazzy MIDI should contain drum kit program change 32 (Jazz Kit)');
+  
+  // Generate a G-Funk beat — TR-808 Kit (program 25)
+  generateAll({ style: 'gfunk' });
+  bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+  bytes = buildMidiBytes(arrangement, bpm);
+  var found808 = false;
+  for (var i = 0; i < bytes.length - 1; i++) {
+    if (bytes[i] === 0xC9 && bytes[i + 1] === 25) { found808 = true; break; }
+  }
+  assert(found808, 'G-Funk MIDI should contain drum kit program change 25 (TR-808)');
   
   localStorage._data = {};
+});
+
+// === Test: STYLE_DATA has drumKit and bassSound for all styles ===
+test('All STYLE_DATA entries have drumKit and bassSound', function() {
+  var styles = Object.keys(STYLE_DATA);
+  for (var i = 0; i < styles.length; i++) {
+    var s = styles[i];
+    var d = STYLE_DATA[s];
+    assert(typeof d.drumKit === 'number', s + ' should have drumKit (number), got ' + typeof d.drumKit);
+    assert(typeof d.bassSound === 'number', s + ' should have bassSound (number), got ' + typeof d.bassSound);
+    assert(d.drumKit >= 0 && d.drumKit <= 127, s + ' drumKit should be 0-127, got ' + d.drumKit);
+    assert(d.bassSound >= 0 && d.bassSound <= 127, s + ' bassSound should be 0-127, got ' + d.bassSound);
+  }
 });
 
 // === Test: Key distribution is not biased toward Cm ===
