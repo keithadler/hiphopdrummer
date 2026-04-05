@@ -468,7 +468,7 @@ function exportMIDI(opts) {
     // Full song EP
     if (epMidiFolder) {
       var epFull = buildEPMidiBytes(arrangement, bpm, noSwing);
-      if (epFull.length > 30) { // only include if there are actual notes (not just header)
+      if (epFull.length > 100) { // only include if there are actual notes (not just header)
         epMidiFolder.file('EP_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', epFull);
       }
     }
@@ -483,7 +483,7 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var epBaseName = padIdx + '_ep_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       var epBytes = buildEPMidiBytes([sec], bpm, noSwing);
-      if (epBytes.length > 30) {
+      if (epBytes.length > 100) {
         if (epMidiFolder) epMidiFolder.file('EP_MIDI_' + epBaseName + swingTag + '.mid', epBytes);
         if (epMpcFolder) {
           var epMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
@@ -500,7 +500,7 @@ function exportMIDI(opts) {
     var padMpcFolder  = (opts.instrMpc && mpcFolder)   ? mpcFolder.folder('Synth Pad')  : null;
     if (padMidiFolder && typeof buildPadMidiBytes === 'function') {
       var padFull = buildPadMidiBytes(arrangement, bpm, noSwing);
-      if (padFull.length > 30) {
+      if (padFull.length > 100) {
         padMidiFolder.file('Pad_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', padFull);
       }
     }
@@ -515,7 +515,7 @@ function exportMIDI(opts) {
       var barCount = Math.ceil((secSteps[sec] || 32) / 16);
       var padBaseName = padIdx2 + '_pad_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + barCount + 'bars_' + bpm + 'bpm';
       var padBytes = buildPadMidiBytes([sec], bpm, noSwing);
-      if (padBytes.length > 30) {
+      if (padBytes.length > 100) {
         if (padMidiFolder) padMidiFolder.file('Pad_MIDI_' + padBaseName + swingTag + '.mid', padBytes);
         if (padMpcFolder && typeof buildPadMpcPattern === 'function') {
           var padMpcName = (SL[sec] || sec).replace(/\s+/g, '_');
@@ -529,7 +529,7 @@ function exportMIDI(opts) {
   // Synth Lead exports
   if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildLeadMidiBytes === 'function') {
     var leadFull = buildLeadMidiBytes(arrangement, bpm, noSwing);
-    if (leadFull.length > 30) {
+    if (leadFull.length > 100) {
       var leadMidiFolder = midiFolder.folder('Synth Lead');
       leadMidiFolder.file('Lead_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', leadFull);
       if (mpcFolder) {
@@ -540,7 +540,7 @@ function exportMIDI(opts) {
           var padIdx2 = leadIdx < 10 ? '0' + leadIdx : '' + leadIdx;
           var secName = SL[sec] || sec;
           var leadBytes = buildLeadMidiBytes([sec], bpm, noSwing);
-          if (leadBytes.length > 30) {
+          if (leadBytes.length > 100) {
             leadMidiFolder.file('Lead_MIDI_' + padIdx2 + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + bpm + 'bpm' + swingTag + '.mid', leadBytes);
             leadMpcFolder.file('Lead_MPC_' + secName.replace(/\s+/g, '_') + '.mpcpattern', buildLeadMpcPattern([sec], bpm));
           }
@@ -553,7 +553,7 @@ function exportMIDI(opts) {
   // Organ exports
   if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildOrganMidiBytes === 'function') {
     var organFull = buildOrganMidiBytes(arrangement, bpm, noSwing);
-    if (organFull.length > 30) {
+    if (organFull.length > 100) {
       var organMidiFolder = midiFolder.folder('Organ');
       organMidiFolder.file('Organ_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', organFull);
       if (mpcFolder) {
@@ -564,7 +564,7 @@ function exportMIDI(opts) {
           var padIdx2 = organIdx < 10 ? '0' + organIdx : '' + organIdx;
           var secName = SL[sec] || sec;
           var organBytes = buildOrganMidiBytes([sec], bpm, noSwing);
-          if (organBytes.length > 30) {
+          if (organBytes.length > 100) {
             organMidiFolder.file('Organ_MIDI_' + padIdx2 + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + bpm + 'bpm' + swingTag + '.mid', organBytes);
             organMpcFolder.file('Organ_MPC_' + secName.replace(/\s+/g, '_') + '.mpcpattern', buildOrganMpcPattern([sec], bpm));
           }
@@ -577,7 +577,7 @@ function exportMIDI(opts) {
   // Horn Stabs exports
   if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildHornMidiBytes === 'function') {
     var hornFull = buildHornMidiBytes(arrangement, bpm, noSwing);
-    if (hornFull.length > 30) {
+    if (hornFull.length > 100) {
       var hornMidiFolder = midiFolder.folder('Horn Stabs');
       hornMidiFolder.file('Horn_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', hornFull);
       if (mpcFolder) {
@@ -588,7 +588,7 @@ function exportMIDI(opts) {
           var padIdx2 = hornIdx < 10 ? '0' + hornIdx : '' + hornIdx;
           var secName = SL[sec] || sec;
           var hornBytes = buildHornMidiBytes([sec], bpm, noSwing);
-          if (hornBytes.length > 30) {
+          if (hornBytes.length > 100) {
             hornMidiFolder.file('Horn_MIDI_' + padIdx2 + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + bpm + 'bpm' + swingTag + '.mid', hornBytes);
             hornMpcFolder.file('Horn_MPC_' + secName.replace(/\s+/g, '_') + '.mpcpattern', buildHornMpcPattern([sec], bpm));
           }
@@ -601,7 +601,7 @@ function exportMIDI(opts) {
   // Vibraphone exports
   if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildVibesMidiBytes === 'function') {
     var vibesFull = buildVibesMidiBytes(arrangement, bpm, noSwing);
-    if (vibesFull.length > 30) {
+    if (vibesFull.length > 100) {
       var vibesMidiFolder = midiFolder.folder('Vibraphone');
       vibesMidiFolder.file('Vibes_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', vibesFull);
       if (mpcFolder) {
@@ -612,7 +612,7 @@ function exportMIDI(opts) {
           var padIdx2 = vibesIdx < 10 ? '0' + vibesIdx : '' + vibesIdx;
           var secName = SL[sec] || sec;
           var vibesBytes = buildVibesMidiBytes([sec], bpm, noSwing);
-          if (vibesBytes.length > 30) {
+          if (vibesBytes.length > 100) {
             vibesMidiFolder.file('Vibes_MIDI_' + padIdx2 + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + bpm + 'bpm' + swingTag + '.mid', vibesBytes);
             vibesMpcFolder.file('Vibes_MPC_' + secName.replace(/\s+/g, '_') + '.mpcpattern', buildVibesMpcPattern([sec], bpm));
           }
@@ -625,7 +625,7 @@ function exportMIDI(opts) {
   // Clavinet exports
   if ((opts.instrMidi || opts.instrMpc) && midiFolder && typeof buildClavMidiBytes === 'function') {
     var clavFull = buildClavMidiBytes(arrangement, bpm, noSwing);
-    if (clavFull.length > 30) {
+    if (clavFull.length > 100) {
       var clavMidiFolder = midiFolder.folder('Clavinet');
       clavMidiFolder.file('Clav_MIDI_00_full_song_' + bpm + 'bpm' + swingTag + '.mid', clavFull);
       if (mpcFolder) {
@@ -636,7 +636,7 @@ function exportMIDI(opts) {
           var padIdx2 = clavIdx < 10 ? '0' + clavIdx : '' + clavIdx;
           var secName = SL[sec] || sec;
           var clavBytes = buildClavMidiBytes([sec], bpm, noSwing);
-          if (clavBytes.length > 30) {
+          if (clavBytes.length > 100) {
             clavMidiFolder.file('Clav_MIDI_' + padIdx2 + '_' + secName.replace(/\s+/g, '_').toLowerCase() + '_' + bpm + 'bpm' + swingTag + '.mid', clavBytes);
             clavMpcFolder.file('Clav_MPC_' + secName.replace(/\s+/g, '_') + '.mpcpattern', buildClavMpcPattern([sec], bpm));
           }
@@ -721,7 +721,7 @@ function exportMIDI(opts) {
     if (opts.wavEP && typeof buildEPMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var epMidi = buildEPMidiBytes(arrangement, bpm);
-        if (epMidi.length > 30) { // only render if there are actual EP notes
+        if (epMidi.length > 100) { // only render if there are actual EP notes
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering EP Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(epMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -736,7 +736,7 @@ function exportMIDI(opts) {
     if (opts.wavPad && typeof buildPadMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var padMidi = buildPadMidiBytes(arrangement, bpm);
-        if (padMidi.length > 30) {
+        if (padMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Pad Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(padMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -751,7 +751,7 @@ function exportMIDI(opts) {
     if (opts.wavLead && typeof buildLeadMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var leadMidi = buildLeadMidiBytes(arrangement, bpm);
-        if (leadMidi.length > 30) {
+        if (leadMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Lead Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(leadMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -766,7 +766,7 @@ function exportMIDI(opts) {
     if (opts.wavOrgan && typeof buildOrganMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var organMidi = buildOrganMidiBytes(arrangement, bpm);
-        if (organMidi.length > 30) {
+        if (organMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Organ Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(organMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -781,7 +781,7 @@ function exportMIDI(opts) {
     if (opts.wavHorns && typeof buildHornMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var hornMidi = buildHornMidiBytes(arrangement, bpm);
-        if (hornMidi.length > 30) {
+        if (hornMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Horns Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(hornMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -796,7 +796,7 @@ function exportMIDI(opts) {
     if (opts.wavVibes && typeof buildVibesMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var vibesMidi = buildVibesMidiBytes(arrangement, bpm);
-        if (vibesMidi.length > 30) {
+        if (vibesMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Vibes Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(vibesMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
@@ -811,7 +811,7 @@ function exportMIDI(opts) {
     if (opts.wavClav && typeof buildClavMidiBytes === 'function') {
       wavChain = wavChain.then(function() {
         var clavMidi = buildClavMidiBytes(arrangement, bpm);
-        if (clavMidi.length > 30) {
+        if (clavMidi.length > 100) {
           if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Clav Stem...</strong><br><br><div class="progress-spinner"></div></div>';
           return window.synthBridge.renderToWav(clavMidi, opts.masterFx).then(function(blob) {
             return blob.arrayBuffer();
