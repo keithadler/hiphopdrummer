@@ -5,7 +5,7 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-v1.40';
+var CACHE_NAME = 'hiphopdrummer-v1.41';
 
 var ASSETS = [
   './',
@@ -16,6 +16,13 @@ var ASSETS = [
   './writers.js',
   './groove.js',
   './bass.js',
+  './ep.js',
+  './pad.js',
+  './lead.js',
+  './organ.js',
+  './horns.js',
+  './vibes.js',
+  './clav.js',
   './analysis.js',
   './ui.js',
   './daw-help.js',
@@ -27,7 +34,8 @@ var ASSETS = [
   './spessasynth_processor.min.js',
   './GeneralUserGS.sf3',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './manifest.json'
 ];
 
 // CDN dependencies — cached separately so the app works offline.

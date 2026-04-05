@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.41] - 2026-04-04
+
+### Fixed — Mobile
+- Service worker was missing 7 instrument files (ep.js, pad.js, lead.js, organ.js, horns.js, vibes.js, clav.js) and manifest.json from cache — mobile users could get stale or missing code
+- SW update now auto-reloads instead of showing a dialog that users might miss on mobile — ensures fresh code loads immediately when a new version is available
+
 ## [1.40] - 2026-04-04
 
 ### Fixed
