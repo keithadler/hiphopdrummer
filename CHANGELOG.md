@@ -5,17 +5,20 @@ All notable changes to Hip Hop Drummer are documented in this file.
 ## [1.48] - 2026-04-06
 
 ### Fixed — Instrument Octaves & Durations
-- Bass guitar one octave too low — bass guitar styles now play in MIDI 48-60 (C3-C4) instead of 36-48. 808 sub styles (crunk, memphis, phonk) unchanged at MIDI 36-48. All 32 hardcoded note clamps across helper functions updated to use dynamic instrument-aware range.
 - Horn stab durations too short for synth playback — raised from 0.10-0.15 to 0.40-0.60 so brass patches have time to speak. Register raised from 'mid' to 'high' (65-80) so stabs cut through the mix.
 - Crunk pad stab duration raised from 0.10 to 0.35 so Saw Lead patch produces audible output.
 - EP bounce stab duration raised from 0.15 to 0.30.
 - EP pedal tone raised from MIDI 48 to 60 so it sits in the piano's natural range instead of the bass register.
 - Organ voicing default register raised from 'low' (48-60) to 'mid' (60-72) to match real Hammond comping range.
-- Lead synth range floor lowered from MIDI 60 to 55 so G-Funk Moog-style melodies can dip into the G3-B3 range. Grace note floor updated to match.
-- Vibraphone range floor lowered from MIDI 60 to 53 (F3). Duration shortened from 0.4 to 0.3 to prevent note-off overlap on repeated pitches.
-- Clavinet note duration raised from 0.08 to 0.18. Upper range capped at MIDI 72 instead of 84 for realistic Hohner Clavinet sound.
+- Lead synth range floor lowered from MIDI 60 to 55 (G3) for Moog-style melodies. Upper range capped at MIDI 84 (C6) instead of 96. Grace note floor updated to match.
+- Vibraphone range floor lowered from MIDI 60 to 53 (F3). Upper range capped at MIDI 89 (F6) to match real instrument. Duration shortened from 0.4 to 0.3 to prevent note-off overlap.
+- Clavinet note duration raised from 0.08 to 0.18. Upper range capped at MIDI 72 (C5) instead of 84 for realistic Hohner Clavinet sound.
 - Ghostkick MIDI note changed from 35 (Acoustic Bass Drum) to 36 (same as kick, lower velocity) so ghost kicks use the same drum sound.
 - Bass ghost notes use root at lower velocity instead of dissonant chromatic neighbor (root-1).
+- All 32 hardcoded bass note clamps (Math.min/max 48/24) across helper functions replaced with dynamic module-level variables for consistency.
+
+### Fixed — Playback
+- Grid cursor out of sync with audio — now compensates for Web Audio output latency (audioContext.outputLatency) so the cursor matches what you actually hear.
 
 ### Fixed — Swing
 - Swing pools too low across all feels — bumped every SWING_POOL up ~4 points (normal centers around 66% instead of 62%, dilla peaks at 75%, gfunk at 74%, jazzy at 74%). Crunk and oldschool unchanged.
@@ -31,8 +34,6 @@ All notable changes to Hip Hop Drummer are documented in this file.
 ### Fixed
 - Swing pools too low across all feels — bumped every SWING_POOL up ~4 points so each feel sits in its authentic sweet spot (normal centers around 66% instead of 62%, dilla peaks at 75%, gfunk at 74%, jazzy at 74%). Crunk and oldschool unchanged (intentionally mechanical).
 - Swing clamp in generateAll() raised from 72 to 75 so higher pool values actually come through to playback, MIDI export, and on-screen display.
-- Bass guitar one octave too low — bass guitar styles now play in MIDI 48-60 (C3-C4) instead of 36-48. 808 sub styles (crunk, memphis, phonk) unchanged at MIDI 36-48.
-- Horn stab durations too short for synth playback — raised from 0.10-0.15 to 0.40-0.60 so brass patches have time to speak. Register raised from 'mid' to 'high' (65-80) so stabs cut through the mix.
 - Crunk pad stab duration too short — raised from 0.1 to 0.35 so Saw Lead patch produces audible output.
 - EP bounce stab duration too short — raised from 0.15 to 0.30.
 - Organ voicing too low — default register raised from 'low' (48-60) to 'mid' (60-72) to match real Hammond comping range.
