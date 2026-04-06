@@ -2,6 +2,37 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.50] - 2026-04-06
+
+### Fixed — QC Final Pass
+- Horn stab minimum duration raised to 0.50-0.65 — ensures GM Brass Section patch attack completes at all tempos.
+- EP pedal tone offset by +2 ticks to avoid simultaneous attack collision with bass on beat 1.
+- Vibes thin on beat 1 when EP is active (50% skip) — prevents unintentional unison volume spikes.
+- Lead synth grace notes clamp to floor (55) instead of jumping a full octave — preserves melodic continuity.
+- Bass dead note minimum duration floor of 0.12 — prevents inaudible dead notes at fast tempos (150+ BPM).
+- Organ duration capped at 3.8 steps — leaves a gap before next bar's note-on to prevent hanging notes.
+- Pad detuned double for Memphis/phonk now offsets by +1 semitone for actual chorus/detune effect (was same pitch, just louder).
+- DAW help files show enharmonic equivalents for flat keys (e.g., Gbm → "your DAW may show F#m"). Ghost kick note map corrected to 36.
+- Audio latency compensation reads per-frame instead of cached once — handles Bluetooth headphone connect/disconnect mid-playback.
+- `_degreeToMidiNote` documented as bass-range (24-48) reference used by all instruments.
+
+### Fixed — Playback
+- Intro bar 1 grid desync — playback MIDI now preserves leading silence so the grid cursor stays in sync when intro bar 1 is empty (intro_c build-in).
+
+### Fixed — Instrument Octaves & Durations
+- Bass guitar confirmed correct at C2 (MIDI 36) — reverted earlier incorrect octave shift. Lead capped at C6 (84), vibes at F6 (89).
+- All 32 hardcoded bass note clamps replaced with dynamic module-level variables.
+- Ghostkick MIDI note changed from 35 to 36 (same as kick, lower velocity).
+- Bass ghost notes use root at lower velocity instead of dissonant chromatic neighbor.
+
+### Fixed — Swing
+- Swing pools bumped ~4 points across all feels. Clamp raised from 72 to 75.
+
+### Added
+- Gbm key for dark, memphis, griselda, and phonk styles.
+- Glossary tooltips for "relative minor" and "relative major."
+- Analysis explicitly names the relative key in pre-chorus guidance and sample hunting.
+
 ## [1.48] - 2026-04-06
 
 ### Fixed — Instrument Octaves & Durations
