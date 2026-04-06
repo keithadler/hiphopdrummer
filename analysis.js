@@ -464,7 +464,7 @@ function analyzeBeat() {
 
   lines.push('• <b>Intro</b> — Just <b>' + root + '</b>. One chord, looping. Let the drums and vibe do the work. Slow and spacious.');
   lines.push('• <b>Verse</b> — <b>' + root + ' → ' + fourth + '</b>. Two chords, 2 bars each. Keep the melodic part simple — a Rhodes stab on beat 1, or a sample chop on the chord change. The rapper needs space.');
-  lines.push('• <b>Pre-Chorus</b> — Borrow from the relative ' + (isMinor ? 'major' : 'minor') + ': try <b>' + relChord + '</b>. The pivot moment. More urgency, shorter note lengths, building energy.');
+  lines.push('• <b>Pre-Chorus</b> — Borrow from the relative ' + (isMinor ? 'major' : 'minor') + ' (<b>' + chosenKey.rel + '</b>): try <b>' + relChord + '</b>. The pivot moment. More urgency, shorter note lengths, building energy.');
   lines.push('• <b>Chorus</b> — <b>' + root + ' → ' + fourth + ' → ' + fifth + '</b>. All three chords, moving faster. Bigger sound — layer a pad under the stab, add a counter-melody.');
   lines.push('• <b>Breakdown</b> — Strip to just <b>' + root + '</b>, but darker. Remove layers one by one. The absence creates tension.');
   lines.push('• <b>Last Chorus</b> — Everything at once. Add a counter-melody you\'ve been holding back. The progression hits harder because the breakdown just stripped it away.');
@@ -494,7 +494,7 @@ function analyzeBeat() {
   lines.push('<b>Exact search terms to copy-paste:</b>');
   lines.push('• Splice: <b>"' + rootClean + ' minor ' + (isMinor ? 'soul' : 'pop') + ' loop"</b> or <b>"' + rootClean + 'm chord"</b>');
   lines.push('• Tracklib: filter Key = <b>' + rootClean + (isMinor ? 'm' : '') + '</b>, BPM = <b>' + bpm + '</b>');
-  if (relClean) lines.push('• Also try the relative ' + (isMinor ? 'major' : 'minor') + ': <b>"' + relClean + ' ' + (isMinor ? 'major' : 'minor') + ' sample"</b> — same notes, brighter mood');
+  if (relClean) lines.push('• Also try the relative ' + (isMinor ? 'major' : 'minor') + ' (<b>' + chosenKey.rel + '</b>): <b>"' + relClean + ' ' + (isMinor ? 'major' : 'minor') + ' sample"</b> — same notes, brighter mood');
   lines.push('<b>BPM to search:</b> <b>' + bpm + ' BPM</b> (or half-time: ' + Math.round(bpm / 2) + ' BPM, double-time: ' + (bpm * 2) + ' BPM). Most sample platforms let you filter by tempo.');
   lines.push('');
 

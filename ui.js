@@ -1206,7 +1206,9 @@ var GLOSSARY = {
   'diddle': 'Two quick ghost notes played close together. A drummer\'s hand naturally bounces after a soft stroke, creating paired ghost hits.',
   'halftime': 'A feel where the snare lands on beat 3 instead of 2 and 4, making the groove feel half as fast at the same tempo.',
   'crash': 'A cymbal hit on beat 1 of a new section. Tells the listener "something new is starting." The punctuation mark of song structure.',
-  'ride cymbal': 'A sustained cymbal used as an alternate timekeeper. Common in jazz-influenced hip hop (Tribe, Pete Rock). Adds a shimmery tone above the hi-hat.'
+  'ride cymbal': 'A sustained cymbal used as an alternate timekeeper. Common in jazz-influenced hip hop (Tribe, Pete Rock). Adds a shimmery tone above the hi-hat.',
+  'relative minor': 'The minor key that shares all the same notes as a major key, but starts on a different root — 3 semitones below. C major and A minor are relatives. Samples in one key fit perfectly in the other.',
+  'relative major': 'The major key that shares all the same notes as a minor key, but starts on a different root — 3 semitones above. A minor and C major are relatives. Borrow chords freely between them.'
 };
 
 // =============================================
