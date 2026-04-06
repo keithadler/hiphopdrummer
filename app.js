@@ -1385,10 +1385,10 @@ function initPlayerControls() {
       // before audio playback begins.
       var midiToPlay;
       if (window._loopSection && curSec && patterns[curSec]) {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm) : buildMidiBytes([curSec], _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm, true) : buildMidiBytes([curSec], _prefs.bpm, false, true);
         window._loopMidiBytes = midiToPlay;
       } else {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm) : buildMidiBytes(arrangement, _prefs.bpm);
+        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm, true) : buildMidiBytes(arrangement, _prefs.bpm, false, true);
       }
       
       // FIX 8: Yield to the browser after MIDI generation so any

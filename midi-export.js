@@ -78,7 +78,7 @@ var MPC_NOTE_MAP = {
  * @returns {Uint8Array} Complete MIDI file as a byte array, ready to
  *   be saved as a .mid file or fed to a MIDI player element
  */
-function buildMidiBytes(sectionList, bpm, noSwing) {
+function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
   var ppq = 96, ch = 9;
   var ticksPerStep = ppq / 4;
   var noteDurTicks = Math.floor(ticksPerStep * 0.75);
@@ -140,8 +140,9 @@ function buildMidiBytes(sectionList, bpm, noSwing) {
 
   // Remove leading silence — shift all events so the first note starts at tick 0.
   // This prevents a silent gap at the start of exported sections that don't
-  // have a hit on step 1.
-  if (events.length > 0) {
+  // have a hit on step 1. Skipped for playback MIDI (keepLeadingSilence) so
+  // the grid cursor stays in sync with the audio.
+  if (!keepLeadingSilence && events.length > 0) {
     var firstTick = events[0].tick;
     if (firstTick > 0) {
       for (var i = 0; i < events.length; i++) events[i].tick -= firstTick;
@@ -973,7 +974,7 @@ function _isDrumDrop(drumPat, step) {
   return true; // all drums silent = beat drop
 }
 
-function buildCombinedMidiBytes(sectionList, bpm) {
+function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   var ppq = 96, drumCh = 9, bassCh = 0, epCh = 2;
   var ticksPerStep = ppq / 4;
   var noteDurTicks = Math.floor(ticksPerStep * 0.75);
@@ -1221,7 +1222,7 @@ function buildCombinedMidiBytes(sectionList, bpm) {
   });
 
   // Remove leading silence
-  if (events.length > 0) {
+  if (!keepLeadingSilence && events.length > 0) {
     var firstTick = events[0].tick;
     if (firstTick > 0) {
       for (var i = 0; i < events.length; i++) events[i].tick -= firstTick;
