@@ -342,25 +342,25 @@ var FEEL_PALETTES = [
 ];
 
 var SWING_POOLS = {
-  normal:    [56, 58, 58, 60, 60, 62, 62, 62, 64, 64, 66],
-  halftime:  [54, 56, 58, 58, 60, 60, 62],
-  hard:      [50, 52, 54, 54, 56, 56, 58, 58],
-  jazzy:     [58, 60, 62, 62, 64, 64, 66, 66, 68, 70],
-  dark:      [50, 52, 52, 54, 54, 56, 58, 60],
-  bounce:    [58, 60, 60, 62, 62, 64, 64, 66],
-  big:       [56, 58, 60, 60, 62, 62, 64],
-  driving:   [54, 56, 58, 58, 60, 60, 62],
-  sparse:    [52, 54, 56, 58, 60, 62, 64],
-  dilla:     [62, 64, 64, 66, 66, 68, 68, 70, 70, 72],
-  lofi:      [56, 58, 58, 60, 60, 62, 62, 64],
-  chopbreak: [58, 60, 60, 62, 62, 64, 64, 66, 66],
-  gfunk:     [62, 64, 64, 66, 66, 68, 68, 70],   // heavy swing — the G-Funk bounce
+  normal:    [60, 62, 62, 64, 64, 66, 66, 66, 68, 68, 70],
+  halftime:  [58, 60, 62, 62, 64, 64, 66],
+  hard:      [54, 56, 58, 58, 60, 60, 62, 62],
+  jazzy:     [62, 64, 66, 66, 68, 68, 70, 70, 72, 74],
+  dark:      [54, 56, 56, 58, 58, 60, 62, 64],
+  bounce:    [62, 64, 64, 66, 66, 68, 68, 70],
+  big:       [60, 62, 64, 64, 66, 66, 68],
+  driving:   [58, 60, 62, 62, 64, 64, 66],
+  sparse:    [56, 58, 60, 62, 64, 66, 68],
+  dilla:     [66, 68, 68, 70, 70, 72, 72, 74, 74, 75],
+  lofi:      [60, 62, 62, 64, 64, 66, 66, 68],
+  chopbreak: [62, 64, 64, 66, 66, 68, 68, 70, 70],
+  gfunk:     [66, 68, 68, 70, 70, 72, 72, 74],   // heavy swing — the G-Funk bounce
   crunk:     [50, 50, 52, 52, 54, 54, 56, 56, 58],  // nearly straight — crunk is mechanical, occasional slight swing
-  memphis:   [50, 52, 52, 54, 54, 56, 56, 58],     // minimal swing — dark and cold
-  griselda:  [50, 52, 52, 54, 54, 56, 58],          // nearly straight — modern boom bap, tight and punchy
-  phonk:     [54, 56, 56, 58, 58, 60, 62],          // moderate swing — triplet-influenced but not heavy
-  nujabes:   [60, 62, 62, 64, 64, 66, 66, 68, 70],   // jazz swing — heavier than normal, lighter than Dilla
-  oldschool: [50, 50, 50, 52, 52, 52, 54, 54]          // nearly straight — drum machine era, mechanical
+  memphis:   [52, 54, 54, 56, 56, 58, 58, 60],     // minimal swing — dark and cold
+  griselda:  [54, 56, 56, 58, 58, 60, 62],          // nearly straight — modern boom bap, tight and punchy
+  phonk:     [58, 60, 60, 62, 62, 64, 66],          // moderate swing — triplet-influenced but not heavy
+  nujabes:   [64, 66, 66, 68, 68, 70, 70, 72, 74],   // jazz swing — heavier than normal, lighter than Dilla
+  oldschool: [50, 50, 52, 52, 54, 54, 56, 56]          // nearly straight — drum machine era, mechanical
 };
 
 // Regional variant swing pools — inherit from parent with bias applied in generateAll
@@ -2003,7 +2003,7 @@ function generateAll(opts) {
     swing += songRegionalMod.swingBias;
   }
   // Add small per-song jitter (±2) for uniqueness
-  swing = Math.max(50, Math.min(72, swing + pick([-2, -1, 0, 0, 1, 2])));
+  swing = Math.max(50, Math.min(75, swing + pick([-2, -1, 0, 0, 1, 2])));
   document.getElementById('swing').textContent = swing;
   var swingDescEl = document.getElementById('swingDesc');
   if (swingDescEl) swingDescEl.textContent = swing >= 66 ? ' heavy' : swing >= 60 ? ' groove' : swing >= 55 ? ' feel' : ' straight';
