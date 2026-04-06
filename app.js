@@ -432,17 +432,17 @@ function showPrefsDialog() {
   var instrMode = 'strict';
   try { instrMode = localStorage.getItem('hhd_instr_mode') || 'strict'; } catch(e) {}
   document.getElementById('prefsInstrMode').value = instrMode;
-  // Restore follow playhead preference (default: off)
-  var followOn = false;
-  try { var fp = localStorage.getItem('hhd_follow_playhead'); if (fp !== null) followOn = (fp === 'true'); } catch(e) {}
+  // Restore follow playhead preference (default: on)
+  var followOn = true;
+  try { var fp = localStorage.getItem('hhd_follow_playhead'); if (fp !== null) followOn = (fp !== 'false'); } catch(e) {}
   document.getElementById('prefsFollowPlayhead').checked = followOn;
-  // Restore show chords preference (default: on)
-  var chordsOn = true;
-  try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp !== 'false'); } catch(e) {}
+  // Restore show chords preference (default: off)
+  var chordsOn = false;
+  try { var cp = localStorage.getItem('hhd_show_chords'); if (cp !== null) chordsOn = (cp === 'true'); } catch(e) {}
   document.getElementById('prefsShowChords').checked = chordsOn;
-  // Restore countdown preference (default: on)
-  var countdownOn = true;
-  try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd !== 'false'); } catch(e) {}
+  // Restore countdown preference (default: off)
+  var countdownOn = false;
+  try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownOn = (cd === 'true'); } catch(e) {}
   document.getElementById('prefsCountdown').checked = countdownOn;
   // Restore What's Next preference (default: on)
   var whatNextOn = true;
@@ -953,9 +953,9 @@ function initBeatHistoryHandlers() {
     'hhd_vibes_playback': 'true',
     'hhd_clav_playback': 'true',
     'hhd_instr_mode': 'strict',
-    'hhd_follow_playhead': 'false',
-    'hhd_show_chords': 'true',
-    'hhd_countdown': 'true',
+    'hhd_follow_playhead': 'true',
+    'hhd_show_chords': 'false',
+    'hhd_countdown': 'false',
     'hhd_velocity_mode': 'percent'
   };
   try {
@@ -1319,8 +1319,8 @@ function initPlayerControls() {
 
   // Countdown function - plays 3-2-1 at the current BPM
   function playCountdown(callback) {
-    var countdownEnabled = true;
-    try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownEnabled = (cd !== 'false'); } catch(e) {}
+    var countdownEnabled = false;
+    try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownEnabled = (cd === 'true'); } catch(e) {}
     
     if (!countdownEnabled) {
       callback();
@@ -2333,10 +2333,10 @@ function initPlaybackTracking() {
   var _cachedToast = null;
   var _cachedProgressFill = null;
   // Read preferences from localStorage immediately (not just on playback start)
-  var _showChordsOverlay = true;
-  try { var _sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (_sc === null || _sc !== 'false'); } catch(e) {}
-  var _followPlayhead = false;
-  try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
+  var _showChordsOverlay = false;
+  try { var _sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (_sc !== null && _sc === 'true'); } catch(e) {}
+  var _followPlayhead = true;
+  try { var _fp = localStorage.getItem('hhd_follow_playhead'); if (_fp !== null) _followPlayhead = (_fp !== 'false'); } catch(e) {}
 
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
@@ -2686,8 +2686,8 @@ function initPlaybackTracking() {
         var totalDur = sectionTimeMap.length > 0 ? sectionTimeMap[sectionTimeMap.length - 1].end : 1;
         vfxBuildProgressMarkers(sectionTimeMap, totalDur);
         // Cache follow-playhead preference for this playback session
-        try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) { _followPlayhead = false; }
-        try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc === null || sc !== 'false'); } catch(e) { _showChordsOverlay = true; }
+        try { _followPlayhead = localStorage.getItem('hhd_follow_playhead') !== 'false'; } catch(e) { _followPlayhead = true; }
+        try { var sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (sc !== null && sc === 'true'); } catch(e) { _showChordsOverlay = false; }
         // Loop mode: always follow playhead, never show chord toast
         if (window._loopSection) {
           _followPlayhead = true;
