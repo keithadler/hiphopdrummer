@@ -7,6 +7,15 @@ All notable changes to Hip Hop Drummer are documented in this file.
 ### Fixed
 - Swing pools too low across all feels — bumped every SWING_POOL up ~4 points so each feel sits in its authentic sweet spot (normal centers around 66% instead of 62%, dilla peaks at 75%, gfunk at 74%, jazzy at 74%). Crunk and oldschool unchanged (intentionally mechanical).
 - Swing clamp in generateAll() raised from 72 to 75 so higher pool values actually come through to playback, MIDI export, and on-screen display.
+- Bass guitar one octave too low — bass guitar styles now play in MIDI 48-60 (C3-C4) instead of 36-48. 808 sub styles (crunk, memphis, phonk) unchanged at MIDI 36-48.
+- Horn stab durations too short for synth playback — raised from 0.10-0.15 to 0.40-0.60 so brass patches have time to speak. Register raised from 'mid' to 'high' (65-80) so stabs cut through the mix.
+- Crunk pad stab duration too short — raised from 0.1 to 0.35 so Saw Lead patch produces audible output.
+- EP bounce stab duration too short — raised from 0.15 to 0.30.
+- Organ voicing too low — default register raised from 'low' (48-60) to 'mid' (60-72) to match real Hammond comping range.
+- Lead synth range floor too high — lowered from MIDI 60 to 55 so G-Funk Moog-style melodies can dip into the G3-B3 range.
+- Vibraphone range floor too high — lowered from MIDI 60 to 53 (F3) to match real vibraphone sweet spot.
+- Clavinet note duration too short — raised from 0.08 to 0.18 for characteristic percussive attack.
+- Bass ghost notes used dissonant chromatic neighbor (root-1) — now use root at lower velocity like real muted bass strings.
 
 ## [1.46] - 2026-04-04
 

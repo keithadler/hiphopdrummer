@@ -98,7 +98,7 @@ function generateClavPattern(sec, bpm) {
       if (motif[ni] % 4 === 0) vel = Math.min(127, vel + 10);
       // Ghost on weak positions
       if (motif[ni] % 2 === 1) vel = Math.max(30, vel - 12);
-      events.push({ step: step, notes: [note], vels: [vel], dur: 0.08, timingOffset: 0 });
+      events.push({ step: step, notes: [note], vels: [vel], dur: 0.18, timingOffset: 0 });
     }
   }
   return events;
