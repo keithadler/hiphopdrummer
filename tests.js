@@ -1485,7 +1485,7 @@ test('Swing in DOM is within valid range after generateAll', function() {
   _domElements = {};
   generateAll();
   var domSwing = parseInt(document.getElementById('swing').textContent);
-  assert(domSwing >= 50 && domSwing <= 72, 'Swing should be 50-72, got ' + domSwing);
+  assert(domSwing >= 50 && domSwing <= 75, 'Swing should be 50-75, got ' + domSwing);
 });
 
 // === Test: Style in DOM matches songFeel ===

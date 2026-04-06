@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.47] - 2026-04-06
+
+### Fixed
+- Swing pools too low across all feels — bumped every SWING_POOL up ~4 points so each feel sits in its authentic sweet spot (normal centers around 66% instead of 62%, dilla peaks at 75%, gfunk at 74%, jazzy at 74%). Crunk and oldschool unchanged (intentionally mechanical).
+- Swing clamp in generateAll() raised from 72 to 75 so higher pool values actually come through to playback, MIDI export, and on-screen display.
+
 ## [1.46] - 2026-04-04
 
 ### Fixed — Critical
