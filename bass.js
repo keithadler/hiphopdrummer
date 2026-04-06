@@ -120,8 +120,11 @@ function _getChordIntervals(degree) {
 /**
  * Convert a chord degree to a MIDI root note using _lastChosenKey.
  * Shared by all melodic instruments to ensure consistent root note computation.
+ * Returns a note in bass range (24-48) — voicing functions in each instrument
+ * shift this up to the correct register. The 48 ceiling keeps all degree roots
+ * within a single octave for consistent interval relationships.
  * @param {string} deg - Chord degree ('i', 'iv', 'v', 'bVII', etc.)
- * @returns {number} MIDI note number
+ * @returns {number} MIDI note number (24-48 range)
  */
 function _degreeToMidiNote(deg) {
   var key = (typeof _lastChosenKey !== 'undefined') ? _lastChosenKey : null;
@@ -801,7 +804,7 @@ function generateBassPattern(sec, bpm) {
       // Clamp to bass range
       noteVel = Math.min(127, Math.max(30, noteVel));
       // FIX #9: Apply BPM duration multiplier to ALL note durations
-      var noteDur = isDead ? (0.1 * durationMult) : (style.noteDur * durationMult);
+      var noteDur = isDead ? Math.max(0.12, 0.1 * durationMult) : (style.noteDur * durationMult);
       midiNote = Math.min(_bassCeil, Math.max(_bassFloor, midiNote));
 
       // ── Fix #9: Per-note timing jitter (fluctuating, not static) ──

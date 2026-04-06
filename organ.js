@@ -184,7 +184,9 @@ function generateOrganPattern(sec, bpm) {
     if (maybe(style.density)) {
       var vels = _organHumanizeVel(chordNotes, vel);
       var durMod = barSeeds[bar] > 0.7 ? 0.85 : 1.0; // slight variation
-      events.push({ step: barStart, notes: chordNotes, vels: vels, dur: style.noteDur * 4 * durMod, timingOffset: 0 });
+      // Cap duration to leave a small gap before next bar's note-on (prevents hanging notes)
+      var organDur = Math.min(3.8, style.noteDur * 4 * durMod);
+      events.push({ step: barStart, notes: chordNotes, vels: vels, dur: organDur, timingOffset: 0 });
 
       // Occasional soft re-attack on beat 3 for movement
       if (barSeeds[bar] > 0.6 && maybe(0.3)) {

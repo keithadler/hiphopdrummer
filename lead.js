@@ -193,7 +193,7 @@ function generateLeadPattern(sec, bpm) {
       var graceNote = null;
       if (ni === 0 && bar % 4 === 0 && maybe(0.3)) {
         graceNote = note - 2; // whole step below
-        if (graceNote < 55) graceNote += 12;
+        if (graceNote < 55) graceNote = 55;
       }
 
       // Slide from previous note

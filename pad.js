@@ -283,11 +283,15 @@ function generatePadPattern(sec, bpm) {
         var durMod = barSeed > 0.7 ? 0.85 : (barSeed < 0.3 ? 1.0 : 0.95);
         events.push({ step: barStart, notes: chordNotes, vels: vels, dur: style.noteDur * 4 * durMod, timingOffset: 0 });
 
-        // Detuned double for Memphis/phonk
+        // Detuned double for Memphis/phonk — offset by +1 semitone for actual chorus/detune effect
         if (style.detuned && maybe(0.7)) {
+          var detNotes = [];
           var detVels = [];
-          for (var di = 0; di < chordNotes.length; di++) detVels.push(Math.max(25, vel - 15));
-          events.push({ step: barStart, notes: chordNotes.slice(), vels: detVels, dur: style.noteDur * 4 * durMod, timingOffset: 2 });
+          for (var di = 0; di < chordNotes.length; di++) {
+            detNotes.push(chordNotes[di] + 1); // +1 semitone creates dissonant chorus
+            detVels.push(Math.max(25, vel - 15));
+          }
+          events.push({ step: barStart, notes: detNotes, vels: detVels, dur: style.noteDur * 4 * durMod, timingOffset: 2 });
         }
 
         // FIX 9: Anticipation — soft swell into next chord
