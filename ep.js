@@ -38,7 +38,7 @@ var EP_COMP_STYLES = {
   gfunk_dre: { rhythm: 'pad',    velBase: 48, velRange: 6,  noteDur: 0.95, density: 1.0,  register: 'mid',  voicing: 'seventh', spread: 12, behind: 0, octaveRoot: 0.5, regShift: { chorus: 'high', breakdown: 'low' } },
   gfunk_quik:{ rhythm: 'half',   velBase: 55, velRange: 10, noteDur: 0.45, density: 0.85, register: 'mid',  voicing: 'seventh', spread: 12, behind: 1, octaveRoot: 0.3, regShift: { chorus: 'high', breakdown: 'low' } },
   gfunk_battlecat: { rhythm: 'pad', velBase: 50, velRange: 8, noteDur: 0.95, density: 1.0, register: 'mid', voicing: 'seventh', spread: 12, behind: 0, octaveRoot: 0.4, regShift: { chorus: 'high', breakdown: 'low' } },
-  bounce:    { rhythm: 'stab',   velBase: 80, velRange: 15, noteDur: 0.15, density: 0.6,  register: 'mid',  voicing: 'triad',   spread: 10, behind: 0, octaveRoot: 0.1, regShift: { chorus: 'high', breakdown: 'mid' } },
+  bounce:    { rhythm: 'stab',   velBase: 80, velRange: 15, noteDur: 0.3,  density: 0.6,  register: 'mid',  voicing: 'triad',   spread: 10, behind: 0, octaveRoot: 0.1, regShift: { chorus: 'high', breakdown: 'mid' } },
   normal_queens: { rhythm: 'comp', velBase: 62, velRange: 12, noteDur: 0.35, density: 0.65, register: 'mid', voicing: 'seventh', spread: 12, behind: 1, octaveRoot: 0.2, regShift: { chorus: 'high', breakdown: 'low' } },
   normal_li: { rhythm: 'comp',   velBase: 60, velRange: 14, noteDur: 0.3,  density: 0.6,  register: 'mid',  voicing: 'triad',   spread: 10, behind: 1, octaveRoot: 0.1, regShift: { chorus: 'high', breakdown: 'mid' } },
   halftime:  { rhythm: 'whole',  velBase: 55, velRange: 10, noteDur: 0.8,  density: 0.85, register: 'mid',  voicing: 'triad',   spread: 10, behind: 2, octaveRoot: 0.3, regShift: { chorus: 'mid',  breakdown: 'low' } }

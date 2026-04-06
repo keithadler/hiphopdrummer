@@ -5,8 +5,10 @@
 // pattern and follow the chosen key. Each feel has its own bass
 // style: articulation, note choice, rhythm density, and octave.
 //
-// Bass notes use MIDI octave 2 (C2=36, C#2=37, ... B2=47) as the
-// primary range, with octave drops to octave 1 for emphasis.
+// Bass notes use MIDI octave 3 (C3=48 ... B3=59) as the primary range
+// for bass guitar styles, with octave drops to octave 2 for emphasis.
+// 808 sub styles use octave 2 (C2=36 ... B2=47) as primary range,
+// with octave drops to octave 1.
 //
 // Depends on: patterns.js (ROWS, STEPS, patterns, secSteps, arrangement,
 //             secFeels), ai.js (songFeel, pick, maybe, rnd, v)
@@ -24,6 +26,10 @@ var NOTE_TO_SEMI = {
   'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11, 'Cb': 11
 };
 
+// Module-level bass range — set per song by generateBassPattern, read by helpers
+var _currentBassCeil = 60;
+var _currentBassFloor = 36;
+
 /**
  * Extract the root note name from a chord symbol.
  * @param {string} chord - Chord symbol
@@ -36,10 +42,11 @@ function bassChordRoot(chord) {
 }
 
 /**
- * Convert a note name to a MIDI note number in octave 1 (bass range).
- * C1 = 36, C#1 = 37, ... B1 = 47
+ * Convert a note name to a MIDI note number in bass range.
+ * Bass guitar styles use octave 2 (C3=48, C#3=49, ... B3=59) as primary range.
+ * 808 sub styles use octave 1 (C2=36, C#2=37, ... B2=47) as primary range.
  * @param {string} noteName
- * @returns {number} MIDI note number in octave 1
+ * @returns {number} MIDI note number in octave 2 (bass guitar default)
  */
 function noteToMidi(noteName) {
   var semi = NOTE_TO_SEMI[noteName];
@@ -481,12 +488,28 @@ function generateBassPattern(sec, bpm) {
   var rootNote = noteToMidi(bassChordRoot(keyData.i));
   var fourthNote = noteToMidi(bassChordRoot(keyData.iv));
   var vChordRoot = noteToMidi(bassChordRoot(keyData.v));
-  var rootLow = rootNote - 12;
 
   var bassFeel = feel.replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
   // Resolve regional variants to parent feel for bass style lookup
   bassFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(bassFeel) : bassFeel;
   var style = BASS_STYLES[bassFeel] || BASS_STYLES.normal;
+
+  // FIX #1: Bass guitar styles play one octave higher than 808 sub styles
+  // Bass guitar: primary range MIDI 48-60 (C3-C4 in GM)
+  // 808 sub: primary range MIDI 36-48 (C2-C3 in GM)
+  if (style.instrument !== '808sub') {
+    rootNote += 12;
+    fourthNote += 12;
+    vChordRoot += 12;
+  }
+  var rootLow = rootNote - 12;
+
+  // FIX #1: Note range ceiling/floor depends on instrument type
+  var _bassCeil = (style.instrument === '808sub') ? 48 : 60;
+  var _bassFloor = (style.instrument === '808sub') ? 24 : 36;
+  // Expose to helper functions (applyBassCallResponse, addBassFill, etc.)
+  _currentBassCeil = _bassCeil;
+  _currentBassFloor = _bassFloor;
 
   var events = [];
   var isIntroOutro = /^intro|^outro/.test(feel);
@@ -506,19 +529,19 @@ function generateBassPattern(sec, bpm) {
   // Build a MIDI note lookup for each degree
   // ii = root + 2 semitones (supertonic), clamped to bass range
   var iiNote = rootNote + 2;
-  if (iiNote > 48) iiNote -= 12;
+  if (iiNote > _bassCeil) iiNote -= 12;
   // bII = root + 1 semitone (Phrygian flat second) — sinister half-step
   var bIINote = keyData.bII ? noteToMidi(bassChordRoot(keyData.bII)) : (rootNote + 1);
-  if (bIINote > 48) bIINote -= 12;
+  if (bIINote > _bassCeil) bIINote -= 12;
   // bIII = root + 3 semitones (minor third / relative major root)
   var bIIINote = rootNote + 3;
-  if (bIIINote > 48) bIIINote -= 12;
+  if (bIIINote > _bassCeil) bIIINote -= 12;
   // bVI = root + 8 semitones (flat sixth — borrowed from parallel major)
   var bVINote = rootNote + 8;
-  if (bVINote > 48) bVINote -= 12;
+  if (bVINote > _bassCeil) bVINote -= 12;
   // bVII = root + 10 semitones (flat seventh — borrowed from parallel major)
   var bVIINote = rootNote + 10;
-  if (bVIINote > 48) bVIINote -= 12;
+  if (bVIINote > _bassCeil) bVIINote -= 12;
 
   /**
    * Get the MIDI root note for a chord degree symbol.
@@ -583,9 +606,9 @@ function generateBassPattern(sec, bpm) {
 
       // Correct intervals relative to current chord root
       var fifth = currentRoot + 7;
-      if (fifth > 48) fifth -= 12;
+      if (fifth > _bassCeil) fifth -= 12;
       var minor7th = currentRoot + ((keyData && keyData.type === 'major') ? 11 : 10);
-      if (minor7th > 48) minor7th -= 12;
+      if (minor7th > _bassCeil) minor7th -= 12;
 
       var shouldPlay = false;
       var noteVel = 0;
@@ -628,8 +651,8 @@ function generateBassPattern(sec, bpm) {
           
           // Transpose: apply adjusted interval to current chord root
           midiNote = currentRoot + transposedInterval;
-          if (midiNote > 48) midiNote -= 12;
-          if (midiNote < 24) midiNote += 12;
+          if (midiNote > _bassCeil) midiNote -= 12;
+          if (midiNote < _bassFloor) midiNote += 12;
           noteVel = motifEvt.vel;
           isDead = motifEvt.dead;
           isSlide = motifEvt.slide;
@@ -640,7 +663,7 @@ function generateBassPattern(sec, bpm) {
           // Bar 4 fill
           if (barInPhrase === 3 && pos >= 12 && maybe(0.3)) {
             midiNote = maybe(0.5) ? currentRoot + 12 : fifth;
-            if (midiNote > 48) midiNote -= 12;
+            if (midiNote > _bassCeil) midiNote -= 12;
             noteVel = v(style.velBase + 5, style.velRange);
           }
         }
@@ -692,10 +715,9 @@ function generateBassPattern(sec, bpm) {
           if (totalW > 0) {
             var roll = rnd();
             if (roll < ghostW) {
-              // Ghost note wins
+              // Ghost note wins — muted root, not chromatic neighbor
               shouldPlay = true;
-              midiNote = currentRoot - 1;
-              if (midiNote < 24) midiNote = currentRoot + 1;
+              midiNote = currentRoot;
               noteVel = v(38, 8);
             } else if (roll < totalW) {
               // Dead note wins
@@ -747,8 +769,8 @@ function generateBassPattern(sec, bpm) {
           else if (pos === 13) { midiNote = currentRoot + 7; }  // perfect 5th
           else if (pos === 14) { midiNote = currentRoot + (_isMajKey ? 11 : 10); } // major 7th or minor 7th
           else if (pos === 15) { midiNote = nextRoot - 1; }     // chromatic approach
-          if (midiNote > 48) midiNote -= 12;
-          if (midiNote < 24) midiNote += 12;
+          if (midiNote > _bassCeil) midiNote -= 12;
+          if (midiNote < _bassFloor) midiNote += 12;
         } else if (pos >= 11) {
           // Chromatic walk: 11→12→13→14→15 walks chromatically to next root
           if (style.walkDirection === 'above' || (style.walkDirection === 'both' && maybe(0.5))) {
@@ -766,8 +788,8 @@ function generateBassPattern(sec, bpm) {
             else if (pos === 14) midiNote = nextRoot + 2;
             else if (pos === 15) midiNote = nextRoot + 1;
           }
-          if (midiNote > 48) midiNote -= 12;
-          if (midiNote < 24) midiNote += 12;
+          if (midiNote > _bassCeil) midiNote -= 12;
+          if (midiNote < _bassFloor) midiNote += 12;
         }
         noteVel = v(style.velBase - 10, style.velRange);
       }
@@ -789,7 +811,11 @@ function generateBassPattern(sec, bpm) {
       noteVel = Math.min(127, Math.max(30, noteVel));
       // FIX #9: Apply BPM duration multiplier to ALL note durations
       var noteDur = isDead ? (0.1 * durationMult) : (style.noteDur * durationMult);
-      midiNote = Math.min(48, Math.max(24, midiNote));
+      // FIX #1: Clamp range depends on instrument type
+      // Bass guitar: 36-60 (C2-C4), 808 sub: 24-48 (C1-C3)
+      var noteFloor = (style.instrument === '808sub') ? 24 : 36;
+      var noteCeil = (style.instrument === '808sub') ? 48 : 60;
+      midiNote = Math.min(noteCeil, Math.max(noteFloor, midiNote));
 
       // ── Fix #9: Per-note timing jitter (fluctuating, not static) ──
       var noteTimeOffset = style.timingOffset || 0;
@@ -1030,9 +1056,9 @@ function applyBassCallResponse(events, drumPat, len, style, rootNote) {
         var third = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey && _lastChosenKey.type === 'major') ? 4 : 3;
         var fillChoices = [rootNote - 1, rootNote + third, rootNote + 5, rootNote + 7, rootNote + 10];
         var fillNote = pick(fillChoices);
-        if (fillNote > 48) fillNote -= 12;
-        if (fillNote < 24) fillNote += 12;
-        fillNote = Math.min(48, Math.max(24, fillNote));
+        if (fillNote > _currentBassCeil) fillNote -= 12;
+        if (fillNote < _currentBassFloor) fillNote += 12;
+        fillNote = Math.min(_currentBassCeil, Math.max(_currentBassFloor, fillNote));
         modified.push({
           step: s, note: fillNote, vel: v(40, 8), dur: 0.35,
           slide: false, dead: false, timingOffset: style.timingOffset || 0,
@@ -1154,7 +1180,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
 
         // Choose turnaround type
         var fifth = rootNote + 7;
-        if (fifth > 48) fifth -= 12;
+        if (fifth > _currentBassCeil) fifth -= 12;
         var turnType = pick(['root_fifth_oct', 'chromatic_walk', 'fifth_root']);
 
         var turnVel = v(style.velBase - 5, 8);
@@ -1291,7 +1317,7 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
 
   var tOff = style.timingOffset || 0;
   var fifth = rootNote + 7;
-  if (fifth > 48) fifth -= 12;
+  if (fifth > _currentBassCeil) fifth -= 12;
 
   // ── Feel-specific bass fills ──
   if (bassFeel === 'dark' || bassFeel === 'memphis' || bassFeel === 'phonk') {
@@ -1324,8 +1350,8 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
     var walkNotes = [rootNote, rootNote + 3, rootNote + 5, rootNote + 7];
     for (var i = 0; i < Math.min(fillLen, walkNotes.length); i++) {
       var wn = walkNotes[i];
-      if (wn > 48) wn -= 12;
-      wn = Math.min(48, Math.max(24, wn));
+      if (wn > _currentBassCeil) wn -= 12;
+      wn = Math.min(_currentBassCeil, Math.max(_currentBassFloor, wn));
       events.push({ step: fillStart + i, note: wn, vel: v(style.velBase - 10 + i * 8, 10), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
   }

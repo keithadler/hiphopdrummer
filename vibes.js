@@ -26,7 +26,7 @@ function _vibesScaleNotes(chordRoot, register, degree) {
   for (var oct = -1; oct <= 1; oct++) {
     for (var i = 0; i < pentatonic.length; i++) {
       var n = base + pentatonic[i] + (oct * 12);
-      if (n >= 60 && n <= 96) notes.push(n);
+      if (n >= 53 && n <= 96) notes.push(n);
     }
   }
   return notes;

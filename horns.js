@@ -18,19 +18,19 @@ var HORN_STYLES = {
 };
 
 var HORN_COMP_STYLES = {
-  normal:       { velBase: 85, velRange: 12, noteDur: 0.12, density: 0.45, register: 'mid', voicing: 'triad', program: 61 },
-  normal_bronx: { velBase: 90, velRange: 10, noteDur: 0.1,  density: 0.4,  register: 'mid', voicing: 'triad', program: 61 },
-  big:          { velBase: 95, velRange: 10, noteDur: 0.15, density: 0.55, register: 'mid', voicing: 'triad', program: 61 },
-  driving:      { velBase: 88, velRange: 12, noteDur: 0.12, density: 0.5,  register: 'mid', voicing: 'triad', program: 61 },
-  chopbreak:    { velBase: 82, velRange: 14, noteDur: 0.1,  density: 0.4,  register: 'mid', voicing: 'triad', program: 61 },
-  oldschool:    { velBase: 92, velRange: 8,  noteDur: 0.1,  density: 0.35, register: 'mid', voicing: 'triad', program: 62 }
+  normal:       { velBase: 85, velRange: 12, noteDur: 0.5,  density: 0.45, register: 'high', voicing: 'triad', program: 61 },
+  normal_bronx: { velBase: 90, velRange: 10, noteDur: 0.45, density: 0.4,  register: 'high', voicing: 'triad', program: 61 },
+  big:          { velBase: 95, velRange: 10, noteDur: 0.6,  density: 0.55, register: 'high', voicing: 'triad', program: 61 },
+  driving:      { velBase: 88, velRange: 12, noteDur: 0.5,  density: 0.5,  register: 'high', voicing: 'triad', program: 61 },
+  chopbreak:    { velBase: 82, velRange: 14, noteDur: 0.45, density: 0.4,  register: 'high', voicing: 'triad', program: 61 },
+  oldschool:    { velBase: 92, velRange: 8,  noteDur: 0.4,  density: 0.35, register: 'high', voicing: 'triad', program: 62 }
 };
 
 function buildHornVoicing(root, degree, voicingType, register, prevNotes) {
   var base = root;
   while (base < 48) base += 12;
   if (register === 'mid') { while (base < 60) base += 12; while (base > 72) base -= 12; }
-  else if (register === 'high') { while (base < 72) base += 12; while (base > 84) base -= 12; }
+  else if (register === 'high') { while (base < 65) base += 12; while (base > 80) base -= 12; }
   else { while (base < 48) base += 12; while (base > 60) base -= 12; }
 
   var intervals;
@@ -43,7 +43,7 @@ function buildHornVoicing(root, degree, voicingType, register, prevNotes) {
   var notes = [];
   for (var i = 0; i < intervals.length; i++) {
     var n = base + intervals[i];
-    if (n < 36) n += 12; if (n > 96) n -= 12;
+    if (n < 48) n += 12; if (n > 96) n -= 12;
     notes.push(n);
   }
   // Simple voice leading
