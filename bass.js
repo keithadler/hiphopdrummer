@@ -1134,7 +1134,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
       } else {
         // Bar 3+: only beat 1 — sustained root, very sparse
         if (pos === 0) {
-          events[e].note = Math.min(48, Math.max(24, rootLow));
+          events[e].note = Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow));
           events[e].vel = v(style.velBase - 15, 6);
           events[e].dur = Math.max(style.noteDur, 0.9); // long sustain
           events[e].dead = false;
@@ -1147,7 +1147,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
     if (len >= 16 && maybe(0.6)) {
       var pickupStep = len - 2;
       filtered.push({
-        step: pickupStep, note: Math.min(48, Math.max(24, rootNote - 1)),
+        step: pickupStep, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote - 1)),
         vel: v(style.velBase, 8), dur: 0.4,
         slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false
       });
@@ -1188,21 +1188,21 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
 
         if (turnType === 'root_fifth_oct') {
           // root → 5th → octave
-          events.push({ step: turnStart, note: Math.min(48, Math.max(24, rootNote)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          if (turnStart + 1 < len) events.push({ step: turnStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          if (turnStart + 3 < len) events.push({ step: turnStart + 3, note: Math.min(48, Math.max(24, rootNote + 12 > 48 ? rootNote : rootNote + 12)), vel: v(turnVel, 6), dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          events.push({ step: turnStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 1 < len) events.push({ step: turnStart + 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 3 < len) events.push({ step: turnStart + 3, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote + 12 > _currentBassCeil ? rootNote : rootNote + 12)), vel: v(turnVel, 6), dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
         } else if (turnType === 'chromatic_walk') {
           // chromatic walk up to next section root
           for (var tw = 0; tw < 3; tw++) {
             if (turnStart + tw >= len) break;
             var walkNote = rootNote - 3 + tw;
-            walkNote = Math.min(48, Math.max(24, walkNote));
+            walkNote = Math.min(_currentBassCeil, Math.max(_currentBassFloor, walkNote));
             events.push({ step: turnStart + tw, note: walkNote, vel: v(turnVel - 5 + tw * 5, 6), dur: 0.4, slide: tw > 0, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
           }
         } else {
           // 5th → root drop
-          events.push({ step: turnStart, note: Math.min(48, Math.max(24, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
-          if (turnStart + 2 < len) events.push({ step: turnStart + 2, note: Math.min(48, Math.max(24, rootLow)), vel: v(turnVel + 5, 6), dur: Math.max(turnDur, 0.7), slide: true, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          events.push({ step: turnStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, fifth)), vel: turnVel, dur: turnDur, slide: false, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
+          if (turnStart + 2 < len) events.push({ step: turnStart + 2, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(turnVel + 5, 6), dur: Math.max(turnDur, 0.7), slide: true, dead: false, timingOffset: style.timingOffset || 0, hammerOn: false, subSwell: false });
         }
       }
     }
@@ -1228,7 +1228,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
       // Chromatic run: 4 notes ascending to the root
       for (var cr = 0; cr < 4; cr++) {
         var crNote = rootNote - 4 + cr;
-        crNote = Math.min(48, Math.max(24, crNote));
+        crNote = Math.min(_currentBassCeil, Math.max(_currentBassFloor, crNote));
         events.push({
           step: lastBarStart + cr, note: crNote,
           vel: v(style.velBase + cr * 4, 6), dur: 0.35,
@@ -1250,7 +1250,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
     var hasBeat1 = events.some(function(e) { return e.step === 0; });
     if (!hasBeat1) {
       events.push({
-        step: 0, note: Math.min(48, Math.max(24, rootLow)),
+        step: 0, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)),
         vel: Math.min(127, style.velBase + 15), dur: Math.max(style.noteDur, 0.7),
         slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: style.subSwell > 0
       });
@@ -1259,7 +1259,7 @@ function applyBassSectionBehavior(events, sec, len, bassFeel, style, rootNote, r
       for (var e = 0; e < events.length; e++) {
         if (events[e].step === 0) {
           events[e].vel = Math.min(127, events[e].vel + 10);
-          events[e].note = Math.min(48, Math.max(24, rootLow));
+          events[e].note = Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow));
           if (style.subSwell > 0) events[e].subSwell = true;
           break;
         }
@@ -1324,25 +1324,25 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
     // Drop out — let the sub tail ring, silence is the fill
     // Maybe one sustained low root at the fill start
     if (maybe(0.4)) {
-      events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase - 10, 6), dur: 0.95, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: style.subSwell > 0 });
+      events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase - 10, 6), dur: 0.95, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: style.subSwell > 0 });
     }
   }
   else if (bassFeel === 'crunk') {
     // One massive sustained root under the drum hit
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: Math.min(127, style.velBase + 10), dur: 0.95, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: true });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: Math.min(127, style.velBase + 10), dur: 0.95, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: true });
   }
   else if (bassFeel === 'dilla' || bassFeel === 'nujabes') {
     // Soft dissolve — ghost-level chromatic descent, barely there
     for (var i = 0; i < fillLen; i++) {
       var fNote = rootNote - i;
-      fNote = Math.min(48, Math.max(24, fNote));
+      fNote = Math.min(_currentBassCeil, Math.max(_currentBassFloor, fNote));
       events.push({ step: fillStart + i, note: fNote, vel: v(45 - i * 4, 8), dur: 0.5, slide: i > 0, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
   }
   else if (bassFeel === 'lofi') {
     // Almost nothing — one muted note, maybe
     if (maybe(0.5)) {
-      events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootNote)), vel: v(60, 6), dur: 0.3, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+      events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote)), vel: v(60, 6), dur: 0.3, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
   }
   else if (bassFeel === 'jazzy') {
@@ -1357,55 +1357,55 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
   }
   else if (bassFeel === 'gfunk') {
     // Slide fill: root → 5th with Moog slide
-    events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootNote)), vel: v(style.velBase, 8), dur: 0.7, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote)), vel: v(style.velBase, 8), dur: 0.7, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     if (fillLen >= 3) {
-      events.push({ step: fillStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: v(style.velBase + 5, 8), dur: 0.7, slide: true, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+      events.push({ step: fillStart + 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, fifth)), vel: v(style.velBase + 5, 8), dur: 0.7, slide: true, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase + 8, 6), dur: 0.85, slide: true, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase + 8, 6), dur: 0.85, slide: true, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
   }
   else if (bassFeel === 'hard' || bassFeel === 'griselda') {
     // Punchy: one hard root hit on the last step, matching the drum crash
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: Math.min(127, style.velBase + 12), dur: 0.5, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: Math.min(127, style.velBase + 12), dur: 0.5, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false });
   }
   else if (bassFeel === 'chopbreak') {
     // Funky fill: alternating root and octave, short and punchy
     for (var i = 0; i < fillLen; i++) {
-      var fn = (i % 2 === 0) ? rootNote : (rootNote + 12 > 48 ? rootNote : rootNote + 12);
-      fn = Math.min(48, Math.max(24, fn));
+      var fn = (i % 2 === 0) ? rootNote : (rootNote + 12 > _currentBassCeil ? rootNote : rootNote + 12);
+      fn = Math.min(_currentBassCeil, Math.max(_currentBassFloor, fn));
       events.push({ step: fillStart + i, note: fn, vel: v(style.velBase + i * 3, 8), dur: 0.35, slide: false, dead: false, timingOffset: tOff, hammerOn: i > 0, subSwell: false });
     }
   }
   else if (bassFeel === 'bounce') {
     // Danceable fill: kick-following with octave bounce
-    events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootNote)), vel: v(style.velBase, 8), dur: 0.4, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote)), vel: v(style.velBase, 8), dur: 0.4, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     if (fillLen >= 3) {
-      events.push({ step: fillStart + 1, note: Math.min(48, Math.max(24, rootNote + 12 > 48 ? rootNote : rootNote + 12)), vel: v(style.velBase + 5, 8), dur: 0.4, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+      events.push({ step: fillStart + 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote + 12 > _currentBassCeil ? rootNote : rootNote + 12)), vel: v(style.velBase + 5, 8), dur: 0.4, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase + 8, 6), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase + 8, 6), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
   }
   else if (bassFeel === 'halftime') {
     // One sustained root under the fill
-    events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase, 8), dur: 0.95, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: style.subSwell > 0 });
+    events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase, 8), dur: 0.95, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: style.subSwell > 0 });
   }
   else if (bassFeel === 'oldschool') {
     // Simple: one root hit on the last step
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase, 4), dur: 0.7, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase, 4), dur: 0.7, slide: false, dead: false, timingOffset: 0, hammerOn: false, subSwell: false });
   }
   else if (bassFeel === 'driving') {
     // Forward momentum: chromatic push into next section
     for (var i = 0; i < fillLen; i++) {
       var dn = rootNote - fillLen + i;
-      dn = Math.min(48, Math.max(24, dn));
+      dn = Math.min(_currentBassCeil, Math.max(_currentBassFloor, dn));
       events.push({ step: fillStart + i, note: dn, vel: v(style.velBase + i * 4, 6), dur: 0.4, slide: i > 0, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
   }
   else if (bassFeel === 'big') {
     // Anthem energy: root → 5th → octave drop, big and sustained
-    events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootNote)), vel: v(style.velBase + 5, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootNote)), vel: v(style.velBase + 5, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     if (fillLen >= 3) {
-      events.push({ step: fillStart + 1, note: Math.min(48, Math.max(24, fifth)), vel: v(style.velBase + 8, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+      events.push({ step: fillStart + 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, fifth)), vel: v(style.velBase + 8, 8), dur: 0.6, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
-    events.push({ step: len - 1, note: Math.min(48, Math.max(24, rootLow)), vel: Math.min(127, style.velBase + 12), dur: 0.8, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+    events.push({ step: len - 1, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: Math.min(127, style.velBase + 12), dur: 0.8, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
   }
   else {
     // Standard boom bap fill: chromatic walk-up to root
@@ -1413,11 +1413,11 @@ function addBassFill(events, sec, len, bassFeel, style, rootNote, rootLow, fourt
     if (fillType === 'chromatic_up') {
       for (var i = 0; i < fillLen; i++) {
         var cn = rootNote - fillLen + i;
-        cn = Math.min(48, Math.max(24, cn));
+        cn = Math.min(_currentBassCeil, Math.max(_currentBassFloor, cn));
         events.push({ step: fillStart + i, note: cn, vel: v(style.velBase - 5 + i * 5, 8), dur: 0.4, slide: i > 0, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
       }
     } else if (fillType === 'sustained_root') {
-      events.push({ step: fillStart, note: Math.min(48, Math.max(24, rootLow)), vel: v(style.velBase + 5, 8), dur: 0.9, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
+      events.push({ step: fillStart, note: Math.min(_currentBassCeil, Math.max(_currentBassFloor, rootLow)), vel: v(style.velBase + 5, 8), dur: 0.9, slide: false, dead: false, timingOffset: tOff, hammerOn: false, subSwell: false });
     }
     // dropout: no events added — silence is the fill
   }
@@ -1467,7 +1467,7 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
 
       // ── Fix #6: Hammer-on grace note ──
       if (e.hammerOn) {
-        var graceNote = Math.max(24, e.note - 2); // whole step below
+        var graceNote = Math.max(_currentBassFloor, e.note - 2); // whole step below
         var graceTick = stepTick - 2;
         if (graceTick < 0) graceTick = 0;
         var graceVel = Math.max(30, e.vel - 25);
@@ -1499,7 +1499,7 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
           if (slideDur < 1) slideDur = 1;
           for (var s = 1; s < slideSteps; s++) {
             var slideNote = prevNote + (dir * s);
-            slideNote = Math.min(48, Math.max(24, slideNote));
+            slideNote = Math.min(_currentBassCeil, Math.max(_currentBassFloor, slideNote));
             var slideTick = slideStartTick + (s * slideDur);
             var slideVel = Math.max(30, e.vel - 20);
             midiEvents.push({ tick: slideTick, type: 'on', note: slideNote, vel: slideVel });
