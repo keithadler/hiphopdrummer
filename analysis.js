@@ -191,7 +191,8 @@ function analyzeBeat() {
       { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', bII: 'Cb', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and ominous. The bII creates maximum tension in the lowest register. Griselda, Westside Gunn.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', bII: 'Ab', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but not oppressive. The Phrygian bII (Ab) adds eerie color. Early Mobb Deep.' },
       { root: 'Ebm', type: 'minor', i: 'Ebm', iv: 'Abm', v: 'Bbm', bII: 'E', rel: 'Gb major', relNote: 'Gb, Db, B', context: 'Slow motion and heavy. Halftime at this pitch feels like a nightmare. The bII (E natural) is maximally dissonant.' },
-      { root: 'Dbm', type: 'minor', i: 'Dbm', iv: 'Gbm', v: 'Abm', bII: 'D', rel: 'E major', relNote: 'E, B, A', context: 'Darkest of the dark. Barely used — when you need maximum menace. The bII (D natural) creates crushing tension.' }
+      { root: 'Dbm', type: 'minor', i: 'Dbm', iv: 'Gbm', v: 'Abm', bII: 'D', rel: 'E major', relNote: 'E, B, A', context: 'Darkest of the dark. Barely used — when you need maximum menace. The bII (D natural) creates crushing tension.' },
+      { root: 'Gbm', type: 'minor', i: 'Gbm', iv: 'Bm', v: 'Dbm', bII: 'G', rel: 'A major', relNote: 'A, E, D', context: 'Rare and heavy. Maximum flatness — dark and cinematic. The bII (G natural) is a half-step hammer. Almost never used in hip hop, which is exactly the point.' }
     ]},
     bounce: { keys: [
       { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Bright and danceable. The major key lifts the energy and makes hooks catchy. Bad Boy era.' },
@@ -270,7 +271,8 @@ function analyzeBeat() {
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', bII: 'Ab', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Eerie and atmospheric. The bII (Ab) creates horror-movie tension. Good for minor key synth pads.' },
       { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', bII: 'Bb', rel: 'C major', relNote: 'C, G, F', context: 'Slightly brighter Memphis. The Phrygian bII (Bb) keeps it sinister. Early Three 6 Mafia.' },
       { root: 'Ebm', type: 'minor', i: 'Ebm', iv: 'Abm', v: 'Bbm', bII: 'E', rel: 'Gb major', relNote: 'Gb, Db, B', context: 'Slow and suffocating. The bII (E natural) creates maximum dissonance. Horror-movie Memphis at its darkest.' },
-      { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', bII: 'A', rel: 'B major', relNote: 'B, Gb, E', context: 'Deep and cinematic. The bII (A natural) is maximally sinister. Late-night Memphis territory.' }
+      { root: 'Abm', type: 'minor', i: 'Abm', iv: 'Dbm', v: 'Ebm', bII: 'A', rel: 'B major', relNote: 'B, Gb, E', context: 'Deep and cinematic. The bII (A natural) is maximally sinister. Late-night Memphis territory.' },
+      { root: 'Gbm', type: 'minor', i: 'Gbm', iv: 'Bm', v: 'Dbm', bII: 'G', rel: 'A major', relNote: 'A, E, D', context: 'Rare and heavy. Maximum flatness — the key itself feels like sinking. The bII (G natural) is a half-step drop into the void.' }
     ]},
     griselda: { keys: [
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', bII: 'Db', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'The Griselda key. Phrygian bII (Db) adds that sinister half-step drop. Daringer\'s signature sound.' },
@@ -279,7 +281,8 @@ function analyzeBeat() {
       { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', bII: 'Gb', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Cold and cinematic. The bII (Gb) gives it a film-score quality.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', bII: 'Ab', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but warm. The Phrygian bII (Ab) adds edge. Conductor Williams territory.' },
       { root: 'Ebm', type: 'minor', i: 'Ebm', iv: 'Abm', v: 'Bbm', bII: 'E', rel: 'Gb major', relNote: 'Gb, Db, B', context: 'Heavy and cinematic. The bII (E natural) creates crushing tension. Modern Griselda darkness.' },
-      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', bII: 'Cb', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Deep and ominous. The bII in the lowest register. Westside Gunn, Conway territory.' }
+      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', bII: 'Cb', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Deep and ominous. The bII in the lowest register. Westside Gunn, Conway territory.' },
+      { root: 'Gbm', type: 'minor', i: 'Gbm', iv: 'Bm', v: 'Dbm', bII: 'G', rel: 'A major', relNote: 'A, E, D', context: 'Rare and cinematic. Maximum flatness creates an unsettling, unfamiliar darkness. The bII (G natural) is a half-step sledgehammer.' }
     ]},
     phonk: { keys: [
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', bII: 'Db', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'The phonk key. Phrygian bII (Db) is the sinister half-step. SpaceGhostPurrp territory.' },
@@ -287,7 +290,8 @@ function analyzeBeat() {
       { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', bII: 'Cb', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Darkest phonk key. The Phrygian bII in the lowest register. Maximum menace.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', bII: 'Ab', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Eerie and atmospheric. The bII (Ab) creates tension. Good for detuned synth pads.' },
       { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', bII: 'Bb', rel: 'C major', relNote: 'C, G, F', context: 'Slightly brighter phonk. The Phrygian bII (Bb) keeps it dark.' },
-      { root: 'Ebm', type: 'minor', i: 'Ebm', iv: 'Abm', v: 'Bbm', bII: 'E', rel: 'Gb major', relNote: 'Gb, Db, B', context: 'Slow and heavy. The bII (E natural) creates maximum dissonance. Dark phonk at its most oppressive.' }
+      { root: 'Ebm', type: 'minor', i: 'Ebm', iv: 'Abm', v: 'Bbm', bII: 'E', rel: 'Gb major', relNote: 'Gb, Db, B', context: 'Slow and heavy. The bII (E natural) creates maximum dissonance. Dark phonk at its most oppressive.' },
+      { root: 'Gbm', type: 'minor', i: 'Gbm', iv: 'Bm', v: 'Dbm', bII: 'G', rel: 'A major', relNote: 'A, E, D', context: 'Rare and suffocating. The key itself feels alien — maximum flatness, maximum weight. The bII (G natural) drops like a trapdoor.' }
     ]},
     nujabes: { keys: [
       { root: 'Fmaj7', type: 'major', i: 'Fmaj7', iv: 'Bbmaj7', v: 'C7', ii: 'Gm7', rel: 'Dm', relNote: 'Dm7, Am7, Em7', context: 'The Nujabes key. Warm, melodic, and deeply musical. Rhodes piano and acoustic guitar live here. "Feather" energy.' },
