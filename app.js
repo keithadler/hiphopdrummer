@@ -2321,7 +2321,6 @@ function initPlaybackTracking() {
   var _cachedCursorEls = [];
   var _cachedBpm = 90;
   var _cachedSecPerStep = 60 / 90 / 4;
-  var _cachedAudioLatency = 0;
   var _playerCurrentEl = null;
   var _playerSeekEl = null;
   var _playerPlayBtn = null;
@@ -2342,14 +2341,6 @@ function initPlaybackTracking() {
   function buildSectionTimeMap() {
     _cachedBpm = parseInt(document.getElementById('bpm').textContent) || 90;
     _cachedSecPerStep = 60 / _cachedBpm / 4;
-    // Cache audio output latency for cursor compensation
-    // The sequencer reports its internal position, but audio reaches the speakers
-    // after the Web Audio pipeline delay. Subtract this so the cursor matches what you hear.
-    _cachedAudioLatency = 0;
-    try {
-      var ac = window.synthBridge && window.synthBridge.audioContext;
-      if (ac) _cachedAudioLatency = (ac.outputLatency || ac.baseLatency || 0);
-    } catch(e) {}
     _playerCurrentEl = document.getElementById('playerCurrent');
     _playerSeekEl = document.getElementById('playerSeek');
     _playerPlayBtn = document.getElementById('headerPlayBtn');
@@ -2574,9 +2565,14 @@ function initPlaybackTracking() {
       }
     }
     if (foundIdx >= 0) {
-      // Compensate for audio output latency — the sequencer's currentTime is ahead
-      // of what the user actually hears by the Web Audio pipeline delay
-      var compensatedTime = currentTime - _cachedAudioLatency;
+      // Compensate for audio output latency — read per-frame since it can change
+      // (e.g., Bluetooth headphones connect/disconnect, browser buffer adjustment)
+      var _audioLatency = 0;
+      try {
+        var ac = window.synthBridge && window.synthBridge.audioContext;
+        if (ac) _audioLatency = (ac.outputLatency || ac.baseLatency || 0);
+      } catch(e) {}
+      var compensatedTime = currentTime - _audioLatency;
       var currentStep = Math.floor((compensatedTime - sectionStartTime) / _cachedSecPerStep);
       if (currentStep >= 0 && currentStep < sectionSteps) {
         highlightStep(currentStep);

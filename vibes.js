@@ -92,10 +92,15 @@ function generateVibesPattern(sec, bpm) {
     if (scaleNotes.length === 0) continue;
 
     var motif = (bar % 2 === 0) ? motifA : motifB;
+    // Skip vibes on steps where EP likely has a chord attack (beat 1 and beat 3)
+    // to avoid unintentional unisons that sound like volume spikes
+    var epActive = (typeof EP_STYLES !== 'undefined') && (EP_STYLES[vibesFeel] || EP_STYLES[vibesFeelBase] || EP_STYLES[songFeel] || EP_STYLES[songFeelResolved]);
     for (var ni = 0; ni < motif.length; ni++) {
       var m = motif[ni];
       var step = barStart + m.step;
       if (step >= barStart + 16) continue;
+      // Thin vibes when EP is active — skip beat 1 hits 50% of the time
+      if (epActive && m.step === 0 && maybe(0.5)) continue;
       var note = scaleNotes[m.degIdx % scaleNotes.length];
       var vel = Math.min(127, Math.max(30, v(style.velBase, style.velRange)));
       if (m.step % 4 === 0) vel = Math.min(127, vel + 6);
