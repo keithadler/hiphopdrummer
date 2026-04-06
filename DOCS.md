@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.46)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.47)
 
 Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, style-matched drum kits and bass sounds, 218 kick patterns, 15,000+ test assertions.
 
@@ -86,7 +86,7 @@ Every style has a dedicated curated kick library with 10-13 patterns:
 
 ## Tempo & Swing
 
-60–130 BPM covering slow phonk/Griselda territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 72% (heavy groove).
+60–130 BPM covering slow phonk/Griselda territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 75% (heavy groove).
 
 ### Per-Instrument Swing
 Each instrument swings by a different amount per style via the `INSTRUMENT_SWING` table. Categories: hat (closed/open/ride/shaker), kick (kick/ghost kick), ghostSnare (ghost snares/rimshot), backbeat (loud snare/clap), bass. Crashes always on grid (0x).
@@ -120,7 +120,7 @@ Shared: chopbreak/bounce/big use normal profiles, driving uses hard, sparse/half
 ## Feel-Specific Behaviors
 
 ### Dilla Feel
-Softened backbeat (~82%), off-grid kicks on steps 3/7/11/15, ghost snares scattered everywhere, heavy swing (62-72%). B-bar kick variant toggles across the full bar range (not just second half). Pocket-delayed snare fires on every other bar at 65% probability. Velocity arc skipped (flat/hypnotic aesthetic). Hat pattern forced to 8ths. Ghost clustering uses 3-step spacing instead of 2.
+Softened backbeat (~82%), off-grid kicks on steps 3/7/11/15, ghost snares scattered everywhere, heavy swing (66-75%). B-bar kick variant toggles across the full bar range (not just second half). Pocket-delayed snare fires on every other bar at 65% probability. Velocity arc skipped (flat/hypnotic aesthetic). Hat pattern forced to 8ths. Ghost clustering uses 3-step spacing instead of 2.
 
 ### Lo-Fi Feel
 Compressed dynamics in a narrow velocity band (60-92), sparse hats with skipped steps, no open hats or rimshots. Ghost density capped at 1.0. Velocity arc skipped. Hat pattern forced to 8ths. Bar variations never strip kicks (already sparse). Humanization jitter tightened across all instruments to keep the narrow band narrow. B-bar kick uses identical structure (velocity variation only).
