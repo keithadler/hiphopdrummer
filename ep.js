@@ -479,7 +479,7 @@ function generateEPPattern(sec, bpm) {
       if (usePedal) {
         // Sustained root drone on its own
         var pedalNote = rootNote;
-        while (pedalNote < 48) pedalNote += 12;
+        while (pedalNote < 60) pedalNote += 12;
         events.push({ step: barStart, notes: [pedalNote], vels: [Math.max(30, vel - 15)], dur: style.noteDur * 4, timingOffset: behind, crush: null, durJitter: 2 });
       }
       pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, usePedal ? 0 : style.octaveRoot);

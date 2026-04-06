@@ -25,7 +25,7 @@ function _clavScaleNotes(chordRoot, register, degree) {
   var notes = [];
   for (var i = 0; i < pentatonic.length; i++) {
     var n = base + pentatonic[i];
-    if (n >= 48 && n <= 84) notes.push(n);
+    if (n >= 48 && n <= 72) notes.push(n);
   }
   return notes;
 }

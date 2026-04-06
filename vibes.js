@@ -99,7 +99,7 @@ function generateVibesPattern(sec, bpm) {
       var note = scaleNotes[m.degIdx % scaleNotes.length];
       var vel = Math.min(127, Math.max(30, v(style.velBase, style.velRange)));
       if (m.step % 4 === 0) vel = Math.min(127, vel + 6);
-      events.push({ step: step, notes: [note], vels: [vel], dur: 0.4, timingOffset: 1 });
+      events.push({ step: step, notes: [note], vels: [vel], dur: 0.3, timingOffset: 1 });
     }
   }
   return events;
