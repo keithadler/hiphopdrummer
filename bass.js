@@ -5,10 +5,8 @@
 // pattern and follow the chosen key. Each feel has its own bass
 // style: articulation, note choice, rhythm density, and octave.
 //
-// Bass notes use MIDI octave 3 (C3=48 ... B3=59) as the primary range
-// for bass guitar styles, with octave drops to octave 2 for emphasis.
-// 808 sub styles use octave 2 (C2=36 ... B2=47) as primary range,
-// with octave drops to octave 1.
+// Bass notes use MIDI octave 2 (C2=36 ... B2=47) as the primary range,
+// with octave drops to octave 1 (C1=24) for emphasis.
 //
 // Depends on: patterns.js (ROWS, STEPS, patterns, secSteps, arrangement,
 //             secFeels), ai.js (songFeel, pick, maybe, rnd, v)
@@ -27,8 +25,8 @@ var NOTE_TO_SEMI = {
 };
 
 // Module-level bass range — set per song by generateBassPattern, read by helpers
-var _currentBassCeil = 60;
-var _currentBassFloor = 36;
+var _currentBassCeil = 48;
+var _currentBassFloor = 24;
 
 /**
  * Extract the root note name from a chord symbol.
@@ -43,10 +41,9 @@ function bassChordRoot(chord) {
 
 /**
  * Convert a note name to a MIDI note number in bass range.
- * Bass guitar styles use octave 2 (C3=48, C#3=49, ... B3=59) as primary range.
- * 808 sub styles use octave 1 (C2=36, C#2=37, ... B2=47) as primary range.
+ * C2=36, C#2=37, ... B2=47. This is the standard bass guitar/808 range.
  * @param {string} noteName
- * @returns {number} MIDI note number in octave 2 (bass guitar default)
+ * @returns {number} MIDI note number in octave 2
  */
 function noteToMidi(noteName) {
   var semi = NOTE_TO_SEMI[noteName];
@@ -494,19 +491,13 @@ function generateBassPattern(sec, bpm) {
   bassFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(bassFeel) : bassFeel;
   var style = BASS_STYLES[bassFeel] || BASS_STYLES.normal;
 
-  // FIX #1: Bass guitar styles play one octave higher than 808 sub styles
-  // Bass guitar: primary range MIDI 48-60 (C3-C4 in GM)
-  // 808 sub: primary range MIDI 36-48 (C2-C3 in GM)
-  if (style.instrument !== '808sub') {
-    rootNote += 12;
-    fourthNote += 12;
-    vChordRoot += 12;
-  }
   var rootLow = rootNote - 12;
 
-  // FIX #1: Note range ceiling/floor depends on instrument type
-  var _bassCeil = (style.instrument === '808sub') ? 48 : 60;
-  var _bassFloor = (style.instrument === '808sub') ? 24 : 36;
+  // Bass note range: 24-48 for all styles (C1-C3)
+  // Bass guitar and 808 sub share the same MIDI range — the difference
+  // is in the GM program (sound), not the octave
+  var _bassCeil = 48;
+  var _bassFloor = 24;
   // Expose to helper functions (applyBassCallResponse, addBassFill, etc.)
   _currentBassCeil = _bassCeil;
   _currentBassFloor = _bassFloor;
@@ -807,15 +798,11 @@ function generateBassPattern(sec, bpm) {
         isHammerOn = true;
       }
 
-      // Clamp
+      // Clamp to bass range
       noteVel = Math.min(127, Math.max(30, noteVel));
       // FIX #9: Apply BPM duration multiplier to ALL note durations
       var noteDur = isDead ? (0.1 * durationMult) : (style.noteDur * durationMult);
-      // FIX #1: Clamp range depends on instrument type
-      // Bass guitar: 36-60 (C2-C4), 808 sub: 24-48 (C1-C3)
-      var noteFloor = (style.instrument === '808sub') ? 24 : 36;
-      var noteCeil = (style.instrument === '808sub') ? 48 : 60;
-      midiNote = Math.min(noteCeil, Math.max(noteFloor, midiNote));
+      midiNote = Math.min(_bassCeil, Math.max(_bassFloor, midiNote));
 
       // ── Fix #9: Per-note timing jitter (fluctuating, not static) ──
       var noteTimeOffset = style.timingOffset || 0;
