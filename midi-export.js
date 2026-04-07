@@ -100,6 +100,8 @@ function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
     var len = secSteps[sec] || 32;
     var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
     secFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
+    // Skip drum events if drums are muted (session-only)
+    if (typeof _drumsMuted !== 'undefined' && _drumsMuted) { tickPos += len * ticksPerStep; return; }
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
 
@@ -914,8 +916,8 @@ function updateMidiPlayer() {
   try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
   var padOn = true;
   try { var pd = localStorage.getItem('hhd_pad_playback'); if (pd !== null) padOn = (pd !== 'false'); } catch(e) {}
-  // Use combined MIDI if bass OR EP OR pad is enabled
-  var midiBytes = (bassOn || epOn || padOn) ? buildCombinedMidiBytes(arrangement, bpm) : buildMidiBytes(arrangement, bpm);
+  // Always use combined MIDI builder (supports drums mute + all instrument prefs)
+  var midiBytes = buildCombinedMidiBytes(arrangement, bpm);
 
   // Store the current MIDI bytes globally for WAV export and playback
   window._currentMidiBytes = midiBytes;
@@ -1000,7 +1002,9 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     var swingFeel = secFeel.replace(/^intro_[abc]$/, 'normal').replace(/^outro_.*$/, 'normal');
     swingFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(swingFeel) : swingFeel;
 
-    // Drum events (channel 10)
+    // Drum events (channel 10) — skip if drums are muted (session-only)
+    var _drumsOff = (typeof _drumsMuted !== 'undefined' && _drumsMuted);
+    if (!_drumsOff) {
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
 
@@ -1026,6 +1030,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         }
       }
       tickPos += ticksPerStep;
+    }
+    } else {
+      // Drums muted — still advance tickPos through the section
+      tickPos += len * ticksPerStep;
     }
 
     // Bass events (channel 1) — generated per section

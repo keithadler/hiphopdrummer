@@ -61,6 +61,8 @@ function restoreBeatState(beatData) {
   if (window.synthBridge && window.synthBridge.isPlaying) {
     window.synthBridge.stop();
   }
+  // Reset session-only drums mute on beat load
+  if (typeof _drumsMuted !== 'undefined') _drumsMuted = false;
   var playBtn = document.getElementById('headerPlayBtn');
   if (playBtn) {
     playBtn.textContent = '▶ PLAY';
@@ -163,6 +165,8 @@ function restoreBeatState(beatData) {
   if (typeof _forcedKey !== 'undefined') {
     _forcedKey = null;
   }
+  // Update instrument mute strip for loaded beat's style
+  if (typeof updateInstrMuteStrip === 'function') updateInstrMuteStrip();
 }
 
 /**

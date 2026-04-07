@@ -218,6 +218,7 @@ document.getElementById('regenGo').onclick = function() {
     }
     
     // Reset loop and edit mode for the new beat
+    _drumsMuted = false; // reset session-only drums mute
     window._loopSection = false;
     window._loopMidiBytes = null;
     var loopBtnEl = document.getElementById('playerLoopBtn');
@@ -240,6 +241,8 @@ document.getElementById('regenGo').onclick = function() {
     var _genDelay = Math.max(0, 1000 - _genElapsed);
     setTimeout(function() {
       if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+      // Update instrument mute strip for new style
+      if (typeof updateInstrMuteStrip === 'function') updateInstrMuteStrip();
       // Show role-specific "What Next" advice
       _showWhatNext();
     }, _genDelay);
@@ -1025,6 +1028,7 @@ function initBeatHistoryHandlers() {
   
   // Initialize player controls and tracking
   initPlayerControls();
+  initInstrMuteStrip();
   initPlaybackTracking();
   
   // Enable play button once synth bridge module is loaded, MIDI is built,
@@ -1268,6 +1272,117 @@ function initBeatHistoryHandlers() {
   initWelcome();
 })();
 
+// ── Instrument Mute Strip ──
+
+// Session-only drums mute — not persisted, resets on new beat / load
+var _drumsMuted = false;
+
+/**
+ * Map from mute button data-inst to localStorage key.
+ * Drums has no localStorage key (session-only).
+ */
+var _INST_PREF_MAP = {
+  bass: 'hhd_bass_playback',
+  ep: 'hhd_ep_playback',
+  pad: 'hhd_pad_playback',
+  lead: 'hhd_lead_playback',
+  organ: 'hhd_organ_playback',
+  horn: 'hhd_horn_playback',
+  vibes: 'hhd_vibes_playback',
+  clav: 'hhd_clav_playback'
+};
+
+/**
+ * Update the mute strip button states based on current preferences
+ * and which instruments are active for the current style.
+ */
+function updateInstrMuteStrip() {
+  var strip = document.getElementById('instrMuteStrip');
+  if (!strip) return;
+  var songFeelBase = (typeof songFeel !== 'undefined' && typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : (songFeel || 'normal');
+
+  strip.querySelectorAll('.instr-mute-btn').forEach(function(btn) {
+    var inst = btn.dataset.inst;
+    if (inst === 'drums') {
+      // Drums: always available, use session flag
+      btn.disabled = false;
+      if (_drumsMuted) btn.classList.remove('active');
+      else btn.classList.add('active');
+      return;
+    }
+    // Check if this instrument is available for the current style
+    var styleMap = {
+      bass: true, // bass always available
+      ep: (typeof EP_STYLES !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase]),
+      pad: (typeof PAD_STYLES !== 'undefined') && (PAD_STYLES[songFeel] || PAD_STYLES[songFeelBase]) && !(typeof EP_STYLES !== 'undefined' && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase])),
+      lead: (typeof LEAD_STYLES !== 'undefined') && (LEAD_STYLES[songFeel] || LEAD_STYLES[songFeelBase]),
+      organ: (typeof ORGAN_STYLES !== 'undefined') && (ORGAN_STYLES[songFeel] || ORGAN_STYLES[songFeelBase]),
+      horn: (typeof HORN_STYLES !== 'undefined') && (HORN_STYLES[songFeel] || HORN_STYLES[songFeelBase]),
+      vibes: (typeof VIBES_STYLES !== 'undefined') && (VIBES_STYLES[songFeel] || VIBES_STYLES[songFeelBase]),
+      clav: (typeof CLAV_STYLES !== 'undefined') && (CLAV_STYLES[songFeel] || CLAV_STYLES[songFeelBase])
+    };
+    var available = styleMap[inst] || false;
+    btn.disabled = !available;
+    if (!available) {
+      btn.classList.remove('active');
+      return;
+    }
+    // Read pref from localStorage
+    var key = _INST_PREF_MAP[inst];
+    var on = true;
+    try { var val = localStorage.getItem(key); if (val !== null) on = (val !== 'false'); } catch(e) {}
+    if (on) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+/**
+ * Initialize the instrument mute strip — wire click handlers.
+ */
+function initInstrMuteStrip() {
+  var strip = document.getElementById('instrMuteStrip');
+  if (!strip) return;
+
+  strip.querySelectorAll('.instr-mute-btn').forEach(function(btn) {
+    btn.onclick = function(e) {
+      e.preventDefault();
+      if (btn.disabled) return;
+      var inst = btn.dataset.inst;
+
+      if (inst === 'drums') {
+        // Session-only toggle
+        _drumsMuted = !_drumsMuted;
+        if (_drumsMuted) btn.classList.remove('active');
+        else btn.classList.add('active');
+      } else {
+        // Toggle localStorage pref
+        var key = _INST_PREF_MAP[inst];
+        var wasOn = btn.classList.contains('active');
+        try { localStorage.setItem(key, wasOn ? 'false' : 'true'); } catch(e) {}
+        if (wasOn) btn.classList.remove('active');
+        else btn.classList.add('active');
+      }
+
+      // Rebuild MIDI and restart if playing
+      if (window.synthBridge && window.synthBridge.isPlaying) {
+        // Remember position, rebuild, seek back
+        var pos = window.synthBridge.state().currentTime;
+        if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+        // Re-play from the same position
+        if (window._currentMidiBytes) {
+          window.synthBridge.play(window._currentMidiBytes).then(function() {
+            if (pos > 0) window.synthBridge.seek(pos);
+          });
+        }
+      } else {
+        if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
+      }
+    };
+  });
+
+  updateInstrMuteStrip();
+}
+
 // ── Player Controls ──
 
 /**
@@ -1385,10 +1500,10 @@ function initPlayerControls() {
       // before audio playback begins.
       var midiToPlay;
       if (window._loopSection && curSec && patterns[curSec]) {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes([curSec], _prefs.bpm, true) : buildMidiBytes([curSec], _prefs.bpm, false, true);
+        midiToPlay = buildCombinedMidiBytes([curSec], _prefs.bpm, true);
         window._loopMidiBytes = midiToPlay;
       } else {
-        midiToPlay = (_prefs.bassOn || _prefs.epOn || _prefs.padOn) ? buildCombinedMidiBytes(arrangement, _prefs.bpm, true) : buildMidiBytes(arrangement, _prefs.bpm, false, true);
+        midiToPlay = buildCombinedMidiBytes(arrangement, _prefs.bpm, true);
       }
       
       // FIX 8: Yield to the browser after MIDI generation so any
