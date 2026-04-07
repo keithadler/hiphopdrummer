@@ -1299,35 +1299,33 @@ var _INST_PREF_MAP = {
 function updateInstrMuteStrip() {
   var strip = document.getElementById('instrMuteStrip');
   if (!strip) return;
-  var songFeelBase = (typeof songFeel !== 'undefined' && typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : (songFeel || 'normal');
+  var _sf = (typeof songFeel !== 'undefined' && songFeel) ? songFeel : 'normal';
+  var _sfBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(_sf) : _sf;
 
   strip.querySelectorAll('.instr-mute-btn').forEach(function(btn) {
     var inst = btn.dataset.inst;
     if (inst === 'drums') {
-      // Drums: always available, use session flag
       btn.disabled = false;
       if (_drumsMuted) btn.classList.remove('active');
       else btn.classList.add('active');
       return;
     }
     // Check if this instrument is available for the current style
-    var styleMap = {
-      bass: true, // bass always available
-      ep: (typeof EP_STYLES !== 'undefined') && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase]),
-      pad: (typeof PAD_STYLES !== 'undefined') && (PAD_STYLES[songFeel] || PAD_STYLES[songFeelBase]) && !(typeof EP_STYLES !== 'undefined' && (EP_STYLES[songFeel] || EP_STYLES[songFeelBase])),
-      lead: (typeof LEAD_STYLES !== 'undefined') && (LEAD_STYLES[songFeel] || LEAD_STYLES[songFeelBase]),
-      organ: (typeof ORGAN_STYLES !== 'undefined') && (ORGAN_STYLES[songFeel] || ORGAN_STYLES[songFeelBase]),
-      horn: (typeof HORN_STYLES !== 'undefined') && (HORN_STYLES[songFeel] || HORN_STYLES[songFeelBase]),
-      vibes: (typeof VIBES_STYLES !== 'undefined') && (VIBES_STYLES[songFeel] || VIBES_STYLES[songFeelBase]),
-      clav: (typeof CLAV_STYLES !== 'undefined') && (CLAV_STYLES[songFeel] || CLAV_STYLES[songFeelBase])
-    };
-    var available = styleMap[inst] || false;
+    var available = false;
+    if (inst === 'bass') { available = true; }
+    else if (inst === 'ep') { available = (typeof EP_STYLES !== 'undefined') && !!(EP_STYLES[_sf] || EP_STYLES[_sfBase]); }
+    else if (inst === 'pad') { available = (typeof PAD_STYLES !== 'undefined') && !!(PAD_STYLES[_sf] || PAD_STYLES[_sfBase]) && !((typeof EP_STYLES !== 'undefined') && (EP_STYLES[_sf] || EP_STYLES[_sfBase])); }
+    else if (inst === 'lead') { available = (typeof LEAD_STYLES !== 'undefined') && !!(LEAD_STYLES[_sf] || LEAD_STYLES[_sfBase]); }
+    else if (inst === 'organ') { available = (typeof ORGAN_STYLES !== 'undefined') && !!(ORGAN_STYLES[_sf] || ORGAN_STYLES[_sfBase]); }
+    else if (inst === 'horn') { available = (typeof HORN_STYLES !== 'undefined') && !!(HORN_STYLES[_sf] || HORN_STYLES[_sfBase]); }
+    else if (inst === 'vibes') { available = (typeof VIBES_STYLES !== 'undefined') && !!(VIBES_STYLES[_sf] || VIBES_STYLES[_sfBase]); }
+    else if (inst === 'clav') { available = (typeof CLAV_STYLES !== 'undefined') && !!(CLAV_STYLES[_sf] || CLAV_STYLES[_sfBase]); }
+
     btn.disabled = !available;
     if (!available) {
       btn.classList.remove('active');
       return;
     }
-    // Read pref from localStorage
     var key = _INST_PREF_MAP[inst];
     var on = true;
     try { var val = localStorage.getItem(key); if (val !== null) on = (val !== 'false'); } catch(e) {}
