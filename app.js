@@ -970,6 +970,20 @@ function initBeatHistoryHandlers() {
   } catch(e) {}
 })();
 
+// ── Instrument Mute Strip (declarations) ──
+// Must be before boot IIFE since loadLastBeat → restoreBeatState → updateInstrMuteStrip
+var _drumsMuted = false;
+var _INST_PREF_MAP = {
+  bass: 'hhd_bass_playback',
+  ep: 'hhd_ep_playback',
+  pad: 'hhd_pad_playback',
+  lead: 'hhd_lead_playback',
+  organ: 'hhd_organ_playback',
+  horn: 'hhd_horn_playback',
+  vibes: 'hhd_vibes_playback',
+  clav: 'hhd_clav_playback'
+};
+
 /**
  * IIFE boot sequence:
  *   1. Try to load last beat from history
@@ -1273,24 +1287,6 @@ function initBeatHistoryHandlers() {
 })();
 
 // ── Instrument Mute Strip ──
-
-// Session-only drums mute — not persisted, resets on new beat / load
-var _drumsMuted = false;
-
-/**
- * Map from mute button data-inst to localStorage key.
- * Drums has no localStorage key (session-only).
- */
-var _INST_PREF_MAP = {
-  bass: 'hhd_bass_playback',
-  ep: 'hhd_ep_playback',
-  pad: 'hhd_pad_playback',
-  lead: 'hhd_lead_playback',
-  organ: 'hhd_organ_playback',
-  horn: 'hhd_horn_playback',
-  vibes: 'hhd_vibes_playback',
-  clav: 'hhd_clav_playback'
-};
 
 /**
  * Update the mute strip button states based on current preferences

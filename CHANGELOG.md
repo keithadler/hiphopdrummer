@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.52] - 2026-04-06
+
+### Fixed — Critical
+- Startup crash: "Cannot read properties of undefined (reading 'bass')" — `_INST_PREF_MAP` and `_drumsMuted` were declared after the boot IIFE that calls `loadLastBeat` → `restoreBeatState` → `updateInstrMuteStrip`. JavaScript hoists `var` declarations but not assignments, so the map was `undefined` at call time. Moved declarations before the boot IIFE.
+
+### Added
+- Detroit style — Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5'9". Punchy kicks over soul samples, moderate swing, Rhodes/EP chords, active melodic bass. 10 curated Detroit kick patterns.
+
+### Changed
+- Style count updated from 25 to 26 across all docs (README, About dialog, DOCS, CONTRIBUTING, manifest, tests).
+
 ## [1.51] - 2026-04-06
 
 ### Added
