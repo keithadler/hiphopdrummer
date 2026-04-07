@@ -178,7 +178,8 @@ var STYLE_DATA = {
   griselda:  { label: 'Griselda Revival',  bpmRange: [72, 92], bpms: [72,75,78,80,85,88,90,92], keys: ['Cm','Dm','Am','Fm','Gm','Bbm','Ebm','Gbm'],          artists: 'Daringer, Beat Butcha, Conductor Williams, Westside Gunn, Conway', drumKit: 0, bassSound: 39 },
   phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 140], bpms: [120,125,130,135,140], keys: ['Cm','Fm','Bbm','Gm','Am','Ebm','Gbm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp', drumKit: 24, bassSound: 38 },
   nujabes:   { label: 'Nujabes / Jazz Hop',bpmRange: [78, 95], bpms: [78,80,85,88,90,92,95], keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto', drumKit: 40, bassSound: 35, epProgram: 0 },
-  oldschool: { label: 'Old School',        bpmRange: [95, 115], bpms: [95,98,100,105,110], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Herbie Luv Bug, Boogie Down Productions, Whodini, UTFO, Eric B. & Rakim', drumKit: 24, bassSound: 38 }
+  oldschool: { label: 'Old School',        bpmRange: [95, 115], bpms: [95,98,100,105,110], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Herbie Luv Bug, Boogie Down Productions, Whodini, UTFO, Eric B. & Rakim', drumKit: 24, bassSound: 38 },
+  detroit:   { label: 'Detroit',            bpmRange: [82, 98], bpms: [82,85,88,90,92,95,98], keys: ['Dm','Am','Cm','Gm','Em','Fm','Dm7'],   artists: 'Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9", Slum Village, Illa J', drumKit: 0, bassSound: 33 }
 };
 
 /**
@@ -274,7 +275,8 @@ var INSTRUMENT_SWING = {
   oldschool: { hat: 0.7,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
   sparse:    { hat: 1.0,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
   driving:   { hat: 1.0,  kick: 0.8,  ghostSnare: 0.9,  backbeat: 0.85, bass: 0.85 },
-  big:       { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 }
+  big:       { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
+  detroit:   { hat: 1.15, kick: 0.75, ghostSnare: 1.1,  backbeat: 0.85, bass: 0.85 }
 };
 
 /**
@@ -483,6 +485,20 @@ var PLAYER_PROFILES = {
       hat:   { center: 0, jitter: 0.15, tight: [] },             // flat
       ghost: { center: 0, jitter: 0.1, tight: [] },              // doesn't exist
       ride:  { center: 0, jitter: 0.1, tight: [] } }
+  ],
+  detroit: [
+    { name: 'Black Milk',
+      kick:  { center: 4, jitter: 0.6, tight: [0, 8] },          // punchy, slightly loose
+      snare: { center: 2, jitter: 0.7, tight: [4, 12] },         // crisp backbeat
+      hat:   { center: -2, jitter: 0.8, tight: [] },              // natural ride hand
+      ghost: { center: -3, jitter: 1.0, tight: [] },              // present but controlled
+      ride:  { center: 0, jitter: 0.7, tight: [0, 8] } },
+    { name: 'Apollo Brown',
+      kick:  { center: 0, jitter: 0.8, tight: [0] },             // dusty, natural
+      snare: { center: -2, jitter: 0.9, tight: [4, 12] },        // slightly pulled back
+      hat:   { center: -4, jitter: 0.7, tight: [] },              // quiet, textural
+      ghost: { center: -5, jitter: 1.1, tight: [] },              // soft, present
+      ride:  { center: 2, jitter: 0.8, tight: [0, 4, 8, 12] } }
   ]
 };
 

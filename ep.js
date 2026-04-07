@@ -23,7 +23,8 @@
 var EP_STYLES = {
   dilla: true, jazzy: true, nujabes: true, lofi: true,
   gfunk: true, gfunk_dre: true, gfunk_quik: true, gfunk_battlecat: true,
-  bounce: true, normal_queens: true, normal_li: true, halftime: true
+  bounce: true, normal_queens: true, normal_li: true, halftime: true,
+  detroit: true
 };
 
 var EP_DORIAN_IV = { gfunk: true, gfunk_dre: true, gfunk_quik: true, gfunk_battlecat: true, dilla: true, nujabes: true };
@@ -41,7 +42,8 @@ var EP_COMP_STYLES = {
   bounce:    { rhythm: 'stab',   velBase: 80, velRange: 15, noteDur: 0.3,  density: 0.6,  register: 'mid',  voicing: 'triad',   spread: 10, behind: 0, octaveRoot: 0.1, regShift: { chorus: 'high', breakdown: 'mid' } },
   normal_queens: { rhythm: 'comp', velBase: 62, velRange: 12, noteDur: 0.35, density: 0.65, register: 'mid', voicing: 'seventh', spread: 12, behind: 1, octaveRoot: 0.2, regShift: { chorus: 'high', breakdown: 'low' } },
   normal_li: { rhythm: 'comp',   velBase: 60, velRange: 14, noteDur: 0.3,  density: 0.6,  register: 'mid',  voicing: 'triad',   spread: 10, behind: 1, octaveRoot: 0.1, regShift: { chorus: 'high', breakdown: 'mid' } },
-  halftime:  { rhythm: 'whole',  velBase: 55, velRange: 10, noteDur: 0.8,  density: 0.85, register: 'mid',  voicing: 'triad',   spread: 10, behind: 2, octaveRoot: 0.3, regShift: { chorus: 'mid',  breakdown: 'low' } }
+  halftime:  { rhythm: 'whole',  velBase: 55, velRange: 10, noteDur: 0.8,  density: 0.85, register: 'mid',  voicing: 'triad',   spread: 10, behind: 2, octaveRoot: 0.3, regShift: { chorus: 'mid',  breakdown: 'low' } },
+  detroit:   { rhythm: 'comp',   velBase: 62, velRange: 14, noteDur: 0.35, density: 0.7,  register: 'mid',  voicing: 'seventh', spread: 12, behind: 1, octaveRoot: 0.2, regShift: { chorus: 'high', breakdown: 'low' } }
 };
 
 var EP_DORIAN_IV_INTERVALS = {
