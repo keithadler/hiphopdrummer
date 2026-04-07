@@ -2567,7 +2567,15 @@ function initPlaybackTracking() {
       // Scroll the bar's grid page into view (only if follow playhead is on)
       if (_followPlayhead && !_touchPauseFollow) {
         var gridPage = document.getElementById('grid-page-' + currentBar);
-        if (gridPage) gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (gridPage) {
+          // First ensure the pattern panel is visible in the viewport
+          var patPanel = document.getElementById('patternPanel');
+          if (patPanel) patPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          // Then scroll the specific bar into view within the grid
+          setTimeout(function() {
+            gridPage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 50);
+        }
       }
       // Update chord highlight when bar changes
       if (_chordToastVisible) updateChordHighlight(currentBar);
@@ -2582,10 +2590,8 @@ function initPlaybackTracking() {
       _cachedCursorEls.push(allStepEls[i]);
       if (allStepEls[i].classList.contains('on')) activeCells.push(allStepEls[i]);
     }
-    // Follow playhead
-    if (_followPlayhead && !_touchPauseFollow && _cachedCursorEls.length > 0) {
-      _cachedCursorEls[_cachedCursorEls.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    }
+    // Follow playhead — bar-level scroll handles this (see bar change above)
+    // Per-step scrollIntoView removed to prevent jittery fighting on mobile
     // Visual FX — pass cached elements to avoid redundant DOM queries
     vfxCursorTrail(stepIdx, gridR);
     // Hit flash + row glow use the active cells we already found
