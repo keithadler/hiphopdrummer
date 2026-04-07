@@ -2425,7 +2425,7 @@ test('Improvise mode: instruments still stay in key', function() {
 });
 
 // === Test: Key correctness across ALL 25 styles ===
-test('All 25 styles produce in-key bass and melodic notes', function() {
+test('All styles produce in-key bass and melodic notes', function() {
   var styles = Object.keys(STYLE_DATA);
   var failedStyles = [];
 
@@ -2681,8 +2681,8 @@ test('Combined MIDI: all instruments in key together (Improvise)', function() {
   _forcedKey = null;
 });
 
-// === Test: All 25 styles — combined MIDI key correctness ===
-test('All 25 styles: combined MIDI all instruments in key', function() {
+// === Test: All styles — combined MIDI key correctness ===
+test('All styles: combined MIDI all instruments in key', function() {
   localStorage.setItem('hhd_instr_mode', 'strict');
   localStorage.setItem('hhd_bass_playback', 'true');
   localStorage.setItem('hhd_ep_playback', 'true');
@@ -2745,7 +2745,7 @@ test('Export dialog stem checkboxes have stem-check class', function() {
   assert(stemIds.length === 9, 'Should have 9 stem checkbox IDs');
   // Verify STYLE_DATA completeness (drumKit + bassSound on every style)
   var styles = Object.keys(STYLE_DATA);
-  assert(styles.length >= 25, 'STYLE_DATA should have at least 25 styles, got ' + styles.length);
+  assert(styles.length >= 26, 'STYLE_DATA should have at least 26 styles, got ' + styles.length);
   for (var i = 0; i < styles.length; i++) {
     var s = styles[i];
     var d = STYLE_DATA[s];
