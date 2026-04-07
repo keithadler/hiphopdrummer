@@ -273,13 +273,16 @@ function renderBeatHistorySlots() {
     // Slot number: newest (idx 0) = highest slot number
     var slotNumber = history.length - idx;
     var isCurrent = (idx === 0);
+    var starred = beat.starred ? true : false;
+    var starBtn = '<button class="history-slot-star' + (starred ? ' starred' : '') + '" data-idx="' + idx + '" title="' + (starred ? 'Unstar' : 'Star as favorite') + '">' + (starred ? '★' : '☆') + '</button>';
     var deleteBtn = isCurrent
       ? '<span class="history-slot-current" title="Currently editing">● current</span>'
       : '<button class="history-slot-delete" data-idx="' + idx + '" title="Delete">×</button>';
-    return '<div class="history-slot' + (isCurrent ? ' history-slot-active' : '') + '" data-idx="' + idx + '">'
+    return '<div class="history-slot' + (isCurrent ? ' history-slot-active' : '') + (starred ? ' history-slot-starred' : '') + '" data-idx="' + idx + '">'
       + '<div class="history-slot-header">'
       + '<span class="history-slot-number">Slot ' + slotNumber + '</span>'
       + '<span class="history-slot-date">' + dateStr + '</span>'
+      + starBtn
       + deleteBtn
       + '</div>'
       + '<div class="history-slot-info">'
@@ -320,6 +323,20 @@ function renderBeatHistorySlots() {
         saveBeatHistory(history);
         renderBeatHistorySlots();
       }
+    };
+    btn.onclick = handler;
+    btn.ontouchend = handler;
+  });
+
+  // Wire star handlers
+  slotsContainer.querySelectorAll('.history-slot-star').forEach(function(btn) {
+    var handler = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var idx = parseInt(btn.dataset.idx);
+      history[idx].starred = !history[idx].starred;
+      saveBeatHistory(history);
+      renderBeatHistorySlots();
     };
     btn.onclick = handler;
     btn.ontouchend = handler;

@@ -575,6 +575,10 @@ midi-player::part(play-button){color:var(--accent-green)}
 .history-slot-load:disabled{background:var(--bg-input);color:var(--text-muted);cursor:default;transform:none}
 .history-slot-active{border-color:var(--accent-green);background:var(--bg-raised)}
 .history-slot-current{font-family:var(--mono);font-size:11px;color:var(--accent-green);font-weight:600;letter-spacing:0.5px}
+.history-slot-star{background:transparent;border:none;font-size:20px;cursor:pointer;padding:0 4px;color:var(--text-muted);transition:color .2s,transform .2s}
+.history-slot-star:hover{transform:scale(1.2);color:var(--accent-blue)}
+.history-slot-star.starred{color:#f5c542}
+.history-slot-starred{border-color:#f5c542}
 .empty-history{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:var(--mono);font-size:14px;font-style:italic}
 
 /* Slot Replacement Dialog */
@@ -602,6 +606,7 @@ midi-player::part(play-button){color:var(--accent-green)}
   .history-slot-info{font-size:11px}
   .history-slot-load{min-height:44px;font-size:14px;touch-action:manipulation}
   .history-slot-delete{min-width:44px;min-height:44px;font-size:28px;touch-action:manipulation}
+  .history-slot-star{min-width:44px;min-height:44px;font-size:24px;touch-action:manipulation}
   .slot-replacement-dialog{max-width:95vw}
   .slot-item{padding:10px;touch-action:manipulation;min-height:60px}
   .slot-info{font-size:10px}
