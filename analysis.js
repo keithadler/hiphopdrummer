@@ -705,6 +705,11 @@ function analyzeBeat() {
       '• <b>Rick Rubin</b> would strip it to just kick, snare, and a scratch hook. Run-DMC beats are about power through simplicity.',
       '• <b>Marley Marl</b> would add a sampled breakbeat underneath, creating the bridge between drum machines and sampling that defined the late 80s.',
       '• <b>The Bomb Squad</b> would layer 5 different drum sounds on every hit, add sirens and vocal samples, and create controlled chaos. Public Enemy\'s "wall of noise" approach.'
+    ],
+    detroit: [
+      '• <b>Black Milk</b> would tighten the kick, add a chopped soul sample with a filter sweep, and make the snare crack harder. His beats are punchy and precise with deep soul underneath.',
+      '• <b>Apollo Brown</b> would slow it down 3 BPM, add vinyl crackle, and let the sample breathe. His production is warm, dusty, and deeply melodic — every chop tells a story.',
+      '• <b>House Shoes</b> would strip the drums back, let the bass walk more, and add a subtle organ underneath. His beats are spacious and soulful — the groove does the work.'
     ]
   };
   var comps = producerComps[songFeelBase] || producerComps.normal;
@@ -1112,7 +1117,8 @@ function analyzeBeat() {
     dark: 'For this dark beat: the string pad should be cold and distant (long reverb, low-pass at 4kHz). Keep the drums dry and punchy — the contrast between dry drums and wet pad creates the atmosphere.',
     lofi: 'For this lo-fi beat: add vinyl crackle, pitch wobble (±3 cents), and a low-pass filter at 8kHz on the master. Compress the EP hard to narrow the dynamics. The beat should sound like it\'s playing through a cheap speaker.',
     griselda: 'For this Griselda beat: the drums should be punchy and dry. The string pad sits low in the mix. Add a subtle tape delay on the snare. The overall mix should feel raw — don\'t polish it.',
-    phonk: 'For this phonk beat: distort the 808 bass. Bitcrush the choir pad. Add a long, dark reverb on everything. The cowbell (if you add one) should be lo-fi and repetitive. Hypnotic repetition is the goal.'
+    phonk: 'For this phonk beat: distort the 808 bass. Bitcrush the choir pad. Add a long, dark reverb on everything. The cowbell (if you add one) should be lo-fi and repetitive. Hypnotic repetition is the goal.',
+    detroit: 'For this Detroit beat: the soul sample needs warmth — add subtle tape saturation and a low-pass at 12kHz. Compress the drums at 4:1 with fast attack for that punchy MPC sound. Keep the EP warm and slightly overdriven. Add vinyl crackle for texture.'
   };
   var mixTip = mixTips[songFeelBase] || mixTips.normal;
   lines.push('<b>🎚 Mixing tip for this style:</b> ' + mixTip);
@@ -1128,7 +1134,8 @@ function analyzeBeat() {
     dark: '<b>Why these settings:</b> The contrast between dry, punchy drums and a wet, distant pad creates depth — the drums feel close and immediate while the pad feels far away. That spatial contrast is what makes dark beats feel cinematic. The low-pass on the pad removes brightness that would compete with the hats.',
     lofi: '<b>Why these settings:</b> Vinyl crackle and pitch wobble simulate the imperfections of playing a record — the sound that lo-fi producers chase. The low-pass at 8kHz removes the "digital" top end. Hard compression on the EP narrows the dynamics to match the compressed sound of a sampled record.',
     griselda: '<b>Why these settings:</b> Raw and dry is the Griselda aesthetic — minimal processing, maximum impact. The tape delay on the snare adds a subtle slap-back that thickens the backbeat without obvious reverb. The overall mix should sound like it was recorded in one take in a small room.',
-    phonk: '<b>Why these settings:</b> Distortion on the 808 is essential — it adds harmonics that make the bass audible on any speaker and creates the aggressive, blown-out sound of phonk. The long reverb on everything creates the hypnotic, underwater quality. Repetition and texture matter more than clarity.'
+    phonk: '<b>Why these settings:</b> Distortion on the 808 is essential — it adds harmonics that make the bass audible on any speaker and creates the aggressive, blown-out sound of phonk. The long reverb on everything creates the hypnotic, underwater quality. Repetition and texture matter more than clarity.',
+    detroit: '<b>Why these settings:</b> Tape saturation on the soul sample adds the warmth of analog recording — Detroit production is built on vinyl. The fast-attack compression on drums recreates the punchy, in-your-face MPC sound that Black Milk and Apollo Brown are known for. The low-pass at 12kHz keeps the top end warm, not brittle.'
   };
   var mixWhy = mixWhyMap[songFeelBase] || mixWhyMap.normal;
   lines.push(mixWhy);
@@ -1303,7 +1310,8 @@ function analyzeBeat() {
     halftime: 'This beat channels the <b>Ensoniq ASR-10</b> — Havoc\'s machine for Mobb Deep\'s slower, darker productions. The halftime feel makes the tempo feel half as fast.',
     sparse: 'This beat descends from the <b>Ensoniq EPS</b> — RZA\'s weapon for Wu-Tang\'s most minimal productions. When you only have 10 seconds of sample time, every hit has to count.',
     driving: 'This beat channels the <b>E-mu SP-1200</b> paired with <b>Technics 1200</b> turntables — Premier\'s setup for Gangstarr\'s uptempo cuts.',
-    big: 'This beat comes from the <b>Akai MPC3000</b> — the machine behind the biggest hip hop anthems of the 90s. Pete Rock, Easy Mo Bee, and Premier all used it for their stadium-sized productions.'
+    big: 'This beat comes from the <b>Akai MPC3000</b> — the machine behind the biggest hip hop anthems of the 90s. Pete Rock, Easy Mo Bee, and Premier all used it for their stadium-sized productions.',
+    detroit: 'This beat is pure <b>Akai MPC3000</b> and <b>Boss SP-303</b> — Detroit\'s weapons. Black Milk programs on the MPC with the precision of Premier but the soul of Dilla. Apollo Brown runs everything through the SP-303\'s vinyl sim for that dusty warmth. The MPC\'s pads and the crate of Motown records are the Detroit producer\'s studio.'
   };
   lines.push(machineMap[songFeelBase] || machineMap.normal);
 

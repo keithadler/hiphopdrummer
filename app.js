@@ -547,11 +547,13 @@ document.getElementById('prefsSave').onclick = function() {
       if (typeof buildAboutSummary === 'function') buildAboutSummary();
       if (typeof buildChordSheet === 'function') buildChordSheet();
     }
+    if (typeof updateInstrMuteStrip === 'function') updateInstrMuteStrip();
     hidePrefsDialog();
     showRoleTips(newRole);
     return;
   }
 
+  if (typeof updateInstrMuteStrip === 'function') updateInstrMuteStrip();
   hidePrefsDialog();
 };
 
@@ -1407,16 +1409,10 @@ function initPlayerControls() {
     for (var i = 0; i < _navBtnEls.length; i++) _navBtnEls[i].disabled = disabled;
   }
   
-  // Read all playback-relevant preferences in one shot
+  // Read playback-relevant preferences
   function _readPlayPrefs() {
-    var p = { bassOn: true, epOn: true, padOn: true, bpm: 90, kit: 0, bass: 33 };
+    var p = { bpm: 90, kit: 0, bass: 33 };
     try {
-      var bp = localStorage.getItem('hhd_bass_playback');
-      if (bp !== null) p.bassOn = (bp !== 'false');
-      var ep = localStorage.getItem('hhd_ep_playback');
-      if (ep !== null) p.epOn = (ep !== 'false');
-      var pd = localStorage.getItem('hhd_pad_playback');
-      if (pd !== null) p.padOn = (pd !== 'false');
       p.bpm = parseInt(document.getElementById('bpm').textContent) || 90;
       var sounds = _getStyleSounds();
       p.kit = sounds.drumKit;
