@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.50)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.51)
 
 Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 25 styles, style-matched drum kits and bass sounds, 218 kick patterns, 15,000+ test assertions.
 
