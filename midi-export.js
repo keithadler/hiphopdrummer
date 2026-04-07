@@ -1037,6 +1037,9 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     }
 
     // Bass events (channel 1) — generated per section
+    var _bassOn = true;
+    try { var _bp = localStorage.getItem('hhd_bass_playback'); if (_bp !== null) _bassOn = (_bp !== 'false'); } catch(e1) {}
+    if (_bassOn) {
     var bassEvents = (typeof generateBassPattern === 'function') ? generateBassPattern(sec, bpm) : [];
     var secTickStart = tickPos - (len * ticksPerStep); // rewind to section start
     // Per-instrument swing for bass — use sparse for intro/outro to match bass pattern generation
@@ -1057,6 +1060,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
       events.push({ tick: stepTick + durTicks, type: 'off', ch: bassCh, note: e.note });
     });
+    } // end if (_bassOn)
 
     // Electric Piano events (channel 2) — generated per section
     var epOn = true;
