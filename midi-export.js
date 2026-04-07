@@ -909,13 +909,6 @@ function updateMidiPlayer() {
     try { window.synthBridge.stop(); } catch(e) {}
   }
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  // Check bass and EP playback preferences
-  var bassOn = true;
-  try { var bp = localStorage.getItem('hhd_bass_playback'); if (bp !== null) bassOn = (bp !== 'false'); } catch(e) {}
-  var epOn = true;
-  try { var ep = localStorage.getItem('hhd_ep_playback'); if (ep !== null) epOn = (ep !== 'false'); } catch(e) {}
-  var padOn = true;
-  try { var pd = localStorage.getItem('hhd_pad_playback'); if (pd !== null) padOn = (pd !== 'false'); } catch(e) {}
   // Always use combined MIDI builder (supports drums mute + all instrument prefs)
   var midiBytes = buildCombinedMidiBytes(arrangement, bpm);
 

@@ -113,9 +113,9 @@ test('All JS files parse without errors', function() {
 });
 
 // === Test STYLE_DATA completeness ===
-test('STYLE_DATA has all 19 feels', function() {
+test('STYLE_DATA has all 20 base feels', function() {
   var expected = ['normal','halftime','hard','jazzy','dark','bounce','big','driving',
-    'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes','oldschool'];
+    'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes','oldschool','detroit'];
   expected.forEach(function(f) {
     assert(STYLE_DATA[f], 'STYLE_DATA missing: ' + f);
     assert(STYLE_DATA[f].label, 'STYLE_DATA[' + f + '] missing label');
@@ -1005,9 +1005,9 @@ test('REGIONAL_VARIANTS has required fields', function() {
 });
 
 // === Test per-instrument swing ===
-test('INSTRUMENT_SWING covers all 19 base feels', function() {
+test('INSTRUMENT_SWING covers all 20 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
-    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit'];
   baseFeels.forEach(function(f) {
     assert(INSTRUMENT_SWING[f], 'INSTRUMENT_SWING missing: ' + f);
     assert(typeof INSTRUMENT_SWING[f].hat === 'number', f + ' missing hat swing');
@@ -1031,9 +1031,9 @@ test('getInstrumentSwing returns correct categories', function() {
 });
 
 // === Test CHORD_PROGRESSIONS ===
-test('CHORD_PROGRESSIONS covers all 19 base feels', function() {
+test('CHORD_PROGRESSIONS covers all 20 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
-    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit'];
   var validDegrees = ['i', 'iv', 'v', 'ii', 'bII', 'bIII', 'bVI', 'bVII', '#idim'];
   baseFeels.forEach(function(f) {
     assert(CHORD_PROGRESSIONS[f], 'CHORD_PROGRESSIONS missing: ' + f);
@@ -1213,9 +1213,9 @@ test('Bass call-and-response modifies events based on drum context', function() 
 });
 
 // === Test player profiles ===
-test('PLAYER_PROFILES covers all 19 base feels', function() {
+test('PLAYER_PROFILES covers all 20 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
-    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit'];
   baseFeels.forEach(function(f) {
     assert(PLAYER_PROFILES[f], 'PLAYER_PROFILES missing: ' + f);
     assert(PLAYER_PROFILES[f].length >= 1, f + ' should have at least 1 profile');
@@ -1324,7 +1324,7 @@ test('relNote bVI and bVII are correct for all minor keys in keyData', function(
   
   // Test all feels' key pools
   var allFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
-    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big'];
+    'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit'];
   
   allFeels.forEach(function(feel) {
     _forcedKey = null;
