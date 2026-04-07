@@ -156,7 +156,7 @@ var _forcedKey = null;
  */
 var FEELS = {
   intro: ['intro_a', 'intro_b', 'intro_c'],
-  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis', 'griselda', 'phonk', 'nujabes', 'oldschool'],
+  verse: ['normal', 'normal', 'halftime', 'hard', 'jazzy', 'dark', 'bounce', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'crunk', 'memphis', 'griselda', 'phonk', 'nujabes', 'oldschool', 'detroit'],
   pre: ['normal', 'driving', 'hard', 'chopbreak', 'crunk'],  // No dilla/lofi — pre must build energy
   chorus: ['big', 'driving', 'bounce', 'hard', 'chopbreak', 'crunk', 'gfunk'],
   verse2: ['normal', 'big', 'jazzy', 'dark', 'dilla', 'lofi', 'chopbreak', 'gfunk', 'memphis', 'oldschool'],
@@ -339,6 +339,8 @@ var FEEL_PALETTES = [
   ['driving', 'big', 'hard', 'driving'],
   // Sparse (was missing)
   ['sparse', 'dark', 'sparse', 'halftime'],
+  // Detroit
+  ['detroit', 'big', 'chopbreak', 'driving'],
 ];
 
 var SWING_POOLS = {
@@ -360,7 +362,8 @@ var SWING_POOLS = {
   griselda:  [54, 56, 56, 58, 58, 60, 62],          // nearly straight — modern boom bap, tight and punchy
   phonk:     [58, 60, 60, 62, 62, 64, 66],          // moderate swing — triplet-influenced but not heavy
   nujabes:   [64, 66, 66, 68, 68, 70, 70, 72, 74],   // jazz swing — heavier than normal, lighter than Dilla
-  oldschool: [50, 50, 52, 52, 54, 54, 56, 56]          // nearly straight — drum machine era, mechanical
+  oldschool: [50, 50, 52, 52, 54, 54, 56, 56],          // nearly straight — drum machine era, mechanical
+  detroit:   [58, 60, 60, 62, 62, 64, 64, 66, 66, 68]   // moderate swing — punchy but groovy, between normal and dilla
 };
 
 // Regional variant swing pools — inherit from parent with bias applied in generateAll
@@ -493,6 +496,24 @@ function genBasePatterns() {
     baseKick = pick(oldschoolKickLib);
   }
 
+  // Detroit kick library — punchy, sample-forward, busier than standard boom bap
+  // but not as off-grid as Dilla. Black Milk, Apollo Brown, House Shoes territory.
+  var detroitKickLib = [
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // classic Detroit bounce — 1, and-of-2, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // Black Milk punchy — 1, and-of-2, and-of-3
+    [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // double kick start — Apollo Brown
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 1,0,0,0],  // 1, and-of-2, 3, 4 — driving Detroit
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // sparse Detroit — 1, and-of-2, and-of-4
+    [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // busy second half — Guilty Simpson
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // minimal Detroit — 1, 3, and-of-4
+    [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // stutter into groove — Elzhi
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],  // rolling ands — House Shoes
+    [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,1,0],  // e-of-2 syncopation — Illa J
+  ];
+  if (paletteFeel0 === 'detroit') {
+    baseKick = pick(detroitKickLib);
+  }
+
   // B variant — guaranteed to differ from A. Usually second half, occasionally first half.
   // Real drummers vary both halves — a kick might shift from "and" of 1 to "e" of 1.
   baseKickB = baseKick.slice();
@@ -532,7 +553,7 @@ function genBasePatterns() {
   baseKickChorusB[cPos] = baseKickChorusB[cPos] ? 0 : 1;
 
   // Verse 2 kick — must be a DIFFERENT pattern from verse 1
-  var v2Lib = (paletteFeel0 === 'oldschool') ? oldschoolKickLib : kickLib;
+  var v2Lib = (paletteFeel0 === 'oldschool') ? oldschoolKickLib : (paletteFeel0 === 'detroit') ? detroitKickLib : kickLib;
   do { baseKickV2 = pick(v2Lib); } while (baseKickV2.join('') === baseKick.join(''));
   baseKickV2B = baseKickV2.slice();
   var v2changed = false;

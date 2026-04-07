@@ -294,6 +294,12 @@ var BASS_STYLES = {
                useMinor7th: 0.0, octaveUpProb: 0.06, deadNoteProb: 0.04,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 4, chordAnticipation: 0.08,
                subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+  detroit:   { rhythm: 'kick', density: 0.9, velBase: 100, velRange: 14, noteDur: 0.55,
+               useFifth: 0.3, useOctaveDrop: 0.04, walkUp: 0.2,
+               slideProb: 0.03, ghostNoteDensity: 0.12, timingOffset: 0,
+               useMinor7th: 0.15, octaveUpProb: 0.08, deadNoteProb: 0.1,
+               walkDirection: 'both', walkDiatonic: 0.3, backbeatAccent: 6, chordAnticipation: 0.12,
+               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.02, timingJitter: 4, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
   // Regional variants — inherit from parent with modifications
   // FIX #2: Removed static timingOffset, using only timingJitter for natural fluctuation
   normal_bronx:  { rhythm: 'kick', density: 1.0, velBase: 105, velRange: 8, noteDur: 0.4,
@@ -389,6 +395,8 @@ var CHORD_PROGRESSIONS = {
   driving:   [['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','i','v','iv','i','i','v','iv'], ['i','bVII','iv','v','i','bVII','iv','v']],
   // Big: anthem, Soul Loop, bVI lift
   big:       [['i','iv','i','v','i','iv','i','v'], ['i','i','iv','v','i','i','iv','v'], ['i','iv','v','i','i','iv','v','i'], ['i','iv','iv','v','i','iv','iv','v'], ['i','bVII','iv','i','i','bVII','iv','i'], ['i','iv','i','bVI','i','iv','i','bVI']],
+  // Detroit: soul-sample progressions, iv movement, occasional bVII warmth
+  detroit:   [['i','i','iv','i','i','iv','v','i'], ['i','iv','i','iv','i','iv','i','iv'], ['i','i','iv','v','i','i','iv','v'], ['i','iv','i','v','i','iv','i','v'], ['i','bVII','iv','i','i','bVII','iv','i'], ['i','iv','iv','v','i','iv','iv','v']],
   // Regional variants — inherit from parent with modifications
   normal_bronx:  [['i','i','iv','i','i','i','i','v'], ['i','i','i','v','i','i','i','i'], ['i','i','i','i','i','iv','i','i'], ['i','iv','i','i','i','iv','i','i']],
   normal_queens: [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','i','iv','i','iv','i','iv'], ['i','bVII','i','iv','i','bVII','i','iv'], ['i','#idim','ii','i','i','#idim','ii','i']],

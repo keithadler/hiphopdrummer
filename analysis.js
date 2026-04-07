@@ -64,7 +64,8 @@ function analyzeBeat() {
     gfunk: 'G-FUNK', gfunk_dre: 'G-FUNK — DRE', gfunk_quik: 'G-FUNK — DJ QUIK', gfunk_battlecat: 'G-FUNK — BATTLECAT',
     crunk: 'CRUNK', memphis: 'MEMPHIS',
     griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP',
-    oldschool: 'OLD SCHOOL'
+    oldschool: 'OLD SCHOOL',
+    detroit: 'DETROIT'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. DJ Premier, Pete Rock, Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, ghost notes for groove.',
@@ -85,7 +86,8 @@ function analyzeBeat() {
     griselda: 'Modern boom bap revival — Daringer, Beat Butcha, Conductor Williams. Sparse kick patterns with wide dynamics, hard snare crack with modern compression, minimal ghost notes. Sample-heavy with vinyl texture. The drums are punchy and direct — every hit is a statement. Westside Gunn, Conway the Machine, Benny the Butcher.',
     phonk: 'Cloud rap / Memphis revival — SpaceGhostPurrp, DJ Smokey, Soudiere. Slow tempo (60-78 BPM), triplet-influenced hat patterns, sparse distorted kick, dark and hypnotic. The cowbell and lo-fi aesthetic of Memphis rap filtered through SoundCloud. Sinister, repetitive, and trance-like.',
     nujabes: 'Jazz hop — Nujabes, Fat Jon, DJ Okawari, Marcus D. Clean kick patterns, soft brush-like snare ghosts, ride cymbal as the primary timekeeper, warm swing. The groove breathes like a live jazz trio. Melodic, meditative, and deeply musical. The sound of late-night study sessions and rainy Tokyo streets.',
-    oldschool: 'Early hip hop drum machine era — Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO. Roland TR-808, LinnDrum, and Oberheim DMX patterns. Nearly straight timing, simple kick patterns, mechanical 8th-note hats with flat dynamics, hard clap on the backbeat, zero ghost notes. Clean, punchy, and precise — the sound of the block party and the boombox.'
+    oldschool: 'Early hip hop drum machine era — Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO. Roland TR-808, LinnDrum, and Oberheim DMX patterns. Nearly straight timing, simple kick patterns, mechanical 8th-note hats with flat dynamics, hard clap on the backbeat, zero ghost notes. Clean, punchy, and precise — the sound of the block party and the boombox.',
+    detroit: 'Detroit soul-sample production — Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9". Punchy kicks over chopped soul loops, crisp snare with moderate ghost notes, Rhodes/EP chords, active melodic bass. Moderate swing — groovy but controlled. The sound of Motown records chopped on an MPC in a Detroit basement.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeelBase] || styleDescs.normal);
@@ -154,6 +156,7 @@ function analyzeBeat() {
   if (songFeelBase === 'phonk') lines.push('Phonk is slow and hypnotic. Let your delivery drift with the triplet feel. Think Memphis rap cadence — deliberate, menacing, repetitive. The space between words is as important as the words.');
   if (songFeelBase === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
   if (songFeelBase === 'oldschool') lines.push('Old school beats are simple and direct. Short, punchy bars with clear enunciation. Think Run-DMC\'s call-and-response, LL Cool J\'s braggadocio, KRS-One\'s commanding delivery. The drums are a machine — your voice is the human element.');
+  if (songFeelBase === 'detroit') lines.push('Detroit beats are soulful and punchy. Your flow should ride the groove — confident, melodic, with room for storytelling. Think Royce da 5\'9"\'s precision, Elzhi\'s wordplay, Guilty Simpson\'s grit. The soul sample gives you a mood — match it.');
   lines.push('<b>Producer note:</b> At ' + bpm + ' BPM with ' + swing + '% swing, your melodic parts should ' + (swing >= 62 ? 'lean into the groove — don\'t quantize samples too tightly, let them breathe with the swing.' : 'sit cleanly on the grid — tight quantization works well at this swing level.'));
 
 
@@ -306,6 +309,15 @@ function analyzeBeat() {
       { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Boogie Down Productions "South Bronx" territory. Guitar riffs and scratches love Em.' },
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and heavy. Whodini, early Beastie Boys. The flat minor key gives 808 patterns a menacing quality.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. UTFO "Roxanne Roxanne" energy. The minor key with a funk edge.' }
+    ]},
+    detroit: { keys: [
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'The Detroit key. Soul samples and Rhodes chords live in Dm. Black Milk, Apollo Brown, Slum Village.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw and direct. Royce da 5\'9", Elzhi territory. Punchy drums over soul loops.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark Detroit. Guilty Simpson, Black Milk\'s harder productions. The flat minor key adds weight.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and soulful. House Shoes, Illa J territory. Great for chopped soul samples.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Guitar-based samples and string loops. Detroit grit.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Dusty and atmospheric. Apollo Brown\'s signature sound — warm vinyl crackle over dark chords.' },
+      { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Soulful Detroit. The minor 7th adds warmth. Slum Village "Fall in Love" energy.' }
     ]}
   };
 
@@ -515,6 +527,7 @@ function analyzeBeat() {
     phonk: 'Search for: <b>Memphis rap vocals, cowbell, distorted 808, dark synth</b>. Phonk resamples 90s Memphis rap itself — Three 6 Mafia vocals, DJ Paul ad-libs. On Splice, search "phonk vocal" or "cowbell loop." Heavy distortion and lo-fi processing.',
     nujabes: 'Search for: <b>jazz piano, acoustic guitar, strings, soft vocals</b>. Nujabes sampled Japanese jazz, Brazilian bossa nova, and European film scores. On Tracklib, filter by jazz from 1960-1975. On Splice, search "jazz hop piano" or "acoustic guitar loop." Warm, melodic, beautiful.',
     oldschool: 'Search for: <b>funk breaks, electro, early hip hop vocals</b>. The source is 70s-80s funk and early electro — Kraftwerk, Afrika Bambaataa, Grandmaster Flash. On Tracklib, filter by electro/funk from 1980-1986. On Splice, search "old school break" or "electro funk."',
+    detroit: 'Search for: <b>soul, Motown, R&B, Rhodes piano, strings</b>. Detroit production chops 60s-70s soul records — Marvin Gaye, Stevie Wonder, The Temptations, Isaac Hayes. On Tracklib, filter by soul/R&B from 1965-1978. On Splice, search "soul chop" or "vintage Rhodes." Warm, melodic, dusty.',
     halftime: 'Search for: <b>dark jazz, minor key piano, atmospheric pads</b>. Halftime beats need weight — heavy, slow samples. On Splice, search "dark jazz piano" or "atmospheric pad." Film score samples work well at this tempo.',
     sparse: 'Search for: <b>ambient, minimal, single instrument loops</b>. Less is more — one piano note, one guitar phrase, one vocal sample. The space in the drums needs space in the melody. On Splice, search "minimal piano" or "ambient texture."',
     driving: 'Search for: <b>funk guitar, bass riffs, horn loops</b>. Driving beats need forward-moving samples. On Tracklib, filter by funk from 1972-1980. On Splice, search "funk guitar loop" or "bass riff."',
@@ -1049,6 +1062,7 @@ function analyzeBeat() {
     memphis: 'Memphis rap started in the early 1990s with Three 6 Mafia, DJ Paul, and Juicy J making beats on cheap equipment and distributing them on cassette tapes. The lo-fi quality, eerie choir pads, and sparse 808 patterns became the aesthetic. This sound directly influenced modern trap and phonk decades later.',
     crunk: 'Crunk emerged from Atlanta in the early 2000s, pioneered by Lil Jon. The defining characteristic is maximum velocity on every element — no ghost notes, no dynamic variation, no subtlety. The energy comes from density and volume, not groove. It\'s the opposite of every other hip hop style.',
     oldschool: 'Old school hip hop (1979-1986) used drum machines — the Roland TR-808, LinnDrum, and Oberheim DMX — programmed with nearly straight timing. Run-DMC, LL Cool J, and Boogie Down Productions defined the sound: mechanical, punchy, and direct. No ghost notes, no swing, no fills in the modern sense.',
+    detroit: 'Detroit hip hop production is built on soul. Black Milk, Apollo Brown, House Shoes, and Guilty Simpson carry the tradition Dilla started but with a harder, more sample-forward approach. Punchy kicks, crisp snares, chopped soul loops, and Rhodes chords. The swing is moderate — groovy but not drunk. The bass is active and melodic. Every beat sounds like it was made in a basement on Livernois Ave with a crate of Motown records and an MPC.',
     griselda: 'The Griselda revival (2010s-present) brought back the raw, sample-based boom bap aesthetic with modern production quality. Daringer and Beat Butcha use Phrygian harmony (the sinister bII chord) and sparse, punchy drums that reference RZA\'s Wu-Tang productions.',
     phonk: 'Phonk is Memphis rap filtered through SoundCloud — SpaceGhostPurrp, DJ Smokey, and Soudiere took the eerie choir pads, distorted 808s, and slow tempos of Three 6 Mafia and added modern production techniques. The cowbell, lo-fi vocal samples, and hypnotic repetition are the signatures.'
   };
