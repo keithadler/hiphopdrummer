@@ -1312,7 +1312,7 @@ function analyzeBeat() {
   lines.push('📊 <b>VELOCITY STORY</b>');
   lines.push('This beat\'s 8-bar dynamic arc:');
   var arcLabels = ['Statement', 'Statement', 'Settle', 'Settle', 'Steady', 'Steady', 'Push', 'Peak'];
-  var arcPcts = ['102%', '102%', '97%', '97%', '100%', '100%', '103%', '105%'];
+  var arcPcts = ['+2%', '+2%', '-3%', '-3%', '0%', '0%', '+3%', '+5%'];
   var arcLine = '';
   for (var ai = 0; ai < 8; ai++) {
     arcLine += 'Bar ' + (ai + 1) + ': ' + arcLabels[ai] + ' (' + arcPcts[ai] + ')';
