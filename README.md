@@ -2,7 +2,7 @@
 
 Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
-**[▶ Play Now](https://keithadler.github.io/hiphopdrummer/)**
+**[▶ Play Now](https://hiphopdrummer.com)**
 
 ## Why I Built This
 
@@ -306,3 +306,5 @@ All product names, logos, and brands mentioned in this project are property of t
 ---
 
 Made with love for hip hop by [Keith Adler](https://github.com/keithadler)
+
+Always get the latest version at **[hiphopdrummer.com](https://hiphopdrummer.com)**
