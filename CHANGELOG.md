@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.53] - 2026-04-06
+
+### Fixed
+- Preferences dialog save now updates the instrument mute strip immediately — toggling instruments in Prefs and clicking Save was not reflected in the mute buttons until a new beat was generated.
+- Bass mute button had no effect — bass events were always added to the playback MIDI regardless of the mute state. Now checks `hhd_bass_playback` preference before adding bass to the MIDI.
+- Follow-playhead scroll not working — the pattern panel wasn't scrolled into view first, so bar changes were invisible if the grid was below the fold. Now scrolls the panel into view, then the specific bar. Removed per-step scrollIntoView that caused jitter on mobile.
+- Velocity percentages could show 102% in the analysis "8-bar dynamic arc" — now displays relative changes (+2%, -3%) instead of absolute multipliers. All velocity-to-percentage conversions capped at 100%.
+- Detroit style missing from analysis mixing tips, "Why these settings," drum machine heritage, and "What Would They Do Differently" sections — all now have Detroit-specific entries.
+- Tests hardcoded 19 base feels — updated to 20 with detroit added to STYLE_DATA, INSTRUMENT_SWING, CHORD_PROGRESSIONS, PLAYER_PROFILES, and key pool test arrays.
+- Dead code removed from `_readPlayPrefs` and `updateMidiPlayer` — bass/EP/pad preference reads that were unused since switching to always use `buildCombinedMidiBytes`.
+
 ## [1.52] - 2026-04-06
 
 ### Fixed — Critical
