@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Release 1.50
+# 🥁 Hip Hop Drummer — Release 1.51
 
 Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 25 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
@@ -6,13 +6,15 @@ Generate unique hip hop drum, bass, and instrument arrangements from scratch —
 
 ## Why I Built This
 
-I grew up on KRS-One and LL Cool J. I'm a musician, and one thing that's always slowed my creation process is drum programming. I'd have an idea for a track — a sample chopped up, a bassline ready to go — but I'd spend hours tweaking kick placement and ghost note velocity before I even got to the music.
+I love music. I love hip hop. I grew up on KRS-One, LL Cool J, Run-DMC, and everything that came after — Premier's chops, Dilla's swing, Dre's G-Funk, RZA's dark cinema, Pete Rock's jazz. I'm a musician and a producer, and the thing that's always slowed my creation process is drum programming. I'd have an idea for a track — a sample chopped up, a bassline ready to go — but I'd spend hours tweaking kick placement and ghost note velocity before I even got to the music.
 
-This tool exists to get you past that wall and into the creative zone — fast. Whether you're a rapper who needs a beat to write to right now, a producer who wants a starting point that's already musically correct, a DJ building a library of original productions, a keyboardist looking for a rhythm section to jam with, or a student trying to understand why Dilla's drums feel the way they do — Hip Hop Drummer gives you something real to work with immediately.
+The knowledge to build great beats exists, but it's scattered across decades of interviews, studio sessions, YouTube breakdowns, and trial-and-error on hardware that costs thousands of dollars. I wanted to take everything I've learned — from studying the greats, from programming on my MPC, from years of listening and dissecting — and encode it into something anyone can use. Not a preset library. Not an AI that guesses. A system that actually understands *why* Premier's kicks hit different from Dilla's, *why* G-Funk hats have three velocity levels, *why* Memphis beats are defined by what's absent.
+
+This tool exists to get you past the blank grid and into the creative zone — fast. Whether you're a rapper who needs a beat to write to right now, a producer who wants a starting point that's already musically correct, a DJ building a library of original productions, a keyboardist looking for a rhythm section to jam with, or a student trying to understand why Dilla's drums feel the way they do — Hip Hop Drummer gives you something real to work with immediately.
 
 Every beat is production-ready. 9 instruments playing together, style-matched sounds, full song arrangements with intros and outros, WAV stems you can import into any DAW. But the real goal isn't the beat — it's the song, the session, the set, the freestyle, the record that comes after. This tool is the spark. What you build from it is yours.
 
-I built it as a way to learn deep, real-world drum programming techniques I can apply to my MPC. But it's not just for me — anyone can use it with any drum machine or DAW to create real hip hop. Every beat comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs. And when you're done learning, you hit export and start making music.
+I built it because I believe the knowledge to make great hip hop should be free and accessible to everyone — not locked behind expensive courses, gear, or gatekeepers. Every beat comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs. And when you're done learning, you hit export and start making music.
 
 ## Who This Is For
 
@@ -303,4 +305,4 @@ All product names, logos, and brands mentioned in this project are property of t
 
 ---
 
-Made by [Keith Adler](https://github.com/keithadler)
+Made with love for hip hop by [Keith Adler](https://github.com/keithadler)

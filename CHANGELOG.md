@@ -2,6 +2,16 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.51] - 2026-04-06
+
+### Added
+- Instrument mute strip below the player visualizer — 9 toggle buttons (Drums, Bass, Keys, Pad, Lead, Organ, Horns, Vibes, Clav) for quick mute/unmute during playback. Instruments not available for the current style are disabled. Bass through clav sync with Preferences and export. Drums mute is session-only (resets on new beat or history load).
+- Star/favorite toggle on beat history slots — click ☆ to mark favorites with a gold ★ and highlighted border. Persists in localStorage.
+
+### Changed
+- New user defaults: Follow playhead ON, Show chords overlay OFF, Count-in OFF (What's Next unchanged at ON).
+- README "Why I Built This" expanded — personal background on loving music and hip hop, mission to make beat-making knowledge free and accessible.
+
 ## [1.50] - 2026-04-06
 
 ### Fixed — QC Final Pass
