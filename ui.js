@@ -169,7 +169,7 @@ function renderGrid() {
       gridHtml += '<div class="grid-row"><div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
-        var pct = vel > 0 ? Math.round(vel / 127 * 100) : 0;
+        var pct = vel > 0 ? Math.min(100, Math.round(vel / 127 * 100)) : 0;
         var velText = '';
         if (vel > 0) {
           if (_gridVelMode === 'midi') {
@@ -1255,7 +1255,7 @@ function hideTooltip() {
 function explainCell(instrument, step, velocity) {
   var pos = step % 16;
   var bar = Math.floor(step / 16) + 1;
-  var pct = Math.round(velocity / 127 * 100);
+  var pct = Math.min(100, Math.round(velocity / 127 * 100));
   // Get velocity display mode preference
   var velocityMode = 'percent';
   try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
@@ -1443,7 +1443,7 @@ function _showVelEditor(cell, row, step) {
   div.className = 'vel-editor';
   var velocityMode = 'percent';
   try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
-  var displayVal = velocityMode === 'midi' ? vel : Math.round(vel / 127 * 100);
+  var displayVal = velocityMode === 'midi' ? vel : Math.min(100, Math.round(vel / 127 * 100));
   var suffix = velocityMode === 'midi' ? '' : '%';
 
   div.innerHTML = '<input type="range" min="1" max="127" value="' + vel + '">'
@@ -1463,7 +1463,7 @@ function _showVelEditor(cell, row, step) {
   var valSpan = div.querySelector('.vel-editor-val');
   slider.oninput = function() {
     var v = parseInt(slider.value);
-    var d = velocityMode === 'midi' ? v : Math.round(v / 127 * 100);
+    var d = velocityMode === 'midi' ? v : Math.min(100, Math.round(v / 127 * 100));
     valSpan.textContent = d + suffix;
   };
   slider.onchange = function() {
