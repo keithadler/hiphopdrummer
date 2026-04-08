@@ -181,7 +181,7 @@ function exportPDF(returnBlob) {
   var rowColors = {
     kick: [208, 64, 64], snare: [232, 160, 32], clap: [208, 120, 24], rimshot: [200, 144, 64],
     ghostkick: [136, 64, 64], hat: [64, 160, 208], openhat: [80, 192, 224], ride: [80, 144, 176], crash: [192, 176, 48],
-    shaker: [120, 180, 120]
+    shaker: [120, 180, 120], cowbell: [192, 120, 48], tomhi: [160, 80, 192], tommid: [144, 96, 176], tomlo: [112, 80, 160]
   };
 
   // Deduplicate sections — only render each pattern once even if it
