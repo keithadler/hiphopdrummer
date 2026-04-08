@@ -289,6 +289,10 @@ function writeBarK(p, feel, off, kickPat) {
     // Ratchet: moderate velocity, tight range — DJ Mustard formulaic
     for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(105, 5);
   }
+  if (feel === 'philly') {
+    // Philly: wide dynamics like jazzy, softer base — live drummer feel
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(95, 28);
+  }
 }
 
 /**
@@ -451,6 +455,13 @@ function writeSnA(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.35 * ghostDensity)) p.snare[off+ngp] = v(45, 10);
     }
   }
+  if (feel === 'philly') {
+    p.snare[off + 4] = v(108, 18); p.snare[off + 12] = v(115, 18);
+    var phillyGhosts = [1, 3, 5, 7, 9, 11, 13, 15];
+    for (var pg = 0; pg < phillyGhosts.length; pg++) {
+      if (!p.kick[off+phillyGhosts[pg]] && maybe(.4 * ghostDensity)) p.snare[off+phillyGhosts[pg]] = v(48, 12);
+    }
+  }
   // Jazzy: Pete Rock softer backbeat (100-120 range)
   if (feel === 'jazzy') {
     p.snare[off + 4] = v(110, 15); p.snare[off + 12] = v(115, 15);
@@ -596,6 +607,13 @@ function writeSnB(p, feel, off) {
     for (var ng = 0; ng < nujabesGhostsB.length; ng++) {
       var ngp = nujabesGhostsB[ng];
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(45, 10);
+    }
+  }
+  if (feel === 'philly') {
+    p.snare[off + 4] = v(108, 18); p.snare[off + 12] = v(115, 18);
+    var phillyGhostsB = [1, 3, 5, 7, 9, 11, 13, 15];
+    for (var pgb = 0; pgb < phillyGhostsB.length; pgb++) {
+      if (!p.kick[off+phillyGhostsB[pgb]] && maybe(.4 * ghostDensity)) p.snare[off+phillyGhostsB[pgb]] = v(48, 12);
     }
   }
   // Neptunes B: displaced snare — primary hit on step 6 (and-of-2) ~30% of the time
@@ -951,6 +969,12 @@ function writeHA(p, feel, off) {
     if (maybe(.4)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(30,8); }
     return;
   }
+  if (feel === 'philly') {
+    if (useRide) { p.hat[off+4]=v(55,8); p.hat[off+12]=v(55,8); return; }
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(85,15):v(60,18);
+    if (maybe(.5)) { var gp=pick([1,3,5,9,13]); p.hat[off+gp]=v(35,10); }
+    return;
+  }
   if (feel === 'oldschool') {
     // Old School: mechanical 8th note hats, flat dynamics — LinnDrum/808 style
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
@@ -1145,6 +1169,12 @@ function writeHB(p, feel, off) {
   if (feel === 'nujabes') {
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,12):v(48,15);
     if (maybe(.4)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(28,8); }
+    return;
+  }
+  if (feel === 'philly') {
+    if (useRide) { p.hat[off+4]=v(55,8); p.hat[off+12]=v(55,8); return; }
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(85,15):v(60,18);
+    if (maybe(.5)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(35,10); }
     return;
   }
   if (feel === 'oldschool') {
@@ -1807,6 +1837,13 @@ function addFill(p, sec, len, feel) {
     // Ratchet fill: minimal — single snare hit on step 15
     p.snare[len - 1] = v(110, 6);
     p.clap[len - 1] = v(105, 6);
+  }
+  else if (feel === 'philly') {
+    // Philly fill: jazzy ghost roll fill
+    for (var i = start; i < len; i++) {
+      p.snare[i] = v(50 + Math.floor(((i - start) / fillLen) * 40), 15);
+    }
+    if (isBig) p.crash[len - 1] = v(90, 10);
   }
   else {
     // Standard B-Boy fill — 4 types picked randomly
