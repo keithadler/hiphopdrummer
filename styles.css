@@ -250,7 +250,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.crash.on{background:#c0b030}
 .cell.shaker.on{background:#70b870}
 .cell.cowbell.on{background:#c07830}
-.cell.tom.on{background:#9060b0}
+.cell.tomhi.on{background:#a050c0}
+.cell.tommid.on{background:#9060b0}
+.cell.tomlo.on{background:#7050a0}
 .cell.beat-start{margin-left:3px}
 /* Edit mode: cells get a subtle border and pointer cursor to indicate they're clickable */
 .grid-edit-mode .cell{cursor:pointer;border-color:rgba(224,72,72,.15)}
