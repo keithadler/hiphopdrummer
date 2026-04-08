@@ -495,7 +495,16 @@ document.getElementById('exportGo').onclick = function() {
   // Save preferences to localStorage
   try { localStorage.setItem('hhd_export_prefs', JSON.stringify(opts)); } catch(e) {}
   hideExportDialog();
-  exportMIDI(opts);
+  // Show progress immediately so the user sees feedback before sync work starts
+  var _expToast = document.getElementById('exportToast');
+  if (_expToast) {
+    _expToast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Preparing Export...</strong><br><br>Building MIDI, MPC, and PDF files...<br><br><div class="progress-spinner"></div></div>';
+    _expToast.classList.add('show');
+  }
+  // Defer export to next frame so the toast renders before sync work blocks
+  requestAnimationFrame(function() { requestAnimationFrame(function() {
+    exportMIDI(opts);
+  }); });
 };
 
 // ── Preferences Dialog ──
