@@ -1,7 +1,7 @@
 {
-  "name": "Hip Hop Drummer",
+  "name": "Hip Hop Drummer — Free Beat Generator",
   "short_name": "HH Drummer",
-  "description": "Generate unique hip hop beats with 9 instruments, 37 styles, WAV stems for every instrument, MIDI/MPC export, chord sheets, and production education. Free, no account.",
+  "description": "Generate unique hip hop beats from scratch with 9 instruments, 37 styles, WAV/MIDI/MPC export, chord sheets, and production education. Free, no account, works offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -22,5 +22,25 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["music", "education", "productivity"]
+  "categories": ["music", "education", "entertainment", "productivity"],
+  "shortcuts": [
+    {
+      "name": "New Beat",
+      "short_name": "New",
+      "description": "Generate a fresh beat",
+      "url": "./?action=new",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Hip Hop Drummer beat generator interface"
+    }
+  ],
+  "lang": "en",
+  "dir": "ltr",
+  "iarc_rating_id": ""
 }
