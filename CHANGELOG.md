@@ -2,6 +2,33 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.59] - 2026-04-10
+
+### Added — EP Pro Improvements (10 Techniques)
+- Directional velocity curve — LH heavier, inner voices recede, top note melodic accent
+- Damper pedal simulation — 2-4 ticks of note bleed between chord changes
+- Bidirectional crush — 70% LH-first, 30% RH-first hand displacement
+- Bass avoidance — inverts voicing when lowest EP note doubles the bass root
+- Grace note runs — 2-3 note scalar approach into chorus/lastchorus beat 1
+- Velocity swell — soft re-attack at midpoint of sustained whole-note chords
+- Drop-2 voicings — second-from-top note dropped an octave for open Rhodes sound (40% of 4+ note chords)
+- Rhythmic mutation — comp/stab positions shift ±1 step on repeat bars (bars 5+)
+- Register-aware thinning — shell voicings in high register, root+5th in low register
+- Organ interaction — EP skips 30% of chords when organ is sustaining
+
+### Added — Beat Head Improvements (7 Techniques)
+- 12 arrangement templates (up from 4) — more song structure variety
+- Beat-1 velocity accent (+10) on every section entry for harder drops
+- Per-section hat variation — verse2 gets 16th_sparse contrast, instrumental gets triplet option, breakdown always 8th
+- "Filter" effect — high-frequency instruments drop to 65% velocity in breakdowns and intros
+- Pocket shift in MIDI — chorus pushes -1 tick ahead, verse lays +1 tick back, breakdown +2 ticks behind
+- Section-aware open hat — chorus biases &2, verse biases &4, breakdown skips open hat entirely
+- Beat drop sync verified — _isDrumDrop already covers all 9 melodic instruments
+
+### Changed
+- MPC patterns now use GM standard note mapping for factory kit compatibility
+- Boom Bap labels unified: "Boom Bap — Classic", "Boom Bap — Philly", "Boom Bap — Orchestral"
+
 ## [1.58] - 2026-04-10
 
 ### Added — Philly Boom Bap Style
