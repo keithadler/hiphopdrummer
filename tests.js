@@ -254,10 +254,10 @@ test('buildMpcPattern produces valid JSON', function() {
   // Check static headers
   if (parsed && parsed.pattern && parsed.pattern.events) {
     assert(parsed.pattern.events[0].type === 1, 'First event should be type 1 (static header)');
-    // Check that note events use MPC note map (36-45 range)
+    // Check that note events use MPC note map (36-47 range, 12 instruments)
     var noteEvents = parsed.pattern.events.filter(function(e) { return e.type === 2; });
     noteEvents.forEach(function(e, idx) {
-      assert(e['1'] >= 36 && e['1'] <= 45, 'MPC note ' + e['1'] + ' should be in 36-45 range');
+      assert(e['1'] >= 36 && e['1'] <= 47, 'MPC note ' + e['1'] + ' should be in 36-47 range');
     });
   }
 });

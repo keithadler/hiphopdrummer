@@ -264,6 +264,11 @@ function writeBarK(p, feel, off, kickPat) {
     // Nujabes: softer kicks with WIDE dynamic range — live jazz drummer feel (75-115)
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(95, 30);
   }
+  if (feel === 'detroit') {
+    // Detroit: punchy and tight — Black Milk, Apollo Brown MPC sound
+    for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(112, 14);
+    if (p.kick[off] > 0) p.kick[off] = v(118, 8); // beat 1 punches hardest
+  }
 }
 
 /**
@@ -347,7 +352,7 @@ function writeSnA(p, feel, off) {
   // Apply ghost pattern from library, scaled by ghostDensity
   // FIX #3: Ghost snares capped at 65 velocity max
   if (baseSnareGhostA) {
-    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
+    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : (feel === 'detroit') ? 0.9 : 1.0;
     for (var g = 0; g < baseSnareGhostA.length; g++) {
       var gPos = baseSnareGhostA[g][0], gVel = baseSnareGhostA[g][1];
       // Crunk: ghost snares are aggressive accent hits, not subtle ghosts
@@ -485,7 +490,7 @@ function writeSnB(p, feel, off) {
   if (flamProb > 0 && maybe(flamProb * ghostDensity) && !p.kick[off + 11] && !p.snare[off + 11]) p.snare[off + 11] = v(40, 8);
   // Apply ghost pattern from library (B variant), scaled by ghostDensity
   if (baseSnareGhostB) {
-    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : 1.0;
+    var ghMult = (feel === 'jazzy') ? 1.5 : (feel === 'big') ? 0.8 : (feel === 'dilla') ? 1.8 : (feel === 'chopbreak') ? 1.6 : (feel === 'lofi') ? 0.6 : (feel === 'driving') ? 0.7 : (feel === 'memphis') ? 0.15 : (feel === 'phonk') ? 0.2 : (feel === 'detroit') ? 0.9 : 1.0;
     for (var g = 0; g < baseSnareGhostB.length; g++) {
       var gPos = baseSnareGhostB[g][0], gVel = baseSnareGhostB[g][1];
       var adjVel = (feel === 'crunk') ? Math.min(65, gVel + 10) : (feel === 'memphis') ? Math.max(30, gVel - 20) : (feel === 'jazzy') ? Math.max(30, gVel - 18) : gVel;
@@ -885,7 +890,16 @@ function writeHA(p, feel, off) {
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
     return;
   }
-  // Phonk: falls through to triplet pattern via hatPatternType override
+  if (feel === 'phonk') {
+    // Phonk: triplet-influenced hat pattern — Memphis revival through SoundCloud
+    // Approximated 12/8 on 16th grid: hits on 0,3,4,6,8,11,12,14
+    var tripSteps = [0,3,4,6,8,11,12,14];
+    for (var t=0;t<tripSteps.length;t++) {
+      var ts = tripSteps[t];
+      p.hat[off+ts] = ts%4===0 ? v(80,8) : v(60,12);
+    }
+    return;
+  }
 
   // Pattern type determines the core ride hand approach
   if (hatPatternType === '16th') {
@@ -1010,11 +1024,15 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'gfunk') {
+    // G-Funk B: same 3-level dynamic but with subtle ghost variation
     for (var i=0;i<16;i++) {
       if (i%4===0) p.hat[off+i]=v(95,8);
       else if (i%2===0) p.hat[off+i]=v(72,12);
       else p.hat[off+i]=v(48,14);
     }
+    // B-bar variation: shift one ghost 16th position for subtle movement
+    if (maybe(0.4)) { var gp = pick([1,3,5,9,11,13]); p.hat[off+gp] = v(55,10); }
+    if (maybe(0.3)) { var dp = pick([5,9,13]); p.hat[off+dp] = v(38,12); }
     return;
   }
   if (feel === 'crunk') {
@@ -1040,6 +1058,15 @@ function writeHB(p, feel, off) {
   if (feel === 'oldschool') {
     // Old School B: identical to A — drum machines don't vary
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
+    return;
+  }
+  if (feel === 'phonk') {
+    // Phonk B: same triplet pattern as A — hypnotic repetition
+    var tripSteps = [0,3,4,6,8,11,12,14];
+    for (var t=0;t<tripSteps.length;t++) {
+      var ts = tripSteps[t];
+      p.hat[off+ts] = ts%4===0 ? v(80,8) : v(60,12);
+    }
     return;
   }
 
@@ -1740,7 +1767,7 @@ function writeShaker(p, feel, off, sec) {
   else if (sec === 'verse2') energyMult = 1.05;
 
   // FIX #2: Shaker sine-wave velocity with minimal jitter to preserve wave shape
-  if (feel === 'normal' || feel === 'chopbreak' || feel === 'driving') {
+  if (feel === 'normal' || feel === 'chopbreak' || feel === 'driving' || feel === 'detroit') {
     // 8th note upbeats (steps 2, 6, 10, 14) — the classic boom bap shaker
     var upbeats = [2, 6, 10, 14];
     upbeats.forEach(function(s) {
@@ -1870,28 +1897,25 @@ function writeCowbell(p, feel, off) {
 
 /**
  * Write tom fill pattern — replaces or augments snare fills at section boundaries.
- * Descending tom roll: high → mid → low → floor.
- * Uses a single tom row with descending velocity to simulate pitch descent
- * (GM note 47 = Low-Mid Tom; velocity variation creates the illusion of pitch change).
  * @param {Object} p - Pattern object
  * @param {number} fillStart - Step where the fill begins
- * @param {number} len - Section length in steps
+ * @param {number} fillEnd - Step where the fill ends (exclusive)
  * @param {string} feel - Current feel
  */
-function writeTomFill(p, fillStart, len, feel) {
+function writeTomFill(p, fillStart, fillEnd, feel) {
   // No tom fills for minimal styles
   if (feel === 'lofi' || feel === 'dilla' || feel === 'sparse' || feel === 'memphis' || feel === 'phonk') return;
   // Only 30% of fills get toms (the rest stay snare-only)
   if (!maybe(0.3)) return;
 
-  var fillLen = len - fillStart;
+  var fillLen = fillEnd - fillStart;
   if (fillLen < 2) return;
 
   // Descending velocity pattern simulates high→low tom descent
   var tomSteps = Math.min(fillLen, 4);
   for (var i = 0; i < tomSteps; i++) {
     var step = fillStart + i;
-    if (step >= len) break;
+    if (step >= fillEnd) break;
     // Descending velocity: 100 → 90 → 80 → 70
     var vel = v(100 - (i * 10), 8);
     p.tom[step] = vel;
