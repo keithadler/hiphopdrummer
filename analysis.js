@@ -60,10 +60,10 @@ function analyzeBeat() {
     halftime: 'HALFTIME', hard: 'HARD/AGGRESSIVE',
     jazzy: 'JAZZ-INFLUENCED', dark: 'DARK MINIMAL', bounce: 'BOUNCE',
     big: 'BIG/ANTHEM', driving: 'DRIVING', sparse: 'SPARSE',
-    dilla: 'DILLA/NEO-SOUL', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
-    gfunk: 'G-FUNK', gfunk_dre: 'G-FUNK — DRE', gfunk_quik: 'G-FUNK — DJ QUIK', gfunk_battlecat: 'G-FUNK — BATTLECAT',
+    dilla: 'NEO-SOUL / LOOSE', lofi: 'LO-FI/DUSTY', chopbreak: 'CHOPPED BREAK',
+    gfunk: 'G-FUNK', gfunk_dre: 'G-FUNK — LA', gfunk_quik: 'G-FUNK — COMPTON', gfunk_battlecat: 'G-FUNK — LONG BEACH',
     crunk: 'CRUNK', memphis: 'MEMPHIS',
-    griselda: 'GRISELDA REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'NUJABES / JAZZ HOP',
+    griselda: 'BUFFALO REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'JAZZ HOP',
     oldschool: 'OLD SCHOOL',
     detroit: 'DETROIT'
   };
