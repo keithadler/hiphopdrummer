@@ -26,7 +26,7 @@
     <div class="header-bar" role="banner">
       <div class="brand" id="brandAbout" title="About Hip Hop Drummer" style="cursor:pointer"><img src="icon-192.png" alt="" class="brand-icon">HipHop<span>Drummer</span></div>
       <div class="credit">
-        <a href="https://hiphopdrummer.com" target="_blank" rel="noopener" class="credit-link">hiphopdrummer.com</a>
+        <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener" class="credit-link">hiphopdrummer.com</a>
       </div>
       <div class="controls-bar">
         <button class="btn btn-play-header" id="headerPlayBtn" title="Play/Stop (Space)" disabled>▶ PLAY</button>
@@ -55,6 +55,7 @@
 
     <div id="loadMsg" class="loading">Loading...</div>
     <div id="sectionToast" class="section-toast"></div>
+    <div id="tipTicker" class="tip-ticker"><span class="tip-ticker-icon">💡</span><div class="tip-ticker-text"><span></span></div></div>
     <div id="exportToast" class="section-toast"></div>
 
     <!-- Welcome / Role selector overlay -->
@@ -64,10 +65,10 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.55</div>
+            <div class="about-version">Release 1.56</div>
           </div>
         </div>
-        <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. Each style gets its own drum kit and bass sound. What's your role?</p>
+        <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. The beat is the harmonic foundation — you bring the melody. Your rap, your sample, your guitar, your scratch. What's your role?</p>
         <div class="welcome-roles">
           <button class="btn welcome-role" data-role="producer">🎛 Producer / Beat Maker</button>
           <button class="btn welcome-role" data-role="rapper">🎤 Rapper / MC</button>
@@ -347,13 +348,16 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.55</div>
-          <div class="about-author">by <a href="https://hiphopdrummer.com" target="_blank" rel="noopener">Keith Adler</a></div>
+          <div class="about-version">Release 1.56</div>
+          <div class="about-author">by <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>
       <div class="about-scroll">
         <p>Every time you hit New Beat, a unique arrangement is generated from scratch — not selected from presets, not pulled from a library. The drums, bass line, up to 7 melodic instruments, fills, transitions, chord progressions, and song structure are all assembled in real time from hundreds of musical rules and thousands of possible combinations. Each style gets its own drum kit and bass sound automatically — TR-808 for G-Funk and Memphis, Brush Kit for Nujabes, Synth Bass for dark styles, Slap Bass for bounce. No two beats are ever the same.</p>
         <p>No AI subscription required. No cloud. No account. The musical knowledge of 40 years of hip hop production is encoded directly into the code — it runs entirely in your browser, works offline, and everything you create is yours. The goal isn't just the beat — it's the song, the session, the set, the freestyle, the record that comes after. This is the spark.</p>
+
+        <h3>🎵 The Foundation, Not the Finished Song</h3>
+        <p>Every beat here is a <em>harmonic foundation</em> — drums, bass, chords, and arrangement locked together in the right key, tempo, and feel. But the melody is yours. Your rap is the melody. Your sample chop is the melody. Your guitar lick, your scratch pattern, your vocal hook — that's the missing piece, and it's supposed to be missing. That's how hip hop has always worked. The producer builds the musical bed, and the artist brings it to life. These beats are designed to leave room for you.</p>
 
         <h3>🥁 Drums + 🎸 Bass, Together</h3>
         <p>This isn't just a drum machine. Every beat generates a complete <em>drums and bass</em> production — two instruments that lock together the way they do in a real session. The bass follows the kick pattern, uses style-correct chord progressions, plays passing tones and ghost notes between hits, slides between pitches for G-Funk, drops to sub octaves for 808 styles, and breathes with intentional rests. It even generates 2-bar motifs and varies them across the song — the way a real bassist develops a part.</p>
@@ -434,7 +438,7 @@
         <p>The bass generator is tempo-aware. At slow tempos (68-78 BPM), bass lines get busier with more ghost notes and longer sustains — Memphis and Phonk styles breathe with expressive movement. At fast tempos (98-110 BPM), patterns simplify and tighten — Old School and Driving styles stay punchy without cluttering the groove. Note durations, density, and ghost note probability all scale with BPM, so every beat feels right for its tempo.</p>
         <p>218 curated kick patterns across 18 dedicated libraries. 26 styles with 6 regional variants. Named player profiles. Per-instrument swing. Modal harmony. Bass call-and-response. Tempo-aware bass generation. Dynamic arrangement arcs. Section-ending fills matched to each era. Hat articulation that varies bar by bar. This is what 40 years of hip hop sounds like when you encode it into code.</p>
 
-        <p class="about-footer">Beats you generate are yours — commercial releases, demos, freestyles, DJ sets, samples, anything. No attribution required, no royalties, no restrictions.<br><br>Open source · MIT License · <a href="https://hiphopdrummer.com" target="_blank" rel="noopener">hiphopdrummer.com</a></p>
+        <p class="about-footer">Beats you generate are yours — commercial releases, demos, freestyles, DJ sets, samples, anything. No attribution required, no royalties, no restrictions.<br><br>Open source · MIT License · <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener">hiphopdrummer.com</a></p>
       </div>
       <div class="regen-actions">
         <button class="btn regen-cancel" id="aboutClose">Close</button>

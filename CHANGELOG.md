@@ -2,6 +2,50 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.56] - 2026-04-08
+
+### Added — Bass (10 Pro Bassist Techniques)
+- Monophonic overlap prevention — notes truncated so each ends before the next starts, like a real bass
+- String rake — 2-3 muted dead notes ascending into hard downbeat hits (Dilla, Questlove feel)
+- Pull-off articulation — descending grace note from 5th/octave down to target note
+- Trill/tremolo — rapid 3-4 note alternation on last beat of bar (Bootsy, Thundercat)
+- Double-stop — root+5th power chord on section entry downbeats for weight
+- Upbeat accent — velocity boost on "and" positions for funk displacement (bounce, chopbreak, G-Funk)
+- Rest bar — entire bar of silence on bars 3/7 of 8-bar phrases for breathing room
+- Beat 1 skip — note moved from beat 1 to "and" of 1 for forward motion and anticipation
+- Rhythmic mutation — ghost/ornamental notes shift ±1 step on motif repeat bars
+- Bass swing curve fixed — was using linear formula while all other instruments used exponential; bass was swinging ~15% less than drums. Also added missing resolveBaseFeel for regional variant swing lookup.
+
+### Added — Educational
+- "The Foundation, Not the Finished Song" philosophy — prominent in README, welcome dialog, About dialog, About This Beat analysis, What Next dialog (per-role), and playback tip ticker. The beat is the harmonic foundation; the melody (your rap, sample, guitar, scratch) is yours.
+
+### Added — Playback Tip Ticker
+- Rotating educational tips at the bottom of the screen during playback (when Show Chords is enabled). Cycles every 6 seconds through style history, swing explanation, chord context, BPM context, pattern analysis, section arrangement tips, and role-specific advice. Replaces the static green tip that was inline in the chord overlay.
+
+### Fixed — Instrument Mute Strip
+- Available-but-muted instruments now visually distinct from unavailable (55% opacity vs 20%)
+- Mute strip now checks ALL section feels in the arrangement, not just the primary verse feel. Instruments that play in chorus/pre-chorus sections (e.g. horns in Big/Anthem chorus of a Chopped Break song) now correctly show as available.
+- Pad mutual exclusion with EP removed from mute strip — per-section exclusion is handled by the generators.
+
+### Fixed — Cowbell & Tom
+- Grid colors added for cowbell (bronze #c07830) and tom (purple #9060b0) — were showing as gray
+- Cowbell now plays in intro and outro sections for Memphis/phonk/crunk/oldschool styles (writeIntro and writeOutro were missing writeCowbell calls)
+- Tom fills now added to all section-ending fills via addFill (was only in 2 mid-section fill spots)
+- Outro fade/stop now clears cowbell and tom arrays in the last bar
+
+### Fixed — Edit/Loop/Play
+- Edit mode stays active during playback — no longer turns off when you hit Play
+- Edit mode auto-enables loop; exiting edit mode auto-disables loop
+- Section loop now plays the correct section — buildSectionTimeMap was building from the full arrangement even in loop mode, causing playback tracking to reset curSec to the intro. Now builds a single-entry map for the looped section.
+
+### Fixed — Startup
+- Crash on boot when loading beats saved before 1.54 — restoreBeatState now backfills missing cowbell/tom rows
+
+### Changed
+- Spectrum visualizer height tripled (32px → 96px desktop, 24px → 72px mobile)
+- MPC help file clarified: swing applies to ALL tracks (drums, bass, instruments), .mpcpattern files are straight, MIDI files have swing baked in
+- hiphopdrummer.com links now point to GitHub repository
+
 ## [1.55] - 2026-04-07
 
 ### Fixed — MIDI Export

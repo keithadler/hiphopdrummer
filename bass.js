@@ -173,6 +173,16 @@ var _sectionOctaveDrops = {};
  *   energyArc:      whether to apply section-level energy arc (fix #10)
  *   instrument:     '808sub' (sine wave, long sustain) or 'bassguitar' (plucked, short decay)
  *
+ * Round 3 new params (bassist features):
+ *   pullOffProb:    probability of descending grace note (5th→root, oct→root)
+ *   rakeProb:       probability of muted string rake before hard downbeat hits
+ *   trillProb:      probability of rapid 2-note alternation on last beat of bar
+ *   doubleStopProb: probability of root+5th power chord on section entries/downbeats
+ *   upbeatAccent:   velocity boost on "and" positions for funk displacement
+ *   restBarProb:    probability of sitting out an entire bar (phrase-level rest)
+ *   beat1SkipProb:  probability of skipping beat 1 and entering on "and" of 1 or beat 2
+ *   rhythmMutate:   probability of shifting ghost/ornamental note timing on motif repeats
+ *
  * @type {Object.<string, Object>}
  */
 var BASS_STYLES = {
@@ -185,121 +195,141 @@ var BASS_STYLES = {
                slideProb: 0.02, ghostNoteDensity: 0.1, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.05, deadNoteProb: 0.08,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.05,
-               subSwell: 0.0, restProb: 0.06, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.06, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.02, rakeProb: 0.04, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.06, beat1SkipProb: 0.0, rhythmMutate: 0.1 },
   hard:      { rhythm: 'kick', density: 1.0, velBase: 115, velRange: 6, noteDur: 0.4,
                useFifth: 0.1, useOctaveDrop: 0.04, walkUp: 0.0,
                slideProb: 0.0, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.05,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.03, trillProb: 0.0, doubleStopProb: 0.04, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.05 },
   jazzy:     { rhythm: 'eighth', density: 0.6, velBase: 85, velRange: 20, noteDur: 0.7,
                useFifth: 0.4, useOctaveDrop: 0.03, walkUp: 0.3,
                slideProb: 0.02, ghostNoteDensity: 0.2, timingOffset: 0,
                useMinor7th: 0.35, octaveUpProb: 0.12, deadNoteProb: 0.06,
                walkDirection: 'both', walkDiatonic: 0.6, backbeatAccent: 6, chordAnticipation: 0.2,
-               subSwell: 0.0, restProb: 0.12, hammerOnProb: 0.02, timingJitter: 4, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.12, hammerOnProb: 0.02, timingJitter: 4, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.06, rakeProb: 0.0, trillProb: 0.04, doubleStopProb: 0.0, upbeatAccent: 3, restBarProb: 0.08, beat1SkipProb: 0.08, rhythmMutate: 0.2 },
   dark:      { rhythm: 'kick', density: 0.7, velBase: 110, velRange: 8, noteDur: 0.8,
                useFifth: 0.05, useOctaveDrop: 0.05, walkUp: 0.0,
                slideProb: 0.03, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.15, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.15, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   bounce:    { rhythm: 'kick', density: 0.95, velBase: 100, velRange: 10, noteDur: 0.5,
                useFifth: 0.25, useOctaveDrop: 0.03, walkUp: 0.2,
                slideProb: 0.02, ghostNoteDensity: 0.12, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.1, deadNoteProb: 0.06,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 8, chordAnticipation: 0.1,
-               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.03, rakeProb: 0.05, trillProb: 0.02, doubleStopProb: 0.0, upbeatAccent: 5, restBarProb: 0.04, beat1SkipProb: 0.06, rhythmMutate: 0.15 },
   halftime:  { rhythm: 'kick', density: 0.8, velBase: 105, velRange: 10, noteDur: 0.9,
                useFifth: 0.1, useOctaveDrop: 0.04, walkUp: 0.0,
                slideProb: 0.03, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.1, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.1, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   dilla:     { rhythm: 'kick', density: 0.85, velBase: 90, velRange: 18, noteDur: 0.6,
                useFifth: 0.35, useOctaveDrop: 0.04, walkUp: 0.2,
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.25, octaveUpProb: 0.08, deadNoteProb: 0.12,
                walkDirection: 'both', walkDiatonic: 0.4, backbeatAccent: 10, chordAnticipation: 0.25,
-               subSwell: 0.0, restProb: 0.15, hammerOnProb: 0.02, timingJitter: 12, velCompression: 0.0, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.15, hammerOnProb: 0.02, timingJitter: 12, velCompression: 0.0, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.05, rakeProb: 0.06, trillProb: 0.03, doubleStopProb: 0.0, upbeatAccent: 4, restBarProb: 0.1, beat1SkipProb: 0.12, rhythmMutate: 0.25 },
   lofi:      { rhythm: 'kick', density: 0.8, velBase: 80, velRange: 8, noteDur: 0.4,
                useFifth: 0.15, useOctaveDrop: 0.05, walkUp: 0.1,
                slideProb: 0.0, ghostNoteDensity: 0.15, timingOffset: 0,
                useMinor7th: 0.1, octaveUpProb: 0.04, deadNoteProb: 0.1,
                walkDirection: 'below', walkDiatonic: 0.2, backbeatAccent: 0, chordAnticipation: 0.1,
-               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.0, timingJitter: 4, velCompression: 0.7, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.0, timingJitter: 4, velCompression: 0.7, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.02, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.08, beat1SkipProb: 0.04, rhythmMutate: 0.12 },
   gfunk:     { rhythm: 'kick', density: 0.9, velBase: 95, velRange: 12, noteDur: 0.85,
                useFifth: 0.35, useOctaveDrop: 0.05, walkUp: 0.25,
                slideProb: 0.18, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.2, octaveUpProb: 0.15, deadNoteProb: 0.04,
                walkDirection: 'both', walkDiatonic: 0.3, backbeatAccent: 10, chordAnticipation: 0.15,
-               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.04, rakeProb: 0.0, trillProb: 0.03, doubleStopProb: 0.03, upbeatAccent: 4, restBarProb: 0.05, beat1SkipProb: 0.05, rhythmMutate: 0.15 },
   chopbreak: { rhythm: 'kick', density: 0.95, velBase: 105, velRange: 10, noteDur: 0.45,
                useFifth: 0.2, useOctaveDrop: 0.03, walkUp: 0.15,
                slideProb: 0.02, ghostNoteDensity: 0.1, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.1, deadNoteProb: 0.1,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 6, chordAnticipation: 0.08,
-               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.03, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.04, rakeProb: 0.06, trillProb: 0.04, doubleStopProb: 0.0, upbeatAccent: 6, restBarProb: 0.04, beat1SkipProb: 0.08, rhythmMutate: 0.18 },
   crunk:     { rhythm: 'quarter', density: 1.0, velBase: 120, velRange: 5, noteDur: 0.95,
                useFifth: 0.0, useOctaveDrop: 0.05, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.3, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub' },
+               subSwell: 0.3, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   memphis:   { rhythm: 'kick', density: 0.6, velBase: 110, velRange: 8, noteDur: 0.9,
                useFifth: 0.0, useOctaveDrop: 0.06, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.25, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.6, energyArc: false, instrument: '808sub' },
+               subSwell: 0.25, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.6, energyArc: false, instrument: '808sub',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   griselda:  { rhythm: 'kick', density: 0.9, velBase: 108, velRange: 8, noteDur: 0.4,
                useFifth: 0.1, useOctaveDrop: 0.03, walkUp: 0.0,
                slideProb: 0.0, ghostNoteDensity: 0.05, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.12,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.02, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.03, beat1SkipProb: 0.0, rhythmMutate: 0.05 },
   phonk:     { rhythm: 'kick', density: 0.65, velBase: 115, velRange: 6, noteDur: 0.95,
                useFifth: 0.0, useOctaveDrop: 0.08, walkUp: 0.0,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.35, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub' },
+               subSwell: 0.35, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   nujabes:   { rhythm: 'eighth', density: 0.5, velBase: 80, velRange: 18, noteDur: 0.7,
                useFifth: 0.4, useOctaveDrop: 0.03, walkUp: 0.3,
                slideProb: 0.02, ghostNoteDensity: 0.2, timingOffset: 0,
                useMinor7th: 0.3, octaveUpProb: 0.1, deadNoteProb: 0.06,
                walkDirection: 'both', walkDiatonic: 0.6, backbeatAccent: 6, chordAnticipation: 0.2,
-               subSwell: 0.0, restProb: 0.12, hammerOnProb: 0.01, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.12, hammerOnProb: 0.01, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.05, rakeProb: 0.0, trillProb: 0.03, doubleStopProb: 0.0, upbeatAccent: 3, restBarProb: 0.08, beat1SkipProb: 0.06, rhythmMutate: 0.2 },
   oldschool: { rhythm: 'kick', density: 0.6, velBase: 110, velRange: 5, noteDur: 0.7,
                useFifth: 0.0, useOctaveDrop: 0.02, walkUp: 0.0,
                slideProb: 0.0, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   sparse:    { rhythm: 'kick', density: 0.5, velBase: 95, velRange: 10, noteDur: 0.6,
                useFifth: 0.0, useOctaveDrop: 0.03, walkUp: 0.0,
                slideProb: 0.0, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
   driving:   { rhythm: 'kick', density: 0.95, velBase: 105, velRange: 10, noteDur: 0.5,
                useFifth: 0.15, useOctaveDrop: 0.03, walkUp: 0.1,
                slideProb: 0.02, ghostNoteDensity: 0.08, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.06, deadNoteProb: 0.06,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 4, chordAnticipation: 0.05,
-               subSwell: 0.0, restProb: 0.03, hammerOnProb: 0.02, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.03, hammerOnProb: 0.02, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.02, rakeProb: 0.04, trillProb: 0.02, doubleStopProb: 0.0, upbeatAccent: 4, restBarProb: 0.03, beat1SkipProb: 0.04, rhythmMutate: 0.12 },
   big:       { rhythm: 'kick', density: 0.9, velBase: 108, velRange: 10, noteDur: 0.7,
                useFifth: 0.2, useOctaveDrop: 0.03, walkUp: 0.15,
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.06, deadNoteProb: 0.04,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 4, chordAnticipation: 0.08,
-               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.03, trillProb: 0.0, doubleStopProb: 0.05, upbeatAccent: 0, restBarProb: 0.03, beat1SkipProb: 0.0, rhythmMutate: 0.08 },
   detroit:   { rhythm: 'kick', density: 0.9, velBase: 100, velRange: 14, noteDur: 0.55,
                useFifth: 0.3, useOctaveDrop: 0.04, walkUp: 0.2,
                slideProb: 0.03, ghostNoteDensity: 0.12, timingOffset: 0,
                useMinor7th: 0.15, octaveUpProb: 0.08, deadNoteProb: 0.1,
                walkDirection: 'both', walkDiatonic: 0.3, backbeatAccent: 6, chordAnticipation: 0.12,
-               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.02, timingJitter: 4, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.02, timingJitter: 4, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.04, rakeProb: 0.05, trillProb: 0.02, doubleStopProb: 0.0, upbeatAccent: 3, restBarProb: 0.06, beat1SkipProb: 0.06, rhythmMutate: 0.18 },
   // Regional variants — inherit from parent with modifications
   // FIX #2: Removed static timingOffset, using only timingJitter for natural fluctuation
   normal_bronx:  { rhythm: 'kick', density: 1.0, velBase: 105, velRange: 8, noteDur: 0.4,
@@ -307,37 +337,43 @@ var BASS_STYLES = {
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.12,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
-               subSwell: 0.0, restProb: 0.02, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.02, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.0, rakeProb: 0.02, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.05 },
   normal_queens: { rhythm: 'eighth', density: 0.7, velBase: 90, velRange: 16, noteDur: 0.65,
                useFifth: 0.35, useOctaveDrop: 0.15, walkUp: 0.25,
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.2, octaveUpProb: 0.1, deadNoteProb: 0.08,
                walkDirection: 'both', walkDiatonic: 0.4, backbeatAccent: 6, chordAnticipation: 0.15,
-               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.06, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.1, hammerOnProb: 0.06, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.05, rakeProb: 0.0, trillProb: 0.03, doubleStopProb: 0.0, upbeatAccent: 3, restBarProb: 0.06, beat1SkipProb: 0.06, rhythmMutate: 0.18 },
   normal_li:     { rhythm: 'kick', density: 0.85, velBase: 95, velRange: 14, noteDur: 0.55,
                useFifth: 0.25, useOctaveDrop: 0.10, walkUp: 0.18,
                slideProb: 0.02, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.1, octaveUpProb: 0.08, deadNoteProb: 0.1,
                walkDirection: 'both', walkDiatonic: 0.2, backbeatAccent: 4, chordAnticipation: 0.1,
-               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.05, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.08, hammerOnProb: 0.05, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.03, rakeProb: 0.04, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 2, restBarProb: 0.05, beat1SkipProb: 0.04, rhythmMutate: 0.14 },
   gfunk_dre:     { rhythm: 'kick', density: 0.85, velBase: 98, velRange: 10, noteDur: 0.9,
                useFifth: 0.3, useOctaveDrop: 0.10, walkUp: 0.2,
                slideProb: 0.06, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.15, octaveUpProb: 0.12, deadNoteProb: 0.02,
                walkDirection: 'both', walkDiatonic: 0.2, backbeatAccent: 8, chordAnticipation: 0.1,
-               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.08, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.04, hammerOnProb: 0.08, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.04, rakeProb: 0.0, trillProb: 0.02, doubleStopProb: 0.03, upbeatAccent: 3, restBarProb: 0.04, beat1SkipProb: 0.04, rhythmMutate: 0.12 },
   gfunk_quik:    { rhythm: 'kick', density: 0.95, velBase: 100, velRange: 14, noteDur: 0.8,
                useFifth: 0.4, useOctaveDrop: 0.15, walkUp: 0.3,
                slideProb: 0.10, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.25, octaveUpProb: 0.18, deadNoteProb: 0.06,
                walkDirection: 'both', walkDiatonic: 0.4, backbeatAccent: 12, chordAnticipation: 0.2,
-               subSwell: 0.0, restProb: 0.06, hammerOnProb: 0.10, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' },
+               subSwell: 0.0, restProb: 0.06, hammerOnProb: 0.10, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.06, rakeProb: 0.0, trillProb: 0.04, doubleStopProb: 0.0, upbeatAccent: 5, restBarProb: 0.04, beat1SkipProb: 0.08, rhythmMutate: 0.2 },
   gfunk_battlecat: { rhythm: 'kick', density: 0.9, velBase: 92, velRange: 12, noteDur: 0.85,
                useFifth: 0.35, useOctaveDrop: 0.12, walkUp: 0.25,
                slideProb: 0.08, ghostNoteDensity: 0.0, timingOffset: 0,
                useMinor7th: 0.2, octaveUpProb: 0.15, deadNoteProb: 0.04,
                walkDirection: 'both', walkDiatonic: 0.3, backbeatAccent: 10, chordAnticipation: 0.15,
-               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.10, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar' }
+               subSwell: 0.0, restProb: 0.05, hammerOnProb: 0.10, timingJitter: 0, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.05, rakeProb: 0.0, trillProb: 0.03, doubleStopProb: 0.0, upbeatAccent: 4, restBarProb: 0.04, beat1SkipProb: 0.06, rhythmMutate: 0.16 }
 };
 
 /**
@@ -917,6 +953,184 @@ function generateBassPattern(sec, bpm) {
   // ── Call-and-response: bass reacts to drum pattern context ──
   events = applyBassCallResponse(events, drumPat, len, style, rootNote);
 
+  // ── Round 3: Bassist features — articulations, phrasing, monophonic overlap fix ──
+  events = applyBassistFeatures(events, len, style, rootNote, bassFeel, isIntroOutro);
+
+  return events;
+}
+
+/**
+ * Round 3: Bassist features — 10 pro bassist techniques.
+ *
+ *  1. Monophonic overlap prevention — truncate previous note before new note-on
+ *  2. String rake — muted dead-note burst before hard downbeat hits
+ *  3. Pull-off articulation — descending grace note (5th→root, oct→root)
+ *  4. Trill/tremolo — rapid 2-note alternation on last beat of bar
+ *  5. Double-stop — root+5th power chord on section entries/downbeats
+ *  6. Upbeat accent — velocity boost on "and" positions for funk displacement
+ *  7. Rest bar — sit out an entire bar for phrase-level breathing
+ *  8. Beat 1 skip — enter on "and" of 1 or beat 2 instead of beat 1
+ *  9. Rhythmic mutation — shift ornamental note timing on motif repeats
+ * 10. Open string drone — (handled via doubleStop on open-string keys)
+ *
+ * @param {Array} events - Bass events (sorted by step)
+ * @param {number} len - Section length in steps
+ * @param {Object} style - BASS_STYLES entry
+ * @param {number} rootNote - Root MIDI note
+ * @param {string} feel - Resolved feel name
+ * @param {boolean} isIntroOutro - Whether this is an intro/outro section
+ * @returns {Array} Modified events
+ */
+function applyBassistFeatures(events, len, style, rootNote, feel, isIntroOutro) {
+  if (!events.length) return events;
+  var totalBars = Math.ceil(len / 16);
+  var is808 = (style.instrument === '808sub');
+  var fifth = rootNote + 7;
+  if (fifth > _currentBassCeil) fifth -= 12;
+
+  // ── 7. Rest bar — sit out an entire bar (phrase-level breathing) ──
+  // Decide which bars to rest BEFORE processing individual notes.
+  // Never rest bar 0 (first bar), bar with fills, or intro/outro.
+  var restBars = {};
+  if (!isIntroOutro && !is808 && style.restBarProb > 0 && totalBars >= 4) {
+    for (var b = 1; b < totalBars - 1; b++) {
+      // Prefer bar 3 or 7 of 8-bar phrases (natural breathing points)
+      var barInPhrase = b % 8;
+      var prob = (barInPhrase === 2 || barInPhrase === 6) ? style.restBarProb * 1.5 : style.restBarProb;
+      if (maybe(prob)) restBars[b] = true;
+    }
+  }
+
+  // Remove events in rest bars
+  if (Object.keys(restBars).length > 0) {
+    events = events.filter(function(e) {
+      return !restBars[Math.floor(e.step / 16)];
+    });
+  }
+
+  // Build step lookup for collision checks
+  var stepMap = {};
+  for (var i = 0; i < events.length; i++) stepMap[events[i].step] = i;
+
+  var additions = []; // new events to add (rakes, pull-offs, trills, double-stops)
+
+  for (var i = 0; i < events.length; i++) {
+    var evt = events[i];
+    var pos = evt.step % 16;
+    var bar = Math.floor(evt.step / 16);
+
+    // ── 8. Beat 1 skip — skip beat 1, enter on "and" of 1 (step 1) or beat 2 (step 4) ──
+    if (pos === 0 && !evt.dead && !is808 && style.beat1SkipProb > 0 && bar > 0 && maybe(style.beat1SkipProb)) {
+      // Move this note to step 1 (and-of-1) or step 2
+      var newStep = evt.step + pick([1, 2]);
+      if (newStep < len && !stepMap[newStep]) {
+        evt.step = newStep;
+        evt.vel = Math.max(30, evt.vel - 5); // slightly softer pickup
+        stepMap[newStep] = i;
+        pos = evt.step % 16;
+      }
+    }
+
+    // ── 6. Upbeat accent — boost velocity on "and" positions ──
+    if (style.upbeatAccent > 0 && pos % 2 === 1 && !evt.dead) {
+      evt.vel = Math.min(127, evt.vel + style.upbeatAccent);
+    }
+
+    // ── 2. String rake — muted burst before hard downbeat hits ──
+    if (!is808 && style.rakeProb > 0 && pos === 0 && evt.vel >= 95 && !evt.dead && maybe(style.rakeProb)) {
+      // 2-3 very short dead notes ascending into the target note
+      var rakeCount = pick([2, 3]);
+      for (var r = rakeCount; r >= 1; r--) {
+        var rakeStep = evt.step - 1; // all on the step before beat 1
+        if (rakeStep < 0) continue;
+        var rakeNote = Math.max(_currentBassFloor, evt.note - r);
+        additions.push({
+          step: rakeStep, note: rakeNote, vel: v(35, 6), dur: 0.06,
+          slide: false, dead: true, timingOffset: (evt.timingOffset || 0) + (rakeCount - r) * 2,
+          hammerOn: false, subSwell: false, _isRake: true
+        });
+      }
+    }
+
+    // ── 3. Pull-off articulation — descending grace note ──
+    if (!is808 && !evt.dead && !evt.slide && !evt.hammerOn && style.pullOffProb > 0 && maybe(style.pullOffProb)) {
+      // Pull-off from a higher note (5th, octave, or 3rd above) down to the target
+      var pullFrom = maybe(0.5) ? fifth : (evt.note + 12 <= _currentBassCeil ? evt.note + 12 : fifth);
+      pullFrom = Math.min(_currentBassCeil, Math.max(_currentBassFloor, pullFrom));
+      if (pullFrom !== evt.note) {
+        evt.pullOff = true;
+        evt._pullFromNote = pullFrom;
+      }
+    }
+
+    // ── 4. Trill — rapid 2-note alternation on last beat of bar ──
+    if (!is808 && !evt.dead && style.trillProb > 0 && (pos === 12 || pos === 14) && maybe(style.trillProb)) {
+      // Replace this note with a 3-4 note trill (root ↔ root+2 or root ↔ root+1)
+      var trillInterval = pick([1, 2]); // half step or whole step
+      var trillNote2 = Math.min(_currentBassCeil, evt.note + trillInterval);
+      var trillCount = pick([3, 4]);
+      // Remove original event, add trill notes
+      evt._replaced = true;
+      for (var t = 0; t < trillCount; t++) {
+        var trillStep = evt.step; // all on same step, differentiated by timingOffset
+        var tn = (t % 2 === 0) ? evt.note : trillNote2;
+        additions.push({
+          step: trillStep, note: tn, vel: Math.max(30, evt.vel - 8 + t * 2), dur: 0.08,
+          slide: false, dead: false, timingOffset: (evt.timingOffset || 0) + t * 3,
+          hammerOn: t > 0, subSwell: false
+        });
+      }
+    }
+
+    // ── 5. Double-stop — root+5th power chord on section entries/downbeats ──
+    // Only for bass guitar styles, on strong downbeats
+    if (!is808 && !evt.dead && style.doubleStopProb > 0 && pos === 0 && bar === 0 && maybe(style.doubleStopProb)) {
+      // Add the 5th simultaneously (same step, same timing)
+      var dsFifth = Math.min(_currentBassCeil, evt.note + 7);
+      if (dsFifth > _currentBassCeil) dsFifth -= 12;
+      additions.push({
+        step: evt.step, note: dsFifth, vel: Math.max(30, evt.vel - 8), dur: evt.dur,
+        slide: false, dead: false, timingOffset: evt.timingOffset || 0,
+        hammerOn: false, subSwell: false
+      });
+    }
+
+    // ── 9. Rhythmic mutation — shift ornamental notes on repeat bars ──
+    if (style.rhythmMutate > 0 && bar >= 4 && !evt.dead && pos % 2 === 1 && evt.vel < 80 && maybe(style.rhythmMutate)) {
+      // Shift this ghost/ornamental note by ±1 step
+      var shift = pick([-1, 1]);
+      var newStep = evt.step + shift;
+      if (newStep >= 0 && newStep < len && !stepMap[newStep]) {
+        stepMap[newStep] = i;
+        evt.step = newStep;
+      }
+    }
+  }
+
+  // Remove replaced events (trills replace the original)
+  events = events.filter(function(e) { return !e._replaced; });
+
+  // Add all new events
+  if (additions.length > 0) {
+    events = events.concat(additions);
+  }
+
+  // ── 1. Monophonic overlap prevention ──
+  // Sort by step, then truncate each note's duration so it ends before the next note-on.
+  // This is how a real bass works — you can't sustain two notes at once.
+  events.sort(function(a, b) { return a.step - b.step || (a.timingOffset || 0) - (b.timingOffset || 0); });
+  for (var i = 0; i < events.length - 1; i++) {
+    var curr = events[i];
+    var next = events[i + 1];
+    if (curr._isRake) continue; // rakes are intentionally overlapping dead notes
+    var currEndStep = curr.step + Math.ceil(curr.dur * 4); // dur is in quarter-note fractions
+    if (currEndStep > next.step) {
+      // Truncate: set duration so it ends 1 tick before next note
+      var maxDur = Math.max(0.08, (next.step - curr.step) / 4);
+      curr.dur = Math.min(curr.dur, maxDur);
+    }
+  }
+
   return events;
 }
 
@@ -1443,13 +1657,15 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
   var tickPos = 0;
 
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 50) * ticksPerStep * 0.5);
+  var swingCurved = ((swing - 50) / 50) * (1 + ((swing - 50) / 50) * 0.5);
+  var baseSwingAmount = noSwing ? 0 : Math.round(swingCurved * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var bassEvents = generateBassPattern(sec, bpm);
     var len = secSteps[sec] || 32;
     // Per-instrument swing for bass
     var secFeel = (secFeels[sec] || songFeel || 'normal').replace(/^intro_[abc]$/, 'sparse').replace(/^outro_.*$/, 'sparse');
+    secFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeel) : secFeel;
     var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[secFeel]) ? INSTRUMENT_SWING[secFeel].bass : 0.9;
     var bassSwing = noSwing ? 0 : Math.round(baseSwingAmount * bassSwingMult);
 
@@ -1471,6 +1687,15 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
         var graceVel = Math.max(30, e.vel - 25);
         midiEvents.push({ tick: graceTick, type: 'on', note: graceNote, vel: graceVel });
         midiEvents.push({ tick: graceTick + 1, type: 'off', note: graceNote });
+      }
+
+      // ── Pull-off grace note (descending — from higher note down to target) ──
+      if (e.pullOff && e._pullFromNote) {
+        var poGraceTick = stepTick - 2;
+        if (poGraceTick < 0) poGraceTick = 0;
+        var poGraceVel = Math.max(30, e.vel - 10); // pull-off starts louder than hammer-on
+        midiEvents.push({ tick: poGraceTick, type: 'on', note: e._pullFromNote, vel: poGraceVel });
+        midiEvents.push({ tick: poGraceTick + 1, type: 'off', note: e._pullFromNote });
       }
 
       // ── Fix #5: Slide — shorten previous note, then insert glissando ──

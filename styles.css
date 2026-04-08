@@ -11,6 +11,7 @@ body.theme-light .chord-piano-black{background:#444;border-color:#333}
 body.theme-light .regen-overlay{background:rgba(0,0,0,.4)}
 body.theme-light .gen-loading{background:rgba(240,240,244,.8)}
 body.theme-light .section-toast{background:rgba(255,255,255,.94);border-color:var(--border)}
+body.theme-light .tip-ticker{background:rgba(255,255,255,.94);border-top-color:var(--border)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans);font-size:23px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #app-wrap{display:flex;flex-direction:column;height:100vh}
@@ -95,6 +96,13 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .chord-toast-item:not(.active) .chord-toast-piano{opacity:0.3}
 .chord-toast-item:not(.active) .chord-toast-guitar{opacity:0.3}
 .toast-tip{font-family:var(--mono);font-size:18px;color:var(--accent-green);text-align:center;padding:4px 8px;font-style:italic;line-height:1.5}
+.tip-ticker{position:fixed;bottom:0;left:0;right:0;z-index:201;background:rgba(21,21,28,0.92);border-top:1px solid var(--border-light);padding:8px 16px;backdrop-filter:blur(8px);opacity:0;transform:translateY(100%);transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;display:flex;align-items:center;gap:10px;min-height:40px}
+.tip-ticker.show{opacity:1;transform:translateY(0)}
+.tip-ticker-icon{font-size:16px;flex-shrink:0}
+.tip-ticker-text{font-family:var(--mono);font-size:13px;color:var(--accent-green);line-height:1.4;flex:1;overflow:hidden;white-space:nowrap}
+.tip-ticker-text span{display:inline-block;animation:ticker-scroll 12s linear infinite;padding-left:100%}
+.tip-ticker-text.no-scroll span{animation:none;padding-left:0;white-space:normal}
+@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .guitar-chord-svg{width:120px;height:110px;margin:0 auto}
 .guitar-chord-svg svg{width:100%;height:100%}
 .guitar-chord-na{font-size:12px;color:var(--text-dim);font-style:italic}
@@ -241,6 +249,8 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.ride.on{background:#5090b0}
 .cell.crash.on{background:#c0b030}
 .cell.shaker.on{background:#70b870}
+.cell.cowbell.on{background:#c07830}
+.cell.tom.on{background:#9060b0}
 .cell.beat-start{margin-left:3px}
 /* Edit mode: cells get a subtle border and pointer cursor to indicate they're clickable */
 .grid-edit-mode .cell{cursor:pointer;border-color:rgba(224,72,72,.15)}
@@ -288,7 +298,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .arr-progress-mark{position:absolute;top:0;width:1px;height:100%;background:rgba(255,255,255,.2)}
 
 /* FX: Audio visualizer */
-.audio-visualizer{height:32px;background:var(--bg-deep);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
+.audio-visualizer{height:96px;background:var(--bg-deep);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
 .audio-visualizer canvas{width:100%;height:100%;display:block}
 
 /* Instrument mute strip */
@@ -534,11 +544,14 @@ midi-player::part(play-button){color:var(--accent-green)}
   .arr-item .feel-tag{font-size:9px;padding:1px 4px}
   .arr-add{font-size:11px;padding:3px 7px}
   .arr-flow{min-height:50px;gap:4px;padding:5px}
-  .audio-visualizer{height:24px}
+  .audio-visualizer{height:72px}
   .instr-mute-strip{padding:3px 4px;gap:1px}
   .instr-mute-btn{padding:3px 4px;font-size:12px}
   .instr-mute-btn span{font-size:8px}
   .arr-progress{margin-bottom:4px}
+  .tip-ticker{padding:6px 12px}
+  .tip-ticker-icon{font-size:13px}
+  .tip-ticker-text{font-size:11px}
 
   /* About panel */
   #aboutBeat{font-size:13px;line-height:1.6}

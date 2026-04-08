@@ -697,7 +697,7 @@ var WHAT_NEXT = {
   producer: {
     title: '🎛 Your Beat Is Ready — Here\'s What to Do',
     html: function(style, key, bpm) {
-      return '<p>This is a complete production — <b>' + style + '</b> at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> with drums, bass, and style-matched instruments all playing together. It\'s ready to use right now.</p>'
+      return '<p>This is a complete production — <b>' + style + '</b> at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> with drums, bass, and style-matched instruments all playing together. It\'s the harmonic foundation — chords, rhythm, arrangement. The melody on top is where you come in. Add your samples, your vocal hook, your lead line. The beat leaves room for you.</p>'
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Hit Play</b> and listen to the full arrangement. Pay attention to how the instruments interact — the bass locks to the kick, the melodic instruments react to the drums, the energy builds across sections.</p>'
         + '<p><b>2. Export the ZIP</b> — you get MIDI for every instrument on separate channels, MPC patterns, WAV stems for mixing, chord sheets, and setup guides for your DAW. Load the MIDI into your session and swap the sounds for your own.</p>'
@@ -709,7 +709,7 @@ var WHAT_NEXT = {
   rapper: {
     title: '🎤 Your Beat Is Ready — Time to Write',
     html: function(style, key, bpm) {
-      return '<p>You\'ve got a full <b>' + style + '</b> beat at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> — drums, bass, and instruments all locked in. This is ready to rap over right now.</p>'
+      return '<p>You\'ve got a full <b>' + style + '</b> beat at <b>' + bpm + ' BPM</b> in <b>' + key + '</b> — drums, bass, and instruments all locked in. The beat is the harmonic foundation. Your voice is the melody. That\'s how hip hop works — the producer builds the bed, you bring it to life.</p>'
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Hit Play</b> (or press Space) and freestyle. Feel the groove. Where do the kicks land? That\'s where your hardest syllables go.</p>'
         + '<p><b>2. Check the Flow Guide</b> in About This Beat — it tells you exactly how many syllables fit per bar at this BPM, and names the beat positions where the kicks land. Use those as your rhythmic anchors.</p>'
@@ -758,7 +758,7 @@ var WHAT_NEXT = {
   guitarist: {
     title: '🎸 Your Beat Is Ready — Add Your Sound',
     html: function(style, key, bpm) {
-      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the chord overlay shows guitar diagrams so you can play along in real time.</p>'
+      return '<p><b>' + style + '</b> in <b>' + key + '</b> at <b>' + bpm + ' BPM</b> — the chord overlay shows guitar diagrams so you can play along in real time. The beat is the harmonic foundation — your guitar brings the melody, the texture, the soul.</p>'
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Hit Play</b> and follow the chord overlay — it shows fretboard diagrams for each chord as the song plays.</p>'
         + '<p><b>2. Find your role</b> — verse: rhythm guitar on 2 and 4 with the snare. Chorus: open chords, let them ring. Breakdown: single notes or silence.</p>'
@@ -786,7 +786,7 @@ var WHAT_NEXT = {
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Check the key</b> — filter Splice or Tracklib by <b>' + key + '</b>. Samples in the relative major/minor use the same notes but sound brighter or darker.</p>'
         + '<p><b>2. Read the Sample Hunting Guide</b> in About This Beat — it names specific genres, decades, and artists to dig through based on this style.</p>'
-        + '<p><b>3. Export the MIDI to your MPC or DAW</b> — load the drum patterns, then layer your samples on top. The patterns give you the groove; your samples give it the soul.</p>'
+        + '<p><b>3. Export the MIDI to your MPC or DAW</b> — load the drum patterns, then layer your samples on top. The beat is the harmonic foundation — your samples are the melody, the texture, the identity. That\'s always been how it works.</p>'
         + '<p><b>4. Use the section tips</b> — verse: your main 2-4 bar loop. Chorus: counter-melody or vocal chop. Breakdown: raw uncut sample, reversed or filtered. Last chorus: everything at once.</p>'
         + '<p>The beat is the skeleton. Your samples are the flesh. Export it, load it up, and start chopping.</p>';
     }
@@ -1300,6 +1300,30 @@ function updateInstrMuteStrip() {
   var _sf = (typeof songFeel !== 'undefined' && songFeel) ? songFeel : 'normal';
   var _sfBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(_sf) : _sf;
 
+  // Collect ALL feels used across the arrangement — an instrument is available
+  // if ANY section uses a feel that supports it (e.g. horns in Big/Anthem chorus
+  // even when the verse feel is Chopped Break)
+  var allFeels = [_sf, _sfBase];
+  if (typeof arrangement !== 'undefined' && typeof secFeels !== 'undefined') {
+    for (var i = 0; i < arrangement.length; i++) {
+      var sf = secFeels[arrangement[i]];
+      if (sf) {
+        if (allFeels.indexOf(sf) < 0) allFeels.push(sf);
+        var sfb = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(sf) : sf;
+        if (allFeels.indexOf(sfb) < 0) allFeels.push(sfb);
+      }
+    }
+  }
+
+  /** Check if any feel in the arrangement supports this instrument style map */
+  function _anyFeelHas(styleMap) {
+    if (typeof styleMap === 'undefined' || !styleMap) return false;
+    for (var i = 0; i < allFeels.length; i++) {
+      if (styleMap[allFeels[i]]) return true;
+    }
+    return false;
+  }
+
   strip.querySelectorAll('.instr-mute-btn').forEach(function(btn) {
     var inst = btn.dataset.inst;
     if (inst === 'drums') {
@@ -1308,16 +1332,16 @@ function updateInstrMuteStrip() {
       else btn.classList.add('active');
       return;
     }
-    // Check if this instrument is available for the current style
+    // Check if this instrument is available for ANY section in the arrangement
     var available = false;
     if (inst === 'bass') { available = true; }
-    else if (inst === 'ep') { available = (typeof EP_STYLES !== 'undefined') && !!(EP_STYLES[_sf] || EP_STYLES[_sfBase]); }
-    else if (inst === 'pad') { available = (typeof PAD_STYLES !== 'undefined') && !!(PAD_STYLES[_sf] || PAD_STYLES[_sfBase]) && !((typeof EP_STYLES !== 'undefined') && (EP_STYLES[_sf] || EP_STYLES[_sfBase])); }
-    else if (inst === 'lead') { available = (typeof LEAD_STYLES !== 'undefined') && !!(LEAD_STYLES[_sf] || LEAD_STYLES[_sfBase]); }
-    else if (inst === 'organ') { available = (typeof ORGAN_STYLES !== 'undefined') && !!(ORGAN_STYLES[_sf] || ORGAN_STYLES[_sfBase]); }
-    else if (inst === 'horn') { available = (typeof HORN_STYLES !== 'undefined') && !!(HORN_STYLES[_sf] || HORN_STYLES[_sfBase]); }
-    else if (inst === 'vibes') { available = (typeof VIBES_STYLES !== 'undefined') && !!(VIBES_STYLES[_sf] || VIBES_STYLES[_sfBase]); }
-    else if (inst === 'clav') { available = (typeof CLAV_STYLES !== 'undefined') && !!(CLAV_STYLES[_sf] || CLAV_STYLES[_sfBase]); }
+    else if (inst === 'ep') { available = _anyFeelHas(typeof EP_STYLES !== 'undefined' ? EP_STYLES : undefined); }
+    else if (inst === 'pad') { available = _anyFeelHas(typeof PAD_STYLES !== 'undefined' ? PAD_STYLES : undefined); }
+    else if (inst === 'lead') { available = _anyFeelHas(typeof LEAD_STYLES !== 'undefined' ? LEAD_STYLES : undefined); }
+    else if (inst === 'organ') { available = _anyFeelHas(typeof ORGAN_STYLES !== 'undefined' ? ORGAN_STYLES : undefined); }
+    else if (inst === 'horn') { available = _anyFeelHas(typeof HORN_STYLES !== 'undefined' ? HORN_STYLES : undefined); }
+    else if (inst === 'vibes') { available = _anyFeelHas(typeof VIBES_STYLES !== 'undefined' ? VIBES_STYLES : undefined); }
+    else if (inst === 'clav') { available = _anyFeelHas(typeof CLAV_STYLES !== 'undefined' ? CLAV_STYLES : undefined); }
 
     btn.disabled = !available;
     if (!available) {
@@ -1641,6 +1665,13 @@ function initPlayerControls() {
         window._loopSection = true;
         var lb = document.getElementById('playerLoopBtn');
         if (lb) lb.classList.add('loop-active');
+      }
+      // Disable loop when exiting edit mode — play returns to full song
+      if (!window._editMode && window._loopSection) {
+        window._loopSection = false;
+        window._loopMidiBytes = null;
+        var lb = document.getElementById('playerLoopBtn');
+        if (lb) lb.classList.remove('loop-active');
       }
     };
   }
@@ -2129,6 +2160,214 @@ function getRoleSectionTip(sec, role) {
   return '';
 }
 
+// ── Tip Ticker — rotating educational tips during playback ──
+var _tipTicker = { timer: null, tips: [], idx: 0, el: null, secKey: '' };
+
+/**
+ * Generate an array of educational tips for the current section and role.
+ * Returns 3-8 tips covering chords, rhythm, style, arrangement, and technique.
+ */
+function getRoleSectionTips(sec, role) {
+  var tips = [];
+  var main = getRoleSectionTip(sec, role);
+  if (main) tips.push(main);
+
+  var secType = sec.replace(/2$/, '');
+  var feel = '';
+  try { feel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeels[sec] || songFeel || 'normal') : (secFeels[sec] || songFeel || 'normal'); } catch(e) { feel = 'normal'; }
+  var bpm = 90;
+  try { bpm = parseInt(document.getElementById('bpm').textContent) || 90; } catch(e) {}
+  var swing = 62;
+  try { swing = parseInt(document.getElementById('swing').textContent) || 62; } catch(e) {}
+  var key = (typeof _lastChosenKey !== 'undefined' && _lastChosenKey) ? _lastChosenKey : null;
+  var keyName = key ? key.root : '';
+  var isMinor = key ? key.type === 'minor' : true;
+  var relKey = key ? key.rel : '';
+  var chords = (window._chordSheetData && window._chordSheetData[sec]) ? window._chordSheetData[sec] : [];
+  var uniqueChords = {};
+  for (var ci = 0; ci < chords.length; ci++) uniqueChords[chords[ci].name] = chords[ci].fn;
+  var chordList = Object.keys(uniqueChords).join(' → ');
+  var bars = chords.length || Math.ceil(((typeof secSteps !== 'undefined' && secSteps[sec]) || 32) / 16);
+  var pat = (typeof patterns !== 'undefined') ? patterns[sec] : null;
+  var kickCount = 0, ghostCount = 0, hats16 = false;
+  if (pat) {
+    for (var i = 0; i < 16; i++) {
+      if (pat.kick && pat.kick[i]) kickCount++;
+      if (pat.snare && pat.snare[i] && pat.snare[i] < 70) ghostCount++;
+    }
+    var hh = 0; for (var i = 0; i < 16; i++) if (pat.hat && pat.hat[i]) hh++;
+    hats16 = hh >= 12;
+  }
+
+  // Swing
+  if (swing >= 66) tips.push('Swing at ' + swing + '% — heavy shuffle. Even 16th notes are pushed late, creating a triplet-like bounce.');
+  else if (swing >= 58) tips.push('Swing at ' + swing + '% — subtle groove. The "and" of each beat is slightly delayed.');
+  else tips.push('Swing at ' + swing + '% — nearly straight. Tight, quantized feel.');
+
+  // Key / harmony
+  if (keyName) {
+    if (isMinor && relKey) tips.push(keyName + ' is the key. Its relative major is ' + relKey + ' — same notes, brighter mood.');
+    else if (!isMinor && relKey) tips.push(keyName + ' is the key. Its relative minor is ' + relKey + ' — same notes, darker mood.');
+  }
+  if (chordList && Object.keys(uniqueChords).length > 1) tips.push('Chords: ' + chordList + '. Listen for the bass following these changes.');
+
+  // BPM context
+  if (bpm <= 78) tips.push(bpm + ' BPM — slow and heavy. Classic tempo for ' + (feel === 'memphis' || feel === 'phonk' ? 'Memphis/phonk' : feel === 'lofi' ? 'lo-fi' : 'laid-back grooves') + '.');
+  else if (bpm >= 100) tips.push(bpm + ' BPM — uptempo. ' + (feel === 'crunk' ? 'Crunk energy.' : feel === 'bounce' ? 'Bounce territory.' : 'Driving energy.'));
+  else tips.push(bpm + ' BPM — the sweet spot for ' + (feel === 'normal' ? 'boom bap' : feel) + '.');
+
+  // Style
+  var styleDesc = {
+    normal: 'Boom bap — sample-based, swing-heavy, snare on 2 and 4. The foundation of hip hop.',
+    hard: 'Hard boom bap — aggressive drums, dark samples, heavy kicks.',
+    jazzy: 'Jazz-influenced — ride cymbal, ghost notes, extended chord voicings.',
+    dark: 'Dark and moody — minor keys, sparse patterns, tension over resolution.',
+    bounce: 'Southern bounce — syncopated kicks, bright energy, party feel.',
+    dilla: 'Dilla-style — drunk swing, ghost snares louder than usual, notes drift behind the beat.',
+    lofi: 'Lo-fi — dusty, detuned, narrow dynamics. Imperfection is the aesthetic.',
+    gfunk: 'G-Funk — Moog bass, talk box, 3-level hat dynamics. West Coast, 91-93.',
+    chopbreak: 'Chopped breaks — funk samples sliced and rearranged. Tight chops.',
+    crunk: 'Crunk — flat dynamics, everything at max. 808 kicks, chant hooks.',
+    memphis: 'Memphis — dark, sparse, horror-influenced. Triple Six, DJ Paul.',
+    griselda: 'Griselda — gritty soul samples, vinyl texture, hard snares.',
+    phonk: 'Phonk — slowed Memphis revival, distorted 808s, cowbell loops.',
+    nujabes: 'Nujabes-style — acoustic jazz samples, gentle swing, warm and melodic.',
+    oldschool: 'Old school — 808 drum machine, electro feel, minimal swing.',
+    halftime: 'Half-time — snare on 3 instead of 2 and 4. Atmospheric, spacious.',
+    detroit: 'Detroit — punchy kicks over soul samples, Rhodes chords, melodic bass.',
+    sparse: 'Sparse — minimal elements, space between hits. Less is more.',
+    driving: 'Driving — uptempo funk influence, busy hats, forward momentum.',
+    big: 'Big/anthem — orchestral stabs, full arrangement, maximum impact.'
+  };
+  if (styleDesc[feel]) tips.push(styleDesc[feel]);
+
+  // Foundation / melody
+  tips.push('This beat is the harmonic foundation — drums, bass, chords, arrangement. The melody on top is yours. Your rap, your sample, your guitar, your hook.');
+
+  // Pattern analysis
+  if (kickCount >= 5) tips.push(kickCount + ' kicks in bar 1 — busy kick pattern. Bass and melody need to stay simple.');
+  else if (kickCount <= 2) tips.push('Only ' + kickCount + ' kicks — sparse pattern. Lots of space for melodic elements.');
+  if (ghostCount >= 3) tips.push(ghostCount + ' ghost notes — subtle hits below 70 velocity. They add texture without competing.');
+  if (hats16) tips.push('16th-note hi-hats — continuous ride-hand pattern. Listen for velocity accents on beats 1 and 3.');
+
+  // Section arrangement
+  if (secType === 'intro') tips.push('Intro — ' + bars + ' bars to set the mood. Instruments build in gradually.');
+  if (secType === 'verse') tips.push('Verse — the foundation. ' + bars + ' bars. Drums establish the pocket, melody stays supportive.');
+  if (secType === 'pre') tips.push('Pre-chorus — ' + bars + ' bars of tension building toward the hook.');
+  if (secType === 'chorus') tips.push('Chorus — peak energy. Everything opens up. This is the part people remember.');
+  if (secType === 'breakdown') tips.push('Breakdown — elements stripped away. The silence creates tension for the return.');
+  if (secType === 'lastchorus') tips.push('Last chorus — the loudest section. Extra layers, ad-libs, crashes.');
+  if (secType === 'instrumental') tips.push('Instrumental — ' + bars + ' bars for the music to breathe.');
+  if (secType === 'outro') tips.push('Outro — ' + bars + ' bars winding down. Instruments drop out gradually.');
+
+  // Role-specific bonus
+  if (role === 'rapper') {
+    tips.push('Count the kicks — your hard syllables should land on or near them.');
+    if (swing >= 60) tips.push('With ' + swing + '% swing, your flow should lean behind the beat, not ahead of it.');
+    if (secType === 'verse') tips.push('16 bars is standard. 4-bar rhyme schemes give the listener a pattern to follow.');
+    if (secType === 'chorus') tips.push('Hooks work best when they\'re melodic and repetitive. Sing it, don\'t just rap it.');
+  }
+  if (role === 'producer') {
+    tips.push('Kick and bass should never fight. Sidechain compress or carve EQ space.');
+    if (feel === 'dilla' || feel === 'lofi') tips.push('Don\'t quantize melodic samples — let them drift with the swing.');
+    if (secType === 'chorus') tips.push('Add an element in the chorus that wasn\'t in the verse. Counter-melody, texture, vocal chop.');
+    tips.push('Export MIDI and customize in your DAW — swap sounds, add effects, make it yours.');
+  }
+  if (role === 'keys') {
+    if (isMinor) tips.push('Minor key — natural minor for most voicings. Dorian IV is major if the style calls for it.');
+    else tips.push('Major key — Ionian mode. IV adds lift, V creates tension back to I.');
+    tips.push('Leave space. A keyboard player who rests is more musical than one who fills every beat.');
+    if (feel === 'dilla' || feel === 'jazzy') tips.push('Voice lead — move the minimum number of notes between chords.');
+  }
+  if (role === 'bassist') {
+    tips.push('Root on beat 1 is sacred. Everything else is decoration.');
+    tips.push('Lock to the kick drum. When the kick hits, the bass should be there.');
+    if (feel === 'gfunk') tips.push('G-Funk bass: long sustained Moog notes with slides between roots.');
+    if (feel === 'jazzy' || feel === 'nujabes') tips.push('Walking bass: root → 3rd → 5th → chromatic approach to next root.');
+  }
+  if (role === 'drummer') {
+    tips.push('The backbeat (snare on 2 and 4) is the most consistent stroke. Keep it solid.');
+    tips.push('Ghost notes are felt, not heard. They fill the space between the main hits.');
+    if (hats16) tips.push('16th hats: accent beats 1 and 3, soften the "e" and "a" subdivisions.');
+    if (swing >= 62) tips.push('At ' + swing + '% swing, the "and" is pushed toward the next triplet position.');
+  }
+  if (role === 'learner') {
+    tips.push('Click any cell in the grid to hear its velocity. Brighter = louder.');
+    tips.push('The arrangement flows: intro → verse → chorus → verse → chorus → outro.');
+    tips.push('Velocity is how hard a drum is hit (1-127). Ghosts are soft (30-70), backbeats are loud (100-127).');
+    if (ghostCount > 0) tips.push('Ghost notes (dim cells) are the secret to human-feeling drums.');
+    tips.push('Export the MIDI and open it in a DAW to see exactly how every note is placed.');
+  }
+  if (role === 'guitarist') {
+    tips.push('In hip hop, guitar is texture — not lead. Stay in the pocket.');
+    if (feel === 'gfunk') tips.push('G-Funk guitar: clean tone, wah pedal, muted 16ths on 2 and 4.');
+    if (feel === 'lofi' || feel === 'nujabes') tips.push('Clean arpeggios work here. Nylon string or jazz box tone.');
+  }
+  if (role === 'dj') {
+    tips.push(bpm + ' BPM in ' + keyName + '. Match these when selecting your next record.');
+    tips.push('The breakdown is your moment — scratch, cut, or drop your signature sound.');
+  }
+  if (role === 'samplehead') {
+    if (keyName) tips.push('Search samples in ' + keyName + (relKey ? ' or ' + relKey : '') + ' for harmonic compatibility.');
+    tips.push('The verse loop is the backbone. Find a 2-4 bar section that grooves on its own.');
+    if (feel === 'lofi' || feel === 'dilla') tips.push('Don\'t clean up the vinyl noise — it\'s part of the texture.');
+  }
+
+  return tips;
+}
+
+/** Start the tip ticker for a section. Cycles through tips on a timer. */
+function startTipTicker(sec) {
+  var role = '';
+  try { role = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+  var tips = getRoleSectionTips(sec, role);
+  if (!tips.length) { stopTipTicker(); return; }
+
+  var el = _tipTicker.el || document.getElementById('tipTicker');
+  _tipTicker.el = el;
+  if (!el) return;
+
+  _tipTicker.tips = tips;
+  _tipTicker.idx = 0;
+  _tipTicker.secKey = sec + ':' + role;
+
+  _showTickerTip(el, tips[0]);
+  el.classList.add('show');
+
+  if (_tipTicker.timer) clearInterval(_tipTicker.timer);
+  _tipTicker.timer = setInterval(function() {
+    _tipTicker.idx = (_tipTicker.idx + 1) % _tipTicker.tips.length;
+    _showTickerTip(el, _tipTicker.tips[_tipTicker.idx]);
+  }, 6000);
+}
+
+function _showTickerTip(el, text) {
+  var textEl = el.querySelector('.tip-ticker-text');
+  if (!textEl) return;
+  var span = textEl.querySelector('span');
+  if (span) {
+    span.textContent = text;
+    span.style.animation = 'none';
+    void span.offsetWidth;
+    if (span.scrollWidth > textEl.clientWidth + 20) {
+      textEl.classList.remove('no-scroll');
+      var dur = Math.max(8, Math.min(20, text.length * 0.1));
+      span.style.animation = 'ticker-scroll ' + dur + 's linear infinite';
+    } else {
+      textEl.classList.add('no-scroll');
+      span.style.animation = 'none';
+    }
+  }
+}
+
+function stopTipTicker() {
+  if (_tipTicker.timer) { clearInterval(_tipTicker.timer); _tipTicker.timer = null; }
+  var el = _tipTicker.el || document.getElementById('tipTicker');
+  if (el) el.classList.remove('show');
+  _tipTicker.tips = [];
+  _tipTicker.idx = 0;
+}
+
 // ── Playback Tracking ──
 
 // =============================================
@@ -2454,12 +2693,19 @@ function initPlaybackTracking() {
     _cachedProgressFill = document.getElementById('arrProgressFill');
     sectionTimeMap = [];
     var t = 0;
-    for (var i = 0; i < arrangement.length; i++) {
-      var sec = arrangement[i];
-      var steps = secSteps[sec] || 32;
+    // In loop mode, only map the looped section so tracking stays on it
+    if (window._loopSection && curSec) {
+      var steps = secSteps[curSec] || 32;
       var dur = steps * _cachedSecPerStep;
-      sectionTimeMap.push({ start: t, end: t + dur, idx: i, sec: sec, steps: steps });
-      t += dur;
+      sectionTimeMap.push({ start: 0, end: dur, idx: arrIdx, sec: curSec, steps: steps });
+    } else {
+      for (var i = 0; i < arrangement.length; i++) {
+        var sec = arrangement[i];
+        var steps = secSteps[sec] || 32;
+        var dur = steps * _cachedSecPerStep;
+        sectionTimeMap.push({ start: t, end: t + dur, idx: i, sec: sec, steps: steps });
+        t += dur;
+      }
     }
   }
 
@@ -2640,10 +2886,8 @@ function initPlaybackTracking() {
           // Get role-aware section tip
           var userRole = '';
           try { userRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-          var sectionTip = getRoleSectionTip(curSec, userRole);
-          // Build combined HTML: section header + tip + divider + chords
+          // Build combined HTML: section header + divider + chords (tip moved to bottom ticker)
           var toastHtml = '<div class="toast-header">' + sectionName + ' <span class="toast-bars">' + barCount + ' bar' + (barCount !== 1 ? 's' : '') + '</span></div>';
-          if (sectionTip) toastHtml += '<div class="toast-tip">' + sectionTip + '</div>';
           toastHtml += '<div class="toast-divider"></div>';
           toastHtml += '<div class="toast-chords">' + (toast._chordHtml || '') + '</div>';
           toastHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
@@ -2651,6 +2895,8 @@ function initPlaybackTracking() {
           toast.classList.add('show');
           if (toast._hideTimer) clearTimeout(toast._hideTimer);
           _chordToastVisible = true;
+          // Start rotating tip ticker at bottom of screen
+          startTipTicker(curSec);
           // Highlight first bar's chord immediately
           updateChordHighlight(0);
         }
@@ -2747,12 +2993,12 @@ function initPlaybackTracking() {
       }
       // PERF: Use cached nav button elements instead of querySelectorAll
       for (var bi = 0; bi < _trackBtnEls.length; bi++) _trackBtnEls[bi].disabled = playing;
-      // Turn off edit mode when playback starts
+      // Turn off edit mode when playback starts — ONLY if not in edit mode
+      // Edit mode stays active during playback so you can hear your changes
+      // (edit mode forces section-only playback via _loopSection)
       if (playing && window._editMode) {
-        window._editMode = false;
-        var eb = document.getElementById('playerEditBtn');
-        if (eb) eb.classList.remove('edit-active');
-        if (_cachedGridR) _cachedGridR.classList.remove('grid-edit-mode');
+        // Keep edit mode on — disable cell interaction during playback
+        // (cells are already non-interactive because nav buttons are disabled)
       }
       // Close velocity editor if open
       if (playing && typeof _hideVelEditor === 'function') _hideVelEditor();
@@ -2778,6 +3024,7 @@ function initPlaybackTracking() {
         window._playbackControlsBarTabs = false;
         if (_cachedToast) _cachedToast.classList.remove('show');
         _chordToastVisible = false;
+        stopTipTicker();
         // VFX: Clear all visual effects on stop
         vfxClearAll();
         // Release wake lock
@@ -2823,15 +3070,15 @@ function initPlaybackTracking() {
               buildChordToast(curSec);
               var initRole = '';
               try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-              var initTip = getRoleSectionTip(curSec, initRole);
               var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
-              if (initTip) initHtml += '<div class="toast-tip">' + initTip + '</div>';
               initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
               initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
               t.innerHTML = initHtml;
               t.classList.add('show');
               _chordToastVisible = true;
               updateChordHighlight(0);
+              // Start rotating tip ticker at bottom of screen
+              startTipTicker(curSec);
             }
           }
         }
