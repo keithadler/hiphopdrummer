@@ -1393,12 +1393,16 @@ function _applyUndo() {
 }
 
 var _saveEditTimer = null;
+var _editDirty = false;
 function _saveEditToHistory() {
+  _editDirty = true;
   if (_saveEditTimer) clearTimeout(_saveEditTimer);
   _saveEditTimer = setTimeout(_flushEditToHistory, 500);
 }
 function _flushEditToHistory() {
   if (_saveEditTimer) { clearTimeout(_saveEditTimer); _saveEditTimer = null; }
+  if (!_editDirty) return;
+  _editDirty = false;
   if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
   var history = loadBeatHistory();
   if (history.length > 0) {

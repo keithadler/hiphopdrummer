@@ -84,7 +84,6 @@ function applyGroove(p, len, feel) {
     }
     // Cowbell: beat-1 accent for crunk, flat for others
     if (p.cowbell[i] > 0) {
-      var pos = i % 16;
       if (pos === 0) p.cowbell[i] = Math.min(127, p.cowbell[i] + 4);
     }
     // Tom: no accent curve — fill velocity is intentional
