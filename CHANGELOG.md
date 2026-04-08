@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.54] - 2026-04-07
+
+### Added — New Drum Sounds
+- Cowbell (GM note 56) — repetitive metallic pattern for Memphis, phonk, crunk, and old school styles. Three 6 Mafia, DJ Paul, Lil Jon signature sound. Style-specific patterns: crunk gets loud quarter notes, Memphis gets sparse eerie hits, phonk gets hypnotic 8th notes, old school gets occasional accents.
+- Tom fills (GM note 47) — descending tom rolls at section boundaries. 30% of fills now include toms alongside snare rolls. Adds weight and drama to transitions. Excluded from minimal styles (lo-fi, Dilla, sparse, Memphis, phonk) where fills should stay subtle.
+- ROWS expanded from 10 to 12 instruments. MIDI_NOTE_MAP, MPC_NOTE_MAP, RN, ROW_TIPS all updated. Per-instrument swing, humanization, and player profile categories added for both new sounds.
+- DAW help files and DOCS.md MPC pad map updated with cowbell (A11) and tom (A12) assignments.
+
 ## [1.53] - 2026-04-06
 
 ### Fixed

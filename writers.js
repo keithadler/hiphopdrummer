@@ -1821,3 +1821,81 @@ function writeShaker(p, feel, off, sec) {
   }
 }
 
+
+/**
+ * Write cowbell pattern for Memphis/phonk/crunk styles.
+ * Repetitive 8th or quarter note pattern — the signature metallic pulse.
+ * @param {Object} p - Pattern object
+ * @param {string} feel - Current feel
+ * @param {number} off - Bar offset
+ */
+function writeCowbell(p, feel, off) {
+  // Only Memphis, phonk, crunk, and oldschool get cowbell
+  if (feel !== 'memphis' && feel !== 'phonk' && feel !== 'crunk' && feel !== 'oldschool') return;
+
+  if (feel === 'crunk') {
+    // Crunk: quarter notes, loud and aggressive
+    for (var i = 0; i < 16; i += 4) {
+      p.cowbell[off + i] = v(95, 8);
+    }
+    // Occasional 8th note hits for energy
+    if (maybe(0.4)) p.cowbell[off + 2] = v(75, 10);
+    if (maybe(0.4)) p.cowbell[off + 10] = v(75, 10);
+  }
+  else if (feel === 'memphis') {
+    // Memphis: sparse, eerie — every other bar, quarter notes
+    if (maybe(0.5)) {
+      p.cowbell[off + 0] = v(70, 10);
+      p.cowbell[off + 8] = v(65, 10);
+      if (maybe(0.4)) p.cowbell[off + 4] = v(55, 10);
+    }
+  }
+  else if (feel === 'phonk') {
+    // Phonk: repetitive 8th notes, lo-fi and hypnotic
+    for (var i = 0; i < 16; i += 2) {
+      if (maybe(0.7)) {
+        var vel = (i % 4 === 0) ? v(75, 8) : v(55, 8);
+        p.cowbell[off + i] = vel;
+      }
+    }
+  }
+  else if (feel === 'oldschool') {
+    // Old school: occasional cowbell hit on beat 1 or 3
+    if (maybe(0.25)) {
+      p.cowbell[off + 0] = v(80, 10);
+      if (maybe(0.3)) p.cowbell[off + 8] = v(70, 10);
+    }
+  }
+}
+
+/**
+ * Write tom fill pattern — replaces or augments snare fills at section boundaries.
+ * Descending tom roll: high → mid → low → floor.
+ * Uses a single tom row with descending velocity to simulate pitch descent
+ * (GM note 47 = Low-Mid Tom; velocity variation creates the illusion of pitch change).
+ * @param {Object} p - Pattern object
+ * @param {number} fillStart - Step where the fill begins
+ * @param {number} len - Section length in steps
+ * @param {string} feel - Current feel
+ */
+function writeTomFill(p, fillStart, len, feel) {
+  // No tom fills for minimal styles
+  if (feel === 'lofi' || feel === 'dilla' || feel === 'sparse' || feel === 'memphis' || feel === 'phonk') return;
+  // Only 30% of fills get toms (the rest stay snare-only)
+  if (!maybe(0.3)) return;
+
+  var fillLen = len - fillStart;
+  if (fillLen < 2) return;
+
+  // Descending velocity pattern simulates high→low tom descent
+  var tomSteps = Math.min(fillLen, 4);
+  for (var i = 0; i < tomSteps; i++) {
+    var step = fillStart + i;
+    if (step >= len) break;
+    // Descending velocity: 100 → 90 → 80 → 70
+    var vel = v(100 - (i * 10), 8);
+    p.tom[step] = vel;
+    // Clear snare on tom steps so they don't compete
+    if (p.snare[step] > 0 && p.snare[step] < 85) p.snare[step] = 0;
+  }
+}

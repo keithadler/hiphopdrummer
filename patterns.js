@@ -41,10 +41,12 @@ var STEPS = 128;
  * - openhat:   Open hi-hat — chokes closed hat (GM note 46)
  * - ride:      Ride cymbal — jazz/Tribe-influenced timekeeping (GM note 51)
  * - crash:     Crash cymbal — marks section boundaries (GM note 49)
+ * - cowbell:   Cowbell — Memphis/phonk/crunk signature (GM note 56)
+ * - tom:       Tom fill — descending tom rolls in fills (GM note 47 mid tom)
  *
  * @type {string[]}
  */
-var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker'];
+var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker', 'cowbell', 'tom'];
 
 /**
  * Ordered list of all possible song section identifiers.
@@ -66,7 +68,7 @@ var SL = { intro: 'Intro', verse: 'Verse', pre: 'Pre-Chorus', chorus: 'Chorus', 
  * Used in the grid renderer and PDF export.
  * @type {Object.<string, string>}
  */
-var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash', shaker: 'Shaker' };
+var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash', shaker: 'Shaker', cowbell: 'Cowbell', tom: 'Tom' };
 
 /**
  * Master pattern store. Keys are section ids (e.g. "verse"), values are
@@ -234,7 +236,9 @@ var ROW_TIPS = {
   openhat:   'Open hi-hat — the B-Boy signature on the "and-of-4." Chokes the closed hat when it plays.',
   ride:      'Ride cymbal — alternate timekeeper used in jazz-influenced styles (Tribe, Pete Rock).',
   crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.',
-  shaker:    'Shaker / tambourine — high-frequency shimmer layered on top of the hat. Adds organic texture. Pete Rock, Large Professor, Buckwild territory.'
+  shaker:    'Shaker / tambourine — high-frequency shimmer layered on top of the hat. Adds organic texture. Pete Rock, Large Professor, Buckwild territory.',
+  cowbell:   'Cowbell — repetitive metallic pattern. The signature sound of Memphis rap, phonk, and crunk. Three 6 Mafia, DJ Paul, Lil Jon.',
+  tom:       'Tom drum — used in fills before section changes. Descending tom rolls signal transitions. Premier, Pete Rock, RZA.'
 };
 
 /**
@@ -294,6 +298,8 @@ function getInstrumentSwing(row, vel, feel) {
   if (row === 'shaker') return s.hat * 0.9; // shakers follow the hat groove — same ride hand
   if (row === 'kick' || row === 'ghostkick') return s.kick;
   if (row === 'crash') return 0; // crashes on grid — no swing
+  if (row === 'cowbell') return s.hat * 0.8; // cowbell follows hat groove, slightly straighter
+  if (row === 'tom') return 0; // toms in fills — on grid
   if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;
   if (row === 'rimshot') return s.ghostSnare;
   return 1.0;

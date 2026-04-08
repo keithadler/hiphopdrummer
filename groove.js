@@ -82,6 +82,8 @@ function applyGroove(p, len, feel) {
       // No accent curve — sine wave from writeShaker provides all dynamic shaping
       p.shaker[i] = Math.max(30, p.shaker[i]);
     }
+    // Cowbell: no accent curve — written velocity is final
+    // Tom: no accent curve — fill velocity is intentional
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
   // FIX #1: Changed from additive to multiplicative scaling to work with feel-specific velocities
@@ -169,12 +171,14 @@ function humanizeVelocities(p, len, feel) {
     if (prof) {
       if (r === 'kick' || r === 'ghostkick') profCat = prof.kick;
       else if (r === 'snare' || r === 'clap') profCat = prof.snare;
-      else if (r === 'hat' || r === 'openhat' || r === 'shaker') profCat = prof.hat;
+      else if (r === 'hat' || r === 'openhat' || r === 'shaker' || r === 'cowbell') profCat = prof.hat;
       else if (r === 'ride') profCat = prof.ride;
-      else if (r === 'rimshot' || r === 'crash') profCat = prof.ghost;
+      else if (r === 'rimshot' || r === 'crash' || r === 'tom') profCat = prof.ghost;
     }
 
     var instrJitter = (r === 'hat' || r === 'ride' || r === 'shaker') ? 0.5
+      : (r === 'cowbell') ? 0.3
+      : (r === 'tom') ? 0.6
       : (r === 'kick') ? 1.25
       : (r === 'ghostkick') ? 1.3
       : 1.0;
