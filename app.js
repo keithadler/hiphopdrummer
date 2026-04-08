@@ -2378,9 +2378,6 @@ function getRoleSectionTips(sec, role) {
   };
   if (styleDesc[feel]) tips.push(styleDesc[feel]);
 
-  // Foundation / melody
-  tips.push('This beat is the harmonic foundation — drums, bass, chords, arrangement. The melody on top is yours. Your rap, your sample, your guitar, your hook.');
-
   // Pattern analysis
   if (kickCount >= 5) tips.push(kickCount + ' kicks in bar 1 — busy kick pattern. Bass and melody need to stay simple.');
   else if (kickCount <= 2) tips.push('Only ' + kickCount + ' kicks — sparse pattern. Lots of space for melodic elements.');
@@ -2542,8 +2539,14 @@ function getRoleSectionTips(sec, role) {
   }
 
   // Foundation reminder (rotate in occasionally)
-  if (tips.length > 5) {
-    tips.push('Remember: this beat is the harmonic foundation. Your rap, sample, guitar, or scratch is the melody.');
+  if (tips.length > 8) {
+    tips.push('This beat is the harmonic foundation. Your rap, sample, guitar, or scratch is the melody on top.');
+  }
+
+  // Shuffle tips so the user doesn't see the same order every time
+  for (var si = tips.length - 1; si > 0; si--) {
+    var sj = Math.floor(Math.random() * (si + 1));
+    var tmp = tips[si]; tips[si] = tips[sj]; tips[sj] = tmp;
   }
 
   return tips;
@@ -2571,7 +2574,7 @@ function startTipTicker(sec) {
   _tipTicker.timer = setInterval(function() {
     _tipTicker.idx = (_tipTicker.idx + 1) % _tipTicker.tips.length;
     _showTickerTip(el, _tipTicker.tips[_tipTicker.idx]);
-  }, 6000);
+  }, 8000);
 }
 
 function _showTickerTip(el, text) {
@@ -2579,14 +2582,12 @@ function _showTickerTip(el, text) {
   if (!textEl) return;
   var span = textEl.querySelector('span');
   if (span) {
-    span.textContent = text;
-    // Reset animation — always scroll so every tip enters consistently
-    textEl.classList.remove('scrolling');
-    void span.offsetWidth;
-    // Scale duration to text length — shorter text scrolls faster, longer slower
-    var dur = Math.max(8, Math.min(25, text.length * 0.11));
-    textEl.style.setProperty('--scroll-dur', dur + 's');
-    textEl.classList.add('scrolling');
+    // Fade out, swap text, fade in
+    textEl.classList.add('fade-out');
+    setTimeout(function() {
+      span.textContent = text;
+      textEl.classList.remove('fade-out');
+    }, 400);
   }
 }
 
@@ -3040,12 +3041,12 @@ function initPlaybackTracking() {
       if (_followPlayhead && !_touchPauseFollow) {
         var gridPage = document.getElementById('grid-page-' + currentBar);
         if (gridPage) {
-          // First ensure the pattern panel is visible in the viewport
+          // Scroll the bar label to the top of the pattern panel so the
+          // entire bar (label + all instrument rows) is visible at once.
           var patPanel = document.getElementById('patternPanel');
-          if (patPanel) patPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          // Then scroll the specific bar into view within the grid
+          if (patPanel) patPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
           setTimeout(function() {
-            gridPage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }, 50);
         }
       }
@@ -3151,6 +3152,9 @@ function initPlaybackTracking() {
       if (_followPlayhead && !_touchPauseFollow) {
         var activeCard = document.querySelector('.arr-item.playing');
         if (activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Scroll pattern panel to top when section changes
+        var patPanel = document.getElementById('patternPanel');
+        if (patPanel) patPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
     if (foundIdx >= 0) {
