@@ -82,7 +82,11 @@ function applyGroove(p, len, feel) {
       // No accent curve — sine wave from writeShaker provides all dynamic shaping
       p.shaker[i] = Math.max(30, p.shaker[i]);
     }
-    // Cowbell: no accent curve — written velocity is final
+    // Cowbell: beat-1 accent for crunk, flat for others
+    if (p.cowbell[i] > 0) {
+      var pos = i % 16;
+      if (pos === 0) p.cowbell[i] = Math.min(127, p.cowbell[i] + 4);
+    }
     // Tom: no accent curve — fill velocity is intentional
   }
   // Kick velocity by position — beat 1 hardest, syncopated softer, pickups softest
