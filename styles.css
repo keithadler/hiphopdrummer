@@ -200,6 +200,9 @@ midi-player::part(play-button){color:var(--accent-green)}
 .chord-sheet-hint{font-size:10px;color:var(--text-dim);line-height:1.3;margin-top:4px}
 .arr-time{font-family:var(--mono);font-size:16px;color:var(--accent-blue);font-weight:600}
 .arr-hint{font-family:var(--mono);font-size:18px;color:var(--text-dim);margin-bottom:8px;line-height:1.5}
+/* First-visit pulse on arrangement items to draw attention */
+.arr-item.first-visit-pulse{animation:arr-first-pulse 1.2s ease-in-out 3}
+@keyframes arr-first-pulse{0%,100%{box-shadow:0 0 0 0 rgba(80,160,255,0)}50%{box-shadow:0 0 10px 2px rgba(80,160,255,.35)}}
 .arr-flow{display:flex;flex-wrap:wrap;gap:5px;min-height:180px;padding:6px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-deep);margin-bottom:8px;align-items:flex-start}
 .arr-item{background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border);padding:5px 12px;border-radius:var(--radius-sm);cursor:grab;font-family:var(--mono);font-size:15px;font-weight:600;user-select:none;display:flex;align-items:center;gap:8px;transition:all .12s ease;letter-spacing:.3px}
 .arr-item:hover{border-color:var(--border-light);background:var(--border)}
@@ -342,6 +345,12 @@ midi-player::part(play-button){color:var(--accent-green)}
 /* Glossary term highlights in About panel */
 .glossary-term{border-bottom:1px dotted var(--accent-blue);cursor:help}
 .loading{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--mono);font-size:19px;color:var(--text-dim);letter-spacing:1px}
+.loading-inner{display:flex;flex-direction:column;align-items:center;gap:12px}
+.loading-text{font-family:var(--mono);font-size:14px;color:var(--text-dim);letter-spacing:1px;animation:loading-fade 1.5s ease-in-out infinite}
+@keyframes loading-fade{0%,100%{opacity:.4}50%{opacity:1}}
+/* Play button ready glow — pulses green when beat is ready to play */
+.btn-play-header.ready-glow{animation:play-ready 1.5s ease-in-out 3;border-color:rgba(76,175,80,.6)}
+@keyframes play-ready{0%,100%{box-shadow:0 0 0 0 rgba(76,175,80,0)}50%{box-shadow:0 0 14px 3px rgba(76,175,80,.45)}}
 
 /* ── Focus styles for keyboard accessibility ── */
 .arr-item:focus{outline:2px solid var(--accent-blue);outline-offset:1px}
@@ -385,6 +394,18 @@ midi-player::part(play-button){color:var(--accent-green)}
 .export-note{font-size:10px;color:var(--text-dim);font-style:italic}
 .prefs-dialog .export-note{width:100%;padding-left:21px;margin-top:-2px;line-height:1.4}
 .prefs-dialog .export-checks{gap:8px}
+.export-presets{display:flex;gap:8px;padding:12px 16px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:4px}
+.export-preset-label{font-family:var(--mono);font-size:12px;color:var(--text-muted);letter-spacing:0.5px;width:100%;margin-bottom:2px}
+.export-preset{font-size:13px;height:38px;padding:0 16px;letter-spacing:0.3px;flex:1;justify-content:center;min-width:0}
+.export-preset:hover{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
+.export-preset.active{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
+.export-advanced-toggle{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:11px;cursor:pointer;padding:6px 16px;letter-spacing:.3px;width:100%;text-align:center;transition:color .15s}
+.export-advanced-toggle:hover{color:var(--accent-blue)}
+.grid-row.muted-row{opacity:0.25;pointer-events:none}
+.about-quickjump{display:flex;gap:4px;padding:6px 0;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:8px;position:sticky;top:0;background:var(--bg-surface);z-index:5}
+.qj-label{font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:0.5px}
+.qj-btn{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px 6px;cursor:pointer;font-size:14px;line-height:1;transition:all .12s}
+.qj-btn:hover{border-color:var(--accent-blue);background:rgba(80,160,255,.06)}
 
 /* ── Mobile responsive layout ── */
 

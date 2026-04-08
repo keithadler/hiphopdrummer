@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <div id="loadMsg" class="loading">Loading...</div>
+    <div id="loadMsg" class="loading"><div class="loading-inner"><div class="progress-spinner"></div><div class="loading-text">Loading sounds…</div></div></div>
     <div id="sectionToast" class="section-toast"></div>
     <div id="tipTicker" class="tip-ticker"><span class="tip-ticker-icon">💡</span><div class="tip-ticker-text"><span></span></div></div>
     <div id="exportToast" class="section-toast"></div>
@@ -65,7 +65,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.60</div>
+            <div class="about-version">Release 1.61</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. The beat is the harmonic foundation — you bring the melody. Your rap, your sample, your guitar, your scratch. What's your role?</p>
@@ -120,7 +120,7 @@
           </div>
           <div class="panel">
             <div class="panel-title">Arrangement <span class="arr-time" id="arrTime"></span></div>
-            <div class="arr-hint">Click a section to view its pattern. Drag to reorder. Use + buttons to add.</div>
+            <div class="arr-hint">👆 Click any section to see its drum pattern below. Drag to reorder. Use + to add sections.</div>
             <div class="arr-progress" id="arrProgress"><div class="arr-progress-fill" id="arrProgressFill"></div><div class="arr-progress-markers" id="arrProgressMarkers"></div></div>
             <div class="arr-flow" id="arrFlow" role="list" aria-label="Song arrangement"></div>
             <div class="arr-controls" id="arrCtrl"></div>
@@ -198,6 +198,14 @@
   <div id="exportOverlay" class="regen-overlay" style="display:none">
     <div class="regen-dialog export-dialog">
       <div class="regen-title">Export</div>
+      <div class="export-presets">
+        <span class="export-preset-label">Pick your workflow — we'll select the right files:</span>
+        <button class="btn export-preset" data-preset="rapper">🎤 Rapper</button>
+        <button class="btn export-preset" data-preset="producer">🎛 Producer</button>
+        <button class="btn export-preset" data-preset="dj">🎧 DJ</button>
+        <button class="btn export-preset" data-preset="mpc">📱 MPC</button>
+      </div>
+      <button class="export-advanced-toggle" id="exportAdvancedToggle">▼ Show all options</button>
       <div class="regen-dialog-body">
         <div class="regen-fields">
           <div class="regen-field">
@@ -348,7 +356,7 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.60</div>
+          <div class="about-version">Release 1.61</div>
           <div class="about-author">by <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>
