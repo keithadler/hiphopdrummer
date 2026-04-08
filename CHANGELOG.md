@@ -2,6 +2,92 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.65] - 2026-04-08
+
+### Added — SEO & Discoverability
+- Open Graph meta tags (og:title, og:description, og:image, og:url) — rich preview cards when sharing on Twitter, Discord, Reddit, iMessage, WhatsApp
+- Twitter Card meta tags (summary card with image)
+- JSON-LD structured data (WebApplication schema) — Google can show the app in search results with category, pricing, and features
+- `robots.txt` and `sitemap.xml` for search engine indexing
+- `<link rel="canonical">` pointing to hiphopdrummer.com
+- SEO keywords meta tag
+- README rewritten — hero link, badges, feature table, "Who It's For" section, full technical breakdown of all instrument techniques
+- manifest.json enhanced — shortcuts, screenshots, additional categories, longer description
+
+### Changed
+- Page title updated: "Hip Hop Drummer — Free Beat Generator | 37 Styles, MIDI Export, MPC Patterns"
+
+## [1.64] - 2026-04-08
+
+### Fixed — 27 Bug Fixes
+
+#### MIDI & Export
+- ghostkick MIDI note 36→35 — was sharing note number with kick, causing note-off collisions on adjacent steps
+- Export (MIDI + WAV) no longer silences drums when session drum mute is active — `exportMIDI` temporarily overrides `_drumsMuted`
+- `updateMidiPlayer` builds `_currentMidiBytes` with drums always included (WAV download button no longer affected by mute)
+- Mute toggle during playback builds fresh MIDI with `buildCombinedMidiBytes` instead of using `_currentMidiBytes`
+- Bass MIDI builder: grace notes and slides at file start skipped instead of clamped to tick 0 (prevents simultaneous grace+main note)
+- Drums stem WAV export no longer silenced by session drum mute
+
+#### UI & UX
+- Newbie UX: loading screen with spinner + "Loading sounds…" animation
+- Play button pulses green glow (3 cycles) when beat is ready
+- Arrangement cards pulse blue on first visit to draw attention
+- Arrangement hint improved with emoji pointer and clearer wording
+- Export dialog: presets larger, full-width, with active highlight and "Show all options" toggle
+- Export dialog: advanced options collapsed by default for new users, expanded for returning users with saved prefs
+- Export auto-selects preset matching user role (rapper→Rapper, producer→Producer, samplehead→MPC, dj→DJ)
+- Export presets update DAW/stem toggle button text after changing checkboxes
+- Tip ticker: all tips fade in/out instead of scrolling (cleaner, works for all lengths)
+- Tip ticker: tips shuffled per section, 8s interval, duplicate "foundation" tip removed
+- Tip ticker on mobile: text wraps instead of being clipped with ellipsis
+- Follow playhead uses `block: 'start'` — scrolls whole bar into view, not just the edge
+- Follow playhead scrolls pattern panel to top on section change
+- Quick-jump buttons in About This Beat now work — expand collapsed parent section before scrolling
+- Escape key closes all overlays (history, roleTips, whatNext — was only closing 4 of 7)
+- Keyboard shortcuts blocked during all dialog overlays (history, welcome added to check)
+- Grid rows dim/undim immediately on mute toggle (was only updating on next render)
+- PDF export: cowbell/tom colors added (were rendering gray)
+- `_selectArrItem` bounds check prevents undefined `curSec`
+- Keyboard arrangement reorder now rebuilds MIDI (was passing `skipMidiUpdate=true`)
+
+#### Code Quality
+- `restoreBeatState` null checks use `!= null` (catches both null and undefined from old saves)
+- `_sectionOctaveDrops` cleared between beat generations
+- `_showChordsOverlay` stale boot-time read removed
+- Chord toast innerHTML cleared on playback stop (prevents stale flash)
+- Countdown timer cancellable — stop during 3-2-1 prevents playback from starting
+- History save skips write when nothing changed (dirty flag)
+- Generation lock — R shortcut and Generate button blocked while generation is in progress
+- Dead slot replacement dialog removed (HTML, CSS, JS)
+- Dead localStorage reads removed from combined MIDI builder (hhd_pad_sound, hhd_lead_sound, hhd_organ_sound)
+- Redundant `var pos` redeclaration removed in `applyGroove` cowbell block
+- Mobile history dialog: removed `ontouchend` handlers that caused double-fire
+
+## [1.63] - 2026-04-08
+
+### Fixed
+- Tip ticker: all tips scroll consistently (short tips no longer appear static)
+
+## [1.62] - 2026-04-08
+
+### Fixed
+- Syntax error at app.js:1015 from incomplete slot replacement removal — extra closing braces
+
+## [1.61] - 2026-04-08
+
+### Added — Newbie UX Improvements
+- Loading screen: spinner with "Loading sounds…" fade animation
+- Play button: green glow pulse when beat is ready to play
+- Arrangement: cards pulse blue on first visit
+- Arrangement: hint text improved with emoji pointer
+- Export dialog: presets larger and full-width with role label
+- Export dialog: advanced options collapsed by default with toggle
+- Export dialog: auto-selects preset based on user role
+
+### Fixed
+- Bass MIDI: grace notes/slides at file start skipped instead of clamped to tick 0
+
 ## [1.60] - 2026-04-10
 
 ### Changed
