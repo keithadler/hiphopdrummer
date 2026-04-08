@@ -1000,6 +1000,11 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
 
     // Drum events (channel 10) — skip if drums are muted (session-only)
     var _drumsOff = (typeof _drumsMuted !== 'undefined' && _drumsMuted);
+    // Pocket shift: chorus pushes slightly ahead, verse lays back
+    var sectionTimingBias = 0;
+    if (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') sectionTimingBias = -1;
+    else if (sec === 'verse' || sec === 'verse2') sectionTimingBias = 1;
+    else if (sec === 'breakdown') sectionTimingBias = 2;
     if (!_drumsOff) {
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
@@ -1014,7 +1019,8 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
           var instrSwingMult = (typeof getInstrumentSwing === 'function') ? getInstrumentSwing(r, vel, swingFeel) : 1.0;
           var instrSwing = Math.round(baseSwingAmount * instrSwingMult);
           var swingOffset = (stepInBar % 2 === 1) ? instrSwing : 0;
-          var stepTick = tickPos + swingOffset;
+          var stepTick = tickPos + swingOffset + sectionTimingBias;
+          if (stepTick < 0) stepTick = 0;
           var key = stepTick + ':' + note + ':d';
           if (eventMap[key] !== undefined) {
             if (vel > events[eventMap[key]].vel) events[eventMap[key]].vel = vel;
@@ -1050,7 +1056,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
       var stepInBar = e.step % 16;
       var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
       var timingOff = (e.timingOffset || 0);
-      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset + timingOff;
+      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset + timingOff + sectionTimingBias;
       if (stepTick < 0) stepTick = 0;
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
