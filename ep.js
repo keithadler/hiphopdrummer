@@ -112,12 +112,30 @@ function buildEPVoicing(root, degree, voicingType, register, spread, epFeel, pre
     }
     notes = bestNotes;
   }
+
+  // R3-FIX 7: Drop-2 voicing — drop the second-from-top note an octave for open sound.
+  // This is THE Rhodes voicing — wider spacing, less muddy than close position.
+  // Apply ~40% of the time for seventh/ninth voicings in mid register.
+  if (notes.length >= 4 && (voicingType === 'seventh' || voicingType === 'ninth') && register === 'mid' && maybe(0.4)) {
+    var sorted = notes.slice().sort(function(a, b) { return a - b; });
+    var secondFromTop = sorted[sorted.length - 2];
+    for (var di = 0; di < notes.length; di++) {
+      if (notes[di] === secondFromTop) {
+        notes[di] -= 12;
+        if (notes[di] < 36) notes[di] += 12;
+        break;
+      }
+    }
+  }
+
   return notes;
 }
 
 // ── Humanization helpers ──
 
-/** FIX 2: Per-note velocity spread — top note louder, inner voices softer */
+/** FIX 2: Per-note velocity spread — LH heavier than RH (directional bias).
+ *  Bottom notes consistently louder (Rhodes player's left hand is heavier),
+ *  top note gets a melodic accent. Inner voices are softest. */
 function _epHumanizeChordVel(notes, baseVel) {
   var vels = [];
   var sorted = notes.slice().sort(function(a, b) { return a - b; });
@@ -125,23 +143,34 @@ function _epHumanizeChordVel(notes, baseVel) {
     var rank = sorted.indexOf(notes[i]);
     var isTop = (rank === sorted.length - 1);
     var isBottom = (rank === 0);
-    var offset = isTop ? Math.floor(rnd() * 6 + 5) : isBottom ? Math.floor(rnd() * 4) : -Math.floor(rnd() * 6 + 3);
+    // Directional bias: bottom = heaviest (LH weight), top = melodic accent, inner = softest
+    var offset;
+    if (isBottom) offset = Math.floor(rnd() * 4 + 4);       // +4 to +8: LH weight
+    else if (isTop) offset = Math.floor(rnd() * 5 + 3);     // +3 to +8: melodic accent
+    else offset = -Math.floor(rnd() * 6 + 2);               // -2 to -8: inner voices recede
     vels.push(Math.min(127, Math.max(30, baseVel + offset)));
   }
   return vels;
 }
 
 /** FIX 1: Grace note / crushed chord — stagger note start times.
- *  Returns an array of per-note tick offsets (0 for top, negative for lower notes).
- *  LH leads RH by 1-3 ticks, creating the natural "crush" of a real player. */
+ *  70% LH-first (lower notes lead), 30% RH-first (top note leads).
+ *  A real player varies which hand arrives first. */
 function _epCrushOffsets(notes, crushAmount) {
   if (crushAmount <= 0 || notes.length <= 1) return null;
   var sorted = notes.slice().sort(function(a, b) { return a - b; });
   var offsets = [];
+  var rhFirst = maybe(0.3); // 30% chance top note leads
   for (var i = 0; i < notes.length; i++) {
     var rank = sorted.indexOf(notes[i]);
-    // Lower notes lead (negative offset = earlier), top note is on the beat
-    var off = -Math.round((sorted.length - 1 - rank) * crushAmount);
+    var off;
+    if (rhFirst) {
+      // RH leads: top note on beat, lower notes delayed
+      off = -Math.round(rank * crushAmount);
+    } else {
+      // LH leads: bottom note early, top note on beat
+      off = -Math.round((sorted.length - 1 - rank) * crushAmount);
+    }
     offsets.push(off);
   }
   return offsets;
@@ -290,6 +319,75 @@ function _epDrumDensity(drumPat, barStart) {
   return Math.min(1, hits / 30); // 30 hits = max density
 }
 
+/** R3-FIX 5: Grace note run into a chord — 2-3 note scalar approach.
+ *  Ascending or descending into the target chord's root. */
+function _epGraceRun(targetNotes, step, vel, behind) {
+  if (!targetNotes || targetNotes.length === 0) return [];
+  var sorted = targetNotes.slice().sort(function(a, b) { return a - b; });
+  var target = sorted[0]; // approach the root (lowest note)
+  var ascending = maybe(0.6); // 60% ascending, 40% descending
+  var runLen = pick([2, 3]);
+  var runEvents = [];
+  for (var r = runLen; r >= 1; r--) {
+    var runNote = ascending ? (target - r * 2) : (target + r * 2); // whole steps
+    if (runNote < 36) runNote += 12;
+    if (runNote > 96) runNote -= 12;
+    var runStep = step - r;
+    if (runStep < 0) continue;
+    runEvents.push({
+      step: runStep, notes: [runNote],
+      vels: [Math.max(30, vel - 15 + (runLen - r) * 5)],
+      dur: 0.08, timingOffset: behind, crush: null, durJitter: 0
+    });
+  }
+  return runEvents;
+}
+
+/** R3-FIX 9: Thin voicing for extreme registers — fewer notes when high or low.
+ *  High register: shell voicing (root, 3rd, 7th). Low register: root + 5th only.
+ *  Mid register: full voicing unchanged. */
+function _epRegisterThin(notes, register) {
+  if (register === 'mid' || notes.length <= 2) return notes;
+  var sorted = notes.slice().sort(function(a, b) { return a - b; });
+  if (register === 'high') {
+    // Shell: keep root (lowest), 3rd (second), 7th (highest) — drop the 5th
+    if (sorted.length >= 4) return [sorted[0], sorted[1], sorted[sorted.length - 1]];
+    return sorted; // already thin enough
+  }
+  if (register === 'low') {
+    // Root + 5th only — thin for clarity in the bass register
+    if (sorted.length >= 3) return [sorted[0], sorted[2]];
+    return sorted;
+  }
+  return notes;
+}
+
+/** R3-FIX 4: Avoid bass doubling — if bass note matches the voicing's lowest note,
+ *  use an inversion that puts the 3rd or 5th on the bottom instead. */
+function _epAvoidBassDoubling(notes, bassRoot) {
+  if (!notes || notes.length < 3) return notes;
+  var sorted = notes.slice().sort(function(a, b) { return a - b; });
+  var lowestPC = sorted[0] % 12;
+  var bassPC = bassRoot % 12;
+  if (lowestPC !== bassPC) return notes; // no conflict
+  // Rotate to first inversion (3rd on bottom)
+  var inverted = sorted.slice(1);
+  inverted.push(sorted[0] + 12);
+  // Clamp
+  for (var i = 0; i < inverted.length; i++) {
+    if (inverted[i] > 96) inverted[i] -= 12;
+    if (inverted[i] < 36) inverted[i] += 12;
+  }
+  return inverted;
+}
+
+/** R3-FIX 10: Check if organ is active for this style — EP should thin when organ sustains */
+function _epOrganActive(feel) {
+  if (typeof ORGAN_STYLES === 'undefined') return false;
+  var base = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(feel) : feel;
+  return !!(ORGAN_STYLES[feel] || ORGAN_STYLES[base]);
+}
+
 // ── Main generator ──
 
 function generateEPPattern(sec, bpm) {
@@ -378,27 +476,48 @@ function generateEPPattern(sec, bpm) {
     barSeeds.push(Math.min(1, Math.max(0, motifSeed + (rnd() - 0.5) * 0.15)));
   }
 
+  // R3-FIX 10: Detect organ layer — EP thins when organ is sustaining
+  var organActive = _epOrganActive(epFeel) || _epOrganActive(epFeelBase);
+
   /** Push a chord event with all humanization applied */
   function pushChord(step, notes, baseVel, dur, behind, crushAmt, octRoot) {
+    // R3-FIX 9: Register-aware voicing thinning
+    var thinned = _epRegisterThin(notes, secRegister);
+    // R3-FIX 4: Avoid bass doubling — check current chord root against bass
+    var barInPhrase = Math.floor(step / 16) % (progression ? progression.length : 4);
+    var currentDeg = progression ? progression[barInPhrase] : 'i';
+    var bassRoot = degreeToNote(currentDeg);
+    thinned = _epAvoidBassDoubling(thinned, bassRoot);
+
     var arcMult = _epVelArc(Math.floor(step / 16), totalBars);
     // R2-FIX 9: Adjust velocity based on drum density — louder when drums are sparse
     var drumDens = _epDrumDensity(drumPat, (Math.floor(step / 16)) * 16);
-    var densVelAdj = Math.round((0.5 - drumDens) * 12); // sparse drums = +6, busy drums = -6
+    var densVelAdj = Math.round((0.5 - drumDens) * 12);
     var vel = Math.min(127, Math.max(30, Math.round(baseVel * arcMult) + densVelAdj));
-    var vels = _epHumanizeChordVel(notes, vel);
-    var crush = (crushAmt > 0 && notes.length > 1) ? _epCrushOffsets(notes, crushAmt) : null;
+    var vels = _epHumanizeChordVel(thinned, vel);
+    var crush = (crushAmt > 0 && thinned.length > 1) ? _epCrushOffsets(thinned, crushAmt) : null;
     var durJitter = 0;
     if (style.rhythm === 'stab' || style.rhythm === 'comp') durJitter = -Math.floor(rnd() * 2);
     else if (style.rhythm === 'pad' || style.rhythm === 'whole') durJitter = Math.floor(rnd() * 3);
+    // R3-FIX 2: Damper pedal simulation — extend duration so notes bleed into next chord
+    // Adds 2-4 ticks of overlap, simulating sustain pedal held through chord changes
+    var pedalExtend = 0;
+    if (dur >= 0.5 && (style.rhythm === 'whole' || style.rhythm === 'pad' || style.rhythm === 'half' || style.rhythm === 'comp')) {
+      pedalExtend = Math.floor(rnd() * 3) + 2; // 2-4 ticks of bleed
+    }
     // R2-FIX 10: Pedal tone — for pad/whole styles, hold the root as a drone
-    var finalNotes = notes.slice();
+    var finalNotes = thinned.slice();
     var finalVels = vels.slice();
     if (octRoot > 0 && maybe(octRoot)) {
-      var lowest = notes.slice().sort(function(a,b){return a-b;})[0];
+      var lowest = thinned.slice().sort(function(a,b){return a-b;})[0];
       var octNote = lowest - 12;
       if (octNote >= 36) { finalNotes.push(octNote); finalVels.push(Math.max(30, vel - 8)); }
     }
-    events.push({ step: step, notes: finalNotes, vels: finalVels, dur: dur, timingOffset: behind, crush: crush, durJitter: durJitter });
+    // R3-FIX 10: Thin density when organ is sustaining — avoid doubling the harmonic layer
+    if (organActive && maybe(0.3) && style.rhythm !== 'stab') {
+      return; // skip this chord — let the organ carry the harmony
+    }
+    events.push({ step: step, notes: finalNotes, vels: finalVels, dur: dur + (pedalExtend * 0.02), timingOffset: behind, crush: crush, durJitter: durJitter });
   }
 
   /** FIX 2: Push a ghost re-attack — very soft bounce of the same chord */
@@ -430,6 +549,19 @@ function generateEPPattern(sec, bpm) {
     var vel = v(style.velBase, style.velRange);
     var behind = style.behind;
     var crushAmt = (style.rhythm === 'stab') ? 0 : Math.floor(rnd() * 2 + 1); // FIX 1: 1-2 tick crush
+
+    // R3-FIX 5: Grace note run into chorus/lastchorus beat 1
+    if (bar === 0 && (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') && maybe(0.45)) {
+      var graceEvts = _epGraceRun(chordNotes, barStart, vel, behind);
+      for (var gri = 0; gri < graceEvts.length; gri++) events.push(graceEvts[gri]);
+    }
+
+    // R3-FIX 8: Rhythmic mutation on repeat bars — shift comp positions slightly
+    // Bars 5+ (second pass of the motif) get shifted comp timing
+    var rhythmShift = 0;
+    if (bar >= 4 && (style.rhythm === 'comp' || style.rhythm === 'stab') && maybe(0.25)) {
+      rhythmShift = pick([-1, 1]); // shift comp positions by ±1 step
+    }
 
     // FIX 5: Drum + bass interaction
     var hatsBusy = _epHatsDense(drumPat, barStart);
@@ -468,6 +600,11 @@ function generateEPPattern(sec, bpm) {
           pushChord(barStart + 4, sus.resolve, Math.max(30, vel - 5), style.noteDur * 2, behind, crushAmt, 0);
         } else {
           pushChord(barStart, chordNotes, vel, style.noteDur * 4, behind, crushAmt, style.octaveRoot);
+          // R3-FIX 6: Velocity swell — soft re-attack at midpoint simulates leaning into keys
+          if (maybe(0.35)) {
+            var swellVel = Math.min(127, vel + 8);
+            pushGhost(barStart + 8, chordNotes, swellVel, behind);
+          }
         }
         // R2-FIX 1: Melodic top-note movement mid-bar
         var melody = _epMelodyMove(chordNotes, progDegree, barSeed);
@@ -510,6 +647,8 @@ function generateEPPattern(sec, bpm) {
     }
     else if (style.rhythm === 'stab') {
       var stabPositions = kickPos.length >= 2 ? [kickPos[0], kickPos[Math.min(1, kickPos.length - 1)]] : [0, barSeed > 0.5 ? 6 : 5];
+      // R3-FIX 8: Apply rhythmic mutation on repeat bars
+      for (var si = 0; si < stabPositions.length; si++) stabPositions[si] = Math.max(0, Math.min(15, stabPositions[si] + rhythmShift));
       if (maybe(style.density * densityMod) && !_epDrumBusy(drumPat, barStart + stabPositions[0]) && !snareAccent) {
         pushChord(barStart + stabPositions[0], chordNotes, vel, style.noteDur, 0, 0, style.octaveRoot);
       }
@@ -531,6 +670,8 @@ function generateEPPattern(sec, bpm) {
         pushChord(barStart, chordNotes, vel, style.noteDur * 2, behind, crushAmt, style.octaveRoot);
       }
       var compPos = kickPos.length > 1 ? kickPos[1] : (barSeed > 0.6 ? 2 : barSeed > 0.3 ? 6 : 3);
+      // R3-FIX 8: Apply rhythmic mutation on repeat bars
+      compPos = Math.max(0, Math.min(15, compPos + rhythmShift));
       if (maybe(style.density * densityMod)) {
         // R2-FIX 3: Occasional sus4 on comp hits
         var compSus = (barSeed > 0.7) ? _epSus4Voicing(chordNotes, chordRoot) : null;
