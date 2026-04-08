@@ -1021,6 +1021,17 @@ function generatePattern(sec) {
     sectionHatType = pick(['16th_sparse', '16th']); // Always busier for lastchorus
   }
 
+  // Per-section hat variation — verse2, instrumental, breakdown get distinct hat feel
+  if (sec === 'verse2' && sectionHatType === '8th' && maybe(0.3)) {
+    sectionHatType = '16th_sparse'; // 30% chance: contrast with verse 1
+  }
+  if (sec === 'instrumental' && maybe(0.4)) {
+    sectionHatType = pick(['16th_sparse', 'triplet']); // 40% chance: more musical space
+  }
+  if (sec === 'breakdown') {
+    sectionHatType = '8th'; // always sparse feel
+  }
+
   // Temporarily override hatPatternType for this section's bar writers
   var savedHatType = hatPatternType;
   hatPatternType = sectionHatType;
@@ -1413,6 +1424,8 @@ function generatePattern(sec) {
   // Write the 2-bar A/B phrase — bar A (offset 0) and bar B (offset 16)
   // Each instrument has its own writer that respects the current feel
   // Regional variants resolved above: feel = baseFeel at this point
+  // Per-section open hat pattern
+  window._openHatPreference = (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') ? 'and2' : (sec === 'breakdown') ? 'none' : 'and4';
   writeBarK(p, feel, 0, kick); writeSnA(p, feel, 0); writeClap(p, feel, 0); writeGKA(p, feel, 0, sec); writeHA(p, feel, 0);
   writeRimshot(p, feel, 0); writeRide(p, feel, 0); writeShaker(p, feel, 0, sec); writeCowbell(p, feel, 0);
   if (feel !== 'sparse' && feel !== 'dark') writeOpenHat(p, feel, 0);
@@ -1758,10 +1771,20 @@ function generatePattern(sec) {
  */
 function buildArrangement() {
   return pick([
+    // Existing 4
     ['intro','verse','pre','chorus','verse2','chorus2','breakdown','lastchorus','outro'],
     ['intro','verse','pre','chorus','verse2','pre','chorus2','breakdown','lastchorus','outro'],
     ['intro','verse','pre','chorus','instrumental','verse2','chorus2','breakdown','lastchorus','outro'],
-    ['intro','verse','pre','chorus','verse2','chorus2','breakdown','instrumental','lastchorus','outro']
+    ['intro','verse','pre','chorus','verse2','chorus2','breakdown','instrumental','lastchorus','outro'],
+    // New 8
+    ['intro','verse','chorus','verse2','pre','chorus2','breakdown','lastchorus','outro'],
+    ['intro','verse','verse2','pre','chorus','breakdown','lastchorus','outro'],
+    ['intro','verse','pre','chorus','verse2','chorus2','verse','lastchorus','outro'],
+    ['intro','chorus','verse','pre','chorus2','verse2','breakdown','lastchorus','outro'],
+    ['intro','verse','pre','chorus','breakdown','verse2','pre','chorus2','lastchorus','outro'],
+    ['intro','verse','pre','chorus','verse2','instrumental','chorus2','breakdown','lastchorus','outro'],
+    ['intro','verse','chorus','verse2','chorus2','breakdown','instrumental','lastchorus','outro'],
+    ['intro','verse','pre','chorus','verse2','breakdown','chorus2','lastchorus','outro']
   ]);
 }
 
@@ -1872,6 +1895,19 @@ function applySectionTransitions() {
 
     // Breakdown: progressive strip-down with a full-bar drop at the end
     // (The last-bar drop is handled in the transition rules above)
+  }
+
+  // Rule 4: Section entry accent — beat 1 of every non-intro section hits harder
+  for (var a = 1; a < arrangement.length; a++) {
+    var sec = arrangement[a];
+    var pat = patterns[sec];
+    if (!pat) continue;
+    // Boost all instruments on step 0 by +10
+    for (var ri = 0; ri < ROWS.length; ri++) {
+      if (pat[ROWS[ri]][0] > 0) {
+        pat[ROWS[ri]][0] = Math.min(127, pat[ROWS[ri]][0] + 10);
+      }
+    }
   }
 }
 
@@ -2110,6 +2146,21 @@ function applyArrangementArc() {
         // Clear hats during the roll for clarity
         pat.hat[i] = 0;
         pat.shaker[i] = 0;
+      }
+    }
+
+    // ── 10. "Filter" effect: reduce high-frequency instrument velocity in breakdowns and intros ──
+    if (sec === 'breakdown' || sec === 'intro') {
+      var hiFreqRows = ['hat', 'openhat', 'ride', 'crash', 'shaker', 'cowbell'];
+      for (var hfi = 0; hfi < hiFreqRows.length; hfi++) {
+        var hfr = hiFreqRows[hfi];
+        if (pat[hfr]) {
+          for (var s = 0; s < len; s++) {
+            if (pat[hfr][s] > 0) {
+              pat[hfr][s] = Math.max(30, Math.round(pat[hfr][s] * 0.65));
+            }
+          }
+        }
       }
     }
   }

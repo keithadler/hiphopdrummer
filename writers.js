@@ -1271,6 +1271,11 @@ function writeHB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeOpenHat(p, feel, off) {
+  // Section-level open hat pattern — consistent within a section
+  if (typeof _currentOpenHatPattern === 'undefined') window._currentOpenHatPattern = null;
+  // Check section preference: 'none' skips open hat entirely
+  var ohPref = (typeof _openHatPreference !== 'undefined') ? _openHatPreference : 'and4';
+  if (ohPref === 'none') return;
   if (feel === 'halftime' || feel === 'dark' || feel === 'lofi') return;
   if (feel === 'oldschool') {
     // Old school: 808 open hat on the "and" of 4 — defining element of early hip hop
@@ -1302,8 +1307,17 @@ function writeOpenHat(p, feel, off) {
     return;
   }
   // FIX #1: Open hat placement variation - not always step 14
-  // Primary: &4 (step 14) — 70% chance (80% for bounce, 85% for big)
+  // Primary: &4 (step 14) — biased by section preference
   var oh4chance = (feel === 'big') ? .85 : (feel === 'bounce') ? .80 : (feel === 'detroit') ? .80 : .70;
+  var oh2chanceBase = (feel === 'big') ? .4 : (feel === 'bounce') ? .4 : (feel === 'jazzy') ? .35 : (feel === 'dilla') ? .4 : .20;
+  // Apply section preference bias
+  if (ohPref === 'and2') {
+    oh4chance *= 0.67; // reduce &4 chance
+    oh2chanceBase = Math.max(oh2chanceBase, 0.6); // boost &2 to 60%
+  } else if (ohPref === 'and4') {
+    oh4chance = Math.max(oh4chance, 0.8); // boost &4 to 80%
+    oh2chanceBase *= 0.5; // reduce &2 chance
+  }
   if (maybe(oh4chance)) {
     // Phrase-aware velocity: louder approaching fills (bars 6-7), softer in settle (bars 2-3)
     var barInPhrase = Math.floor(off / 16) % 8;
@@ -1324,8 +1338,8 @@ function writeOpenHat(p, feel, off) {
     if (maybe(.7)) { p.openhat[off + 6] = v(82, 10); p.hat[off + 6] = 0; }
     return;
   }
-  // FIX #1: &2 (step 6) — 20% chance (higher for jazzy/bounce/dilla)
-  var oh2chance = (feel === 'big') ? .4 : (feel === 'bounce') ? .4 : (feel === 'jazzy') ? .35 : (feel === 'dilla') ? .4 : .20;
+  // FIX #1: &2 (step 6) — biased by section preference
+  var oh2chance = oh2chanceBase;
   if (maybe(oh2chance)) {
     p.openhat[off + 6] = v(80, 10);
     p.hat[off + 6] = 0;
