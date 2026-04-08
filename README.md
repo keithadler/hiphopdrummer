@@ -178,7 +178,7 @@ Hit **NEW BEAT** and a complete, unique arrangement is generated from scratch �
 
 ## Highlights
 
-- **26 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Detroit, Dilla/Neo-Soul, Driving, G-Funk, Griselda Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Nujabes/Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx/Queens/Long Island, G-Funk Dre/DJ Quik/Battlecat
+- **26 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Detroit, Neo-Soul/Loose, Driving, G-Funk, Buffalo Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx/Queens/Long Island, G-Funk LA/Compton/Long Beach
 - **9 instruments** — Drums, Bass, Electric Piano, Synth Pad, Synth Lead, Organ, Horn Stabs, Vibraphone, Clavinet — each style gets the right combination automatically
 - **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), custom play/pause/stop/seek controls
 - **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra
