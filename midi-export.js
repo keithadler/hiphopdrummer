@@ -142,14 +142,15 @@ function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
     return 0;
   });
 
-  // Remove leading silence — shift all events so the first note starts at tick 0.
-  // This prevents a silent gap at the start of exported sections that don't
-  // have a hit on step 1. Skipped for playback MIDI (keepLeadingSilence) so
-  // the grid cursor stays in sync with the audio.
-  if (!keepLeadingSilence && events.length > 0) {
-    var firstTick = events[0].tick;
-    if (firstTick > 0) {
-      for (var i = 0; i < events.length; i++) events[i].tick -= firstTick;
+  // Preserve bar grid — do NOT strip leading silence.
+  // MIDI files must start at tick 0 = beat 1 of bar 1, even if no hit lands
+  // there. Removing leading silence shifts the bar grid and causes DAWs to
+  // misalign bars, especially on intro sections with sparse beat-1 patterns.
+  // (An MPC handles this naturally — the pattern always starts at 1.1.00.)
+  // Clamp any negative ticks (from swing/timing offsets) to 0.
+  if (events.length > 0) {
+    for (var i = 0; i < events.length; i++) {
+      if (events[i].tick < 0) events[i].tick = 0;
     }
   }
 
@@ -1228,11 +1229,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     return 0;
   });
 
-  // Remove leading silence
-  if (!keepLeadingSilence && events.length > 0) {
-    var firstTick = events[0].tick;
-    if (firstTick > 0) {
-      for (var i = 0; i < events.length; i++) events[i].tick -= firstTick;
+  // Preserve bar grid — clamp negative ticks only (see buildMidiBytes comment)
+  if (events.length > 0) {
+    for (var i = 0; i < events.length; i++) {
+      if (events[i].tick < 0) events[i].tick = 0;
     }
   }
 

@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.55] - 2026-04-07
+
+### Fixed — MIDI Export
+- Bar grid misalignment in exported MIDI files — all 10 MIDI builders (drums, bass, EP, pad, organ, lead, horns, vibes, clav, combined) were stripping leading silence by shifting events so the first note started at tick 0. This destroyed the bar grid when a section (especially intros) had no hit on beat 1. DAWs would import the MIDI with bar 1 starting at the wrong place. Now preserves the bar grid (tick 0 = beat 1 bar 1) and only clamps negative ticks from timing offsets. Matches MPC behavior where patterns always start at 1.1.00.
+
+### Fixed — Startup
+- Crash on boot when loading beats saved before 1.54 — cowbell and tom rows didn't exist in old saved patterns, causing "Cannot read properties of undefined" in `buildCombinedMidiBytes`. `restoreBeatState` now backfills any missing instrument rows with zeroed arrays.
+
+### Changed — UI
+- Instrument mute strip: available-but-muted instruments now visually distinct from unavailable ones. Muted-but-available buttons show at 55% opacity with a subtle border; unavailable (disabled) buttons stay at 20%. Previously both were nearly indistinguishable.
+
 ## [1.54] - 2026-04-07
 
 ### Added — New Drum Sounds

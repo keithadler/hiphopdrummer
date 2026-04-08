@@ -293,11 +293,12 @@ midi-player::part(play-button){color:var(--accent-green)}
 
 /* Instrument mute strip */
 .instr-mute-strip{display:flex;gap:2px;padding:4px 6px;background:var(--bg-deep);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);flex-wrap:wrap}
-.instr-mute-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;color:var(--text-muted);opacity:0.4;transition:all .15s;flex:1;min-width:0}
+.instr-mute-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 6px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;color:var(--text-muted);opacity:0.35;transition:all .15s;flex:1;min-width:0}
 .instr-mute-btn span{font-family:var(--mono);font-size:9px;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .instr-mute-btn.active{opacity:1;color:var(--text-primary);border-color:var(--accent-blue);background:var(--bg-raised)}
 .instr-mute-btn.active:hover{border-color:var(--accent-green)}
-.instr-mute-btn:not(.active):hover{opacity:0.6}
+.instr-mute-btn:not(.active):not(:disabled){opacity:0.55;border-color:var(--text-muted)}
+.instr-mute-btn:not(.active):not(:disabled):hover{opacity:0.7}
 .instr-mute-btn:disabled{opacity:0.2;cursor:default;border-color:var(--border)}
 .instr-mute-btn:disabled:hover{opacity:0.2}
 

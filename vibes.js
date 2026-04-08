@@ -141,7 +141,7 @@ function buildVibesMidiBytes(sectionList, bpm, noSwing) {
     tickPos += len * ticksPerStep;
   }
   midiEvents.sort(function(a, b) { if (a.tick !== b.tick) return a.tick - b.tick; if (a.type === 'off' && b.type === 'on') return -1; if (a.type === 'on' && b.type === 'off') return 1; return 0; });
-  if (midiEvents.length > 0) { var ft = midiEvents[0].tick; if (ft > 0) { for (var i = 0; i < midiEvents.length; i++) midiEvents[i].tick -= ft; } }
+  if (midiEvents.length > 0) { for (var i = 0; i < midiEvents.length; i++) { if (midiEvents[i].tick < 0) midiEvents[i].tick = 0; } }
 
   var td = [];
   td.push(0, 0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08);
