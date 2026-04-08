@@ -673,7 +673,9 @@ function exportMIDI(opts) {
     reason:    function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_REASON.txt',    buildHelpReason(bpm, swingVal, noSwing)); },
     reaper:    function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_REAPER.txt',    buildHelpReaper(bpm, swingVal, noSwing)); },
     studioone: function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_STUDIO_ONE.txt',buildHelpStudioOne(bpm, swingVal, noSwing)); },
-    maschine:  function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); }
+    maschine:  function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_MASCHINE.txt',  buildHelpMaschine(bpm, swingVal, noSwing)); },
+    ko:        function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_KO_II.txt',    buildHelpKO(bpm, swingVal, noSwing)); },
+    generic:   function() { return midiFolder && midiFolder.file('DAW_HOW_TO_USE_DRUM_MACHINE.txt', buildHelpGenericDrumMachine(bpm, swingVal, noSwing)); }
   };
   // Always include the general overview
   folder.file('HOW_TO_USE.txt', buildHelpGeneral(bpm, swingVal, noSwing));
