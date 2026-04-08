@@ -503,7 +503,7 @@ function renderArr(skipMidiUpdate) {
           arrangement.splice(idx - 1, 0, item);
           if (arrIdx === idx) arrIdx = idx - 1;
           else if (arrIdx === idx - 1) arrIdx = idx;
-          renderArr(true);
+          renderArr();
           var moved = f.querySelector('[data-i="' + (idx - 1) + '"]');
           if (moved) moved.focus();
         }
@@ -514,7 +514,7 @@ function renderArr(skipMidiUpdate) {
           arrangement.splice(idx + 1, 0, item);
           if (arrIdx === idx) arrIdx = idx + 1;
           else if (arrIdx === idx + 1) arrIdx = idx;
-          renderArr(true);
+          renderArr();
           var moved = f.querySelector('[data-i="' + (idx + 1) + '"]');
           if (moved) moved.focus();
         }
