@@ -2577,18 +2577,13 @@ function _showTickerTip(el, text) {
   var span = textEl.querySelector('span');
   if (span) {
     span.textContent = text;
-    // Reset animation
-    textEl.classList.remove('scrolling', 'no-scroll');
+    // Reset animation — always scroll so every tip enters consistently
+    textEl.classList.remove('scrolling');
     void span.offsetWidth;
-    // Check if text overflows container
-    if (span.scrollWidth > textEl.clientWidth + 20) {
-      // Scale duration to text length — longer text scrolls slower
-      var dur = Math.max(10, Math.min(25, text.length * 0.12));
-      textEl.style.setProperty('--scroll-dur', dur + 's');
-      textEl.classList.add('scrolling');
-    } else {
-      textEl.classList.add('no-scroll');
-    }
+    // Scale duration to text length — shorter text scrolls faster, longer slower
+    var dur = Math.max(8, Math.min(25, text.length * 0.11));
+    textEl.style.setProperty('--scroll-dur', dur + 's');
+    textEl.classList.add('scrolling');
   }
 }
 
