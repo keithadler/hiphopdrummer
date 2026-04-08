@@ -561,6 +561,38 @@ function renderArr(skipMidiUpdate) {
  * Side effects: replaces innerHTML of #aboutBeat, wires click handlers
  *   on each section header to toggle body visibility.
  */
+
+/**
+ * Quick-jump: expand the collapsible section containing the target,
+ * then scroll to it. Called by the quick-jump buttons in the analysis panel.
+ */
+function _qjJump(id) {
+  var target = document.querySelector('[data-qj="' + id + '"]');
+  if (!target) return;
+  // Walk up to find the parent .about-body — if it's hidden, expand it
+  var body = target.closest('.about-body');
+  if (body && body.style.display === 'none') {
+    body.style.display = '';
+    var hdr = body.previousElementSibling;
+    if (hdr && hdr.classList.contains('about-header')) {
+      var arrow = hdr.querySelector('.about-arrow');
+      if (arrow) arrow.textContent = '▾';
+      hdr.setAttribute('aria-expanded', 'true');
+    }
+  }
+  // Also expand the main "Show full analysis" toggle if collapsed
+  var aboutBeat = document.getElementById('aboutBeat');
+  var aboutToggle = document.getElementById('aboutToggle');
+  if (aboutBeat && aboutToggle && aboutBeat.style.display === 'none') {
+    aboutBeat.style.display = '';
+    aboutToggle.textContent = 'Hide full analysis';
+    aboutToggle.setAttribute('aria-expanded', 'true');
+  }
+  setTimeout(function() {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
 function makeAboutCollapsible() {
   var el = document.getElementById('aboutBeat');
   if (!el) return;

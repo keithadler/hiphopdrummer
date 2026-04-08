@@ -22,14 +22,14 @@ function analyzeBeat() {
   // Quick-jump navigation bar — sticky at top of analysis panel
   lines.push('<div class="about-quickjump" id="aboutQuickJump">');
   lines.push('<span class="qj-label">Jump:</span>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=start]\')?.scrollIntoView({behavior:\'smooth\'})">🚀</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=tempo]\')?.scrollIntoView({behavior:\'smooth\'})">🎚</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=swing]\')?.scrollIntoView({behavior:\'smooth\'})">⏱</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=style]\')?.scrollIntoView({behavior:\'smooth\'})">🎨</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=flow]\')?.scrollIntoView({behavior:\'smooth\'})">🎤</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=key]\')?.scrollIntoView({behavior:\'smooth\'})">🎹</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=arr]\')?.scrollIntoView({behavior:\'smooth\'})">📋</button>');
-  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=tech]\')?.scrollIntoView({behavior:\'smooth\'})">🔍</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'start\')" title="Start Here">🚀</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'tempo\')" title="Tempo">🎚</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'swing\')" title="Swing">⏱</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'style\')" title="Style">🎨</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'flow\')" title="Flow Guide">🎤</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'key\')" title="Key / Scale">🎹</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'arr\')" title="Programming Details">📋</button>');
+  lines.push('<button class="qj-btn" onclick="_qjJump(\'tech\')" title="Technique Spotlight">🔍</button>');
   lines.push('</div>');
 
   // === START HERE — quick orientation for new users ===
