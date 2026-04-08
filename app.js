@@ -2324,6 +2324,102 @@ function getRoleSectionTips(sec, role) {
     if (feel === 'lofi' || feel === 'dilla') tips.push('Don\'t clean up the vinyl noise — it\'s part of the texture.');
   }
 
+  // Pull additional tips from analysis data (style descriptions, drum machine heritage, etc.)
+  var songFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(feel) : feel;
+  
+  // Style-specific mixing tip
+  if (typeof analyzeBeat === 'function') {
+    // Drum machine heritage
+    var machineMap = {
+      normal: 'This beat\'s DNA comes from the E-mu SP-1200 and Akai MPC60. The SP-1200\'s 12-bit crunch defined boom bap.',
+      hard: 'This beat channels the E-mu SP-1200 — the 12-bit resolution gives hard beats their aggressive character.',
+      jazzy: 'This beat lives in the Akai MPC3000 — 16-bit audio and 32 voices for clean dynamics and ghost notes.',
+      dark: 'This beat descends from the Ensoniq EPS and ASR-10 — the grainy quality that defined Wu-Tang.',
+      dilla: 'This beat is pure Akai MPC3000. Dilla played the pads in real time and never quantized.',
+      lofi: 'This beat channels the Roland SP-404. Madlib and Knxwledge run everything through its vinyl simulation.',
+      gfunk: 'This beat is built on the Akai MPC3000 paired with a Minimoog bass synth. Dre\'s G-Funk sound.',
+      chopbreak: 'This beat channels the E-mu SP-1200 — 2.5 seconds of sample time forced producers to chop tight.',
+      crunk: 'This beat is pure Roland TR-808 — the kick, the clap, the cowbell. All 808.',
+      memphis: 'This beat comes from the Roland TR-808 and cheap Casio keyboards. The lo-fi aesthetic IS the sound.',
+      bounce: 'This beat comes from the Akai MPC60 and MPC3000 — the swing made these beats bounce.',
+      griselda: 'Modern boom bap revival — Daringer\'s punchy, compressed MPC sound with vinyl texture.',
+      phonk: 'Memphis revival filtered through SoundCloud — slowed 808s, cowbell loops, dark and hypnotic.',
+      nujabes: 'Jazz hop — the sound of Akai MPC2000XL with clean samples and gentle swing.',
+      oldschool: 'Roland TR-808, LinnDrum, and Oberheim DMX — the machines that started hip hop.',
+      detroit: 'Detroit soul-sample production — Akai MPC with chopped Motown records.',
+      halftime: 'Ensoniq ASR-10 territory — the halftime feel makes the tempo feel half as fast.',
+      miamibass: 'Roland TR-808 — the sustained 808 kick and open hats that defined Miami bass.',
+      nolimit: 'Beats By the Pound production — heavy 808s with marching band brass influence.',
+      cashmoney: 'Mannie Fresh production — the MPC bounce with New Orleans second-line rhythm.',
+      timbaland: 'Ensoniq ASR-10 and Akai MPC — world percussion samples mapped to the 16-step grid.',
+      neptunes: 'Minimalist production — Korg Triton and Roland Fantom. Every hit is deliberate.',
+      ruffryder: 'Raw Casio keyboard aesthetic — Korg Triton with aggressive, unpolished sounds.',
+      chipmunk: 'Akai MPC with sped-up soul samples — pitched-up vocal chops over boom bap drums.',
+      rocafella: 'Akai MPC3000 with orchestral sample libraries — stadium-ready anthem production.',
+      poprap: 'Clean, polished DAW production — Pro Tools and Logic Pro with radio-ready mixing.',
+      ratchet: 'Minimal DAW production — FL Studio with 808 presets. Formulaic by design.',
+      philly: 'Live drums recorded to Akai MPC — the Soulquarians sound of real musicians in a room.'
+    };
+    if (machineMap[songFeelBase]) tips.push(machineMap[songFeelBase]);
+  }
+
+  // Arrangement position context
+  if (typeof arrangement !== 'undefined' && arrangement.length > 0) {
+    var arrIdx = arrangement.indexOf(sec);
+    if (arrIdx >= 0) {
+      var totalSections = arrangement.length;
+      var progress = Math.round((arrIdx / (totalSections - 1)) * 100);
+      tips.push('You\'re ' + progress + '% through the song. ' + (totalSections - arrIdx - 1) + ' sections remaining.');
+      if (arrIdx > 0) {
+        var prevSec = arrangement[arrIdx - 1];
+        var prevName = (typeof SL !== 'undefined' && SL[prevSec]) ? SL[prevSec] : prevSec;
+        tips.push('Coming from ' + prevName + ' — listen for how the energy shifts at the transition.');
+      }
+      if (arrIdx < totalSections - 1) {
+        var nextSec = arrangement[arrIdx + 1];
+        var nextName = (typeof SL !== 'undefined' && SL[nextSec]) ? SL[nextSec] : nextSec;
+        tips.push('Next up: ' + nextName + '. The fill at the end of this section sets up the transition.');
+      }
+    }
+  }
+
+  // Kick pattern analysis
+  if (pat) {
+    var kickPositions = [];
+    for (var i = 0; i < 16; i++) if (pat.kick && pat.kick[i]) kickPositions.push(i + 1);
+    if (kickPositions.length > 0) {
+      tips.push('Kick hits on steps ' + kickPositions.join(', ') + ' of bar 1. These are the rhythmic anchors of the groove.');
+    }
+    // Open hat analysis
+    var openHatSteps = [];
+    for (var i = 0; i < 16; i++) if (pat.openhat && pat.openhat[i]) openHatSteps.push(i + 1);
+    if (openHatSteps.length > 0) {
+      tips.push('Open hat on step' + (openHatSteps.length > 1 ? 's ' : ' ') + openHatSteps.join(', ') + '. The open hat creates a breathing, cyclical feel.');
+    }
+    // Ghost note count
+    var totalGhosts = 0;
+    for (var i = 0; i < 16; i++) {
+      if (pat.snare && pat.snare[i] > 0 && pat.snare[i] < 70) totalGhosts++;
+      if (pat.ghostkick && pat.ghostkick[i] > 0) totalGhosts++;
+    }
+    if (totalGhosts > 0) {
+      tips.push(totalGhosts + ' ghost hits in bar 1. Ghost notes are the secret sauce — they fill the space between main hits.');
+    }
+  }
+
+  // Per-instrument swing info
+  if (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[songFeelBase]) {
+    var sw = INSTRUMENT_SWING[songFeelBase];
+    if (sw.hat > 1.0) tips.push('Hats swing ' + Math.round((sw.hat - 1) * 100) + '% harder than the base — the ride hand leans back.');
+    if (sw.kick < 0.8) tips.push('Kick swings ' + Math.round((1 - sw.kick) * 100) + '% less than the base — stays closer to the grid for punch.');
+    if (sw.bass !== sw.kick) tips.push('Bass and kick swing at different rates — bass at ' + Math.round(sw.bass * 100) + '%, kick at ' + Math.round(sw.kick * 100) + '%. This creates the pocket.');
+  }
+
+  // Foundation reminder (rotate in occasionally)
+  if (tips.length > 5) {
+    tips.push('Remember: this beat is the harmonic foundation. Your rap, sample, guitar, or scratch is the melody.');
+  }
+
   return tips;
 }
 
@@ -2358,15 +2454,17 @@ function _showTickerTip(el, text) {
   var span = textEl.querySelector('span');
   if (span) {
     span.textContent = text;
-    span.style.animation = 'none';
+    // Reset animation
+    textEl.classList.remove('scrolling', 'no-scroll');
     void span.offsetWidth;
+    // Check if text overflows container
     if (span.scrollWidth > textEl.clientWidth + 20) {
-      textEl.classList.remove('no-scroll');
-      var dur = Math.max(8, Math.min(20, text.length * 0.1));
-      span.style.animation = 'ticker-scroll ' + dur + 's linear infinite';
+      // Scale duration to text length — longer text scrolls slower
+      var dur = Math.max(10, Math.min(25, text.length * 0.12));
+      textEl.style.setProperty('--scroll-dur', dur + 's');
+      textEl.classList.add('scrolling');
     } else {
       textEl.classList.add('no-scroll');
-      span.style.animation = 'none';
     }
   }
 }
@@ -2908,12 +3006,12 @@ function initPlaybackTracking() {
           toast.classList.add('show');
           if (toast._hideTimer) clearTimeout(toast._hideTimer);
           _chordToastVisible = true;
-          // Start rotating tip ticker at bottom of screen
-          startTipTicker(curSec);
           // Highlight first bar's chord immediately
           updateChordHighlight(0);
         }
       }
+      // Always start tip ticker on section change, regardless of chord overlay setting
+      startTipTicker(curSec);
       renderGrid();
       renderArr(true);
       _cachedCursorEls = []; // grid re-rendered, old refs are stale
@@ -3066,34 +3164,36 @@ function initPlaybackTracking() {
         }
         _touchPauseFollow = false;
         // Immediately show the first section's overlay (don't wait for onTimeUpdate)
-        if (_showChordsOverlay && arrangement.length > 0) {
+        if (arrangement.length > 0) {
           lastTrackedSection = 0;
           arrIdx = 0;
           curSec = arrangement[0];
           var secName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
           var barCt = Math.ceil((secSteps[curSec] || 32) / 16);
-          var t = _cachedToast;
-          if (t) {
-            // Ensure chord sheet data exists (may be missing on first cold load)
-            if (!window._chordSheetData || !window._chordSheetData[curSec]) {
-              if (typeof buildChordSheet === 'function') buildChordSheet();
-            }
-            // Only proceed if chord data is now available
-            if (window._chordSheetData && window._chordSheetData[curSec]) {
-              buildChordToast(curSec);
-              var initRole = '';
-              try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
-              var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
-              initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
-              initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
-              t.innerHTML = initHtml;
-              t.classList.add('show');
-              _chordToastVisible = true;
-              updateChordHighlight(0);
-              // Start rotating tip ticker at bottom of screen
-              startTipTicker(curSec);
+          if (_showChordsOverlay) {
+            var t = _cachedToast;
+            if (t) {
+              // Ensure chord sheet data exists (may be missing on first cold load)
+              if (!window._chordSheetData || !window._chordSheetData[curSec]) {
+                if (typeof buildChordSheet === 'function') buildChordSheet();
+              }
+              // Only proceed if chord data is now available
+              if (window._chordSheetData && window._chordSheetData[curSec]) {
+                buildChordToast(curSec);
+                var initRole = '';
+                try { initRole = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+                var initHtml = '<div class="toast-header">' + secName + ' <span class="toast-bars">' + barCt + ' bar' + (barCt !== 1 ? 's' : '') + '</span></div>';
+                initHtml += '<div class="toast-divider"></div><div class="toast-chords">' + (t._chordHtml || '') + '</div>';
+                initHtml += '<button class="toast-stop-btn" onclick="if(window.synthBridge){window.synthBridge.stop();}" aria-label="Stop playback">■ STOP</button>';
+                t.innerHTML = initHtml;
+                t.classList.add('show');
+                _chordToastVisible = true;
+                updateChordHighlight(0);
+              }
             }
           }
+          // Always start tip ticker on playback start, regardless of chord overlay setting
+          startTipTicker(curSec);
         }
       }
     };
