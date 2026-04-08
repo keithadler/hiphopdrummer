@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.60] - 2026-04-10
+
+### Changed
+- Version bump to force client cache refresh across all deployed instances
+- Three toms (high/mid/low) replace single tom — real descending pitch fills using GM notes 50, 47, 45
+- ROWS expanded from 12 to 14 instruments
+- Grid colors: Tom Hi (bright purple), Tom Mid (mid purple), Tom Lo (dark purple)
+
 ## [1.59] - 2026-04-10
 
 ### Added — EP Pro Improvements (10 Techniques)
