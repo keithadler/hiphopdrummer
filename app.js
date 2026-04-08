@@ -2247,7 +2247,8 @@ function getRoleSectionTips(sec, role) {
     chipmunk: 'Chipmunk soul — pitched-up soul samples, boom bap drums, warm bass.',
     rocafella: 'Orchestral boom bap — piano, brass stabs, heavy kick doubles, anthem energy.',
     poprap: 'Pop-rap — clean production, sustained pads, simple patterns. Radio-ready.',
-    ratchet: 'West Coast ratchet — minimal drums, synth stab, sustained 808. The Mustard formula.'
+    ratchet: 'West Coast ratchet — minimal drums, synth stab, sustained 808. The Mustard formula.',
+    philly: 'Philly boom bap — live-drums feel, dense ghost snares, ride cymbal, walking bass. Organic and wide-dynamic.'
   };
   if (styleDesc[feel]) tips.push(styleDesc[feel]);
 

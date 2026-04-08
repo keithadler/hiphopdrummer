@@ -113,10 +113,10 @@ test('All JS files parse without errors', function() {
 });
 
 // === Test STYLE_DATA completeness ===
-test('STYLE_DATA has all 30 base feels', function() {
+test('STYLE_DATA has all 31 base feels', function() {
   var expected = ['normal','halftime','hard','jazzy','dark','bounce','big','driving',
     'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes','oldschool','detroit',
-    'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet'];
+    'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet','philly'];
   expected.forEach(function(f) {
     assert(STYLE_DATA[f], 'STYLE_DATA missing: ' + f);
     assert(STYLE_DATA[f].label, 'STYLE_DATA[' + f + '] missing label');
