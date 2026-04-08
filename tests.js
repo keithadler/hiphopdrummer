@@ -113,10 +113,10 @@ test('All JS files parse without errors', function() {
 });
 
 // === Test STYLE_DATA completeness ===
-test('STYLE_DATA has all 30 base feels', function() {
+test('STYLE_DATA has all 31 base feels', function() {
   var expected = ['normal','halftime','hard','jazzy','dark','bounce','big','driving',
     'sparse','dilla','lofi','chopbreak','gfunk','crunk','memphis','griselda','phonk','nujabes','oldschool','detroit',
-    'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet'];
+    'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet','philly'];
   expected.forEach(function(f) {
     assert(STYLE_DATA[f], 'STYLE_DATA missing: ' + f);
     assert(STYLE_DATA[f].label, 'STYLE_DATA[' + f + '] missing label');
@@ -255,10 +255,10 @@ test('buildMpcPattern produces valid JSON', function() {
   // Check static headers
   if (parsed && parsed.pattern && parsed.pattern.events) {
     assert(parsed.pattern.events[0].type === 1, 'First event should be type 1 (static header)');
-    // Check that note events use MPC note map (36-47 range, 12 instruments)
+    // Check that note events use MPC note map (GM standard: 36-56 range)
     var noteEvents = parsed.pattern.events.filter(function(e) { return e.type === 2; });
     noteEvents.forEach(function(e, idx) {
-      assert(e['1'] >= 36 && e['1'] <= 47, 'MPC note ' + e['1'] + ' should be in 36-47 range');
+      assert(e['1'] >= 36 && e['1'] <= 56, 'MPC note ' + e['1'] + ' should be in 36-56 GM range');
     });
   }
 });
@@ -1006,7 +1006,7 @@ test('REGIONAL_VARIANTS has required fields', function() {
 });
 
 // === Test per-instrument swing ===
-test('INSTRUMENT_SWING covers all 30 base feels', function() {
+test('INSTRUMENT_SWING covers all 31 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
     'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit',
     'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet'];
@@ -1033,7 +1033,7 @@ test('getInstrumentSwing returns correct categories', function() {
 });
 
 // === Test CHORD_PROGRESSIONS ===
-test('CHORD_PROGRESSIONS covers all 30 base feels', function() {
+test('CHORD_PROGRESSIONS covers all 31 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
     'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit',
     'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet'];
@@ -1216,7 +1216,7 @@ test('Bass call-and-response modifies events based on drum context', function() 
 });
 
 // === Test player profiles ===
-test('PLAYER_PROFILES covers all 30 base feels', function() {
+test('PLAYER_PROFILES covers all 31 base feels', function() {
   var baseFeels = ['normal','hard','jazzy','dark','bounce','halftime','dilla','lofi','gfunk',
     'chopbreak','crunk','memphis','griselda','phonk','nujabes','oldschool','sparse','driving','big','detroit',
     'miamibass','nolimit','cashmoney','timbaland','neptunes','ruffryder','chipmunk','rocafella','poprap','ratchet'];
@@ -2751,7 +2751,7 @@ test('Export dialog stem checkboxes have stem-check class', function() {
   assert(stemIds.length === 9, 'Should have 9 stem checkbox IDs');
   // Verify STYLE_DATA completeness (drumKit + bassSound on every style)
   var styles = Object.keys(STYLE_DATA);
-  assert(styles.length >= 36, 'STYLE_DATA should have at least 36 styles, got ' + styles.length);
+  assert(styles.length >= 37, 'STYLE_DATA should have at least 37 styles, got ' + styles.length);
   for (var i = 0; i < styles.length; i++) {
     var s = styles[i];
     var d = STYLE_DATA[s];

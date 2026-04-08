@@ -48,7 +48,7 @@ The project is split into focused modules:
 
 ## Key Concepts
 
-- **36 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
+- **37 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
 - **9 Instruments** — Drums (ch 10), Bass (ch 1), EP (ch 2), Pad (ch 3), Lead (ch 4), Organ (ch 5), Horns (ch 6), Vibes (ch 7), Clav (ch 8). Each has its own generator, MIDI builder, and MPC pattern builder.
 - **Style-Matched Sounds** — `STYLE_DATA` in `patterns.js` includes `drumKit` and `bassSound` fields. Each style auto-selects the right GM drum kit and bass program (TR-808 for G-Funk, Brush Kit for Nujabes, etc.).
 - **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 32 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.

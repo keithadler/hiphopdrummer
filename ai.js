@@ -361,6 +361,8 @@ var FEEL_PALETTES = [
   ['poprap', 'big', 'sparse', 'driving'],
   // West Coast Ratchet
   ['ratchet', 'big', 'hard', 'driving'],
+  // Philly Boom Bap
+  ['philly', 'big', 'halftime', 'driving'],
 ];
 
 var SWING_POOLS = {
@@ -393,7 +395,8 @@ var SWING_POOLS = {
   chipmunk:  [60, 62, 62, 64, 64, 66, 66, 68],          // boom bap swing
   rocafella: [58, 60, 60, 62, 62, 64, 64],              // punchy, anthem
   poprap:    [52, 54, 54, 56, 56, 58, 58],              // clean, radio-ready
-  ratchet:   [50, 50, 52, 52, 54, 54, 56]               // straight, formulaic
+  ratchet:   [50, 50, 52, 52, 54, 54, 56],               // straight, formulaic
+  philly:    [62, 64, 64, 66, 66, 68, 68, 70, 70, 72]   // heavy swing, live drummer
 };
 
 // Regional variant swing pools — inherit from parent with bias applied in generateAll
@@ -708,6 +711,23 @@ function genBasePatterns() {
     baseKick = pick(ratchetKickLib);
   }
 
+  // Philly Boom Bap kick library — live-drums feel, organic, moderate syncopation
+  var phillyKickLib = [
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // classic boom bap — live feel
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — simple pocket
+    [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // double on 1, 3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling — live drummer
+    [1,0,0,0, 0,0,0,1, 1,0,0,0, 0,0,0,0],  // 1, ah-of-2, 3 — behind the beat
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-2, and-of-4
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3 — sparse
+    [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // busy — 1, and-of-2, 3, and-of-3
+  ];
+  if (paletteFeel0 === 'philly') {
+    baseKick = pick(phillyKickLib);
+  }
+
   // B variant — guaranteed to differ from A. Usually second half, occasionally first half.
   // Real drummers vary both halves — a kick might shift from "and" of 1 to "e" of 1.
   baseKickB = baseKick.slice();
@@ -759,6 +779,7 @@ function genBasePatterns() {
               (paletteFeel0 === 'rocafella') ? rocafellaKickLib :
               (paletteFeel0 === 'poprap') ? poprapKickLib :
               (paletteFeel0 === 'ratchet') ? ratchetKickLib :
+              (paletteFeel0 === 'philly') ? phillyKickLib :
               kickLib;
   do { baseKickV2 = pick(v2Lib); } while (baseKickV2.join('') === baseKick.join(''));
   baseKickV2B = baseKickV2.slice();
@@ -856,6 +877,7 @@ function genBasePatterns() {
   var paletteFeel = (songPalette && songPalette[0]) ? songPalette[0] : songFeel;
   if (paletteFeel === 'gfunk') useRide = maybe(.5);
   if (paletteFeel === 'nujabes') useRide = true; // Nujabes: ride cymbal is the primary timekeeper
+  if (paletteFeel === 'philly') useRide = true; // Philly: ride cymbal dominant, live-drums feel
   if (paletteFeel === 'oldschool') useRide = false; // Old School: no ride, drum machines only
   // Phonk: triplet hats are the defining element — override hat pattern
   if (paletteFeel === 'phonk') hatPatternType = maybe(.85) ? 'triplet' : '8th';

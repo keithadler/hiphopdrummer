@@ -2,6 +2,17 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.58] - 2026-04-10
+
+### Added — Philly Boom Bap Style
+Expanded from 30 base styles to 31 base styles (37 total with 6 regional variants). All changes are purely additive — new entries in existing data structures, new branches in existing functions. No new files.
+
+- **Philly Boom Bap** (`philly`) — The Roots, DJ Jazzy Jeff, Questlove, James Poyser. Philadelphia live-drums production, 80–95 BPM. Organic wide-dynamic drum programming with dense brush-like ghost snares, ride cymbal as primary timekeeper, walking bass guitar (fretless), Rhodes/Wurlitzer EP chords, shell-voicing organ. Heavy swing with real drummer feel. Jazz Kit + Fretless Bass.
+
+### Changed
+- Style count updated from 36 to 37 across all docs (README, About dialog, DOCS, CONTRIBUTING, manifest, tests)
+- Version bumped to 1.58
+
 ## [1.57] - 2026-04-09
 
 ### Added — 10 New Hip Hop Styles

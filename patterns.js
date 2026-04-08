@@ -156,7 +156,7 @@ function emptyPat() {
  * @type {Object}
  */
 var STYLE_DATA = {
-  normal:    { label: 'Classic Boom Bap',  bpmRange: [85, 98], bpms: [85,88,90,92,95,98], keys: ['Cm','Dm','Am','Gm','Em','Fm','Bbm'],          artists: 'DJ Premier, Pete Rock, Buckwild, Large Professor, Eric B. & Rakim', drumKit: 0, bassSound: 33 },
+  normal:    { label: 'Boom Bap — Classic',  bpmRange: [85, 98], bpms: [85,88,90,92,95,98], keys: ['Cm','Dm','Am','Gm','Em','Fm','Bbm'],          artists: 'DJ Premier, Pete Rock, Buckwild, Large Professor, Eric B. & Rakim', drumKit: 0, bassSound: 33 },
   normal_bronx: { label: 'Boom Bap — Bronx', bpmRange: [88, 98], bpms: [88,90,92,95,98], keys: ['Cm','Dm','Am','Gm','Fm'],            artists: 'DJ Premier, Gangstarr, KRS-One, Buckwild — tight, minimal, punchy', drumKit: 0, bassSound: 33 },
   normal_queens: { label: 'Boom Bap — Queens', bpmRange: [85, 98], bpms: [85,88,90,92,95], keys: ['Am','Dm','Em','Cm','Gm'],           artists: 'Large Professor, Nas, Marley Marl, MC Shan — jazzy, sample-heavy', drumKit: 0, bassSound: 33, epProgram: 0 },
   normal_li: { label: 'Boom Bap — Long Island', bpmRange: [85, 100], bpms: [85,88,90,92,95,98,100], keys: ['Fmaj7','Dm','Am','Gm','Dm7'],      artists: 'De La Soul, A Tribe Called Quest, Leaders of the New School — playful, loose', drumKit: 8, bassSound: 33 },
@@ -189,9 +189,10 @@ var STYLE_DATA = {
   neptunes:  { label: 'Virginia Minimal',     bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Am','Dm','Em','Cm','Gm'],                artists: 'The Neptunes, Chad Hugo, Pharrell', drumKit: 16, bassSound: 34 },
   ruffryder: { label: 'Raw NY',               bpmRange: [90, 100],  bpms: [90,92,95,98,100],            keys: ['Cm','Dm','Am','Fm','Gm','Bbm'],          artists: 'Swizz Beatz, PK, Dame Grease', drumKit: 16, bassSound: 34 },
   chipmunk:  { label: 'Chipmunk Soul',        bpmRange: [85, 95],   bpms: [85,88,90,92,95],             keys: ['Dm','Am','Cm','Gm','Em','Fm'],           artists: 'Kanye West (early), Just Blaze, 9th Wonder', drumKit: 0, bassSound: 33 },
-  rocafella: { label: 'Orchestral Boom Bap',  bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Cm','Dm','Am','Gm','Fm','Bbm'],          artists: 'Just Blaze, Kanye West, Bink!', drumKit: 0, bassSound: 33 },
+  rocafella: { label: 'Boom Bap — Orchestral',  bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Cm','Dm','Am','Gm','Fm','Bbm'],          artists: 'Just Blaze, Kanye West, Bink!', drumKit: 0, bassSound: 33 },
   poprap:    { label: 'Pop-Rap / Radio',      bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Am','Dm','Cm','Gm','C','G','Em'],        artists: 'Ryan Leslie, Polow da Don, Cool & Dre', drumKit: 16, bassSound: 38 },
-  ratchet:   { label: 'West Coast Ratchet',   bpmRange: [95, 105],  bpms: [95,98,100,102,105],          keys: ['Am','Dm','Em','Cm','Gm'],                artists: 'DJ Mustard, YG, Ty Dolla $ign', drumKit: 25, bassSound: 38 }
+  ratchet:   { label: 'West Coast Ratchet',   bpmRange: [95, 105],  bpms: [95,98,100,102,105],          keys: ['Am','Dm','Em','Cm','Gm'],                artists: 'DJ Mustard, YG, Ty Dolla $ign', drumKit: 25, bassSound: 38 },
+  philly:    { label: 'Boom Bap — Philly',     bpmRange: [80, 95],   bpms: [80,82,85,88,90,92,95],       keys: ['Dm','Am','Cm','Gm','Em','Fm'],           artists: 'The Roots, DJ Jazzy Jeff, Questlove, James Poyser', drumKit: 26, bassSound: 35 }
 };
 
 /**
@@ -300,7 +301,8 @@ var INSTRUMENT_SWING = {
   chipmunk:  { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
   rocafella: { hat: 1.0,  kick: 0.75, ghostSnare: 0.9,  backbeat: 0.85, bass: 0.85 },
   poprap:    { hat: 0.7,  kick: 0.55, ghostSnare: 0.6,  backbeat: 0.6,  bass: 0.55 },
-  ratchet:   { hat: 0.6,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 }
+  ratchet:   { hat: 0.6,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
+  philly:    { hat: 1.2,  kick: 0.8,  ghostSnare: 1.3,  backbeat: 0.9,  bass: 1.0 }
 };
 
 /**
@@ -546,6 +548,7 @@ PLAYER_PROFILES.chipmunk = PLAYER_PROFILES.normal;
 PLAYER_PROFILES.rocafella = PLAYER_PROFILES.normal;
 PLAYER_PROFILES.poprap = PLAYER_PROFILES.oldschool;
 PLAYER_PROFILES.ratchet = PLAYER_PROFILES.crunk;
+PLAYER_PROFILES.philly = PLAYER_PROFILES.jazzy;
 
 /**
  * Currently active player profile for this song generation.

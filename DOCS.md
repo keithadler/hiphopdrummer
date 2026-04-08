@@ -1,10 +1,10 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.57)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.58)
 
-Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 36 styles, style-matched drum kits and bass sounds, 312 kick patterns, 15,000+ test assertions.
+Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 37 styles, style-matched drum kits and bass sounds, 312 kick patterns, 15,000+ test assertions.
 
 ## Hip Hop Styles
 
-Thirty-five feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
+Thirty-six feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
@@ -28,6 +28,7 @@ Thirty-five feel types covering the full range of hip hop (listed alphabetically
 - **Nujabes/Jazz Hop** — Nujabes, Fat Jon, DJ Okawari; ride cymbal timekeeper, brush ghosts, warm swing
 - **Orchestral Boom Bap** — Just Blaze, Kanye West, Bink!; heavy kick doubles, anthem energy, 85–100 BPM
 - **Phonk/Cloud Rap** — SpaceGhostPurrp, DJ Smokey, Soudiere; slow, triplet hats, Memphis revival
+- **Philly Boom Bap** — The Roots, DJ Jazzy Jeff, Questlove, James Poyser; live-drums feel, ride cymbal, walking bass, 80–95 BPM
 - **Pop-Rap / Radio** — Ryan Leslie, Polow da Don, Cool & Dre; clean radio-ready production, 85–100 BPM
 - **Raw NY** — Swizz Beatz, PK, Dame Grease; late-90s raw aggressive NY sound, 90–100 BPM
 - **Sparse** — Minimal drums, space dominates; RZA, Alchemist

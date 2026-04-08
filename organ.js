@@ -15,7 +15,8 @@
 
 var ORGAN_STYLES = {
   jazzy: true, nujabes: true, normal_queens: true, bounce: true,
-  cashmoney: true
+  cashmoney: true,
+  philly: true
 };
 
 var ORGAN_COMP_STYLES = {
@@ -23,7 +24,8 @@ var ORGAN_COMP_STYLES = {
   nujabes:       { velBase: 38, velRange: 6,  noteDur: 0.95, density: 0.8,  register: 'mid',  voicing: 'shell',   program: 16, regShift: { chorus: 'high', breakdown: 'mid' } },
   normal_queens: { velBase: 40, velRange: 8,  noteDur: 0.85, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 16, regShift: { chorus: 'high', breakdown: 'mid' } },
   bounce:        { velBase: 45, velRange: 10, noteDur: 0.8,  density: 0.65, register: 'mid',  voicing: 'triad',   program: 19, regShift: { chorus: 'high', breakdown: 'mid' } },
-  cashmoney:     { velBase: 45, velRange: 10, noteDur: 0.85, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 19, regShift: { chorus: 'high', breakdown: 'mid' } }
+  cashmoney:     { velBase: 45, velRange: 10, noteDur: 0.85, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 19, regShift: { chorus: 'high', breakdown: 'mid' } },
+  philly:        { velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.75, register: 'mid',  voicing: 'shell',   program: 16, regShift: { chorus: 'high', breakdown: 'mid' } }
 };
 
 // ── Voicing builder (same as pad — simple, sustained) ──
