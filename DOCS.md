@@ -1,13 +1,14 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.56)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.57)
 
-Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 26 styles, style-matched drum kits and bass sounds, 218 kick patterns, 15,000+ test assertions.
+Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 36 styles, style-matched drum kits and bass sounds, 312 kick patterns, 15,000+ test assertions.
 
 ## Hip Hop Styles
 
-Twenty-five feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
+Thirty-five feel types covering the full range of hip hop (listed alphabetically), plus 6 regional sub-style variants:
 
 - **Big/Anthem** — Maximum energy for choruses; extra kicks, full clap layering, open hats
 - **Bounce** — Notorious B.I.G., Bad Boy era; busier kick, danceable
+- **Chipmunk Soul** — Kanye West (early), Just Blaze, 9th Wonder; sped-up soul sample era, boom bap swing
 - **Chopped Break** — DJ Premier, Havoc, Alchemist, Large Professor; break-derived patterns, dense ghosts
 - **Classic Boom Bap** — DJ Premier, Pete Rock, Buckwild; the foundational East Coast style
 - **Crunk** — Lil Jon, Ying Yang Twins, Three 6 Mafia; flat max velocity, 4-on-the-floor
@@ -21,9 +22,18 @@ Twenty-five feel types covering the full range of hip hop (listed alphabetically
 - **Jazz-Influenced** — A Tribe Called Quest, Pete Rock & CL Smooth, De La Soul; dense ghosts, soft dynamics
 - **Lo-Fi/Dusty** — Madlib, Knxwledge, MF DOOM, Roc Marciano; compressed narrow velocity band
 - **Memphis** — Three 6 Mafia, DJ Paul, Juicy J, Gangsta Boo; slow, sinister, skeletal
+- **Miami Bass** — 2 Live Crew, Afro-Rican, DJ Magic Mike; four-on-the-floor electro bass, 125–140 BPM
+- **NOLA Bounce** — Mannie Fresh, DJ Jubilee, DJ Jimi; syncopated second-line bounce, 95–110 BPM
+- **NOLA Military** — Beats By the Pound, KLC, Craig B; sparse heavy No Limit sound, 85–100 BPM
 - **Nujabes/Jazz Hop** — Nujabes, Fat Jon, DJ Okawari; ride cymbal timekeeper, brush ghosts, warm swing
+- **Orchestral Boom Bap** — Just Blaze, Kanye West, Bink!; heavy kick doubles, anthem energy, 85–100 BPM
 - **Phonk/Cloud Rap** — SpaceGhostPurrp, DJ Smokey, Soudiere; slow, triplet hats, Memphis revival
+- **Pop-Rap / Radio** — Ryan Leslie, Polow da Don, Cool & Dre; clean radio-ready production, 85–100 BPM
+- **Raw NY** — Swizz Beatz, PK, Dame Grease; late-90s raw aggressive NY sound, 90–100 BPM
 - **Sparse** — Minimal drums, space dominates; RZA, Alchemist
+- **Virginia Minimal** — The Neptunes, Chad Hugo, Pharrell; minimal precise production, 85–100 BPM
+- **Virginia Rhythm** — Timbaland, Scott Storch (VA era); inventive syncopation, 90–110 BPM
+- **West Coast Ratchet** — DJ Mustard, YG, Ty Dolla $ign; minimal formulaic 808, 95–105 BPM
 
 ### Regional Sub-Styles
 - **Boom Bap — Bronx** (Premier) — tight, minimal, 60% ghost density, -2 swing bias
@@ -49,7 +59,7 @@ When a style is forced, `generateAll()` finds the matching `FEEL_PALETTES` entry
 
 ## Song Palette System
 
-Each generation picks one of 22 compatible feel palettes from `FEEL_PALETTES` (16 base + 6 regional variants). A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
+Each generation picks one of 32 compatible feel palettes from `FEEL_PALETTES` (26 base + 6 regional variants). A palette is a 4-element array: `[verse_feel, chorus_feel, breakdown_feel, pre_feel]`. All sections draw from this palette:
 
 - verse / verse2 / instrumental → `palette[0]`
 - chorus / chorus2 / lastchorus → `palette[1]`
@@ -57,14 +67,14 @@ Each generation picks one of 22 compatible feel palettes from `FEEL_PALETTES` (1
 - pre → `palette[3]`
 - intro / outro → their own dedicated pools
 
-This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 22 palettes cover: classic boom bap, boom bap Bronx/Queens/Long Island, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, G-Funk Dre/Quik/Battlecat, crunk, Memphis, halftime/slow, Griselda revival, phonk/cloud rap, Nujabes/jazz hop, old school.
+This prevents incoherent arrangements (crunk verse → G-Funk chorus). The 32 palettes cover: classic boom bap, boom bap Bronx/Queens/Long Island, hard/aggressive, jazz-influenced, dark/minimal, bounce/danceable, Dilla/neo-soul, lo-fi/dusty, chopped break, G-Funk, G-Funk Dre/Quik/Battlecat, crunk, Memphis, halftime/slow, Griselda revival, phonk/cloud rap, Nujabes/jazz hop, old school, Miami bass, NOLA military, NOLA bounce, Virginia rhythm, Virginia minimal, raw NY, chipmunk soul, orchestral boom bap, pop-rap, west coast ratchet.
 
 ## Beat Generation
 
 30 verse kick patterns, 13 chorus kick patterns, 10 snare ghost pattern pairs, 4 hi-hat pattern types (8th notes, 16th notes, sparse 16ths, triplet feel), 2-bar A/B phrases, ghost notes, flams, velocity grooves, fills, tension drops, ride cymbal.
 
-### Kick Pattern Libraries (218 total)
-Every style has a dedicated curated kick library with 10-13 patterns:
+### Kick Pattern Libraries (312 total)
+Every style has a dedicated curated kick library with 8-13 patterns:
 - **Main kickLib**: 31 patterns (classic boom bap, breakbeat, syncopated, heavy, minimal, bounce)
 - **Old school**: 12 (Run-DMC, LL Cool J, BDP, Salt-N-Pepa, Kurtis Blow, Bambaataa)
 - **Chorus**: 13 (high energy, driving, heavy, bounce)
@@ -83,10 +93,20 @@ Every style has a dedicated curated kick library with 10-13 patterns:
 - **Lo-fi**: 10 (Madlib, Knxwledge, MF DOOM, dusty)
 - **Bounce**: 10 (Craig Mack, Puff Daddy, four-on-floor nod)
 - **Jazzy**: 10 (Q-Tip, Pete Rock, Guru Jazzmatazz)
+- **Miami Bass**: 10 (four-on-the-floor dominant, electro bass)
+- **No Limit**: 10 (sparse, heavy, military-influenced)
+- **Cash Money**: 10 (syncopated, second-line bounce)
+- **Timbaland**: 10 (unusual, inventive placements)
+- **Neptunes**: 8 (minimal, deliberate spacing)
+- **Ruff Ryder**: 10 (simple, aggressive)
+- **Chipmunk**: 10 (standard boom bap vocabulary)
+- **Roc-A-Fella**: 10 (heavy doubles, dense, anthem)
+- **Pop-Rap**: 8 (clean, simple)
+- **Ratchet**: 8 (minimal, formulaic)
 
 ## Tempo & Swing
 
-60–130 BPM covering slow phonk/Griselda territory through crunk club energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 75% (heavy groove).
+60–140 BPM covering slow phonk/Griselda territory through Miami Bass electro energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 75% (heavy groove).
 
 ### Per-Instrument Swing
 Each instrument swings by a different amount per style via the `INSTRUMENT_SWING` table. Categories: hat (closed/open/ride/shaker), kick (kick/ghost kick), ghostSnare (ghost snares/rimshot), backbeat (loud snare/clap), bass. Crashes always on grid (0x).
@@ -230,7 +250,7 @@ The key section shows style-matched alternate progressions with actual chord nam
 
 ## Bass Line Generator
 
-25 style-matched bass patterns with 24 parameters per style. The bass locks to the kick drum pattern and follows the key with style-specific chord progressions.
+35 style-matched bass patterns with 24 parameters per style. The bass locks to the kick drum pattern and follows the key with style-specific chord progressions.
 
 ### Tempo-Aware Generation
 The bass generator adjusts density, ghost notes, and note durations based on BPM:
@@ -648,7 +668,7 @@ Run `node tests.js` — zero dependencies, runs in Node.js. 15,000+ assertions.
 
 Covers:
 - All JS files parse without syntax errors
-- All 25 feels (19 base + 6 regional) generate valid patterns for all 10 section types
+- All 35 feels (29 base + 6 regional) generate valid patterns for all 10 section types
 - Velocity ranges (1-127), kick-snare interlock, hat choke enforcement
 - MIDI bytes: MThd header, tempo meta-event, note-on events, end-of-track
 - Combined multi-instrument MIDI: channels 1-10 events present for all active instruments

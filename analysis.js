@@ -69,7 +69,17 @@ function analyzeBeat() {
     crunk: 'CRUNK', memphis: 'MEMPHIS',
     griselda: 'BUFFALO REVIVAL', phonk: 'PHONK / CLOUD RAP', nujabes: 'JAZZ HOP',
     oldschool: 'OLD SCHOOL',
-    detroit: 'DETROIT'
+    detroit: 'DETROIT',
+    miamibass: 'MIAMI BASS',
+    nolimit: 'NOLA MILITARY',
+    cashmoney: 'NOLA BOUNCE',
+    timbaland: 'VIRGINIA RHYTHM',
+    neptunes: 'VIRGINIA MINIMAL',
+    ruffryder: 'RAW NY',
+    chipmunk: 'CHIPMUNK SOUL',
+    rocafella: 'ORCHESTRAL BOOM BAP',
+    poprap: 'POP-RAP / RADIO',
+    ratchet: 'WEST COAST RATCHET'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. DJ Premier, Pete Rock, Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, ghost notes for groove.',
@@ -91,7 +101,17 @@ function analyzeBeat() {
     phonk: 'Cloud rap / Memphis revival — SpaceGhostPurrp, DJ Smokey, Soudiere. Slow tempo (60-78 BPM), triplet-influenced hat patterns, sparse distorted kick, dark and hypnotic. The cowbell and lo-fi aesthetic of Memphis rap filtered through SoundCloud. Sinister, repetitive, and trance-like.',
     nujabes: 'Jazz hop — Nujabes, Fat Jon, DJ Okawari, Marcus D. Clean kick patterns, soft brush-like snare ghosts, ride cymbal as the primary timekeeper, warm swing. The groove breathes like a live jazz trio. Melodic, meditative, and deeply musical. The sound of late-night study sessions and rainy Tokyo streets.',
     oldschool: 'Early hip hop drum machine era — Run-DMC, LL Cool J, Salt-N-Pepa, Boogie Down Productions, Whodini, UTFO. Roland TR-808, LinnDrum, and Oberheim DMX patterns. Nearly straight timing, simple kick patterns, mechanical 8th-note hats with flat dynamics, hard clap on the backbeat, zero ghost notes. Clean, punchy, and precise — the sound of the block party and the boombox.',
-    detroit: 'Detroit soul-sample production — Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9". Punchy kicks over chopped soul loops, crisp snare with moderate ghost notes, Rhodes/EP chords, active melodic bass. Moderate swing — groovy but controlled. The sound of Motown records chopped on an MPC in a Detroit basement.'
+    detroit: 'Detroit soul-sample production — Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9". Punchy kicks over chopped soul loops, crisp snare with moderate ghost notes, Rhodes/EP chords, active melodic bass. Moderate swing — groovy but controlled. The sound of Motown records chopped on an MPC in a Detroit basement.',
+    miamibass: 'Miami electro bass — 808 kicks on every beat, open hats on the upbeats, sustained sub bass, and synth stabs. Machine-driven, nearly straight timing. The sound of bass car culture and block parties in the 1980s-90s.',
+    nolimit: 'New Orleans military-influenced production — heavy, sparse kicks, marching-band brass stabs, dark pads, and snare rolls that echo second-line drumming filtered through Southern aggression. Tight and hard-hitting.',
+    cashmoney: 'New Orleans bounce production — syncopated kicks with second-line rhythm influence, funky EP chords, church organ, brass stabs, and heavy claps on the backbeat. The groove makes you move.',
+    timbaland: 'Virginia syncopated production — unusual kick placements, world-music-influenced rhythms, sustained EP pads, and inventive percussion patterns that break conventional positioning while maintaining groove.',
+    neptunes: 'Virginia minimal production — sparse, deliberate drum placements, staccato synth stabs, minimal bass, and wide open space. Every hit is intentional. Less is more, taken to its logical extreme.',
+    ruffryder: 'Raw late-90s New York production — aggressive synth stabs, punchy bass guitar, simple but hard-hitting kick patterns, and raw energy. No polish, no subtlety — just impact.',
+    chipmunk: 'Sped-up soul sample production — pitched-up vocal chops, boom bap drums with moderate swing, warm bass guitar, and EP chords in the high register. The sound of soul records played at 45 RPM.',
+    rocafella: 'Orchestral boom bap — heavy kick doubles, piano chords, brass stabs, punchy bass, and anthem-level energy. Dense drum patterns with flam-like ghost notes. Stadium-ready hip hop.',
+    poprap: 'Clean, radio-ready pop-rap — simple kick patterns, sustained EP pads, moderate 808 bass, and polished production. Bright, accessible, and hook-driven.',
+    ratchet: 'West Coast ratchet — minimal, formulaic drums with the signature beat-3 rest, synth stabs, sustained 808 sub, and nearly straight timing. The sound of LA club music stripped to its essentials.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeelBase] || styleDescs.normal);
@@ -322,6 +342,85 @@ function analyzeBeat() {
       { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Guitar-based samples and string loops. Detroit grit.' },
       { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Dusty and atmospheric. Apollo Brown\'s signature sound — warm vinyl crackle over dark chords.' },
       { root: 'Dm7', type: 'minor', i: 'Dm7', iv: 'Gm7', v: 'Am7', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'Soulful Detroit. The minor 7th adds warmth. Slum Village "Fall in Love" energy.' }
+    ]},
+    miamibass: { keys: [
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'The Miami bass key. Dark minor over sustained 808 sub. The simplicity lets the bass dominate.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Funky and driving. Synth stabs and 808 kicks hit hard in Dm. Block party energy.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and aggressive. Electro bass in Em has a raw, mechanical edge.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Heavy and dark. The flat minor key gives the 808 sub maximum weight.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. Bass car culture meets funk. Great for sustained sub notes.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Deep and heavy. The flat key adds weight to the four-on-the-floor kick pattern.' }
+    ]},
+    nolimit: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and military. The flat minor key matches the aggressive, marching-band energy.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Brass stabs and dark pads hit hard in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw and direct. The natural minor key gives the heavy kicks maximum impact.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Southern and heavy. Gm gives the military drums a warm, menacing quality.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Cold and aggressive. The flat key adds darkness to the sparse, heavy patterns.' },
+      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Deep and ominous. Maximum weight in the lowest register.' }
+    ]},
+    cashmoney: { keys: [
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'The bounce key. Funky and warm. Second-line rhythms and brass stabs live in Gm.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark bounce. The flat minor key gives the syncopated kicks a harder edge.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Funky and driving. EP chords and organ grooves feel natural in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw bounce. Am gives the second-line rhythms a direct, punchy quality.' },
+      { root: 'Bb', type: 'major', i: 'Bb', iv: 'Eb', v: 'F', rel: 'Gm', relNote: 'Gm, Dm, Cm', context: 'Bright and soulful. Major key bounce with brass stabs and church organ.' },
+      { root: 'F', type: 'major', i: 'F', iv: 'Bb', v: 'C', rel: 'Dm', relNote: 'Dm, Am, Gm', context: 'Warm and uplifting. Great for horn arrangements and funky EP chords.' }
+    ]},
+    timbaland: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and syncopated. The flat minor key matches the unusual, inventive drum placements.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and controlled. Sustained EP pads and offbeat kicks feel natural in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Versatile and focused. Am gives the syncopated patterns a direct quality.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and rhythmic. World-music-influenced percussion textures live in Gm.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Atmospheric and dark. The flat key adds weight to the inventive rhythms.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Guitar-influenced textures and tabla-like percussion.' }
+    ]},
+    neptunes: { keys: [
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Minimal and direct. Am gives the sparse, deliberate placements maximum clarity.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and focused. Staccato synth stabs and minimal bass in Dm.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Clean and precise. The natural minor key matches the minimal aesthetic.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and spacious. Minimal production in Cm feels cinematic.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and sparse. Every note has room to breathe in Gm.' }
+    ]},
+    ruffryder: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and aggressive. The flat minor key matches the raw, punchy energy.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Tight and hard. Aggressive synth stabs and punchy bass in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Raw and direct. Am gives the simple, aggressive patterns maximum impact.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Cold and relentless. The flat key adds menace to the raw drums.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Dark but warm. Gm gives the aggressive style a slightly funky edge.' },
+      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and ominous. Maximum darkness for the rawest beats.' }
+    ]},
+    chipmunk: { keys: [
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'The chipmunk soul key. Sped-up soul samples and warm bass guitar live in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Warm and soulful. Pitched-up vocal chops and boom bap drums in Am.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Dark and soulful. The flat minor key adds emotional weight to the sped-up samples.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. Soul samples pitched up in Gm have a bright, energetic quality.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Guitar-based soul samples and string loops.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Deep and emotional. The flat key adds melancholy to the pitched-up soul aesthetic.' }
+    ]},
+    rocafella: { keys: [
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'The orchestral anthem key. Piano chords and brass stabs hit hard in Cm. Stadium energy.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Powerful and focused. Dense kick patterns and horn arrangements in Dm.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Direct and anthemic. Am gives the orchestral boom bap maximum clarity.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and powerful. Brass stabs and piano chords feel natural in Gm.' },
+      { root: 'Fm', type: 'minor', i: 'Fm', iv: 'Bbm', v: 'Cm', rel: 'Ab major', relNote: 'Ab, Eb, Db', context: 'Dark and cinematic. The flat key adds weight to the orchestral arrangements.' },
+      { root: 'Bbm', type: 'minor', i: 'Bbm', iv: 'Ebm', v: 'Fm', rel: 'Db major', relNote: 'Db, Ab, Gb', context: 'Heavy and dramatic. Maximum orchestral weight in the lowest register.' }
+    ]},
+    poprap: { keys: [
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'Clean and accessible. Am is the most versatile key for radio-ready production.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Warm and polished. Sustained EP pads and clean 808 in Dm.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Smooth and dark. Pop-rap in Cm has a sophisticated, moody quality.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and hook-friendly. Great for melodic hooks and sustained chords.' },
+      { root: 'C', type: 'major', i: 'C', iv: 'F', v: 'G', rel: 'Am', relNote: 'Am, Em, Dm', context: 'Bright and universal. Major key pop-rap is instantly accessible.' },
+      { root: 'G', type: 'major', i: 'G', iv: 'C', v: 'D', rel: 'Em', relNote: 'Em, Bm, Am', context: 'Uplifting and catchy. G major pop-rap feels triumphant and radio-ready.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and focused. Em gives pop-rap a slightly edgier quality.' }
+    ]},
+    ratchet: { keys: [
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', rel: 'C major', relNote: 'C, G, F', context: 'The ratchet key. Minimal synth stabs and sustained 808 sub in Am. Simple and effective.' },
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', rel: 'F major', relNote: 'F, C, Bb', context: 'Dark and formulaic. The minor key matches the stripped-down, club-ready aesthetic.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and minimal. Em gives the ratchet formula a slightly brighter edge.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Heavy and dark. The flat minor key adds weight to the minimal patterns.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. Gm gives the ratchet style a West Coast funk edge.' }
     ]}
   };
 
@@ -535,7 +634,17 @@ function analyzeBeat() {
     halftime: 'Search for: <b>dark jazz, minor key piano, atmospheric pads</b>. Halftime beats need weight — heavy, slow samples. On Splice, search "dark jazz piano" or "atmospheric pad." Film score samples work well at this tempo.',
     sparse: 'Search for: <b>ambient, minimal, single instrument loops</b>. Less is more — one piano note, one guitar phrase, one vocal sample. The space in the drums needs space in the melody. On Splice, search "minimal piano" or "ambient texture."',
     driving: 'Search for: <b>funk guitar, bass riffs, horn loops</b>. Driving beats need forward-moving samples. On Tracklib, filter by funk from 1972-1980. On Splice, search "funk guitar loop" or "bass riff."',
-    big: 'Search for: <b>orchestral, choir, anthem pads, soul vocals</b>. Big beats need big sounds — strings, brass sections, gospel choirs. On Splice, search "orchestral hit" or "gospel choir." On Tracklib, look for 70s soul with full arrangements.'
+    big: 'Search for: <b>orchestral, choir, anthem pads, soul vocals</b>. Big beats need big sounds — strings, brass sections, gospel choirs. On Splice, search "orchestral hit" or "gospel choir." On Tracklib, look for 70s soul with full arrangements.',
+    miamibass: 'Search for: <b>electro synth, 808 bass, vocoder, funk</b>. Miami bass samples electro-funk and early synth music. On Splice, search "electro bass" or "808 sub." On Tracklib, filter by electro/funk from 1982-1990. Kraftwerk, Afrika Bambaataa, and Freestyle are the roots.',
+    nolimit: 'Search for: <b>brass stabs, dark pads, Southern soul, marching band</b>. No Limit production sampled brass sections and dark synth textures. On Splice, search "brass stab" or "dark pad." On Tracklib, filter by soul/funk from New Orleans labels.',
+    cashmoney: 'Search for: <b>funk keyboards, brass, church organ, bounce vocals</b>. Cash Money production is rooted in New Orleans funk and church music. On Splice, search "funk keys" or "church organ." On Tracklib, filter by funk/soul from 1975-1985.',
+    timbaland: 'Search for: <b>world percussion, tabla, dhol, unusual textures</b>. Timbaland sampled Bollywood, African music, and unconventional sources. On Splice, search "world percussion" or "tabla loop." The more unexpected the source, the better.',
+    neptunes: 'Search for: <b>minimal synth, staccato chords, clean guitar</b>. The Neptunes used simple, clean sounds — one synth note can carry a whole beat. On Splice, search "minimal synth" or "staccato chord." Less is more.',
+    ruffryder: 'Search for: <b>Casio keyboard, aggressive synth, raw piano</b>. Ruff Ryders production used cheap keyboard presets and raw sounds. On Splice, search "aggressive synth" or "raw piano." The rawer and less polished, the better.',
+    chipmunk: 'Search for: <b>soul vocals, R&B, gospel, vintage piano</b>. The chipmunk technique pitches these up 4-8 semitones. On Tracklib, filter by soul/R&B from 1965-1978. On Splice, search "soul vocal" or "vintage piano." Pitch up in your DAW for the signature sound.',
+    rocafella: 'Search for: <b>orchestral stabs, piano chords, brass, strings, soul</b>. Roc-A-Fella production layered orchestral sounds with soul samples. On Splice, search "orchestral stab" or "piano chord." On Tracklib, filter by soul with full arrangements from 1970-1980.',
+    poprap: 'Search for: <b>clean piano, pop vocals, bright synth, R&B</b>. Pop-rap uses polished, radio-friendly sounds. On Splice, search "pop piano" or "clean synth pad." On Tracklib, filter by pop/R&B from 2000-2010. Bright, catchy, hook-friendly.',
+    ratchet: 'Search for: <b>minimal synth, 808 bass, clap, vocal chant</b>. Ratchet production uses very few elements — one synth note and a "hey" chant can carry the whole beat. On Splice, search "ratchet synth" or "mustard type." Keep it minimal.'
   };
   var sampleTip = sampleTips[songFeelBase] || sampleTips.normal;
   lines.push(sampleTip);
@@ -607,7 +716,17 @@ function analyzeBeat() {
     nujabes: 'Soft ghost-level snare roll — jazzy and gentle. Nujabes fills dissolve like Dilla\'s, with warmth.',
     oldschool: 'Simple snare hit on the last step — drum machine precision. No fills in the modern sense.',
     driving: 'Kick-snare buildup with forward momentum — the fill pushes you into the next section.',
-    big: 'Snare crescendo with clap layers — stadium energy. The fill announces the hook.'
+    big: 'Snare crescendo with clap layers — stadium energy. The fill announces the hook.',
+    miamibass: 'Rapid 16th-note snare roll — machine-gun precision. Electro bass fills are mechanical and relentless.',
+    nolimit: 'Military-style snare roll — tight, aggressive, and disciplined. Marching-band energy in the transition.',
+    cashmoney: 'Bouncy kick-snare alternation — the groove keeps moving even through the fill. New Orleans never stops dancing.',
+    timbaland: 'Unexpected percussion accent — the fill surprises you, just like the kick pattern. Nothing is predictable.',
+    neptunes: 'Minimal — one snare hit or silence. The space before the next section is the fill. Deliberate restraint.',
+    ruffryder: 'Hard snare hit on the last step — raw and aggressive. No buildup, just impact.',
+    chipmunk: 'Classic boom bap snare build — 2-3 hits crescendo. The soul sample tradition meets drum programming.',
+    rocafella: 'Dense snare roll with kick doubles — anthem-level energy. The fill announces something big is coming.',
+    poprap: 'Clean snare build — polished and controlled. The fill is smooth, not aggressive. Radio-ready transitions.',
+    ratchet: 'Single snare hit on the last step — minimal and formulaic. The formula doesn\'t need a complex fill.'
   };
   var fillDesc = fillDescs[songFeelBase] || fillDescs.normal;
   lines.push('');
@@ -648,7 +767,17 @@ function analyzeBeat() {
     memphis: ['Three 6 Mafia — "Slob on My Knob"', 'DJ Paul & Juicy J — "Sippin\' on Some Syrup"', 'Gangsta Boo — "Where Dem Dollas At"', 'Three 6 Mafia — "Late Nite Tip"'],
     griselda: ['Daringer — "George Bondo" (Westside Gunn)', 'Beat Butcha — "Shawn vs. Ironman" (Westside Gunn)', 'Conductor Williams — "Pray for Paris" (Westside Gunn)', 'Daringer — "Tito\'s Back" (Conway the Machine)'],
     phonk: ['SpaceGhostPurrp — "Bringing the Phonk"', 'DJ Smokey — "Evil Wayz"', 'Soudiere — "Midnight Ride"', 'DJ Yung Vamp — "Phonk Anthem"'],
-    nujabes: ['Nujabes — "Feather" (feat. Cise Starr)', 'Nujabes — "Aruarian Dance"', 'Fat Jon — "Samurai Champloo OST"', 'DJ Okawari — "Luv Letter"']
+    nujabes: ['Nujabes — "Feather" (feat. Cise Starr)', 'Nujabes — "Aruarian Dance"', 'Fat Jon — "Samurai Champloo OST"', 'DJ Okawari — "Luv Letter"'],
+    miamibass: ['2 Live Crew — "We Want Some Pussy"', 'Afro-Rican — "Give It All You Got"', 'DJ Magic Mike — "Feel the Bass"', 'Bass Patrol — "Bass Mechanic"'],
+    nolimit: ['Beats By the Pound — "Make \'Em Say Uhh!" (Master P)', 'KLC — "I Got the Hook Up"', 'Craig B — "Ghetto D" (Master P)', 'Mo B. Dick — "Ha" (Juvenile)'],
+    cashmoney: ['Mannie Fresh — "Back That Azz Up" (Juvenile)', 'Mannie Fresh — "Bling Bling" (B.G.)', 'DJ Jubilee — "Get Ready, Ready"', 'DJ Jimi — "Where They At"'],
+    timbaland: ['Timbaland — "Are You That Somebody?" (Aaliyah)', 'Timbaland — "Big Pimpin\'" (Jay-Z)', 'Timbaland — "Try Again" (Aaliyah)', 'Scott Storch — "Lean Back" (Terror Squad)'],
+    neptunes: ['The Neptunes — "Grindin\'" (Clipse)', 'The Neptunes — "Drop It Like It\'s Hot" (Snoop Dogg)', 'The Neptunes — "Frontin\'" (Pharrell)', 'The Neptunes — "I Just Wanna Love U" (Jay-Z)'],
+    ruffryder: ['Swizz Beatz — "Ruff Ryders\' Anthem" (DMX)', 'Swizz Beatz — "Party Up" (DMX)', 'PK — "Get at Me Dog" (DMX)', 'Dame Grease — "Niggaz Done Started Something" (DMX)'],
+    chipmunk: ['Kanye West — "Through the Wire"', 'Kanye West — "Jesus Walks"', 'Just Blaze — "Oh Boy" (Cam\'ron)', '9th Wonder — "Threat" (Jay-Z)'],
+    rocafella: ['Just Blaze — "Song Cry" (Jay-Z)', 'Just Blaze — "Oh Boy" (Cam\'ron)', 'Kanye West — "Takeover" (Jay-Z)', 'Bink! — "What More Can I Say" (Jay-Z)'],
+    poprap: ['Ryan Leslie — "Addiction"', 'Polow da Don — "Glamorous" (Fergie)', 'Cool & Dre — "Best I Ever Had" (Drake)', 'Ryan Leslie — "How It Was Supposed to Be"'],
+    ratchet: ['DJ Mustard — "Rack City" (Tyga)', 'DJ Mustard — "My Nigga" (YG)', 'DJ Mustard — "Paranoid" (Ty Dolla $ign)', 'DJ Mustard — "Don\'t Tell \'Em" (Jeremih)']
   };
   var refs = refMap[songFeelBase] || refMap.normal;
   lines.push('Study these to hear the ' + (styleNames[songFeel] || 'boom bap').toLowerCase() + ' feel in action:');
@@ -714,6 +843,56 @@ function analyzeBeat() {
       '• <b>Black Milk</b> would tighten the kick, add a chopped soul sample with a filter sweep, and make the snare crack harder. His beats are punchy and precise with deep soul underneath.',
       '• <b>Apollo Brown</b> would slow it down 3 BPM, add vinyl crackle, and let the sample breathe. His production is warm, dusty, and deeply melodic — every chop tells a story.',
       '• <b>House Shoes</b> would strip the drums back, let the bass walk more, and add a subtle organ underneath. His beats are spacious and soulful — the groove does the work.'
+    ],
+    miamibass: [
+      '• <b>2 Live Crew</b> would push the 808 sub lower, add a call-and-response vocal chant, and keep the four-on-the-floor kick relentless. Bass car culture demands maximum low end.',
+      '• <b>DJ Magic Mike</b> would add more synth layers, speed up the tempo 5 BPM, and make the open hats louder. Electro bass is about energy and spectacle.',
+      '• <b>Afrika Bambaataa</b> would add a vocoder melody and more electronic textures. The electro-funk roots of Miami bass come from "Planet Rock."'
+    ],
+    nolimit: [
+      '• <b>Beats By the Pound</b> would add a marching-band snare roll, make the brass stabs louder, and keep the kick sparse but devastating. Military precision meets Southern weight.',
+      '• <b>KLC</b> would darken the pads, add a minor-key piano riff, and make the 808 sub sustain longer. The No Limit sound is heavy and ominous.',
+      '• <b>Mannie Fresh</b> would add more bounce to the kick, brighten the keys, and make it danceable. Same city, completely different energy.'
+    ],
+    cashmoney: [
+      '• <b>Mannie Fresh</b> would add a keyboard riff, make the kick bouncier, and push the tempo up 3 BPM. His beats are funky and danceable above all else.',
+      '• <b>DJ Jubilee</b> would add a call-and-response vocal hook, make the claps heavier, and push the second-line bounce harder. New Orleans party music.',
+      '• <b>Lil Wayne</b> would strip the drums back, add auto-tune melodies, and turn it into something completely different. Evolution of the bounce sound.'
+    ],
+    timbaland: [
+      '• <b>Timbaland</b> would add a beatbox vocal layer, an unexpected percussion sound (tabla, dhol), and make the kick placement even more unusual. His beats surprise you.',
+      '• <b>Scott Storch</b> would add a piano melody, straighten the kick slightly, and make it more radio-friendly. Same Virginia DNA, more accessible.',
+      '• <b>Missy Elliott</b> would add vocal chops, reverse effects, and make the arrangement more dynamic. Her vision pushes the production further.'
+    ],
+    neptunes: [
+      '• <b>Pharrell</b> would strip it even further — maybe just a kick, snare, and one synth note. The space IS the beat. Less is always more.',
+      '• <b>Chad Hugo</b> would add an unexpected chord change, a guitar stab, and make the arrangement more musical. The Neptunes\' secret weapon is harmony.',
+      '• <b>Timbaland</b> would fill the space with percussion layers and vocal textures. Same Virginia school, opposite approach to density.'
+    ],
+    ruffryder: [
+      '• <b>Swizz Beatz</b> would add a Casio keyboard riff, make the synth stabs louder, and keep the drums raw and simple. His beats are about energy, not complexity.',
+      '• <b>Dame Grease</b> would darken the pads, add more low end, and make it grittier. The underground Ruff Ryders sound.',
+      '• <b>DJ Premier</b> would add ghost notes, tighten the swing, and make it groove more. Same NY aggression, more musical sophistication.'
+    ],
+    chipmunk: [
+      '• <b>Kanye West</b> would pitch the soul sample up higher, add a choir, and build the arrangement into an anthem. The chipmunk technique is just the starting point.',
+      '• <b>Just Blaze</b> would add orchestral stabs, make the drums hit harder, and push the energy to stadium level. Same soul DNA, bigger execution.',
+      '• <b>9th Wonder</b> would keep it simpler — just the chopped sample, clean drums, and let the soul speak for itself. Less production, more feeling.'
+    ],
+    rocafella: [
+      '• <b>Just Blaze</b> would add a full orchestra hit, double the kick density, and make every section feel like a movie climax. His beats are events.',
+      '• <b>Kanye West</b> would add a pitched-up soul sample on top, strip some of the drums, and make it more musical. Orchestral meets chipmunk soul.',
+      '• <b>Bink!</b> would keep the piano simpler, make the bass more melodic, and let the arrangement breathe more. Understated power.'
+    ],
+    poprap: [
+      '• <b>Ryan Leslie</b> would add a smooth vocal melody, make the EP chords more complex, and push the production toward R&B. Pop-rap with sophistication.',
+      '• <b>Polow da Don</b> would make the 808 hit harder, add a catchy synth hook, and push the tempo up for club play. Radio-ready with edge.',
+      '• <b>Cool & Dre</b> would add guitar layers, make the arrangement more dynamic, and keep the hooks front and center. Accessible but musical.'
+    ],
+    ratchet: [
+      '• <b>DJ Mustard</b> would strip it even further — just kick, clap, one synth note, and the signature "hey" chant. The formula works because of what\'s NOT there.',
+      '• <b>YG</b> would add ad-libs, make the 808 slide between notes, and push the energy for the club. Same formula, more personality.',
+      '• <b>Ty Dolla $ign</b> would add melodic vocals, layer harmonies, and turn the minimal beat into a canvas for singing. Ratchet meets R&B.'
     ]
   };
   var comps = producerComps[songFeelBase] || producerComps.normal;
@@ -752,7 +931,9 @@ function analyzeBeat() {
   var feelDiffMap = {
     dilla: 3, jazzy: 2, chopbreak: 2, nujabes: 2, hard: 1, lofi: 1, gfunk: 1,
     memphis: 1, halftime: 1, bounce: 1, driving: 1, big: 1, griselda: 1, phonk: 1,
-    crunk: 0, sparse: 0, normal: 0, dark: 0
+    crunk: 0, sparse: 0, normal: 0, dark: 0,
+    miamibass: 0, ratchet: 0, nolimit: 1, cashmoney: 1, timbaland: 2, neptunes: 1,
+    ruffryder: 1, chipmunk: 1, rocafella: 1, poprap: 0
   };
   var hardestFeel = songFeel;
   var hardestFellScore = feelDiffMap[songFeelBase] || 0;
@@ -782,7 +963,17 @@ function analyzeBeat() {
     sparse: 'minimal pattern — simplicity is the challenge',
     griselda: 'wide dynamics and sparse ghosts require precise velocity control',
     phonk: 'triplet hat patterns and sparse kick require restraint',
-    nujabes: 'jazz-influenced dynamics with dense brush ghosts and ride cymbal'
+    nujabes: 'jazz-influenced dynamics with dense brush ghosts and ride cymbal',
+    miamibass: 'machine-driven four-on-the-floor — straightforward but precise',
+    nolimit: 'sparse, heavy kicks with military snare rolls',
+    cashmoney: 'syncopated bounce kicks require tight timing',
+    timbaland: 'unusual kick placements break conventional patterns',
+    neptunes: 'minimal and deliberate — every hit must be intentional',
+    ruffryder: 'raw and aggressive — simple but hard-hitting',
+    chipmunk: 'boom bap foundation with soul-sample sensibility',
+    rocafella: 'dense kick doubles and orchestral energy',
+    poprap: 'clean and simple — straightforward programming',
+    ratchet: 'minimal and formulaic — the formula is the challenge'
   };
   if (feelDescMap[hardestFeel]) diffReasons.push(feelDescMap[hardestFeel]);
 
@@ -1073,7 +1264,17 @@ function analyzeBeat() {
     oldschool: 'Old school hip hop (1979-1986) used drum machines — the Roland TR-808, LinnDrum, and Oberheim DMX — programmed with nearly straight timing. Run-DMC, LL Cool J, and Boogie Down Productions defined the sound: mechanical, punchy, and direct. No ghost notes, no swing, no fills in the modern sense.',
     detroit: 'Detroit hip hop production is built on soul. Black Milk, Apollo Brown, House Shoes, and Guilty Simpson carry the tradition Dilla started but with a harder, more sample-forward approach. Punchy kicks, crisp snares, chopped soul loops, and Rhodes chords. The swing is moderate — groovy but not drunk. The bass is active and melodic. Every beat sounds like it was made in a basement on Livernois Ave with a crate of Motown records and an MPC.',
     griselda: 'The Griselda revival (2010s-present) brought back the raw, sample-based boom bap aesthetic with modern production quality. Daringer and Beat Butcha use Phrygian harmony (the sinister bII chord) and sparse, punchy drums that reference RZA\'s Wu-Tang productions.',
-    phonk: 'Phonk is Memphis rap filtered through SoundCloud — SpaceGhostPurrp, DJ Smokey, and Soudiere took the eerie choir pads, distorted 808s, and slow tempos of Three 6 Mafia and added modern production techniques. The cowbell, lo-fi vocal samples, and hypnotic repetition are the signatures.'
+    phonk: 'Phonk is Memphis rap filtered through SoundCloud — SpaceGhostPurrp, DJ Smokey, and Soudiere took the eerie choir pads, distorted 808s, and slow tempos of Three 6 Mafia and added modern production techniques. The cowbell, lo-fi vocal samples, and hypnotic repetition are the signatures.',
+    miamibass: 'Miami bass emerged in the mid-1980s when Florida producers fused electro-funk with heavy 808 sub bass. 2 Live Crew, DJ Magic Mike, and Bass Patrol built a culture around car audio systems and block parties. The four-on-the-floor kick, open hats on upbeats, and sustained 808 sub became the formula. This sound directly influenced crunk, Southern trap, and modern bass music.',
+    nolimit: 'No Limit Records defined late-90s New Orleans hip hop with a military-influenced sound. Beats By the Pound, KLC, and Craig B created heavy, sparse productions with marching-band brass stabs and dark pads. The sound was aggressive and Southern, distinct from both East and West Coast styles.',
+    cashmoney: 'Cash Money Records and the New Orleans bounce tradition share DNA with second-line parade drumming. Mannie Fresh created the signature sound — syncopated kicks, funky keyboards, church organ, and heavy claps. DJ Jubilee and the bounce scene provided the rhythmic foundation that made New Orleans hip hop unique.',
+    timbaland: 'Timbaland revolutionized hip hop production in the late 1990s by incorporating world music rhythms, unusual percussion, and inventive kick placements. His work with Aaliyah, Missy Elliott, and Jay-Z broke every rule of conventional beat-making. The Virginia sound he pioneered influenced a generation of producers.',
+    neptunes: 'The Neptunes (Pharrell Williams and Chad Hugo) stripped hip hop production to its essentials — minimal drums, sparse synth stabs, and wide open space. Their work with Clipse, Snoop Dogg, and Jay-Z proved that less could be more. The Virginia minimal sound influenced modern pop and hip hop production.',
+    ruffryder: 'Ruff Ryders defined late-90s New York aggression. Swizz Beatz, PK, and Dame Grease created raw, simple beats with Casio keyboard riffs and punchy drums. DMX, Eve, and The LOX rode these beats with maximum intensity. The sound was the opposite of polished — raw energy was the point.',
+    chipmunk: 'The chipmunk soul technique — pitching up soul vocal samples — became a signature of early 2000s hip hop. Kanye West popularized it on "Through the Wire" and "Jesus Walks," but Just Blaze and 9th Wonder used similar approaches. The technique gave old soul records new life and created an instantly recognizable sound.',
+    rocafella: 'Roc-A-Fella Records in the early 2000s defined orchestral boom bap. Just Blaze, Kanye West, and Bink! created dense, anthem-level productions with piano chords, brass stabs, and heavy kick patterns. Jay-Z\'s "The Blueprint" and "The Black Album" showcased this sound at its peak — stadium hip hop with boom bap roots.',
+    poprap: 'Pop-rap emerged as hip hop crossed over to mainstream radio in the 2000s. Producers like Ryan Leslie, Polow da Don, and Cool & Dre created clean, polished beats designed for wide appeal. The sound balanced hip hop credibility with pop accessibility — simple patterns, sustained chords, and hook-friendly arrangements.',
+    ratchet: 'West Coast ratchet music, pioneered by DJ Mustard in the early 2010s, stripped hip hop to a minimal formula — kick, clap, one synth note, and a "hey" chant. YG, Ty Dolla $ign, and the LA club scene embraced the sound. The signature beat-3 rest in the clap pattern became instantly recognizable.'
   };
   var historyText = historyMap[songFeelBase] || historyMap.normal;
   lines.push(historyText);
@@ -1122,7 +1323,17 @@ function analyzeBeat() {
     lofi: 'For this lo-fi beat: add vinyl crackle, pitch wobble (±3 cents), and a low-pass filter at 8kHz on the master. Compress the EP hard to narrow the dynamics. The beat should sound like it\'s playing through a cheap speaker.',
     griselda: 'For this Griselda beat: the drums should be punchy and dry. The string pad sits low in the mix. Add a subtle tape delay on the snare. The overall mix should feel raw — don\'t polish it.',
     phonk: 'For this phonk beat: distort the 808 bass. Bitcrush the choir pad. Add a long, dark reverb on everything. The cowbell (if you add one) should be lo-fi and repetitive. Hypnotic repetition is the goal.',
-    detroit: 'For this Detroit beat: the soul sample needs warmth — add subtle tape saturation and a low-pass at 12kHz. Compress the drums at 4:1 with fast attack for that punchy MPC sound. Keep the EP warm and slightly overdriven. Add vinyl crackle for texture.'
+    detroit: 'For this Detroit beat: the soul sample needs warmth — add subtle tape saturation and a low-pass at 12kHz. Compress the drums at 4:1 with fast attack for that punchy MPC sound. Keep the EP warm and slightly overdriven. Add vinyl crackle for texture.',
+    miamibass: 'For this Miami bass beat: the 808 sub needs to dominate — boost at 40-60Hz, compress hard. Keep the synth stabs bright and punchy. The open hats should cut through. No reverb on the kick — keep it dry and massive.',
+    nolimit: 'For this NOLA military beat: the 808 sub should be heavy and sustained. Brass stabs need a short room reverb. Compress the drums hard for that aggressive, in-your-face sound. Keep the pads dark and low in the mix.',
+    cashmoney: 'For this NOLA bounce beat: the kick needs punch — compress at 4:1 with fast attack. The EP and organ should be warm and funky. Brass stabs need presence. Heavy claps on the backbeat should cut through everything.',
+    timbaland: 'For this Virginia rhythm beat: the EP pad should be wide and sustained. The unusual kick placements need to hit hard — don\'t compress the transients away. Add subtle delay on the percussion for depth.',
+    neptunes: 'For this Virginia minimal beat: less is more in the mix too. Keep everything clean and dry. The synth stabs should be bright and punchy. The bass should be tight and controlled. Space is your best friend.',
+    ruffryder: 'For this raw NY beat: keep it aggressive — hard compression on the drums, distortion on the synth stabs. The bass should be punchy and short. No polish, no reverb. Raw is the aesthetic.',
+    chipmunk: 'For this chipmunk soul beat: the pitched-up sample needs warmth — add tape saturation. The drums should be punchy boom bap style. The bass guitar should be warm and round. Add subtle vinyl crackle for texture.',
+    rocafella: 'For this orchestral boom bap beat: the piano needs presence — slight compression and EQ boost at 2-4kHz. Brass stabs should be loud and proud. The kick doubles need to hit hard. Stadium-level energy in the mix.',
+    poprap: 'For this pop-rap beat: everything should be clean and polished. The EP pad should be warm but not muddy. The 808 should be tight and controlled. Master bus compression for glue. Radio-ready means no rough edges.',
+    ratchet: 'For this ratchet beat: the 808 sub should sustain and dominate the low end. The synth stab should be bright and minimal. The clap needs to crack. Keep the mix simple — the formula works because of clarity, not complexity.'
   };
   var mixTip = mixTips[songFeelBase] || mixTips.normal;
   lines.push('<b>🎚 Mixing tip for this style:</b> ' + mixTip);
@@ -1139,7 +1350,17 @@ function analyzeBeat() {
     lofi: '<b>Why these settings:</b> Vinyl crackle and pitch wobble simulate the imperfections of playing a record — the sound that lo-fi producers chase. The low-pass at 8kHz removes the "digital" top end. Hard compression on the EP narrows the dynamics to match the compressed sound of a sampled record.',
     griselda: '<b>Why these settings:</b> Raw and dry is the Griselda aesthetic — minimal processing, maximum impact. The tape delay on the snare adds a subtle slap-back that thickens the backbeat without obvious reverb. The overall mix should sound like it was recorded in one take in a small room.',
     phonk: '<b>Why these settings:</b> Distortion on the 808 is essential — it adds harmonics that make the bass audible on any speaker and creates the aggressive, blown-out sound of phonk. The long reverb on everything creates the hypnotic, underwater quality. Repetition and texture matter more than clarity.',
-    detroit: '<b>Why these settings:</b> Tape saturation on the soul sample adds the warmth of analog recording — Detroit production is built on vinyl. The fast-attack compression on drums recreates the punchy, in-your-face MPC sound that Black Milk and Apollo Brown are known for. The low-pass at 12kHz keeps the top end warm, not brittle.'
+    detroit: '<b>Why these settings:</b> Tape saturation on the soul sample adds the warmth of analog recording — Detroit production is built on vinyl. The fast-attack compression on drums recreates the punchy, in-your-face MPC sound that Black Milk and Apollo Brown are known for. The low-pass at 12kHz keeps the top end warm, not brittle.',
+    miamibass: '<b>Why these settings:</b> The 808 sub needs to physically move speakers — boosting 40-60Hz and compressing hard ensures the bass is felt, not just heard. Dry kick preserves the transient punch that defines electro bass. Bright synth stabs cut through the massive low end.',
+    nolimit: '<b>Why these settings:</b> Heavy 808 compression keeps the sub consistent across the bar. The short room reverb on brass stabs simulates the marching-band hall sound. Hard drum compression creates the aggressive, wall-of-sound energy.',
+    cashmoney: '<b>Why these settings:</b> Fast-attack compression on the kick preserves the bounce while controlling dynamics. Warm EP and organ tones reference the funk and soul roots of New Orleans music. Heavy claps need to cut through the dense arrangement.',
+    timbaland: '<b>Why these settings:</b> Wide EP pads create the spacious, cinematic quality of Virginia production. Preserving kick transients is critical because the unusual placements need to be heard clearly. Subtle delay adds depth without cluttering the inventive rhythms.',
+    neptunes: '<b>Why these settings:</b> Clean and dry mixing matches the minimal production philosophy — every element is intentional, so processing should be invisible. Bright synth stabs need clarity, not warmth. Tight bass means no mud in the low end.',
+    ruffryder: '<b>Why these settings:</b> Hard compression and distortion recreate the raw, unpolished sound of late-90s NY production. Short, punchy bass notes need fast compression to maintain impact. No reverb keeps everything in-your-face and aggressive.',
+    chipmunk: '<b>Why these settings:</b> Tape saturation on the pitched-up sample adds the analog warmth that makes chipmunk soul feel like a record, not a digital pitch shift. Punchy boom bap drum compression and vinyl crackle complete the aesthetic.',
+    rocafella: '<b>Why these settings:</b> Piano presence at 2-4kHz ensures the chords cut through the dense arrangement. Loud brass stabs are the signature — they need to hit like orchestral punches. Hard-hitting kick doubles require careful compression to avoid muddiness.',
+    poprap: '<b>Why these settings:</b> Clean, polished mixing is essential for radio-ready production. Master bus compression glues the elements together for a cohesive, professional sound. No rough edges means every element sits perfectly in its frequency range.',
+    ratchet: '<b>Why these settings:</b> The sustained 808 sub is the foundation — it needs to dominate without distorting. Bright, minimal synth stabs cut through because there\'s so little else in the mix. Clarity comes from simplicity, not processing.'
   };
   var mixWhy = mixWhyMap[songFeelBase] || mixWhyMap.normal;
   lines.push(mixWhy);
@@ -1315,7 +1536,17 @@ function analyzeBeat() {
     sparse: 'This beat descends from the <b>Ensoniq EPS</b> — RZA\'s weapon for Wu-Tang\'s most minimal productions. When you only have 10 seconds of sample time, every hit has to count.',
     driving: 'This beat channels the <b>E-mu SP-1200</b> paired with <b>Technics 1200</b> turntables — Premier\'s setup for Gangstarr\'s uptempo cuts.',
     big: 'This beat comes from the <b>Akai MPC3000</b> — the machine behind the biggest hip hop anthems of the 90s. Pete Rock, Easy Mo Bee, and Premier all used it for their stadium-sized productions.',
-    detroit: 'This beat is pure <b>Akai MPC3000</b> and <b>Boss SP-303</b> — Detroit\'s weapons. Black Milk programs on the MPC with the precision of Premier but the soul of Dilla. Apollo Brown runs everything through the SP-303\'s vinyl sim for that dusty warmth. The MPC\'s pads and the crate of Motown records are the Detroit producer\'s studio.'
+    detroit: 'This beat is pure <b>Akai MPC3000</b> and <b>Boss SP-303</b> — Detroit\'s weapons. Black Milk programs on the MPC with the precision of Premier but the soul of Dilla. Apollo Brown runs everything through the SP-303\'s vinyl sim for that dusty warmth. The MPC\'s pads and the crate of Motown records are the Detroit producer\'s studio.',
+    miamibass: 'This beat comes from the <b>Roland TR-808</b> — the machine that defined Miami bass. The 808\'s booming kick and crisp hats, combined with early synths and sequencers, created the electro bass sound that shook car speakers across Florida.',
+    nolimit: 'This beat channels the <b>Akai MPC2000</b> and <b>Roland TR-808</b> — the No Limit Records setup. Beats By the Pound layered 808 drums with sampled brass and dark synth pads to create the heavy, military-influenced Southern sound.',
+    cashmoney: 'This beat is pure <b>Akai MPC3000</b> — Mannie Fresh\'s machine. His funky keyboard riffs, bouncy kick patterns, and heavy claps all came from the MPC\'s pads and built-in sounds. The New Orleans bounce tradition meets drum machine precision.',
+    timbaland: 'This beat channels the <b>Akai MPC3000</b> paired with <b>Ensoniq ASR-10</b> — Timbaland\'s setup. He layered beatbox vocals, world percussion samples, and unconventional sounds to create rhythms that broke every rule of hip hop production.',
+    neptunes: 'This beat comes from the <b>Akai MPC3000</b> and <b>Korg Triton</b> — The Neptunes\' core setup. Pharrell and Chad Hugo used the Triton\'s synth presets and the MPC\'s sequencing to create minimal, space-heavy productions.',
+    ruffryder: 'This beat channels the <b>Akai MPC2000</b> and <b>Casio keyboards</b> — Swizz Beatz\'s signature setup. The raw Casio presets and simple MPC programming created the aggressive, unpolished Ruff Ryders sound.',
+    chipmunk: 'This beat is pure <b>Akai MPC2000XL</b> and <b>Ensoniq ASR-10</b> — the machines behind the chipmunk soul era. Kanye West and Just Blaze pitched soul samples up on the ASR-10 and programmed drums on the MPC.',
+    rocafella: 'This beat comes from the <b>Akai MPC3000</b> and <b>Motif ES</b> — Just Blaze\'s weapons. The MPC handled the dense drum programming while the Motif provided the orchestral sounds and piano that defined the Roc-A-Fella anthem sound.',
+    poprap: 'This beat channels modern <b>DAW production</b> — Pro Tools, Logic, FL Studio. Pop-rap production moved beyond hardware into software, where clean mixing and polished arrangements became the standard.',
+    ratchet: 'This beat comes from <b>FL Studio</b> — DJ Mustard\'s weapon. The ratchet sound was born in FL Studio\'s step sequencer, where the minimal formula of kick, clap, and one synth note could be programmed in minutes.'
   };
   lines.push(machineMap[songFeelBase] || machineMap.normal);
 

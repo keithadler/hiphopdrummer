@@ -341,6 +341,26 @@ var FEEL_PALETTES = [
   ['sparse', 'dark', 'sparse', 'halftime'],
   // Detroit
   ['detroit', 'big', 'chopbreak', 'driving'],
+  // Miami Bass
+  ['miamibass', 'big', 'sparse', 'driving'],
+  // NOLA Military
+  ['nolimit', 'hard', 'dark', 'driving'],
+  // NOLA Bounce
+  ['cashmoney', 'big', 'bounce', 'driving'],
+  // Virginia Rhythm
+  ['timbaland', 'big', 'dark', 'driving'],
+  // Virginia Minimal
+  ['neptunes', 'big', 'sparse', 'driving'],
+  // Raw NY
+  ['ruffryder', 'hard', 'dark', 'driving'],
+  // Chipmunk Soul
+  ['chipmunk', 'big', 'sparse', 'normal'],
+  // Orchestral Boom Bap
+  ['rocafella', 'big', 'dark', 'driving'],
+  // Pop-Rap / Radio
+  ['poprap', 'big', 'sparse', 'driving'],
+  // West Coast Ratchet
+  ['ratchet', 'big', 'hard', 'driving'],
 ];
 
 var SWING_POOLS = {
@@ -363,7 +383,17 @@ var SWING_POOLS = {
   phonk:     [58, 60, 60, 62, 62, 64, 66],          // moderate swing — triplet-influenced but not heavy
   nujabes:   [64, 66, 66, 68, 68, 70, 70, 72, 74],   // jazz swing — heavier than normal, lighter than Dilla
   oldschool: [50, 50, 52, 52, 54, 54, 56, 56],          // nearly straight — drum machine era, mechanical
-  detroit:   [58, 60, 60, 62, 62, 64, 64, 66, 66, 68]   // moderate swing — punchy but groovy, between normal and dilla
+  detroit:   [58, 60, 60, 62, 62, 64, 64, 66, 66, 68],  // moderate swing — punchy but groovy, between normal and dilla
+  miamibass: [50, 50, 52, 52, 52, 54, 54],              // nearly straight, machine-driven
+  nolimit:   [54, 56, 56, 58, 58, 60, 60],              // tight, military
+  cashmoney: [62, 64, 64, 66, 66, 68, 68],              // second-line bounce
+  timbaland: [56, 58, 58, 60, 60, 62, 62],              // syncopated but controlled
+  neptunes:  [52, 54, 54, 56, 56, 58, 58],              // minimal, precise
+  ruffryder: [52, 54, 54, 56, 56, 58, 58],              // raw, mechanical
+  chipmunk:  [60, 62, 62, 64, 64, 66, 66, 68],          // boom bap swing
+  rocafella: [58, 60, 60, 62, 62, 64, 64],              // punchy, anthem
+  poprap:    [52, 54, 54, 56, 56, 58, 58],              // clean, radio-ready
+  ratchet:   [50, 50, 52, 52, 54, 54, 56]               // straight, formulaic
 };
 
 // Regional variant swing pools — inherit from parent with bias applied in generateAll
@@ -514,6 +544,170 @@ function genBasePatterns() {
     baseKick = pick(detroitKickLib);
   }
 
+  // Miami Bass kick library — four-on-the-floor dominant, electro bass
+  var miamiKickLib = [
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // four-on-the-floor — classic electro
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,1,0],  // four-on-the-floor + and-of-4
+    [1,0,1,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],  // double on 1, then straight
+    [1,0,0,0, 1,0,0,0, 1,0,1,0, 1,0,0,0],  // double on 3
+    [1,0,0,0, 1,0,1,0, 1,0,0,0, 1,0,0,0],  // double on 2
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,1],  // four-on-floor + ah-of-4
+    [1,0,1,0, 1,0,0,0, 1,0,1,0, 1,0,0,0],  // doubles on 1 and 3
+    [1,0,0,0, 1,0,0,0, 1,0,0,1, 1,0,0,0],  // four-on-floor + ah-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // drop beat 2 — breakdown variant
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0],  // drop beat 4, add and-of-4
+  ];
+  if (paletteFeel0 === 'miamibass') {
+    baseKick = pick(miamiKickLib);
+  }
+
+  // NOLA Military kick library — sparse, heavy, military-influenced
+  var nolimitKickLib = [
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — heavy and simple
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4 — sparse
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 — minimal
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4
+    [1,0,0,0, 0,0,0,1, 1,0,0,0, 0,0,0,0],  // 1, ah-of-2, 3
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+  ];
+  if (paletteFeel0 === 'nolimit') {
+    baseKick = pick(nolimitKickLib);
+  }
+
+  // NOLA Bounce kick library — syncopated, second-line bounce
+  var cashmoneyKickLib = [
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // 1, and-of-2, 3, and-of-4 — rolling bounce
+    [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // doubles on 1 and 3
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-2, and-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // busy front half
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],  // 1, and-of-2, 4
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 2, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // 1, and-of-2, 3, and-of-3
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4
+    [1,0,1,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // double on 1, syncopated back half
+  ];
+  if (paletteFeel0 === 'cashmoney') {
+    baseKick = pick(cashmoneyKickLib);
+  }
+
+  // Virginia Rhythm kick library — unusual, inventive placements
+  var timbalandKickLib = [
+    [1,0,0,0, 0,1,0,0, 0,0,0,0, 0,1,0,0],  // 1, e-of-2, e-of-4 — offbeat
+    [1,0,0,1, 0,0,0,0, 1,0,0,1, 0,0,0,0],  // 1, ah-of-1, 3, ah-of-3
+    [1,0,0,0, 0,0,0,1, 0,0,1,0, 0,0,0,0],  // 1, ah-of-2, and-of-3
+    [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,1,0,0],  // and-of-1, 3, e-of-4 — displaced
+    [1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,0],  // 1, and-of-2, e-of-3
+    [1,0,0,0, 0,0,0,0, 0,0,0,1, 0,0,1,0],  // 1, ah-of-3, and-of-4
+    [1,1,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,1],  // double on 1, and-of-3, ah-of-4
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // simple 1 and 3 — contrast bar
+    [0,0,0,1, 0,0,1,0, 0,0,0,0, 0,0,0,1],  // ah-of-1, and-of-2, ah-of-4
+    [1,0,0,0, 0,1,0,0, 1,0,0,0, 0,0,1,0],  // 1, e-of-2, 3, and-of-4
+  ];
+  if (paletteFeel0 === 'timbaland') {
+    baseKick = pick(timbalandKickLib);
+  }
+
+  // Virginia Minimal kick library — minimal, deliberate spacing
+  var neptunesKickLib = [
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — classic minimal
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],  // kick on 1 only — ultra minimal
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [0,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // and-of-1, 3 — displaced
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],  // 1 and 4
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4
+  ];
+  if (paletteFeel0 === 'neptunes') {
+    baseKick = pick(neptunesKickLib);
+  }
+
+  // Raw NY kick library — simple, aggressive
+  var ruffryderKickLib = [
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — raw and simple
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-2, and-of-4
+    [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // 1, 3, and-of-3
+    [1,1,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // double on 1, 3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling — 1, and-of-2, 3, and-of-4
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, 2, 3 — aggressive
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4
+  ];
+  if (paletteFeel0 === 'ruffryder') {
+    baseKick = pick(ruffryderKickLib);
+  }
+
+  // Chipmunk Soul kick library — standard boom bap vocabulary
+  var chipmunkKickLib = [
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // classic boom bap
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,0,0],  // chopped
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3
+    [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // double on 1, 3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling
+    [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],  // 1, 3, and-of-3
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2 — minimal
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4
+    [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // busy — 1, and-of-2, 3, and-of-3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+  ];
+  if (paletteFeel0 === 'chipmunk') {
+    baseKick = pick(chipmunkKickLib);
+  }
+
+  // Orchestral Boom Bap kick library — heavy doubles, dense, anthem
+  var rocafellaKickLib = [
+    [1,1,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // double on 1, and-of-2, 3
+    [1,0,0,0, 0,0,1,0, 1,1,0,0, 0,0,0,0],  // 1, and-of-2, double on 3
+    [1,1,0,0, 0,0,0,0, 1,1,0,0, 0,0,0,0],  // doubles on 1 and 3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling — 1, and-of-2, 3, and-of-4
+    [1,1,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // double on 1, rolling back
+    [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],  // 1, and-of-2, 3, and-of-3
+    [1,1,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // triple on 1, 3
+    [1,0,0,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],  // 1, syncopated back half
+    [1,1,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // double on 1, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 1,0,0,0],  // 1, and-of-2, 3, 4
+  ];
+  if (paletteFeel0 === 'rocafella') {
+    baseKick = pick(rocafellaKickLib);
+  }
+
+  // Pop-Rap / Radio kick library — clean, simple
+  var poprapKickLib = [
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — clean
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],  // 1, 2, 3
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],  // rolling
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4
+  ];
+  if (paletteFeel0 === 'poprap') {
+    baseKick = pick(poprapKickLib);
+  }
+
+  // West Coast Ratchet kick library — minimal, formulaic
+  var ratchetKickLib = [
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],  // 1 and 3 — Mustard classic
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],  // 1, and-of-3
+    [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0],  // 1, and-of-2
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],  // 1, 3, and-of-4
+    [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],  // 1, and-of-4
+    [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],  // 1, and-of-2, 3
+    [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],  // 1, 3, 4
+    [1,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],  // 1, and-of-3, and-of-4
+  ];
+  if (paletteFeel0 === 'ratchet') {
+    baseKick = pick(ratchetKickLib);
+  }
+
   // B variant — guaranteed to differ from A. Usually second half, occasionally first half.
   // Real drummers vary both halves — a kick might shift from "and" of 1 to "e" of 1.
   baseKickB = baseKick.slice();
@@ -553,7 +747,19 @@ function genBasePatterns() {
   baseKickChorusB[cPos] = baseKickChorusB[cPos] ? 0 : 1;
 
   // Verse 2 kick — must be a DIFFERENT pattern from verse 1
-  var v2Lib = (paletteFeel0 === 'oldschool') ? oldschoolKickLib : (paletteFeel0 === 'detroit') ? detroitKickLib : kickLib;
+  var v2Lib = (paletteFeel0 === 'oldschool') ? oldschoolKickLib :
+              (paletteFeel0 === 'detroit') ? detroitKickLib :
+              (paletteFeel0 === 'miamibass') ? miamiKickLib :
+              (paletteFeel0 === 'nolimit') ? nolimitKickLib :
+              (paletteFeel0 === 'cashmoney') ? cashmoneyKickLib :
+              (paletteFeel0 === 'timbaland') ? timbalandKickLib :
+              (paletteFeel0 === 'neptunes') ? neptunesKickLib :
+              (paletteFeel0 === 'ruffryder') ? ruffryderKickLib :
+              (paletteFeel0 === 'chipmunk') ? chipmunkKickLib :
+              (paletteFeel0 === 'rocafella') ? rocafellaKickLib :
+              (paletteFeel0 === 'poprap') ? poprapKickLib :
+              (paletteFeel0 === 'ratchet') ? ratchetKickLib :
+              kickLib;
   do { baseKickV2 = pick(v2Lib); } while (baseKickV2.join('') === baseKick.join(''));
   baseKickV2B = baseKickV2.slice();
   var v2changed = false;

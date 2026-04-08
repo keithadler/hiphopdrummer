@@ -273,6 +273,22 @@ function writeBarK(p, feel, off, kickPat) {
     for (var i = 0; i < 16; i++) if (p.kick[off + i] > 0) p.kick[off + i] = v(112, 14);
     if (p.kick[off] > 0) p.kick[off] = v(118, 8); // beat 1 punches hardest
   }
+  if (feel === 'miamibass') {
+    // Miami Bass: high velocity, tight range — machine-driven 808
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(115, 5);
+  }
+  if (feel === 'nolimit') {
+    // NOLA Military: high velocity, moderate range — heavy and aggressive
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(112, 10);
+  }
+  if (feel === 'ruffryder') {
+    // Ruff Ryders: high velocity, minimal range — raw and punchy
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(115, 4);
+  }
+  if (feel === 'ratchet') {
+    // Ratchet: moderate velocity, tight range — DJ Mustard formulaic
+    for (var i = 0; i < 16; i++) if (kickPat[i]) p.kick[off + i] = v(105, 5);
+  }
 }
 
 /**
@@ -439,6 +455,26 @@ function writeSnA(p, feel, off) {
   if (feel === 'jazzy') {
     p.snare[off + 4] = v(110, 15); p.snare[off + 12] = v(115, 15);
   }
+  // Neptunes: displaced snare — primary hit on step 6 (and-of-2) ~30% of the time
+  if (feel === 'neptunes') {
+    if (maybe(.3)) {
+      p.snare[off + 4] = 0;
+      p.snare[off + 6] = v(118, 8);
+    }
+    p.snare[off + 12] = v(120, 8);
+  }
+  // No Limit: military snare roll ghost clusters around backbeat
+  if (feel === 'nolimit') {
+    p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(122, 6);
+    // Ghost note clusters at steps 1, 3 around backbeat for military roll
+    if (maybe(.5 * ghostDensity) && !p.kick[off + 1]) p.snare[off + 1] = v(55, 8);
+    if (maybe(.5 * ghostDensity) && !p.kick[off + 3]) p.snare[off + 3] = v(58, 8);
+  }
+  // Roc-A-Fella: flam-like ghost note at step 3 before backbeat, ~40% probability
+  if (feel === 'rocafella') {
+    p.snare[off + 4] = v(120, 8); p.snare[off + 12] = v(124, 6);
+    if (maybe(.4) && !p.kick[off + 3]) p.snare[off + 3] = v(50, 8);
+  }
 }
 
 /**
@@ -562,6 +598,26 @@ function writeSnB(p, feel, off) {
       if (!p.kick[off+ngp] && maybe(.3 * ghostDensity)) p.snare[off+ngp] = v(45, 10);
     }
   }
+  // Neptunes B: displaced snare — primary hit on step 6 (and-of-2) ~30% of the time
+  if (feel === 'neptunes') {
+    if (maybe(.3)) {
+      p.snare[off + 4] = 0;
+      p.snare[off + 6] = v(118, 8);
+    }
+    p.snare[off + 12] = v(120, 8);
+  }
+  // No Limit B: military snare roll ghost clusters around backbeat
+  if (feel === 'nolimit') {
+    p.snare[off + 4] = v(120, 6); p.snare[off + 12] = v(122, 6);
+    // Ghost note clusters at steps 1, 3 around backbeat for military roll
+    if (maybe(.5 * ghostDensity) && !p.kick[off + 1]) p.snare[off + 1] = v(55, 8);
+    if (maybe(.5 * ghostDensity) && !p.kick[off + 3]) p.snare[off + 3] = v(58, 8);
+  }
+  // Roc-A-Fella B: flam-like ghost note at step 3 before backbeat, ~40% probability
+  if (feel === 'rocafella') {
+    p.snare[off + 4] = v(120, 8); p.snare[off + 12] = v(124, 6);
+    if (maybe(.4) && !p.kick[off + 3]) p.snare[off + 3] = v(50, 8);
+  }
   // FIX #4: Removed redundant ghost snare velocity cap loop (already capped in writeSnA)
 }
 
@@ -582,7 +638,7 @@ function writeSnB(p, feel, off) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKA(p, feel, off, sec) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet') return;
   if (feel === 'dark') {
     // Dark: one ghost kick for low-end rumble (Wu-Tang heaviness)
     var darkPos = pick([9, 11]);
@@ -678,7 +734,7 @@ function writeGKA(p, feel, off, sec) {
  * @param {number} off - Step offset (start of bar)
  */
 function writeGKB(p, feel, off, sec) {
-  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk') return;
+  if (feel === 'sparse' || feel === 'hard' || feel === 'phonk' || feel === 'oldschool' || feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet') return;
   if (feel === 'dark') {
     // Dark B: one ghost kick on a different position than A
     var darkPos = pick([5, 13]);
@@ -900,6 +956,32 @@ function writeHA(p, feel, off) {
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
     return;
   }
+  if (feel === 'miamibass') {
+    // Miami Bass: open hat on upbeat positions (steps 2, 6, 10, 14) — electro bass signature
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,4):v(90,5);
+    // Open hat on upbeats (the "and" of each beat)
+    p.openhat[off+2]=v(85,6); p.openhat[off+6]=v(85,6);
+    p.openhat[off+10]=v(85,6); p.openhat[off+14]=v(85,6);
+    return;
+  }
+  if (feel === 'timbaland') {
+    // Timbaland: unusual accent on "ah" positions (steps 3, 7, 11) instead of downbeats
+    for (var i=0;i<16;i+=2) p.hat[off+i]=v(65,8);
+    p.hat[off+3]=v(100,6); p.hat[off+7]=v(100,6); p.hat[off+11]=v(100,6);
+    return;
+  }
+  if (feel === 'neptunes') {
+    // Neptunes: sparse hats on downbeats only (steps 0, 4, 8, 12), very quiet
+    p.hat[off+0]=v(68,6); p.hat[off+4]=v(65,6);
+    p.hat[off+8]=v(68,6); p.hat[off+12]=v(65,6);
+    return;
+  }
+  if (feel === 'ratchet') {
+    // Ratchet: standard 8th notes with rest on step 8 (beat 3) — Mustard gap
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(95,5):v(82,6);
+    p.hat[off+8]=0; // beat 3 gap — the DJ Mustard signature
+    return;
+  }
   if (feel === 'phonk') {
     // Phonk: triplet-influenced hat pattern — Memphis revival through SoundCloud
     // Approximated 12/8 on 16th grid: hits on 0,3,4,6,8,11,12,14
@@ -1068,6 +1150,31 @@ function writeHB(p, feel, off) {
   if (feel === 'oldschool') {
     // Old School B: identical to A — drum machines don't vary
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,3):v(92,4);
+    return;
+  }
+  if (feel === 'miamibass') {
+    // Miami Bass B: identical to A — machine-driven, open hat on upbeats
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(100,4):v(90,5);
+    p.openhat[off+2]=v(85,6); p.openhat[off+6]=v(85,6);
+    p.openhat[off+10]=v(85,6); p.openhat[off+14]=v(85,6);
+    return;
+  }
+  if (feel === 'timbaland') {
+    // Timbaland B: same unusual accent on "ah" positions
+    for (var i=0;i<16;i+=2) p.hat[off+i]=v(65,8);
+    p.hat[off+3]=v(100,6); p.hat[off+7]=v(100,6); p.hat[off+11]=v(100,6);
+    return;
+  }
+  if (feel === 'neptunes') {
+    // Neptunes B: sparse hats on downbeats only, very quiet
+    p.hat[off+0]=v(68,6); p.hat[off+4]=v(65,6);
+    p.hat[off+8]=v(68,6); p.hat[off+12]=v(65,6);
+    return;
+  }
+  if (feel === 'ratchet') {
+    // Ratchet B: standard 8th notes with rest on step 8 (beat 3) — Mustard gap
+    for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(95,5):v(82,6);
+    p.hat[off+8]=0; // beat 3 gap
     return;
   }
   if (feel === 'phonk') {
@@ -1354,6 +1461,11 @@ function writeClap(p, feel, off) {
   if (feel === 'crunk') {
     if (p.clap[off + 4] > 0) p.clap[off + 4] = v(127, 2);
     if (p.clap[off + 12] > 0) p.clap[off + 12] = v(127, 2);
+  }
+  // Cash Money: heavy velocity on backbeats — NOLA bounce clap signature
+  if (feel === 'cashmoney') {
+    if (p.clap[off + 4] > 0) p.clap[off + 4] = v(120, 5);
+    if (p.clap[off + 12] > 0) p.clap[off + 12] = v(122, 5);
   }
   // G-Funk: softer clap, laid back — Dr. Dre "Nuthin' But a G Thang" feel
   if (feel === 'gfunk') {
@@ -1674,6 +1786,28 @@ function addFill(p, sec, len, feel) {
     p.clap[len - 1] = v(115, 8);
     if (isBig) p.crash[len - 1] = v(112, 8);
   }
+  else if (feel === 'miamibass') {
+    // Miami Bass fill: snare roll — rapid 16th notes on snare, steps 12–15
+    for (var i = start; i < len; i++) {
+      p.snare[i] = v(110, 6);
+      p.clap[i] = v(105, 6);
+    }
+    if (isBig) p.crash[len - 1] = v(110, 8);
+  }
+  else if (feel === 'nolimit') {
+    // No Limit fill: military-style snare roll
+    for (var i = start; i < len; i++) {
+      var vel = 90 + Math.floor(((i - start) / fillLen) * 30);
+      p.snare[i] = v(vel, 6);
+    }
+    p.clap[len - 1] = v(115, 6);
+    if (isBig) p.crash[len - 1] = v(112, 8);
+  }
+  else if (feel === 'ratchet') {
+    // Ratchet fill: minimal — single snare hit on step 15
+    p.snare[len - 1] = v(110, 6);
+    p.clap[len - 1] = v(105, 6);
+  }
   else {
     // Standard B-Boy fill — 4 types picked randomly
     // FIX #3: Added kick fill patterns for bounce/crunk/gfunk styles
@@ -1879,10 +2013,16 @@ function writeShaker(p, feel, off, sec) {
  * @param {number} off - Bar offset
  */
 function writeCowbell(p, feel, off) {
-  // Only Memphis, phonk, crunk, and oldschool get cowbell
-  if (feel !== 'memphis' && feel !== 'phonk' && feel !== 'crunk' && feel !== 'oldschool') return;
+  // Only Memphis, phonk, crunk, oldschool, and miamibass get cowbell
+  if (feel !== 'memphis' && feel !== 'phonk' && feel !== 'crunk' && feel !== 'oldschool' && feel !== 'miamibass') return;
 
-  if (feel === 'crunk') {
+  if (feel === 'miamibass') {
+    // Miami Bass: 8th note cowbell, accented on downbeats — electro bass signature
+    for (var i = 0; i < 16; i += 2) {
+      p.cowbell[off + i] = (i % 4 === 0) ? v(90, 6) : v(70, 8);
+    }
+  }
+  else if (feel === 'crunk') {
     // Crunk: quarter notes, loud and aggressive
     for (var i = 0; i < 16; i += 4) {
       p.cowbell[off + i] = v(95, 8);

@@ -181,7 +181,17 @@ var STYLE_DATA = {
   phonk:     { label: 'Phonk / Cloud Rap', bpmRange: [120, 140], bpms: [120,125,130,135,140], keys: ['Cm','Fm','Bbm','Gm','Am','Ebm','Gbm'],         artists: 'SpaceGhostPurrp, DJ Smokey, Soudiere, DJ Yung Vamp', drumKit: 24, bassSound: 38 },
   nujabes:   { label: 'Jazz Hop',         bpmRange: [78, 95], bpms: [78,80,85,88,90,92,95], keys: ['Fmaj7','Dm7','Am7','Gm7','Bbmaj7','Em7'],artists: 'Nujabes, Fat Jon, DJ Okawari, Marcus D, Uyama Hiroto', drumKit: 40, bassSound: 35, epProgram: 0 },
   oldschool: { label: 'Old School',        bpmRange: [95, 115], bpms: [95,98,100,105,110], keys: ['Am','Dm','Em','Cm','Gm','Fm'],          artists: 'Run-DMC, LL Cool J, Salt-N-Pepa, Herbie Luv Bug, Boogie Down Productions, Whodini, UTFO, Eric B. & Rakim', drumKit: 24, bassSound: 38 },
-  detroit:   { label: 'Detroit',            bpmRange: [82, 98], bpms: [82,85,88,90,92,95,98], keys: ['Dm','Am','Cm','Gm','Em','Fm','Dm7'],   artists: 'Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9", Slum Village, Illa J', drumKit: 0, bassSound: 33 }
+  detroit:   { label: 'Detroit',            bpmRange: [82, 98], bpms: [82,85,88,90,92,95,98], keys: ['Dm','Am','Cm','Gm','Em','Fm','Dm7'],   artists: 'Black Milk, Apollo Brown, House Shoes, Guilty Simpson, Elzhi, Royce da 5\'9", Slum Village, Illa J', drumKit: 0, bassSound: 33 },
+  miamibass: { label: 'Miami Bass',           bpmRange: [125, 140], bpms: [125,128,130,132,135,138,140], keys: ['Am','Dm','Em','Cm','Gm','Fm'],           artists: '2 Live Crew, Afro-Rican, DJ Magic Mike, Freestyle, Bass Patrol', drumKit: 25, bassSound: 38 },
+  nolimit:   { label: 'NOLA Military',        bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Cm','Dm','Am','Gm','Fm','Bbm'],          artists: 'Beats By the Pound, KLC, Craig B, Mo B. Dick', drumKit: 25, bassSound: 38 },
+  cashmoney: { label: 'NOLA Bounce',          bpmRange: [95, 110],  bpms: [95,98,100,105,108,110],      keys: ['Gm','Cm','Dm','Am','Bb','F'],            artists: 'Mannie Fresh, DJ Jubilee, DJ Jimi', drumKit: 25, bassSound: 38 },
+  timbaland: { label: 'Virginia Rhythm',      bpmRange: [90, 110],  bpms: [90,92,95,98,100,105,110],    keys: ['Cm','Dm','Am','Gm','Fm','Em'],           artists: 'Timbaland, Scott Storch (VA era)', drumKit: 16, bassSound: 34 },
+  neptunes:  { label: 'Virginia Minimal',     bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Am','Dm','Em','Cm','Gm'],                artists: 'The Neptunes, Chad Hugo, Pharrell', drumKit: 16, bassSound: 34 },
+  ruffryder: { label: 'Raw NY',               bpmRange: [90, 100],  bpms: [90,92,95,98,100],            keys: ['Cm','Dm','Am','Fm','Gm','Bbm'],          artists: 'Swizz Beatz, PK, Dame Grease', drumKit: 16, bassSound: 34 },
+  chipmunk:  { label: 'Chipmunk Soul',        bpmRange: [85, 95],   bpms: [85,88,90,92,95],             keys: ['Dm','Am','Cm','Gm','Em','Fm'],           artists: 'Kanye West (early), Just Blaze, 9th Wonder', drumKit: 0, bassSound: 33 },
+  rocafella: { label: 'Orchestral Boom Bap',  bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Cm','Dm','Am','Gm','Fm','Bbm'],          artists: 'Just Blaze, Kanye West, Bink!', drumKit: 0, bassSound: 33 },
+  poprap:    { label: 'Pop-Rap / Radio',      bpmRange: [85, 100],  bpms: [85,88,90,92,95,98,100],      keys: ['Am','Dm','Cm','Gm','C','G','Em'],        artists: 'Ryan Leslie, Polow da Don, Cool & Dre', drumKit: 16, bassSound: 38 },
+  ratchet:   { label: 'West Coast Ratchet',   bpmRange: [95, 105],  bpms: [95,98,100,102,105],          keys: ['Am','Dm','Em','Cm','Gm'],                artists: 'DJ Mustard, YG, Ty Dolla $ign', drumKit: 25, bassSound: 38 }
 };
 
 /**
@@ -280,7 +290,17 @@ var INSTRUMENT_SWING = {
   sparse:    { hat: 1.0,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
   driving:   { hat: 1.0,  kick: 0.8,  ghostSnare: 0.9,  backbeat: 0.85, bass: 0.85 },
   big:       { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
-  detroit:   { hat: 1.15, kick: 0.75, ghostSnare: 1.1,  backbeat: 0.85, bass: 0.85 }
+  detroit:   { hat: 1.15, kick: 0.75, ghostSnare: 1.1,  backbeat: 0.85, bass: 0.85 },
+  miamibass: { hat: 0.6,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 },
+  nolimit:   { hat: 0.8,  kick: 0.6,  ghostSnare: 0.7,  backbeat: 0.7,  bass: 0.6 },
+  cashmoney: { hat: 1.15, kick: 0.7,  ghostSnare: 0.9,  backbeat: 0.8,  bass: 0.8 },
+  timbaland: { hat: 0.9,  kick: 0.7,  ghostSnare: 0.8,  backbeat: 0.8,  bass: 0.7 },
+  neptunes:  { hat: 0.7,  kick: 0.55, ghostSnare: 0.6,  backbeat: 0.6,  bass: 0.55 },
+  ruffryder: { hat: 0.7,  kick: 0.55, ghostSnare: 0.6,  backbeat: 0.6,  bass: 0.55 },
+  chipmunk:  { hat: 1.1,  kick: 0.8,  ghostSnare: 1.0,  backbeat: 0.9,  bass: 0.9 },
+  rocafella: { hat: 1.0,  kick: 0.75, ghostSnare: 0.9,  backbeat: 0.85, bass: 0.85 },
+  poprap:    { hat: 0.7,  kick: 0.55, ghostSnare: 0.6,  backbeat: 0.6,  bass: 0.55 },
+  ratchet:   { hat: 0.6,  kick: 0.5,  ghostSnare: 0.5,  backbeat: 0.5,  bass: 0.5 }
 };
 
 /**
@@ -516,6 +536,16 @@ PLAYER_PROFILES.driving = PLAYER_PROFILES.hard;
 PLAYER_PROFILES.sparse = PLAYER_PROFILES.dark;
 PLAYER_PROFILES.halftime = PLAYER_PROFILES.dark;
 PLAYER_PROFILES.phonk = PLAYER_PROFILES.memphis;
+PLAYER_PROFILES.miamibass = PLAYER_PROFILES.oldschool;
+PLAYER_PROFILES.nolimit = PLAYER_PROFILES.hard;
+PLAYER_PROFILES.cashmoney = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.timbaland = PLAYER_PROFILES.hard;
+PLAYER_PROFILES.neptunes = PLAYER_PROFILES.oldschool;
+PLAYER_PROFILES.ruffryder = PLAYER_PROFILES.hard;
+PLAYER_PROFILES.chipmunk = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.rocafella = PLAYER_PROFILES.normal;
+PLAYER_PROFILES.poprap = PLAYER_PROFILES.oldschool;
+PLAYER_PROFILES.ratchet = PLAYER_PROFILES.crunk;
 
 /**
  * Currently active player profile for this song generation.

@@ -2237,7 +2237,17 @@ function getRoleSectionTips(sec, role) {
     detroit: 'Detroit — punchy kicks over soul samples, Rhodes chords, melodic bass.',
     sparse: 'Sparse — minimal elements, space between hits. Less is more.',
     driving: 'Driving — uptempo funk influence, busy hats, forward momentum.',
-    big: 'Big/anthem — orchestral stabs, full arrangement, maximum impact.'
+    big: 'Big/anthem — orchestral stabs, full arrangement, maximum impact.',
+    miamibass: 'Miami bass — four-on-the-floor 808, open hats, sustained sub. Electro block party.',
+    nolimit: 'NOLA military — heavy sparse kicks, brass stabs, dark pads. Southern aggression.',
+    cashmoney: 'NOLA bounce — syncopated kicks, funky keys, church organ, heavy claps.',
+    timbaland: 'Virginia rhythm — unusual kick placements, world-music percussion, inventive grooves.',
+    neptunes: 'Virginia minimal — sparse drums, staccato synth stabs, wide open space.',
+    ruffryder: 'Raw NY — aggressive synth stabs, punchy bass, simple hard-hitting drums.',
+    chipmunk: 'Chipmunk soul — pitched-up soul samples, boom bap drums, warm bass.',
+    rocafella: 'Orchestral boom bap — piano, brass stabs, heavy kick doubles, anthem energy.',
+    poprap: 'Pop-rap — clean production, sustained pads, simple patterns. Radio-ready.',
+    ratchet: 'West Coast ratchet — minimal drums, synth stab, sustained 808. The Mustard formula.'
   };
   if (styleDesc[feel]) tips.push(styleDesc[feel]);
 
@@ -2868,8 +2878,10 @@ function initPlaybackTracking() {
     }
     if (foundIdx >= 0 && foundIdx !== lastTrackedSection) {
       lastTrackedSection = foundIdx;
-      arrIdx = foundIdx;
-      curSec = arrangement[foundIdx];
+      // Use the arrangement index stored in the map entry (important for loop mode
+      // where the map has a single entry that isn't at arrangement position 0)
+      arrIdx = map[foundIdx].idx;
+      curSec = arrangement[arrIdx];
       // Show combined section + chord overlay (persists until next section or stop)
       var sectionName = (typeof SL !== 'undefined' && SL[curSec]) ? SL[curSec] : curSec;
       var barCount = Math.ceil((secSteps[curSec] || 32) / 16);

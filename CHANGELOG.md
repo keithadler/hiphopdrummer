@@ -2,6 +2,29 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.57] - 2026-04-09
+
+### Added — 10 New Hip Hop Styles
+Expanded from 20 base styles to 30 base styles (36 total with 6 regional variants). All changes are purely additive — new entries in existing data structures, new branches in existing functions. No new files.
+
+- **Miami Bass** (`miamibass`) — 2 Live Crew, Afro-Rican, DJ Magic Mike, Freestyle, Bass Patrol. Four-on-the-floor electro bass, 125–140 BPM. Sustained 808 sub, machine-driven swing, open hat on upbeats, cowbell patterns, snare roll fills. TR-808 kit + Synth Bass.
+- **NOLA Military** (`nolimit`) — Beats By the Pound, KLC, Craig B, Mo B. Dick. Sparse heavy No Limit sound, 85–100 BPM. Heavy 808 following kick, military snare roll influence with ghost note clusters, horn stabs. Power Kit + Electric Bass Pick.
+- **NOLA Bounce** (`cashmoney`) — Mannie Fresh, DJ Jubilee, DJ Jimi. Syncopated second-line bounce, 95–110 BPM. Bouncy 808, heavy clap backbeats, organ layer, horn stabs, EP chords. TR-808 kit + Synth Bass.
+- **Virginia Rhythm** (`timbaland`) — Timbaland, Scott Storch (VA era). Inventive syncopation with unusual kick placements, 90–110 BPM. Syncopated bass guitar, accent on "ah" positions in hats. Power Kit + Electric Bass Pick.
+- **Virginia Minimal** (`neptunes`) — The Neptunes, Chad Hugo, Pharrell. Minimal precise production, 85–100 BPM. Sparse bass guitar, sparse hats on downbeats only, displaced snare on and-of-2. Power Kit + Electric Bass Pick.
+- **Raw NY** (`ruffryder`) — Swizz Beatz, PK, Dame Grease. Late-90s raw aggressive NY sound, 90–100 BPM. Aggressive punchy bass guitar, simple kick patterns, dark pad stabs. Power Kit + Electric Bass Pick.
+- **Chipmunk Soul** (`chipmunk`) — Kanye West (early), Just Blaze, 9th Wonder. Sped-up soul sample era, 85–95 BPM. Soul-sample bass guitar with moderate walk, boom bap swing, EP chords in high register. Standard Kit + Electric Bass Finger.
+- **Orchestral Boom Bap** (`rocafella`) — Just Blaze, Kanye West, Bink!. Heavy kick doubles and anthem energy, 85–100 BPM. Punchy bass guitar, flam-like ghost notes before backbeat, horn stabs, EP chords. Standard Kit + Electric Bass Finger.
+- **Pop-Rap / Radio** (`poprap`) — Ryan Leslie, Polow da Don, Cool & Dre. Clean radio-ready production, 85–100 BPM. Clean 808 with moderate sustain, minimal precise swing, EP whole-note chords. Power Kit + Synth Bass.
+- **West Coast Ratchet** (`ratchet`) — DJ Mustard, YG, Ty Dolla $ign. Minimal formulaic 808, 95–105 BPM. Sparse 808 with long sustain, standard 8th-note hats with Mustard gap on beat 3, minimal fills, dark pad stabs. TR-808 kit + Synth Bass.
+
+Each new style includes: STYLE_DATA entry, INSTRUMENT_SWING multipliers, PLAYER_PROFILES alias, FEEL_PALETTES palette, SWING_POOLS entry, curated kick library (8–10 patterns), BASS_STYLES parameters, CHORD_PROGRESSIONS (3–6 patterns), bar writer branches for distinctive behaviors, melodic instrument flags, groove accent curves, analysis content, and app tip ticker entries.
+
+### Changed
+- Style count updated from 26 to 36 across all docs (README, About dialog, DOCS, CONTRIBUTING, manifest, tests)
+- Kick pattern count updated from 218 to 312 across 28 dedicated libraries
+- Version bumped to 1.57
+
 ## [1.56] - 2026-04-08
 
 ### Added — Bass (10 Pro Bassist Techniques)

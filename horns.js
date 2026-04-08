@@ -14,7 +14,8 @@
 
 var HORN_STYLES = {
   normal: true, normal_bronx: true, big: true, driving: true,
-  chopbreak: true, oldschool: true
+  chopbreak: true, oldschool: true,
+  nolimit: true, cashmoney: true, rocafella: true
 };
 
 var HORN_COMP_STYLES = {
@@ -23,7 +24,10 @@ var HORN_COMP_STYLES = {
   big:          { velBase: 95, velRange: 10, noteDur: 0.65, density: 0.55, register: 'high', voicing: 'triad', program: 61 },
   driving:      { velBase: 88, velRange: 12, noteDur: 0.55, density: 0.5,  register: 'high', voicing: 'triad', program: 61 },
   chopbreak:    { velBase: 82, velRange: 14, noteDur: 0.50, density: 0.4,  register: 'high', voicing: 'triad', program: 61 },
-  oldschool:    { velBase: 92, velRange: 8,  noteDur: 0.50, density: 0.35, register: 'high', voicing: 'triad', program: 62 }
+  oldschool:    { velBase: 92, velRange: 8,  noteDur: 0.50, density: 0.35, register: 'high', voicing: 'triad', program: 62 },
+  nolimit:      { velBase: 92, velRange: 8,  noteDur: 0.45, density: 0.4,  register: 'high', voicing: 'triad', program: 61 },
+  cashmoney:    { velBase: 88, velRange: 12, noteDur: 0.5,  density: 0.45, register: 'high', voicing: 'triad', program: 61 },
+  rocafella:    { velBase: 95, velRange: 10, noteDur: 0.6,  density: 0.5,  register: 'high', voicing: 'triad', program: 61 }
 };
 
 function buildHornVoicing(root, degree, voicingType, register, prevNotes) {

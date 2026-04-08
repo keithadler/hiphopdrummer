@@ -1,7 +1,7 @@
 {
   "name": "Hip Hop Drummer",
   "short_name": "HH Drummer",
-  "description": "Generate unique hip hop beats with 9 instruments, 26 styles, WAV stems for every instrument, MIDI/MPC export, chord sheets, and production education. Free, no account.",
+  "description": "Generate unique hip hop beats with 9 instruments, 36 styles, WAV stems for every instrument, MIDI/MPC export, chord sheets, and production education. Free, no account.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

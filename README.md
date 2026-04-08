@@ -1,6 +1,6 @@
-# 🥁 Hip Hop Drummer — Release 1.56
+# 🥁 Hip Hop Drummer — Release 1.57
 
-Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 26 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
+Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 36 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
 **[▶ Play Now](https://hiphopdrummer.com)**
 
@@ -158,7 +158,7 @@ In Preferences, choose how melodic instruments behave. **Strict** (default) play
 
 ## Every Beat Is a Lesson
 
-The real value isn't just the patterns — it's the education that comes with them. Every beat generates a detailed "About This Beat" breakdown that teaches you production techniques while you listen. Skill-level learning paths (beginner/intermediate/advanced), practice guides for drummers, keys players, and rappers, "How the Band Works Together" instrument interaction explanations, per-instrument listening guides, velocity tutorials, harmonic theory breakdowns, build-from-scratch walkthroughs, style history, mixing tips with WHY explanations, common mistakes per style, fill musical logic, key-specific sample search terms, arrangement arc explanations, producer comparisons for all 26 styles, and next-steps guides from beat to finished track.
+The real value isn't just the patterns — it's the education that comes with them. Every beat generates a detailed "About This Beat" breakdown that teaches you production techniques while you listen. Skill-level learning paths (beginner/intermediate/advanced), practice guides for drummers, keys players, and rappers, "How the Band Works Together" instrument interaction explanations, per-instrument listening guides, velocity tutorials, harmonic theory breakdowns, build-from-scratch walkthroughs, style history, mixing tips with WHY explanations, common mistakes per style, fill musical logic, key-specific sample search terms, arrangement arc explanations, producer comparisons for all 36 styles, and next-steps guides from beat to finished track.
 
 **You generate a Dilla/Neo-Soul beat at 88 BPM.** The analysis explains that Dilla's swing isn't just a percentage — it's the specific way even 16th-note steps drag behind the grid while odd steps stay locked. It tells you the swing value and warns you not to add more swing in your DAW because it's already baked into the MIDI. It explains why the ghost snares cluster in pairs, why the kick on the "and-of-2" is softer than beat 1, and why the hi-hats are swung 8ths instead of 16ths.
 
@@ -176,11 +176,11 @@ The real value isn't just the patterns — it's the education that comes with th
 
 ## What It Does
 
-Hit **NEW BEAT** and a complete, unique arrangement is generated from scratch — not pulled from a library, not assembled from presets. The generator picks from 218 kick patterns, selects a chord progression, chooses a player touch profile, builds the bass line note by note from the kick pattern and chord changes, generates up to 7 additional instrument parts (EP, pad, lead, organ, horns, vibes, clav) that follow the same chords and react to the drums, applies style-specific fills and transitions, and assembles a full song structure with a dynamic energy arc. Every parameter is randomized within musically authentic ranges, so every generation sounds different but always sounds right.
+Hit **NEW BEAT** and a complete, unique arrangement is generated from scratch — not pulled from a library, not assembled from presets. The generator picks from 312 kick patterns, selects a chord progression, chooses a player touch profile, builds the bass line note by note from the kick pattern and chord changes, generates up to 7 additional instrument parts (EP, pad, lead, organ, horns, vibes, clav) that follow the same chords and react to the drums, applies style-specific fills and transitions, and assembles a full song structure with a dynamic energy arc. Every parameter is randomized within musically authentic ranges, so every generation sounds different but always sounds right.
 
 ## Highlights
 
-- **26 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Detroit, Neo-Soul/Loose, Driving, G-Funk, Buffalo Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Jazz Hop, Old School, Phonk/Cloud Rap, Sparse — plus Boom Bap Bronx/Queens/Long Island, G-Funk LA/Compton/Long Beach
+- **36 hip hop styles + 6 regional variants** — Big/Anthem, Bounce, Chopped Break, Classic Boom Bap, Crunk, Dark Minimal, Detroit, Neo-Soul/Loose, Driving, G-Funk, Buffalo Revival, Halftime, Hard/Aggressive, Jazz-Influenced, Lo-Fi/Dusty, Memphis, Jazz Hop, Old School, Phonk/Cloud Rap, Sparse, Miami Bass, NOLA Military, NOLA Bounce, Virginia Rhythm, Virginia Minimal, Raw NY, Chipmunk Soul, Orchestral Boom Bap, Pop-Rap/Radio, West Coast Ratchet — plus Boom Bap Bronx/Queens/Long Island, G-Funk LA/Compton/Long Beach
 - **9 instruments** — Drums, Bass, Electric Piano, Synth Pad, Synth Lead, Organ, Horn Stabs, Vibraphone, Clavinet — each style gets the right combination automatically
 - **SpessaSynth audio engine** — high-quality GM SoundFont playback (GeneralUser GS), custom play/pause/stop/seek controls
 - **8 GM drum kits** — Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra
@@ -191,7 +191,7 @@ Hit **NEW BEAT** and a complete, unique arrangement is generated from scratch �
 - **Strict vs Improvise** — melodic instruments play the same part every time (Strict) or vary each play (Improvise). Drums and bass are always consistent
 - **Tap tempo** — double-click BPM or press T to tap along
 - **Keyboard shortcuts** — Space, R, T, E, L, ←/→
-- **218 curated kick patterns** across 18 dedicated libraries
+- **312 curated kick patterns** across 28 dedicated libraries
 - **Player touch profiles** — Premier, Questlove, Dilla, Lil Jon, DJ Paul, Daringer, DMX/LinnDrum
 - **Dynamic arrangement arc** — energy builds across the song like a real performance
 - **Full song arrangements** (2:45–3:30) with drag-and-drop section editor
@@ -236,11 +236,11 @@ After `npm run build`, all other files (patterns.js, ai.js, etc.) still work wit
 node tests.js
 ```
 
-15,000+ assertions, zero dependencies. Covers all 25 feels (19 base + 6 regional) × 10 instruments, bass pattern generation, all 7 melodic instrument generators (EP, pad, lead, organ, horns, vibes, clav), per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined multi-instrument MIDI, section transitions, bar variations, extreme BPMs, beat drops, strict/improvise mode, forced dialog options, beat history capacity, and all 35+ About This Beat sections.
+15,000+ assertions, zero dependencies. Covers all 35 feels (29 base + 6 regional) × 10 instruments, bass pattern generation, all 7 melodic instrument generators (EP, pad, lead, organ, horns, vibes, clav), per-instrument swing, chord progressions (including #idim diminished passing chords), modal harmony (Dorian/Phrygian), player profiles, bass call-and-response, arrangement arc energy progression, regional variant resolution, MIDI/MPC output validation, combined multi-instrument MIDI, section transitions, bar variations, extreme BPMs, beat drops, strict/improvise mode, forced dialog options, beat history capacity, and all 35+ About This Beat sections.
 
 ## How It Works
 
-The generator models real drumming and production principles across 26 hip hop styles with 218 curated kick patterns. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile shaped by named player touch profiles. Per-instrument swing means hats, kicks, ghost snares, bass, and all melodic instruments each swing by different amounts — the way real producers program. A song-level palette system ensures all sections use compatible feels. Style-specific chord progressions use authentic modal harmony: Dorian for G-Funk/Dilla, Phrygian for dark/Memphis. A dynamic arrangement arc builds energy across the song. Up to 9 instruments play together, each following the same chord progressions and reacting to the drums and each other. Beat drops create dramatic silences where ALL instruments go silent before re-entries.
+The generator models real drumming and production principles across 36 hip hop styles with 312 curated kick patterns. Each feel has its own dedicated kick library, hat approach, ghost density, swing pool, fill type, bar variation behavior, accent curves, and humanization profile shaped by named player touch profiles. Per-instrument swing means hats, kicks, ghost snares, bass, and all melodic instruments each swing by different amounts — the way real producers program. A song-level palette system ensures all sections use compatible feels. Style-specific chord progressions use authentic modal harmony: Dorian for G-Funk/Dilla, Phrygian for dark/Memphis. A dynamic arrangement arc builds energy across the song. Up to 9 instruments play together, each following the same chord progressions and reacting to the drums and each other. Beat drops create dramatic silences where ALL instruments go silent before re-entries.
 
 See [DOCS.md](DOCS.md) for the full technical breakdown.
 
@@ -250,7 +250,7 @@ See [DOCS.md](DOCS.md) for the full technical breakdown.
 ├── index.html         — App shell, layout, script loading
 ├── styles.css         — Dark theme UI, responsive layout
 ├── patterns.js        — Constants, state, STYLE_DATA, per-instrument swing, regional variants, player profiles
-├── ai.js              — Generation pipeline, 218 kick patterns, feel/swing pools, arrangement arc, beat drops
+├── ai.js              — Generation pipeline, 312 kick patterns, feel/swing pools, arrangement arc, beat drops
 ├── writers.js         — Instrument-specific bar writers, intro/outro, fills
 ├── groove.js          — Accent curves, player-profile humanization, post-processing
 ├── bass.js            — Bass line generator, chord progressions, call-and-response, fills, MIDI/MPC export
