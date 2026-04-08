@@ -573,7 +573,8 @@ midi-player::part(play-button){color:var(--accent-green)}
   .arr-progress{margin-bottom:4px}
   .tip-ticker{padding:6px 12px}
   .tip-ticker-icon{font-size:13px}
-  .tip-ticker-text{font-size:11px}
+  .tip-ticker-text{font-size:11px;white-space:normal;text-overflow:clip}
+  .tip-ticker-text span{white-space:normal}
 
   /* About panel */
   #aboutBeat{font-size:13px;line-height:1.6}
