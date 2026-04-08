@@ -2073,7 +2073,7 @@ function applyArrangementArc() {
             pat.kick[i] = 0; pat.snare[i] = 0; pat.clap[i] = 0;
             pat.ghostkick[i] = 0; pat.rimshot[i] = 0;
             pat.openhat[i] = 0; pat.ride[i] = 0; pat.crash[i] = 0; pat.shaker[i] = 0;
-            pat.cowbell[i] = 0; pat.tom[i] = 0;
+            pat.cowbell[i] = 0; pat.tomhi[i] = 0; pat.tommid[i] = 0; pat.tomlo[i] = 0;
           }
         }
         // Bar 2: hat + kick (clear snare, clap, ghosts)
@@ -2081,7 +2081,7 @@ function applyArrangementArc() {
           for (var i = barOff; i < barOff + 16 && i < len; i++) {
             pat.snare[i] = 0; pat.clap[i] = 0;
             pat.ghostkick[i] = 0; pat.rimshot[i] = 0; pat.shaker[i] = 0;
-            pat.cowbell[i] = 0; pat.tom[i] = 0;
+            pat.cowbell[i] = 0; pat.tomhi[i] = 0; pat.tommid[i] = 0; pat.tomlo[i] = 0;
           }
         }
         // Bar 3+: full groove (leave as generated)
@@ -2100,7 +2100,7 @@ function applyArrangementArc() {
             pat.kick[i] = 0; pat.snare[i] = 0; pat.clap[i] = 0;
             pat.ghostkick[i] = 0; pat.rimshot[i] = 0;
             pat.openhat[i] = 0; pat.ride[i] = 0; pat.crash[i] = 0; pat.shaker[i] = 0;
-            pat.cowbell[i] = 0; pat.tom[i] = 0;
+            pat.cowbell[i] = 0; pat.tomhi[i] = 0; pat.tommid[i] = 0; pat.tomlo[i] = 0;
             // Fade hat velocity
             if (pat.hat[i] > 0) pat.hat[i] = Math.max(30, Math.round(pat.hat[i] * 0.5));
           }
@@ -2110,7 +2110,7 @@ function applyArrangementArc() {
           for (var i = barOff; i < barOff + 16 && i < len; i++) {
             pat.snare[i] = 0; pat.clap[i] = 0;
             pat.ghostkick[i] = 0; pat.rimshot[i] = 0; pat.shaker[i] = 0;
-            pat.cowbell[i] = 0; pat.tom[i] = 0;
+            pat.cowbell[i] = 0; pat.tomhi[i] = 0; pat.tommid[i] = 0; pat.tomlo[i] = 0;
           }
         }
         // Earlier bars: reduce ghost density

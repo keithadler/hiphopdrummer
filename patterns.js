@@ -46,7 +46,7 @@ var STEPS = 128;
  *
  * @type {string[]}
  */
-var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker', 'cowbell', 'tom'];
+var ROWS = ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker', 'cowbell', 'tomhi', 'tommid', 'tomlo'];
 
 /**
  * Ordered list of all possible song section identifiers.
@@ -68,7 +68,7 @@ var SL = { intro: 'Intro', verse: 'Verse', pre: 'Pre-Chorus', chorus: 'Chorus', 
  * Used in the grid renderer and PDF export.
  * @type {Object.<string, string>}
  */
-var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash', shaker: 'Shaker', cowbell: 'Cowbell', tom: 'Tom' };
+var RN = { kick: 'Kick', snare: 'Snare', clap: 'Clap', rimshot: 'Rimshot', ghostkick: 'Ghost Kick', hat: 'Hat', openhat: 'Open Hat', ride: 'Ride', crash: 'Crash', shaker: 'Shaker', cowbell: 'Cowbell', tomhi: 'Tom Hi', tommid: 'Tom Mid', tomlo: 'Tom Lo' };
 
 /**
  * Master pattern store. Keys are section ids (e.g. "verse"), values are
@@ -249,7 +249,9 @@ var ROW_TIPS = {
   crash:     'Crash cymbal — marks section boundaries. Placed on beat 1 when a new section starts.',
   shaker:    'Shaker / tambourine — high-frequency shimmer layered on top of the hat. Adds organic texture. Pete Rock, Large Professor, Buckwild territory.',
   cowbell:   'Cowbell — repetitive metallic pattern. The signature sound of Memphis rap, phonk, and crunk. Three 6 Mafia, DJ Paul, Lil Jon.',
-  tom:       'Tom drum — used in fills before section changes. Descending tom rolls signal transitions. Premier, Pete Rock, RZA.'
+  tomhi:     'High tom — the first hit in a descending tom fill. Bright, cutting attack.',
+  tommid:    'Mid tom — the middle of a descending tom fill. Warm, full body.',
+  tomlo:     'Low tom — the final hit in a descending tom fill. Deep, heavy impact.'
 };
 
 /**
@@ -321,7 +323,7 @@ function getInstrumentSwing(row, vel, feel) {
   if (row === 'kick' || row === 'ghostkick') return s.kick;
   if (row === 'crash') return 0; // crashes on grid — no swing
   if (row === 'cowbell') return s.hat * 0.8; // cowbell follows hat groove, slightly straighter
-  if (row === 'tom') return 0; // toms in fills — on grid
+  if (row === 'tomhi' || row === 'tommid' || row === 'tomlo') return 0; // toms in fills — on grid
   if (row === 'snare' || row === 'clap') return (vel >= 85) ? s.backbeat : s.ghostSnare;
   if (row === 'rimshot') return s.ghostSnare;
   return 1.0;

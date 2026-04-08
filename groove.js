@@ -177,12 +177,12 @@ function humanizeVelocities(p, len, feel) {
       else if (r === 'snare' || r === 'clap') profCat = prof.snare;
       else if (r === 'hat' || r === 'openhat' || r === 'shaker' || r === 'cowbell') profCat = prof.hat;
       else if (r === 'ride') profCat = prof.ride;
-      else if (r === 'rimshot' || r === 'crash' || r === 'tom') profCat = prof.ghost;
+      else if (r === 'rimshot' || r === 'crash' || r === 'tomhi' || r === 'tommid' || r === 'tomlo') profCat = prof.ghost;
     }
 
     var instrJitter = (r === 'hat' || r === 'ride' || r === 'shaker') ? 0.5
       : (r === 'cowbell') ? 0.3
-      : (r === 'tom') ? 0.6
+      : (r === 'tomhi' || r === 'tommid' || r === 'tomlo') ? 0.6
       : (r === 'kick') ? 1.25
       : (r === 'ghostkick') ? 1.3
       : 1.0;

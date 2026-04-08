@@ -123,12 +123,12 @@ function writeOutro(p, feel, len) {
   if (feel === 'outro_fade') {
     // Fade: last bar strips to just hat + kick on beat 1
     var lastBar = len - 16;
-    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tom[i] = 0; }
+    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tomhi[i] = 0; p.tommid[i] = 0; p.tomlo[i] = 0; }
     for (var i = lastBar; i < len; i++) p.kick[i] = 0;
     p.kick[lastBar] = v(100, 10);
   } else {
     // Stop: clear last bar entirely, then place one big unison hit
-    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tom[i] = 0; }
+    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tomhi[i] = 0; p.tommid[i] = 0; p.tomlo[i] = 0; }
     p.kick[len - 16] = v(120, 10); p.snare[len - 16] = v(120, 10); p.clap[len - 16] = v(110, 10); p.crash[len - 16] = v(110, 10);
   }
 }
@@ -2124,18 +2124,23 @@ function writeTomFill(p, fillStart, fillEnd, feel) {
   var fillLen = fillEnd - fillStart;
   if (fillLen < 2) return;
 
-  // Descending velocity pattern simulates high→low tom descent
+  // Descending tom fill: high → mid → low across 2-4 steps
+  // Uses three separate tom rows (tomhi, tommid, tomlo) for real pitch descent
   var tomSteps = Math.min(fillLen, 4);
-  // Style-specific velocity curves
   var tomBase = 100;
   if (feel === 'hard' || feel === 'griselda' || feel === 'crunk') tomBase = 120;
   else if (feel === 'jazzy' || feel === 'nujabes') tomBase = 80;
   else if (feel === 'bounce' || feel === 'big') tomBase = 110;
+  // Map fill positions to tom rows: descending pitch
+  var tomRows = (tomSteps >= 4) ? ['tomhi', 'tomhi', 'tommid', 'tomlo'] :
+                (tomSteps === 3) ? ['tomhi', 'tommid', 'tomlo'] :
+                ['tomhi', 'tomlo'];
   for (var i = 0; i < tomSteps; i++) {
     var step = fillStart + i;
     if (step >= fillEnd) break;
-    var vel = v(tomBase - (i * 10), 8);
-    p.tom[step] = vel;
+    var vel = v(tomBase - (i * 8), 6);
+    var row = tomRows[i] || 'tomlo';
+    p[row][step] = vel;
     // Clear snare on tom steps so they don't compete
     if (p.snare[step] > 0 && p.snare[step] < 85) p.snare[step] = 0;
   }
