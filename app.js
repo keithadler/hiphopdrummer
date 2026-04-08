@@ -344,6 +344,22 @@ function showExportDialog() {
   }
   // Clear active preset highlight
   document.querySelectorAll('.export-preset').forEach(function(b) { b.classList.remove('active'); });
+
+  // Auto-select a preset based on user role when no saved prefs exist
+  if (!saved) {
+    var role = '';
+    try { role = localStorage.getItem('hhd_user_role') || ''; } catch(e) {}
+    // Map roles to export presets
+    var rolePresetMap = {
+      rapper: 'rapper', dj: 'dj',
+      producer: 'producer', keys: 'producer', bassist: 'producer',
+      guitarist: 'producer', drummer: 'producer', learner: 'producer',
+      samplehead: 'mpc'
+    };
+    var autoPreset = rolePresetMap[role] || 'producer';
+    var presetBtn = document.querySelector('.export-preset[data-preset="' + autoPreset + '"]');
+    if (presetBtn) presetBtn.click();
+  }
 }
 
 // Wire the DAW toggle button once on boot
