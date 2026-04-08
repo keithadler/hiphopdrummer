@@ -39,6 +39,99 @@ Every beat is assembled in real time from hundreds of musical rules — not sele
 
 312 curated kick patterns. Named player profiles (Premier, Questlove, Dilla, Lil Jon). Per-instrument swing. Modal harmony (Dorian IV for G-Funk, Phrygian bII for Memphis). Bass call-and-response. Tempo-aware generation. Dynamic arrangement arcs. Section-ending fills matched to each era. This is what 40 years of hip hop sounds like when you encode it into code.
 
+### Drums
+
+The drum engine models over 60 distinct behaviors per style: kick placement libraries curated from real records, ghost note clustering that mimics a drummer's stick control, accent curves that shape dynamics the way a real ride hand does, hat patterns with 3-level velocity dynamics (G-Funk's signature), pocket-delayed snares that land behind the beat (Dilla's trademark), cowbell patterns for Memphis/phonk/crunk, descending 3-tom fills (high → mid → low) at section boundaries, and fill types matched to each era — from a single snare hit (Memphis minimalism) to dense flam rolls (chopped break fills). 8 GM drum kits auto-selected per style: Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra.
+
+### Bass — 10 Pro Bassist Techniques
+
+The bass locks to the kick drum and uses correct intervals (5ths, minor 7ths) as passing tones. 10 techniques modeled from session players:
+
+1. **Monophonic overlap prevention** — previous note truncated before new note-on, like a real bass where you can only play one note at a time
+2. **String rake** — muted dead-note burst before hard downbeat hits
+3. **Pull-off** — descending grace note (5th→root, octave→root)
+4. **Trill** — rapid 2-note alternation on the last beat of a bar
+5. **Double-stop** — root+5th power chord on section entries
+6. **Upbeat accent** — velocity boost on "and" positions for funk displacement
+7. **Rest bar** — sitting out an entire bar for phrase-level breathing
+8. **Beat 1 skip** — entering on "and" of 1 or beat 2 instead of beat 1
+9. **Rhythmic mutation** — shifting ornamental note timing on motif repeats
+10. **Hammer-on grace notes** — whole-step approach from below before main notes
+
+Plus: Moog-style glissando slides for G-Funk, sub-octave drops on beat 1 for 808 styles, 2-bar motif development with transposition across chord changes, section-ending fills (walking diatonic runs for jazz, chromatic dissolves for Dilla, sub tail ring for 808), call-and-response with the drum pattern, and tempo-aware density scaling. 6 GM bass sounds auto-selected per style.
+
+### Electric Piano — 30 Musicality Features
+
+Session-player level comping across 12 styles:
+
+- **Voice leading** — common tones held between chords (Cm7→Fm7: C and Eb stay, only root and 5th move)
+- **Crushed chords** — LH lands 1-3 ticks before RH (bidirectional — 70% LH-first, 30% RH-first)
+- **Per-note velocity humanization** — inner voices softer, root and top note louder (±8 variation)
+- **Dorian IV correction** — G-Funk/Dilla IV chord is dominant 7th (C7, not Cm7) because Dorian has a natural 6th
+- **Drop-2 voicings** — second-from-top note dropped an octave for open Rhodes sound
+- **Bass avoidance** — if bass note matches lowest EP note, uses first inversion instead
+- **Grace note runs** — chromatic approach runs into chorus/lastchorus beat 1
+- **Velocity swell** — soft re-attack at midpoint of sustained chords
+- **Register thinning** — high register uses shell voicings, low register uses root+5th only
+- **Organ interaction** — EP rests when organ is sustaining to avoid harmonic mud
+- **Damper pedal bleed** — notes extend 2% longer than written, simulating pedal sustain
+- **Duration jitter** — ±2 tick variation on note lengths for human feel
+- **Sus4→3 resolutions**, chromatic approach chords, pedal tone drones, ghost re-attacks, kick-locked stabs, drum-density velocity response, section fills, motif-based comping, rhythmic mutation
+
+Acoustic grand piano for jazz/Nujabes/Queens, electric piano for Dilla/G-Funk/lo-fi/bounce.
+
+### Synth Pad — 10 Features
+
+Dark atmospheric pads for styles where keys would be wrong (Memphis, phonk, Griselda, crunk, dark, hard):
+
+- Phrygian bII emphasis, swell/fade dynamics, kick-locked crunk stabs, drum density response, bar variation with chord extensions, bass register avoidance, strategic rest bars
+- Memphis: detuned choir. Phonk: dark string pads. Griselda: cinematic strings. Crunk: aggressive synth stabs.
+
+### Synth Lead
+
+G-Funk whistle melody — pentatonic scale, Moog-style slides/portamento, 2-bar motifs with call-and-response, upper register (C5-C6). GM Square Lead or Saw Lead.
+
+### Organ
+
+Sustained drawbar organ for jazz/Nujabes — voice-led whole-note chords, layers with EP (organ sustains while EP comps rhythmically), dynamic section response. GM Drawbar Organ.
+
+### Horn Stabs
+
+Brass section chord hits for boom bap/big/driving/chopbreak/oldschool — kick-locked timing, 3-4 note voicings, staccato duration, velocity variation on downbeats vs off-beats, section-aware density. GM Brass Section.
+
+### Vibraphone
+
+Bell-like arpeggiated tones for Nujabes/jazzy — broken chord patterns, 2-bar melodic motifs, soft dynamics, pedal sustain shimmer. GM Vibraphone.
+
+### Clavinet
+
+Funky percussive 16th-note comping for bounce/G-Funk DJ Quik — syncopated patterns locked to hi-hat groove, muted and accented notes, percussive attack. GM Clavinet.
+
+### Harmony
+
+Modal, not just minor. G-Funk/Dilla/Nujabes use **Dorian** — the IV chord is major (C7, not Cm7) because the natural 6th degree raises it. Dark/Griselda/Memphis/Phonk use **Phrygian bII** — the sinister half-step (Db in Cm) that defines their menacing character. Jazz styles include ii-V turnarounds, 6th chords, and chromatic diminished passing chords.
+
+### Per-Instrument Swing
+
+Each instrument swings by a different amount per style — the way real producers program:
+- Dilla: hats swing 30% harder than base, kick stays 40% straighter
+- G-Funk: bass swings slightly harder than kick for smooth bounce
+- Memphis: 808 subs sit near-grid for locked repetition
+- Crashes always land on the grid
+- Shaker follows hat groove at 90%
+
+### Arrangement & Production
+
+- **12 arrangement templates** with dynamic energy arcs
+- **Beat-1 velocity accent** across all instruments
+- **Per-section hat variation** (verse vs chorus vs breakdown)
+- **Filter effect** on breakdowns/intros (progressive instrument strip-down)
+- **Pocket shift** in MIDI — chorus pushes slightly ahead, verse lays back
+- **Beat drops** — ALL instruments go silent before re-entries
+- **3 intro types** (build-in, full beat, minimal count-in) and **2 outro types** (fade, stop)
+- **Section-ending fills** matched to each style's era
+- **Descending 3-tom fills** (high → mid → low) at section boundaries
+
 ## Quick Start
 
 No install needed. Just open **[hiphopdrummer.com](https://hiphopdrummer.com)** in any browser.
