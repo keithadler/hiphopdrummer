@@ -413,6 +413,10 @@ function writeSnA(p, feel, off) {
     // Rare ghost — Griselda is sparse but not completely dead
     if (maybe(.15 * ghostDensity) && !p.kick[off+7]) p.snare[off+7] = v(45, 8);
   }
+  if (feel === 'detroit') {
+    // Detroit: punchy crisp snare crack — Black Milk, Apollo Brown
+    p.snare[off + 4] = v(120, 8); p.snare[off + 12] = v(124, 6);
+  }
   if (feel === 'phonk') {
     // Phonk: snappy snare, similar to memphis
     p.snare[off + 4] = v(115, 8); p.snare[off + 12] = v(120, 8);
@@ -594,6 +598,7 @@ function writeGKA(p, feel, off, sec) {
   if (feel === 'memphis') ch *= 0.4;  // Memphis: sparse ghost kicks
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
+  if (feel === 'detroit') ch *= 1.2;  // Detroit: moderate-to-dense, soul-influenced
   
   // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
   var is808Feel = (feel === 'memphis' || feel === 'griselda');
@@ -692,6 +697,7 @@ function writeGKB(p, feel, off, sec) {
   if (feel === 'memphis') ch *= 0.4;
   if (feel === 'griselda') ch *= 0.3; // Griselda: very sparse ghosts
   if (feel === 'nujabes') ch *= 1.8;  // Nujabes: dense, live-drummer feel
+  if (feel === 'detroit') ch *= 1.2;  // Detroit: moderate-to-dense
   
   // FIX #6: 808-based feels (memphis, griselda) use fixed velocity 60-65 instead of scaled ratio
   var is808Feel = (feel === 'memphis' || feel === 'griselda');
@@ -1156,7 +1162,7 @@ function writeOpenHat(p, feel, off) {
   }
   // FIX #1: Open hat placement variation - not always step 14
   // Primary: &4 (step 14) — 70% chance (80% for bounce, 85% for big)
-  var oh4chance = (feel === 'big') ? .85 : (feel === 'bounce') ? .80 : .70;
+  var oh4chance = (feel === 'big') ? .85 : (feel === 'bounce') ? .80 : (feel === 'detroit') ? .80 : .70;
   if (maybe(oh4chance)) {
     // Phrase-aware velocity: louder approaching fills (bars 6-7), softer in settle (bars 2-3)
     var barInPhrase = Math.floor(off / 16) % 8;
@@ -1522,8 +1528,8 @@ function addFill(p, sec, len, feel) {
   var isBig = (sec==='pre'||sec==='lastchorus'); // "big" sections get crash at end
   var start = len - fillLen;
 
-  // Clear space for fill — remove hats and shaker so the fill stands out
-  for (var i = start; i < len; i++) { p.hat[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; }
+  // Clear space for fill — remove hats, shaker, and cowbell so the fill stands out
+  for (var i = start; i < len; i++) { p.hat[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.cowbell[i] = 0; }
 
   if (feel === 'jazzy') {
     // Jazzy fill: ghost-level snare roll with crescendo dynamics
@@ -1654,6 +1660,15 @@ function addFill(p, sec, len, feel) {
     }
     p.crash[len - 1] = v(115, 8);
     if (maybe(.5)) p.kick[len - 1] = v(120, 5);
+  }
+  else if (feel === 'detroit') {
+    // Detroit fill: punchy kick-snare build — Black Milk, Apollo Brown
+    if (fillLen >= 3) p.kick[len - 3] = v(108, 8);
+    p.snare[len - 2] = v(105, 8);
+    p.kick[len - 2] = v(100, 10);
+    p.snare[len - 1] = v(122, 6);
+    p.clap[len - 1] = v(115, 8);
+    if (isBig) p.crash[len - 1] = v(112, 8);
   }
   else {
     // Standard B-Boy fill — 4 types picked randomly
@@ -1913,11 +1928,15 @@ function writeTomFill(p, fillStart, fillEnd, feel) {
 
   // Descending velocity pattern simulates high→low tom descent
   var tomSteps = Math.min(fillLen, 4);
+  // Style-specific velocity curves
+  var tomBase = 100;
+  if (feel === 'hard' || feel === 'griselda' || feel === 'crunk') tomBase = 120;
+  else if (feel === 'jazzy' || feel === 'nujabes') tomBase = 80;
+  else if (feel === 'bounce' || feel === 'big') tomBase = 110;
   for (var i = 0; i < tomSteps; i++) {
     var step = fillStart + i;
     if (step >= fillEnd) break;
-    // Descending velocity: 100 → 90 → 80 → 70
-    var vel = v(100 - (i * 10), 8);
+    var vel = v(tomBase - (i * 10), 8);
     p.tom[step] = vel;
     // Clear snare on tom steps so they don't compete
     if (p.snare[step] > 0 && p.snare[step] < 85) p.snare[step] = 0;
