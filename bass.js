@@ -444,7 +444,14 @@ var BASS_STYLES = {
                useMinor7th: 0.0, octaveUpProb: 0.0, deadNoteProb: 0.0,
                walkDirection: 'below', walkDiatonic: 0.0, backbeatAccent: 0, chordAnticipation: 0.0,
                subSwell: 0.25, restProb: 0.0, hammerOnProb: 0.0, timingJitter: 0, velCompression: 0.0, energyArc: false, instrument: '808sub',
-               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 }
+               pullOffProb: 0.0, rakeProb: 0.0, trillProb: 0.0, doubleStopProb: 0.0, upbeatAccent: 0, restBarProb: 0.0, beat1SkipProb: 0.0, rhythmMutate: 0.0 },
+  philly:    { rhythm: 'eighth', density: 0.55, velBase: 82, velRange: 22, noteDur: 0.7,
+               useFifth: 0.4, useOctaveDrop: 0.03, walkUp: 0.3,
+               slideProb: 0.02, ghostNoteDensity: 0.2, timingOffset: 0,
+               useMinor7th: 0.35, octaveUpProb: 0.12, deadNoteProb: 0.06,
+               walkDirection: 'both', walkDiatonic: 0.6, backbeatAccent: 8, chordAnticipation: 0.2,
+               subSwell: 0.0, restProb: 0.12, hammerOnProb: 0.03, timingJitter: 6, velCompression: 0.0, energyArc: true, instrument: 'bassguitar',
+               pullOffProb: 0.06, rakeProb: 0.0, trillProb: 0.04, doubleStopProb: 0.0, upbeatAccent: 4, restBarProb: 0.08, beat1SkipProb: 0.08, rhythmMutate: 0.22 }
 };
 
 /**
@@ -521,7 +528,8 @@ var CHORD_PROGRESSIONS = {
   chipmunk:   [['i','iv','i','v','i','iv','i','v'], ['i','i','iv','v','i','i','iv','v'], ['i','iv','iv','i','i','iv','iv','i'], ['i','bVII','iv','i','i','bVII','iv','i'], ['i','iv','i','bVI','i','iv','i','bVI']],
   rocafella:  [['i','iv','i','v','i','iv','i','v'], ['i','i','iv','v','i','i','iv','v'], ['i','iv','v','i','i','iv','v','i'], ['i','bVII','iv','v','i','bVII','iv','v'], ['i','iv','i','bVI','i','iv','i','bVI']],
   poprap:     [['i','iv','i','v','i','iv','i','v'], ['i','i','iv','i','i','i','iv','i'], ['i','iv','v','i','i','iv','v','i'], ['i','bVII','iv','i','i','bVII','iv','i']],
-  ratchet:    [['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','i','i','i','i','bVII']]
+  ratchet:    [['i','i','i','i','i','i','i','i'], ['i','i','i','iv','i','i','i','iv'], ['i','i','i','i','i','i','i','bVII']],
+  philly:     [['i','iv','ii','v','i','iv','ii','v'], ['i','ii','v','i','i','ii','v','i'], ['i','iv','v','iv','i','iv','v','iv'], ['ii','v','i','iv','ii','v','i','iv'], ['i','#idim','ii','v','i','#idim','ii','v']]
 };
 
 /**

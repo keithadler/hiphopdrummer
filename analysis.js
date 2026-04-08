@@ -79,7 +79,8 @@ function analyzeBeat() {
     chipmunk: 'CHIPMUNK SOUL',
     rocafella: 'ORCHESTRAL BOOM BAP',
     poprap: 'POP-RAP / RADIO',
-    ratchet: 'WEST COAST RATCHET'
+    ratchet: 'WEST COAST RATCHET',
+    philly: 'PHILLY BOOM BAP'
   };
   var styleDescs = {
     normal: 'Straight-ahead East Coast boom bap — the foundation. DJ Premier, Pete Rock, Buckwild. Balanced kick patterns, swung 8th note hats, snare+clap on the backbeat, ghost notes for groove.',
@@ -111,7 +112,8 @@ function analyzeBeat() {
     chipmunk: 'Sped-up soul sample production — pitched-up vocal chops, boom bap drums with moderate swing, warm bass guitar, and EP chords in the high register. The sound of soul records played at 45 RPM.',
     rocafella: 'Orchestral boom bap — heavy kick doubles, piano chords, brass stabs, punchy bass, and anthem-level energy. Dense drum patterns with flam-like ghost notes. Stadium-ready hip hop.',
     poprap: 'Clean, radio-ready pop-rap — simple kick patterns, sustained EP pads, moderate 808 bass, and polished production. Bright, accessible, and hook-driven.',
-    ratchet: 'West Coast ratchet — minimal, formulaic drums with the signature beat-3 rest, synth stabs, sustained 808 sub, and nearly straight timing. The sound of LA club music stripped to its essentials.'
+    ratchet: 'West Coast ratchet — minimal, formulaic drums with the signature beat-3 rest, synth stabs, sustained 808 sub, and nearly straight timing. The sound of LA club music stripped to its essentials.',
+    philly: 'Philadelphia live-drums production — organic, wide-dynamic drum programming that sounds like a real drummer behind the kit. Dense brush-like ghost snares, ride cymbal as primary timekeeper, walking bass, Rhodes chords, and heavy swing. The Soulquarians sound — where jazz meets hip hop in a live room.'
   };
   lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeelBase] || styleDescs.normal);
@@ -181,6 +183,7 @@ function analyzeBeat() {
   if (songFeelBase === 'nujabes') lines.push('Jazz hop is melodic and meditative. Your flow should float above the groove — smooth, musical, almost sung. Think Cise Starr on "Feather" or Shing02 on "Luv(sic)." The beat is beautiful; your delivery should match that beauty.');
   if (songFeelBase === 'oldschool') lines.push('Old school beats are simple and direct. Short, punchy bars with clear enunciation. Think Run-DMC\'s call-and-response, LL Cool J\'s braggadocio, KRS-One\'s commanding delivery. The drums are a machine — your voice is the human element.');
   if (songFeelBase === 'detroit') lines.push('Detroit beats are soulful and punchy. Your flow should ride the groove — confident, melodic, with room for storytelling. Think Royce da 5\'9"\'s precision, Elzhi\'s wordplay, Guilty Simpson\'s grit. The soul sample gives you a mood — match it.');
+  if (songFeelBase === 'philly') lines.push('Philly boom bap is organic and soulful. Your flow should breathe with the live-drums feel — relaxed, musical, conversational. Think Black Thought\'s precision over Questlove\'s pocket. The groove is wide and warm — your delivery should match that warmth.');
   lines.push('<b>Producer note:</b> At ' + bpm + ' BPM with ' + swing + '% swing, your melodic parts should ' + (swing >= 62 ? 'lean into the groove — don\'t quantize samples too tightly, let them breathe with the swing.' : 'sit cleanly on the grid — tight quantization works well at this swing level.'));
 
 
@@ -421,6 +424,13 @@ function analyzeBeat() {
       { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', rel: 'G major', relNote: 'G, D, C', context: 'Tight and minimal. Em gives the ratchet formula a slightly brighter edge.' },
       { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', rel: 'Eb major', relNote: 'Eb, Bb, Ab', context: 'Heavy and dark. The flat minor key adds weight to the minimal patterns.' },
       { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', rel: 'Bb major', relNote: 'Bb, F, Eb', context: 'Warm and funky. Gm gives the ratchet style a West Coast funk edge.' }
+    ]},
+    philly: { keys: [
+      { root: 'Dm', type: 'minor', i: 'Dm', iv: 'Gm', v: 'Am', ii: 'Em7b5', rel: 'F major', relNote: 'Fmaj7, Cmaj7, Bbmaj7', context: 'The Philly key. Warm and soulful. Rhodes piano and walking bass live in Dm. The Roots, Soulquarians territory.' },
+      { root: 'Am', type: 'minor', i: 'Am', iv: 'Dm', v: 'Em', ii: 'Bm7b5', rel: 'C major', relNote: 'Cmaj7, Gmaj7, Fmaj7', context: 'Natural and direct. Am gives the live-drums feel a raw, organic quality. DJ Jazzy Jeff energy.' },
+      { root: 'Cm', type: 'minor', i: 'Cm', iv: 'Fm', v: 'Gm', ii: 'Dm7b5', rel: 'Eb major', relNote: 'Ebmaj7, Bbmaj7, Abmaj7', context: 'Deep and soulful. The flat minor key adds warmth to the Philly soul tradition. Musiq Soulchild territory.' },
+      { root: 'Gm', type: 'minor', i: 'Gm', iv: 'Cm', v: 'Dm', ii: 'Am7b5', rel: 'Bb major', relNote: 'Bbmaj7, Fmaj7, Ebmaj7', context: 'Warm and funky. Gm gives the live-drums groove a deep, soulful pocket. James Poyser energy.' },
+      { root: 'Em', type: 'minor', i: 'Em', iv: 'Am', v: 'Bm', ii: 'F#m7b5', rel: 'G major', relNote: 'Gmaj7, Dmaj7, Cmaj7', context: 'Tight and introspective. Em gives the Philly sound a slightly brighter, more focused quality.' }
     ]}
   };
 
@@ -777,7 +787,8 @@ function analyzeBeat() {
     chipmunk: ['Kanye West — "Through the Wire"', 'Kanye West — "Jesus Walks"', 'Just Blaze — "Oh Boy" (Cam\'ron)', '9th Wonder — "Threat" (Jay-Z)'],
     rocafella: ['Just Blaze — "Song Cry" (Jay-Z)', 'Just Blaze — "Oh Boy" (Cam\'ron)', 'Kanye West — "Takeover" (Jay-Z)', 'Bink! — "What More Can I Say" (Jay-Z)'],
     poprap: ['Ryan Leslie — "Addiction"', 'Polow da Don — "Glamorous" (Fergie)', 'Cool & Dre — "Best I Ever Had" (Drake)', 'Ryan Leslie — "How It Was Supposed to Be"'],
-    ratchet: ['DJ Mustard — "Rack City" (Tyga)', 'DJ Mustard — "My Nigga" (YG)', 'DJ Mustard — "Paranoid" (Ty Dolla $ign)', 'DJ Mustard — "Don\'t Tell \'Em" (Jeremih)']
+    ratchet: ['DJ Mustard — "Rack City" (Tyga)', 'DJ Mustard — "My Nigga" (YG)', 'DJ Mustard — "Paranoid" (Ty Dolla $ign)', 'DJ Mustard — "Don\'t Tell \'Em" (Jeremih)'],
+    philly: ['The Roots — "You Got Me"', 'The Roots — "The Seed 2.0"', 'DJ Jazzy Jeff — "Summertime" (DJ Jazzy Jeff & The Fresh Prince)', 'Musiq Soulchild — "Just Friends (Sunny)"']
   };
   var refs = refMap[songFeelBase] || refMap.normal;
   lines.push('Study these to hear the ' + (styleNames[songFeel] || 'boom bap').toLowerCase() + ' feel in action:');
@@ -893,6 +904,11 @@ function analyzeBeat() {
       '• <b>DJ Mustard</b> would strip it even further — just kick, clap, one synth note, and the signature "hey" chant. The formula works because of what\'s NOT there.',
       '• <b>YG</b> would add ad-libs, make the 808 slide between notes, and push the energy for the club. Same formula, more personality.',
       '• <b>Ty Dolla $ign</b> would add melodic vocals, layer harmonies, and turn the minimal beat into a canvas for singing. Ratchet meets R&B.'
+    ],
+    philly: [
+      '• <b>Questlove</b> would play it live — real drums, real swing, real dynamics. The ghost notes would be even denser and more organic. No grid, just feel.',
+      '• <b>DJ Jazzy Jeff</b> would add a scratched vocal sample, brighten the Rhodes, and push the groove toward a summer block party vibe. Philly soul meets turntablism.',
+      '• <b>James Poyser</b> would thicken the Rhodes voicings, add a Wurlitzer layer, and make the chord changes more sophisticated. The Soulquarians approach — jazz harmony in a hip hop pocket.'
     ]
   };
   var comps = producerComps[songFeelBase] || producerComps.normal;
@@ -933,7 +949,8 @@ function analyzeBeat() {
     memphis: 1, halftime: 1, bounce: 1, driving: 1, big: 1, griselda: 1, phonk: 1,
     crunk: 0, sparse: 0, normal: 0, dark: 0,
     miamibass: 0, ratchet: 0, nolimit: 1, cashmoney: 1, timbaland: 2, neptunes: 1,
-    ruffryder: 1, chipmunk: 1, rocafella: 1, poprap: 0
+    ruffryder: 1, chipmunk: 1, rocafella: 1, poprap: 0,
+    philly: 2
   };
   var hardestFeel = songFeel;
   var hardestFellScore = feelDiffMap[songFeelBase] || 0;
@@ -973,7 +990,8 @@ function analyzeBeat() {
     chipmunk: 'boom bap foundation with soul-sample sensibility',
     rocafella: 'dense kick doubles and orchestral energy',
     poprap: 'clean and simple — straightforward programming',
-    ratchet: 'minimal and formulaic — the formula is the challenge'
+    ratchet: 'minimal and formulaic — the formula is the challenge',
+    philly: 'live-drums feel with dense brush ghosts and ride cymbal — jazz-influenced dynamics'
   };
   if (feelDescMap[hardestFeel]) diffReasons.push(feelDescMap[hardestFeel]);
 
@@ -1333,7 +1351,8 @@ function analyzeBeat() {
     chipmunk: 'For this chipmunk soul beat: the pitched-up sample needs warmth — add tape saturation. The drums should be punchy boom bap style. The bass guitar should be warm and round. Add subtle vinyl crackle for texture.',
     rocafella: 'For this orchestral boom bap beat: the piano needs presence — slight compression and EQ boost at 2-4kHz. Brass stabs should be loud and proud. The kick doubles need to hit hard. Stadium-level energy in the mix.',
     poprap: 'For this pop-rap beat: everything should be clean and polished. The EP pad should be warm but not muddy. The 808 should be tight and controlled. Master bus compression for glue. Radio-ready means no rough edges.',
-    ratchet: 'For this ratchet beat: the 808 sub should sustain and dominate the low end. The synth stab should be bright and minimal. The clap needs to crack. Keep the mix simple — the formula works because of clarity, not complexity.'
+    ratchet: 'For this ratchet beat: the 808 sub should sustain and dominate the low end. The synth stab should be bright and minimal. The clap needs to crack. Keep the mix simple — the formula works because of clarity, not complexity.',
+    philly: 'For this Philly boom bap beat: the Rhodes needs warmth — add subtle tube saturation and a touch of tremolo. The bass guitar should be round and present but not boomy. Add a short plate reverb on the snare ghosts. The ride cymbal should shimmer with a touch of high-shelf EQ. Keep the mix organic — this style is about live-room feel.'
   };
   var mixTip = mixTips[songFeelBase] || mixTips.normal;
   lines.push('<b>🎚 Mixing tip for this style:</b> ' + mixTip);

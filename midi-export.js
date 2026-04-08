@@ -50,18 +50,18 @@ var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 36,
  * @type {Object.<string, number>}
  */
 var MPC_NOTE_MAP = {
-  kick:      36,  // A01 — C1  — Kick
-  snare:     37,  // A02 — C#1 — Snare
-  clap:      38,  // A03 — D1  — Clap
-  rimshot:   39,  // A04 — D#1 — Rimshot / Sidestick
-  ghostkick: 40,  // A05 — E1  — Ghost Kick
-  hat:       41,  // A06 — F1  — Closed Hi-Hat
-  openhat:   42,  // A07 — F#1 — Open Hi-Hat
-  ride:      43,  // A08 — G1  — Ride
-  crash:     44,  // A09 — G#1 — Crash
-  shaker:    45,  // A10 — A1  — Shaker / Tambourine
-  cowbell:   46,  // A11 — A#1 — Cowbell
-  tom:       47   // A12 — B1  — Tom
+  kick:      36,  // A01 — C1  — Kick (GM Bass Drum 1)
+  snare:     38,  // A03 — D1  — Snare (GM Acoustic Snare)
+  clap:      39,  // A04 — D#1 — Clap (GM Hand Clap)
+  rimshot:   37,  // A02 — C#1 — Rimshot / Sidestick (GM Side Stick)
+  ghostkick: 36,  // A01 — C1  — Ghost Kick (same as kick, lower velocity)
+  hat:       42,  // A07 — F#1 — Closed Hi-Hat (GM Closed Hi-Hat)
+  openhat:   46,  // A11 — A#1 — Open Hi-Hat (GM Open Hi-Hat)
+  ride:      51,  // A16 — D#2 — Ride (GM Ride Cymbal 1)
+  crash:     49,  // A14 — C#2 — Crash (GM Crash Cymbal 1)
+  shaker:    54,  // B03 — F#2 — Shaker / Tambourine (GM Tambourine)
+  cowbell:   56,  // B05 — G#2 — Cowbell (GM Cowbell)
+  tom:       47   // A12 — B1  — Tom (GM Low-Mid Tom)
 };
 
 /**
@@ -226,9 +226,9 @@ function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
  *   - One type-2 event per drum hit: time, len, note, velocity (0-1 float string)
  *   - All times in MPC ticks (960 PPQ)
  *   - Swing applied identically to the MIDI export
- *   - Notes use MPC_NOTE_MAP (Chromatic C1 layout, not GM):
- *       A01=36 Kick, A02=37 Snare, A03=38 Clap, A04=39 Rimshot,
- *       A05=40 Ghost Kick, A06=41 Hat, A07=42 Open Hat, A08=43 Ride, A09=44 Crash
+ *   - Notes use MPC_NOTE_MAP (GM standard layout, not Chromatic C1):
+ *       36=Kick, 38=Snare, 39=Clap, 37=Rimshot,
+ *       42=Hat, 46=Open Hat, 51=Ride, 49=Crash, 54=Shaker, 56=Cowbell, 47=Tom
  *   - NO swing baked in — notes are on a straight grid.
  *     Set swing on the MPC device itself (see HOW_TO_USE_MPC.txt).
  *
