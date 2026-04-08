@@ -126,8 +126,8 @@ test('STYLE_DATA has all 20 base feels', function() {
 });
 
 // === Test ROWS and RN completeness ===
-test('ROWS and RN have 10 instruments', function() {
-  assert(ROWS.length === 10, 'ROWS should have 10 items, got ' + ROWS.length);
+test('ROWS and RN have 12 instruments', function() {
+  assert(ROWS.length === 12, 'ROWS should have 12 items, got ' + ROWS.length);
   ROWS.forEach(function(r) {
     assert(RN[r], 'RN missing label for: ' + r);
     assert(ROW_TIPS[r], 'ROW_TIPS missing for: ' + r);
