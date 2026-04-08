@@ -49,6 +49,8 @@ function writeIntro(p, feel, len) {
     for (var j = 0; j < 16; j += 2) p.hat[off+j] = j % 4 === 0 ? v(hVel, 10) : v(hSoft, 15);
     if (maybe(.35) && songFeel !== 'lofi') p.openhat[off+14] = v(80, 10);
     if (useRide) for (var j = 0; j < 16; j += 4) p.ride[off+j] = v(85, 12);
+    // Cowbell for Memphis/phonk/crunk/oldschool intros
+    if (typeof writeCowbell === 'function') writeCowbell(p, (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel, off);
   }
   /**
    * Write a kick + hat only bar (no snare) — used for building tension
@@ -114,17 +116,19 @@ function writeOutro(p, feel, len) {
     for (var j = 0; j < 16; j += 2) if (i+j < len) p.hat[i+j] = j % 4 === 0 ? v(hVel, 10) : v(hSoft, 15);
     if (maybe(.3) && i+14 < len && songFeel !== 'lofi') p.openhat[i+14] = v(80, 10);
     if (useRide) for (var j = 0; j < 16; j += 4) if (i+j < len) p.ride[i+j] = v(85, 12);
+    // Cowbell for Memphis/phonk/crunk/oldschool outros
+    if (typeof writeCowbell === 'function') writeCowbell(p, (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel, i);
   }
 
   if (feel === 'outro_fade') {
     // Fade: last bar strips to just hat + kick on beat 1
     var lastBar = len - 16;
-    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; }
+    for (var i = lastBar; i < len; i++) { p.snare[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tom[i] = 0; }
     for (var i = lastBar; i < len; i++) p.kick[i] = 0;
     p.kick[lastBar] = v(100, 10);
   } else {
     // Stop: clear last bar entirely, then place one big unison hit
-    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; }
+    for (var i = len - 16; i < len; i++) { p.kick[i] = 0; p.snare[i] = 0; p.hat[i] = 0; p.clap[i] = 0; p.ghostkick[i] = 0; p.openhat[i] = 0; p.crash[i] = 0; p.shaker[i] = 0; p.rimshot[i] = 0; p.ride[i] = 0; p.cowbell[i] = 0; p.tom[i] = 0; }
     p.kick[len - 16] = v(120, 10); p.snare[len - 16] = v(120, 10); p.clap[len - 16] = v(110, 10); p.crash[len - 16] = v(110, 10);
   }
 }
@@ -1716,6 +1720,9 @@ function addFill(p, sec, len, feel) {
       p.crash[len - 1] = v(100, 10);
     }
   }
+
+  // Tom fill — 30% chance to add descending toms over any section-ending fill
+  if (typeof writeTomFill === 'function') writeTomFill(p, start, len, feel);
 }
 
 

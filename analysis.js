@@ -29,6 +29,10 @@ function analyzeBeat() {
   lines.push('• <b>Advanced:</b> Skip to Technique Spotlight, Compare Sections, and What Would They Do Differently. Refine your ear and develop your own style.');
   lines.push('<b>Already know what you\'re doing?</b> Skip to Suggested Key, Compare Sections, or Drum Machine Workflow below.');
   lines.push('');
+  // Foundation / melody philosophy
+  lines.push('🎵 <b>THIS BEAT IS THE FOUNDATION — YOU BRING THE MELODY</b>');
+  lines.push('Everything here — the drums, bass, chords, arrangement — is the <b>harmonic foundation</b>. It\'s musical, it\'s in key, it grooves. But the top line is intentionally missing. That\'s your job. If you\'re a rapper, your voice is the melody. If you\'re a sample head, your chop is the melody. If you\'re a guitarist, your lick is the melody. If you\'re a DJ, your scratch is the melody. That\'s how hip hop has always worked — the producer builds the bed, the artist brings it to life. These beats are designed to leave room for you.');
+  lines.push('');
   // FIX 10: Quick glossary at the top for beginners
   lines.push('<b>📖 Quick glossary</b> (full glossary at the bottom):');
   lines.push('• <b>Backbeat</b> = snare on beats 2 and 4 · <b>Ghost note</b> = very soft hit (30-50%) · <b>Swing</b> = delaying every other note for groove · <b>Velocity</b> = how hard a hit is (1-127) · <b>BPM</b> = beats per minute (tempo)');

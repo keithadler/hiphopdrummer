@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Release 1.55
+# 🥁 Hip Hop Drummer — Release 1.56
 
 Generate unique hip hop drum, bass, and instrument arrangements from scratch — every beat is assembled in real time from hundreds of musical rules, not selected from presets. No AI subscription, no cloud, no account — 40 years of hip hop production knowledge encoded directly into code that runs in your browser. 26 styles from old school 808s to modern boom bap, G-Funk, Memphis, and beyond. Up to 9 instruments play together — drums, bass, electric piano, synth pad, synth lead, organ, horn stabs, vibraphone, and clavinet — all following the same chord progressions and reacting to each other. Each style gets its own drum kit and bass sound automatically (TR-808 for G-Funk, Brush Kit for Nujabes, Synth Bass for Memphis, etc.). Learn, tweak, produce, rap over it, scratch over it, or jam along. Edit individual cells, regenerate sections, adjust velocities, add sections to the arrangement — then export everything.
 
@@ -14,6 +14,8 @@ This tool exists to get you past the blank grid and into the creative zone — f
 
 Every beat is production-ready. 9 instruments playing together, style-matched sounds, full song arrangements with intros and outros, WAV stems you can import into any DAW. But the real goal isn't the beat — it's the song, the session, the set, the freestyle, the record that comes after. This tool is the spark. What you build from it is yours.
 
+**The beat is the harmonic foundation — you bring the melody.** The drums, bass, chords, and arrangement give you a complete musical bed in the right key, the right tempo, the right feel. But the top line — the rap, the vocal hook, the guitar lick, the sample chop, the scratch pattern — that's yours. That's always been how hip hop works. The producer builds the house, the artist moves in and makes it a home. Every beat here is designed to leave room for you.
+
 I built it because I believe the knowledge to make great hip hop should be free and accessible to everyone — not locked behind expensive courses, gear, or gatekeepers. Every beat comes with a full breakdown of *why* the pattern works, so you're not just getting drums — you're learning how the greats programmed theirs. And when you're done learning, you hit export and start making music.
 
 ## Who This Is For
@@ -24,11 +26,11 @@ This tool meets you where you are. Whether you've never programmed a drum patter
 
 **If you're a working producer** — use it as a starting point. Generate a beat in the style you want, export the MIDI, and customize it. Swap the kick samples, adjust the ghost note velocities, add your own fills. The patterns are musically correct with authentic swing, dynamics, and arrangement structure — you're not starting from a blank grid. Up to 9 instruments give you a complete production: drums, bass, EP, pad, lead, organ, horns, vibes, and clav — all locked to the same chords. The MIDI gives you everything you need to re-voice with your own sounds.
 
-**If you're a rapper** — just rap over it. Hit play, open the mic, and go. The flow guide gives you syllable counts per bar based on the actual kick pattern density. It tells you where the landing points are — which beats to hit with your hardest syllables. The BPM and swing are already set for the style. Export the WAV — it's a full mix with all instruments, ready to use as a practice beat, demo backing track, or freestyle session.
+**If you're a rapper** — just rap over it. Hit play, open the mic, and go. The beat gives you the harmonic foundation — drums, bass, chords, arrangement — and leaves the top line wide open for you. Your voice IS the melody. The flow guide gives you syllable counts per bar based on the actual kick pattern density. It tells you where the landing points are — which beats to hit with your hardest syllables. The BPM and swing are already set for the style. Export the WAV — it's a full mix with all instruments, ready to use as a practice beat, demo backing track, or freestyle session.
 
 **If you're a DJ** — these are scratch-ready. The arrangements have intros, breakdowns, and outros built in. Export the WAV, load it on your deck, and cut over it. The drum patterns are authentic enough to blend with real records. Use the breakdown sections for scratching — the drums thin out and give you space. Layer it with your crate finds.
 
-**If you're a musician** — the chord sheet and key suggestions give you everything you need to jam along. The bass MIDI shows you what a session bassist would play. The EP, organ, and vibes parts show you what a keyboardist would comp. The modal harmony (Dorian for G-Funk, Phrygian for dark styles) gives you the actual theory behind why these progressions work. Export individual WAV stems to hear any instrument in isolation — drums, bass, EP, pad, lead, organ, horns, vibes, or clav. Play keys over it, add guitar, lay down a horn line. The beat is the foundation — build on it.
+**If you're a musician** — the beat is the harmonic foundation, and you bring the melody. The chord sheet and key suggestions give you everything you need to jam along. The bass MIDI shows you what a session bassist would play. The EP, organ, and vibes parts show you what a keyboardist would comp. But the lead line, the solo, the hook — that's your job. The modal harmony (Dorian for G-Funk, Phrygian for dark styles) gives you the actual theory behind why these progressions work. Export individual WAV stems to hear any instrument in isolation — drums, bass, EP, pad, lead, organ, horns, vibes, or clav. Play keys over it, add guitar, lay down a horn line. The beat is the canvas — paint on it.
 
 ## 40+ Years of Production Knowledge, Encoded
 
