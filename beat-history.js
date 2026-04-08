@@ -108,6 +108,15 @@ function restoreBeatState(beatData) {
   if (beatData.songPalette) songPalette = beatData.songPalette;
   
   patterns = JSON.parse(JSON.stringify(beatData.patterns));
+  // Ensure all ROWS exist in every section — beats saved before new instruments
+  // were added (e.g. cowbell/tom in 1.54) won't have those rows.
+  for (var _sk in patterns) {
+    for (var _ri = 0; _ri < ROWS.length; _ri++) {
+      if (!patterns[_sk][ROWS[_ri]]) {
+        patterns[_sk][ROWS[_ri]] = new Array(STEPS).fill(0);
+      }
+    }
+  }
   arrangement = beatData.arrangement.slice();
   secSteps = JSON.parse(JSON.stringify(beatData.secSteps));
   secFeels = JSON.parse(JSON.stringify(beatData.secFeels));

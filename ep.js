@@ -649,9 +649,11 @@ function buildEPMidiBytes(sectionList, bpm, noSwing) {
     return 0;
   });
 
+  // Preserve bar grid — clamp negative ticks only (see buildMidiBytes comment)
   if (midiEvents.length > 0) {
-    var firstTick = midiEvents[0].tick;
-    if (firstTick > 0) { for (var i = 0; i < midiEvents.length; i++) midiEvents[i].tick -= firstTick; }
+    for (var i = 0; i < midiEvents.length; i++) {
+      if (midiEvents[i].tick < 0) midiEvents[i].tick = 0;
+    }
   }
 
   var td = [];
