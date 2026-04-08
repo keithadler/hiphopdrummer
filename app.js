@@ -174,6 +174,8 @@ document.getElementById('regenOverlay').onclick = function(e) {
 };
 
 document.getElementById('regenGo').onclick = function() {
+  // Prevent double-generation if already in progress
+  if (document.querySelector('.gen-loading')) return;
   var style = document.getElementById('regenStyle').value || null;
   var key   = document.getElementById('regenKey').value || null;
   var bpm   = document.getElementById('regenBpm').value || null;
@@ -696,6 +698,7 @@ document.addEventListener('keydown', function(e) {
   }
   if (dialogOpen) return;
   if (e.key === 'r' || e.key === 'R') {
+    if (document.querySelector('.gen-loading')) return; // generation in progress
     e.preventDefault();
     showRegenDialog();
   }
@@ -1506,18 +1509,19 @@ function initInstrMuteStrip() {
 
       // Rebuild MIDI and restart if playing
       if (window.synthBridge && window.synthBridge.isPlaying) {
-        // Remember position, rebuild, seek back
+        // Remember position, rebuild with current mute state, seek back
         var pos = window.synthBridge.state().currentTime;
-        if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
-        // Re-play from the same position
-        if (window._currentMidiBytes) {
-          window.synthBridge.play(window._currentMidiBytes).then(function() {
-            if (pos > 0) window.synthBridge.seek(pos);
-          });
-        }
+        var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
+        // Build fresh MIDI that respects the current mute state (don't use
+        // _currentMidiBytes which always has drums for export purposes)
+        var liveMidi = buildCombinedMidiBytes(arrangement, bpm, true);
+        window.synthBridge.play(liveMidi).then(function() {
+          if (pos > 0) window.synthBridge.seek(pos);
+        });
       } else {
         if (typeof updateMidiPlayer === 'function') updateMidiPlayer();
       }
+      _updateMutedRows();
     };
   });
 

@@ -322,10 +322,9 @@ function renderBeatHistorySlots() {
       if (typeof _showWhatNext === 'function') setTimeout(_showWhatNext, 300);
     };
     btn.onclick = handler;
-    btn.ontouchend = handler;
   });
   
-  // Wire delete handlers with both click and touch events for mobile
+  // Wire delete handlers
   slotsContainer.querySelectorAll('.history-slot-delete').forEach(function(btn) {
     var handler = function(e) {
       e.preventDefault();
@@ -340,7 +339,6 @@ function renderBeatHistorySlots() {
       }
     };
     btn.onclick = handler;
-    btn.ontouchend = handler;
   });
 
   // Wire star handlers
@@ -354,7 +352,6 @@ function renderBeatHistorySlots() {
       renderBeatHistorySlots();
     };
     btn.onclick = handler;
-    btn.ontouchend = handler;
   });
 }
 
