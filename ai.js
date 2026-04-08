@@ -2271,6 +2271,10 @@ function generateAll(opts) {
   if (typeof _sectionProgressions !== 'undefined') {
     for (var sp in _sectionProgressions) { delete _sectionProgressions[sp]; }
   }
+  // Clear bass octave drop cache so new beat gets fresh decisions
+  if (typeof _sectionOctaveDrops !== 'undefined') {
+    for (var sod in _sectionOctaveDrops) { delete _sectionOctaveDrops[sod]; }
+  }
 
   // Guarantee minimum 2:45 (165 seconds) — if the best attempt is still
   // too short, pad the arrangement by duplicating verse/chorus sections.

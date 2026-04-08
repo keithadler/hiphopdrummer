@@ -427,6 +427,17 @@ document.querySelectorAll('.export-preset').forEach(function(btn) {
       document.getElementById('expInstrMpc').checked = true;
       document.getElementById('expPdf').checked = true;
     }
+    // Update DAW and stem toggle button text to match new state
+    var dawToggle = document.getElementById('exportDawToggle');
+    if (dawToggle) {
+      var anyDaw = Array.from(document.querySelectorAll('.daw-check')).some(function(c) { return c.checked; });
+      dawToggle.textContent = anyDaw ? 'Deselect all' : 'Select all';
+    }
+    var stemToggle = document.getElementById('exportStemToggle');
+    if (stemToggle) {
+      var anyStem = Array.from(document.querySelectorAll('.stem-check')).some(function(c) { return c.checked; });
+      stemToggle.textContent = anyStem ? 'Deselect all stems' : 'Select all stems';
+    }
   };
 });
 
@@ -2921,7 +2932,7 @@ function initPlaybackTracking() {
   var _cachedProgressFill = null;
   // Read preferences from localStorage immediately (not just on playback start)
   var _showChordsOverlay = false;
-  try { var _sc = localStorage.getItem('hhd_show_chords'); _showChordsOverlay = (_sc !== null && _sc === 'true'); } catch(e) {}
+  // Note: re-read at play start (line below) to pick up any pref changes
   var _followPlayhead = true;
   try { var _fp = localStorage.getItem('hhd_follow_playhead'); if (_fp !== null) _followPlayhead = (_fp !== 'false'); } catch(e) {}
 
@@ -3267,7 +3278,7 @@ function initPlaybackTracking() {
         }
         clearCursor();
         window._playbackControlsBarTabs = false;
-        if (_cachedToast) _cachedToast.classList.remove('show');
+        if (_cachedToast) { _cachedToast.classList.remove('show'); _cachedToast.innerHTML = ''; }
         _chordToastVisible = false;
         stopTipTicker();
         // VFX: Clear all visual effects on stop

@@ -281,6 +281,7 @@ var dragIdx = null;
  * @param {number} idx - Index into the arrangement array
  */
 function _selectArrItem(idx) {
+  if (idx < 0 || idx >= arrangement.length) return;
   arrIdx = idx;
   curSec = arrangement[arrIdx];
   // Close velocity editor (section changed, pat reference would be stale)

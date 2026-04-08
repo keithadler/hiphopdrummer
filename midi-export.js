@@ -31,7 +31,7 @@
  * Used by buildMidiBytes() only — MIDI export stays on GM standard.
  * @type {Object.<string, number>}
  */
-var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 36, hat: 42, openhat: 46, ride: 51, crash: 49, shaker: 54, cowbell: 56, tomhi: 50, tommid: 47, tomlo: 45 };
+var MIDI_NOTE_MAP = { kick: 36, snare: 38, clap: 39, rimshot: 37, ghostkick: 35, hat: 42, openhat: 46, ride: 51, crash: 49, shaker: 54, cowbell: 56, tomhi: 50, tommid: 47, tomlo: 45 };
 
 /**
  * MPC Chromatic C1 note map — the default drum program layout on Akai MPC
@@ -359,6 +359,9 @@ function buildMpcPattern(sectionList, bpm) {
 function exportMIDI(opts) {
   // Default: everything on if called without options
   opts = opts || { fullSong: true, sections: true, mpc: true, pdf: true, daws: ['ableton','logic','fl','garageband','protools','reason','reaper','studioone','maschine'] };
+  // Export always includes all instruments regardless of session mute state
+  var _savedDrumsMuted = (typeof _drumsMuted !== 'undefined') ? _drumsMuted : false;
+  if (typeof _drumsMuted !== 'undefined') _drumsMuted = false;
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   var keyEl = document.getElementById('songKey');
   var keyStr = keyEl ? keyEl.textContent.replace(/[^a-zA-Z0-9#b]/g, '') : '';
@@ -705,7 +708,7 @@ function exportMIDI(opts) {
       });
     }
     
-    // Drums-only stem
+    // Drums-only stem (mute already overridden at top of exportMIDI)
     if (opts.wavDrums) {
       wavChain = wavChain.then(function() {
         if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Drums Stem...</strong><br><br><div class="progress-spinner"></div></div>';
@@ -880,6 +883,9 @@ function exportMIDI(opts) {
   };
   if (wavPromise) { wavPromise.then(generateZip); }
   else { generateZip(); }
+  // Restore session mute state after all MIDI/MPC data is built
+  // (WAV rendering uses its own MIDI bytes already captured above)
+  if (typeof _drumsMuted !== 'undefined') _drumsMuted = _savedDrumsMuted;
 }
 
 /**
