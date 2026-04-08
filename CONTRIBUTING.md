@@ -25,7 +25,7 @@ Thanks for your interest in contributing! This project is vanilla JS with one bu
 The project is split into focused modules:
 
 - **`patterns.js`** — Constants, state, `STYLE_DATA` (with `drumKit` and `bassSound` per style), `INSTRUMENT_SWING`, regional variants, player profiles
-- **`ai.js`** — Generation pipeline, 218 kick patterns, feel/swing pools, `FEEL_PALETTES`, section orchestration, beat drops, arrangement arc
+- **`ai.js`** — Generation pipeline, 312 kick patterns, feel/swing pools, `FEEL_PALETTES`, section orchestration, beat drops, arrangement arc
 - **`writers.js`** — All `write*()` drum bar writers, intro/outro, fills
 - **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
 - **`bass.js`** — Bass line generator, `CHORD_PROGRESSIONS`, `BASS_STYLES`, call-and-response, fills, MIDI/MPC export
@@ -48,10 +48,10 @@ The project is split into focused modules:
 
 ## Key Concepts
 
-- **26 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
+- **36 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
 - **9 Instruments** — Drums (ch 10), Bass (ch 1), EP (ch 2), Pad (ch 3), Lead (ch 4), Organ (ch 5), Horns (ch 6), Vibes (ch 7), Clav (ch 8). Each has its own generator, MIDI builder, and MPC pattern builder.
 - **Style-Matched Sounds** — `STYLE_DATA` in `patterns.js` includes `drumKit` and `bassSound` fields. Each style auto-selects the right GM drum kit and bass program (TR-808 for G-Funk, Brush Kit for Nujabes, etc.).
-- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 22 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.
+- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 32 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.
 - **Beat Drops** — `_isDrumDrop()` in `midi-export.js` checks if all drums are silent at a step. ALL instruments skip events during drops.
 - **Strict vs Improvise** — `_instrumentCache` in `midi-export.js` caches instrument patterns in Strict mode. Improvise clears the cache each play.
 - **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` → `applyGroove()` → `humanizeVelocities()`. Each stage is a separate function.

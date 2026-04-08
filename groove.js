@@ -18,9 +18,9 @@
 function applyGroove(p, len, feel) {
   // Per-instrument accent curves — each limb accents differently
   // Accent spread scales with feel: lofi/crunk flat, dilla wide, gfunk skips hat accent
-  var hatBoost = (feel === 'lofi' || feel === 'crunk') ? 2 : 6;
-  var hatCut = (feel === 'lofi' || feel === 'crunk') ? 2 : (feel === 'dilla') ? 5 : 8;
-  var hatMidCut = (feel === 'lofi' || feel === 'crunk') ? 1 : 3;
+  var hatBoost = (feel === 'lofi' || feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet' || feel === 'nolimit') ? 2 : 6;
+  var hatCut = (feel === 'lofi' || feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet' || feel === 'nolimit') ? 2 : (feel === 'dilla') ? 5 : 8;
+  var hatMidCut = (feel === 'lofi' || feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet' || feel === 'nolimit') ? 1 : 3;
   for (var i = 0; i < len; i++) {
     var pos = i % 16;
     // Hat: ride hand accent — G-Funk skips (3-level dynamic already built in writeHA)
@@ -95,8 +95,8 @@ function applyGroove(p, len, feel) {
   for (var i = 0; i < len; i++) {
     if (p.kick[i] > 0) {
       var pos = i % 16;
-      if (feel === 'crunk') {
-        // Crunk: keep all kicks at their written velocity — the 4-on-the-floor is the point
+      if (feel === 'crunk' || feel === 'miamibass' || feel === 'ratchet' || feel === 'nolimit') {
+        // Crunk/machine-driven: keep all kicks at their written velocity — the pattern is the point
         p.kick[i] = Math.min(127, p.kick[i]);
       } else {
         // Multiplicative accent scaling preserves feel-specific velocity ranges
@@ -115,7 +115,7 @@ function applyGroove(p, len, feel) {
   // curve over an 8-bar phrase: settle in bars 3-4, build bars 5-6, push bar 7
   // Dampened for lo-fi and dilla to keep dynamics flat/hypnotic
   // Skipped for crunk — maximum energy throughout, no arc
-  if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk' && feel !== 'nujabes' && feel !== 'oldschool') {
+  if (len > 32 && feel !== 'lofi' && feel !== 'dilla' && feel !== 'crunk' && feel !== 'nujabes' && feel !== 'oldschool' && feel !== 'miamibass' && feel !== 'ratchet' && feel !== 'nolimit') {
     // Determine arc intensity based on section type (via secFeels lookup)
     var arcIntensity = 1.0; // default
     var currentSec = '';
