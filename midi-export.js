@@ -920,8 +920,13 @@ function updateMidiPlayer() {
     try { window.synthBridge.stop(); } catch(e) {}
   }
   var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
-  // Always use combined MIDI builder (supports drums mute + all instrument prefs)
+  // Build combined MIDI with drums always included — _currentMidiBytes is used
+  // for WAV download which should always have drums regardless of session mute.
+  // Playback builds its own MIDI bytes fresh each time.
+  var _savedMute = (typeof _drumsMuted !== 'undefined') ? _drumsMuted : false;
+  if (typeof _drumsMuted !== 'undefined') _drumsMuted = false;
   var midiBytes = buildCombinedMidiBytes(arrangement, bpm);
+  if (typeof _drumsMuted !== 'undefined') _drumsMuted = _savedMute;
 
   // Store the current MIDI bytes globally for WAV export and playback
   window._currentMidiBytes = midiBytes;
@@ -1278,19 +1283,16 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   if (typeof _cSd.epProgram === 'number') epProgram = _cSd.epProgram;
   td.push(0, 0xC0 | epCh, epProgram);
 
-  // Program change on channel 3: Synth Pad (determined by style)
-  var padProgram = 48; // default: String Ensemble
-  try { var padPref = localStorage.getItem('hhd_pad_sound'); if (padPref) padProgram = parseInt(padPref) || 48; } catch(e) {}
+  // Program change on channel 3: Synth Pad
+  var padProgram = 48; // GM String Ensemble
   td.push(0, 0xC0 | 3, padProgram);
 
   // Program change on channel 4: Synth Lead
-  var leadProgram = 80;
-  try { var lpf = localStorage.getItem('hhd_lead_sound'); if (lpf) leadProgram = parseInt(lpf) || 80; } catch(e) {}
+  var leadProgram = 80; // GM Square Lead
   td.push(0, 0xC0 | 4, leadProgram);
 
   // Program change on channel 5: Organ
-  var organProgram = 16;
-  try { var opf = localStorage.getItem('hhd_organ_sound'); if (opf) organProgram = parseInt(opf) || 16; } catch(e) {}
+  var organProgram = 16; // GM Drawbar Organ
   td.push(0, 0xC0 | 5, organProgram);
 
   // Program change on channel 6: Horns (Brass Section)

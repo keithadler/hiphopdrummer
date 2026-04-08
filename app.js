@@ -676,13 +676,18 @@ document.addEventListener('keydown', function(e) {
   var dialogOpen = document.getElementById('regenOverlay').style.display !== 'none'
     || document.getElementById('exportOverlay').style.display !== 'none'
     || document.getElementById('prefsOverlay').style.display !== 'none'
-    || document.getElementById('aboutOverlay').style.display !== 'none';
+    || document.getElementById('aboutOverlay').style.display !== 'none'
+    || document.getElementById('beatHistoryOverlay').style.display !== 'none'
+    || document.getElementById('welcomeOverlay').style.display !== 'none';
 
   if (e.key === 'Escape') {
     hideRegenDialog();
     hideExportDialog();
     hidePrefsDialog();
     document.getElementById('aboutOverlay').style.display = 'none';
+    document.getElementById('beatHistoryOverlay').style.display = 'none';
+    var wn = document.getElementById('whatNextOverlay'); if (wn) wn.style.display = 'none';
+    var rt = document.getElementById('roleTipsOverlay'); if (rt) rt.style.display = 'none';
   }
   if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
     e.preventDefault();
@@ -1006,38 +1011,7 @@ function initBeatHistoryHandlers() {
       if (e.target === this) this.style.display = 'none';
     };
   }
-
-  var slotOverlay = document.getElementById('slotReplacementOverlay');
-  if (slotOverlay) {
-    var touchStartTarget2 = null;
-    slotOverlay.addEventListener('touchstart', function(e) {
-      touchStartTarget2 = e.target;
-    }, { passive: true });
-    
-    slotOverlay.addEventListener('touchend', function(e) {
-      if (e.target === this && touchStartTarget2 === this) {
-        this.style.display = 'none';
-      }
-      touchStartTarget2 = null;
-    });
-    
-    slotOverlay.onclick = function(e) {
-      if (e.target === this) this.style.display = 'none';
-    };
-  }
-  
-  // Slot replacement cancel button
-  var slotCancel = document.getElementById('slotReplacementCancel');
-  if (slotCancel) {
-    slotCancel.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById('slotReplacementOverlay').style.display = 'none';
-    };
-    slotCancel.ontouchend = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById('slotReplacementOverlay').style.display = 'none';
+}
     };
   }
 }
@@ -1597,6 +1571,7 @@ function initPlayerControls() {
   }
 
   // Countdown function - plays 3-2-1 at the current BPM
+  var _countdownActive = false;
   function playCountdown(callback) {
     var countdownEnabled = false;
     try { var cd = localStorage.getItem('hhd_countdown'); if (cd !== null) countdownEnabled = (cd === 'true'); } catch(e) {}
@@ -1606,6 +1581,7 @@ function initPlayerControls() {
       return;
     }
 
+    _countdownActive = true;
     var bpm = parseInt(document.getElementById('bpm').textContent) || 90;
     var beatDuration = 60000 / bpm; // milliseconds per beat
     var toast = document.getElementById('sectionToast');
@@ -1619,9 +1595,11 @@ function initPlayerControls() {
     headerPlayBtn.disabled = true;
     
     setTimeout(function() {
+      if (!_countdownActive) return;
       if (toast) toast.innerHTML = '<div class="countdown-display">2</div>';
       
       setTimeout(function() {
+        if (!_countdownActive) return;
         if (toast) toast.innerHTML = '<div class="countdown-display">1</div>';
         
         setTimeout(function() {
@@ -1629,7 +1607,7 @@ function initPlayerControls() {
             toast.classList.remove('countdown-mode');
             toast.classList.remove('show');
           }
-          callback();
+          if (_countdownActive) { _countdownActive = false; callback(); }
         }, beatDuration);
       }, beatDuration);
     }, beatDuration);
@@ -1640,6 +1618,7 @@ function initPlayerControls() {
     if (window.synthBridge.isPlaying) {
       window._loopMidiBytes = null;
       window.synthBridge.stop();
+      _countdownActive = false; // cancel any in-progress countdown
       if (currentEl) currentEl.textContent = '0:00';
       if (seekBar) seekBar.value = 0;
       headerPlayBtn.textContent = '▶ PLAY';

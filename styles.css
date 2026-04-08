@@ -631,18 +631,6 @@ midi-player::part(play-button){color:var(--accent-green)}
 .history-slot-starred{border-color:#f5c542}
 .empty-history{text-align:center;padding:40px 20px;color:var(--text-muted);font-family:var(--mono);font-size:14px;font-style:italic}
 
-/* Slot Replacement Dialog */
-.slot-replacement-dialog{max-width:700px}
-.slot-replacement-hint{font-family:var(--mono);font-size:13px;color:var(--text-dim);margin-bottom:16px;text-align:center}
-.slot-replacement-slots{display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;margin-bottom:16px}
-.slot-item{background:var(--bg-surface);border:2px solid var(--border);border-radius:var(--radius-md);padding:12px;cursor:pointer;transition:all .2s}
-.slot-item:hover{border-color:var(--accent-red);background:var(--bg-raised);transform:translateX(4px)}
-.slot-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.slot-number{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent-red);letter-spacing:1px}
-.slot-date{font-family:var(--mono);font-size:11px;color:var(--text-muted)}
-.slot-info{display:flex;gap:10px;flex-wrap:wrap}
-.slot-style{font-family:var(--mono);font-size:12px;color:var(--text-primary);font-weight:600}
-.slot-key,.slot-bpm,.slot-swing{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
 .btn-history{background:var(--accent-blue);color:#fff;border:1px solid var(--accent-blue)}
 .btn-history:hover{background:var(--bg-surface);color:var(--accent-blue)}
 
