@@ -330,6 +330,20 @@ function showExportDialog() {
   var anyChecked = Array.from(document.querySelectorAll('.daw-check')).some(function(c) { return c.checked; });
   if (toggle) toggle.textContent = anyChecked ? 'Deselect all' : 'Select all';
   document.getElementById('exportOverlay').style.display = 'flex';
+  // If user has saved export prefs, expand the advanced section automatically
+  var advToggle = document.getElementById('exportAdvancedToggle');
+  var exportBody = document.querySelector('.export-dialog .regen-dialog-body');
+  if (advToggle && exportBody) {
+    if (saved) {
+      exportBody.style.display = '';
+      advToggle.textContent = '▲ Hide options';
+    } else {
+      exportBody.style.display = 'none';
+      advToggle.textContent = '▼ Show all options';
+    }
+  }
+  // Clear active preset highlight
+  document.querySelectorAll('.export-preset').forEach(function(b) { b.classList.remove('active'); });
 }
 
 // Wire the DAW toggle button once on boot
@@ -350,6 +364,67 @@ function showExportDialog() {
       var anyChecked = Array.from(checks).some(function(c) { return c.checked; });
       checks.forEach(function(c) { c.checked = !anyChecked; });
       stemToggle.textContent = anyChecked ? 'Select all stems' : 'Deselect all stems';
+    };
+  }
+})();
+
+// Export preset buttons
+document.querySelectorAll('.export-preset').forEach(function(btn) {
+  btn.onclick = function() {
+    var preset = btn.dataset.preset;
+    // Highlight active preset
+    document.querySelectorAll('.export-preset').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    // Uncheck everything first
+    var allChecks = document.querySelectorAll('.export-dialog input[type=checkbox]');
+    allChecks.forEach(function(c) { c.checked = false; });
+    
+    if (preset === 'rapper') {
+      // Rapper: just WAV full mix + master FX
+      document.getElementById('expWav').checked = true;
+      document.getElementById('expMasterFx').checked = true;
+    }
+    else if (preset === 'producer') {
+      // Producer: MIDI + instrument tracks + WAV stems + PDF
+      document.getElementById('expFullSong').checked = true;
+      document.getElementById('expSections').checked = true;
+      document.getElementById('expSwing').checked = true;
+      document.getElementById('expInstrMidi').checked = true;
+      document.getElementById('expWav').checked = true;
+      document.getElementById('expMasterFx').checked = true;
+      document.getElementById('expPdf').checked = true;
+      document.getElementById('expChordSheet').checked = true;
+      // Select all stems
+      document.querySelectorAll('.stem-check').forEach(function(c) { c.checked = true; });
+      // Select all DAWs
+      document.querySelectorAll('.daw-check').forEach(function(c) { c.checked = true; });
+    }
+    else if (preset === 'dj') {
+      // DJ: WAV full mix + master FX only
+      document.getElementById('expWav').checked = true;
+      document.getElementById('expMasterFx').checked = true;
+      document.getElementById('expPdf').checked = true;
+    }
+    else if (preset === 'mpc') {
+      // MPC: MPC patterns + instrument MPC + bass MPC
+      document.getElementById('expMpc').checked = true;
+      document.getElementById('expInstrMpc').checked = true;
+      document.getElementById('expPdf').checked = true;
+    }
+  };
+});
+
+// Export advanced toggle — hides/shows the detailed checkboxes
+(function() {
+  var advToggle = document.getElementById('exportAdvancedToggle');
+  var exportBody = document.querySelector('.export-dialog .regen-dialog-body');
+  if (advToggle && exportBody) {
+    // Start collapsed
+    exportBody.style.display = 'none';
+    advToggle.onclick = function() {
+      var hidden = exportBody.style.display === 'none';
+      exportBody.style.display = hidden ? '' : 'none';
+      advToggle.textContent = hidden ? '▲ Hide options' : '▼ Show all options';
     };
   }
 })();
@@ -1035,6 +1110,22 @@ var _INST_PREF_MAP = {
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
   
+  // First-visit: pulse arrangement items to draw attention
+  var _isFirstVisit = false;
+  try { _isFirstVisit = !localStorage.getItem('hhd_user_role'); } catch(e) {}
+  if (_isFirstVisit) {
+    setTimeout(function() {
+      document.querySelectorAll('.arr-item').forEach(function(el) {
+        el.classList.add('first-visit-pulse');
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.arr-item.first-visit-pulse').forEach(function(el) {
+          el.classList.remove('first-visit-pulse');
+        });
+      }, 4000);
+    }, 800);
+  }
+  
   // Show "What Next" dialog for returning users (first-time users get the welcome flow instead)
   var _hasRole = false;
   try { _hasRole = !!localStorage.getItem('hhd_user_role'); } catch(e) {}
@@ -1059,7 +1150,12 @@ var _INST_PREF_MAP = {
       var remaining = Math.max(0, 2000 - elapsed);
       setTimeout(function() {
         var playBtn = document.getElementById('headerPlayBtn');
-        if (playBtn) playBtn.disabled = false;
+        if (playBtn) {
+          playBtn.disabled = false;
+          // Pulse green glow to signal "ready to play" — especially for newbies
+          playBtn.classList.add('ready-glow');
+          setTimeout(function() { playBtn.classList.remove('ready-glow'); }, 5000);
+        }
         // Pre-initialize synth on first user interaction (iOS requires user gesture for AudioContext)
         var _synthInitDone = false;
         function _initSynthOnGesture() {
@@ -1353,6 +1449,33 @@ function updateInstrMuteStrip() {
     try { var val = localStorage.getItem(key); if (val !== null) on = (val !== 'false'); } catch(e) {}
     if (on) btn.classList.add('active');
     else btn.classList.remove('active');
+  });
+  _updateMutedRows();
+}
+
+function _updateMutedRows() {
+  var gridR = document.getElementById('gridR');
+  if (!gridR) return;
+  // Map instrument mute button names to grid row names
+  var muteMap = {
+    drums: ['kick', 'snare', 'clap', 'rimshot', 'ghostkick', 'hat', 'openhat', 'ride', 'crash', 'shaker', 'cowbell', 'tomhi', 'tommid', 'tomlo'],
+    bass: [], // bass doesn't have grid rows
+    ep: [], pad: [], lead: [], organ: [], horn: [], vibes: [], clav: [] // melodic instruments don't have grid rows
+  };
+  // Check drums mute state
+  var drumsMuted = (typeof _drumsMuted !== 'undefined' && _drumsMuted);
+  var rows = gridR.querySelectorAll('.grid-row');
+  rows.forEach(function(row) {
+    var label = row.querySelector('.row-label');
+    if (!label) return;
+    var rowName = label.dataset.row;
+    if (!rowName) return;
+    // Drums mute affects all drum rows
+    if (drumsMuted && muteMap.drums.indexOf(rowName) >= 0) {
+      row.classList.add('muted-row');
+    } else {
+      row.classList.remove('muted-row');
+    }
   });
 }
 

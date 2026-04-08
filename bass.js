@@ -1770,22 +1770,26 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
 
       // ── Fix #6: Hammer-on grace note ──
+      // Skip grace notes that would land before the file start (tick 0) —
+      // a grace note simultaneous with the main note sounds wrong.
       if (e.hammerOn) {
         var graceNote = Math.max(_currentBassFloor, e.note - 2); // whole step below
         var graceTick = stepTick - 2;
-        if (graceTick < 0) graceTick = 0;
-        var graceVel = Math.max(30, e.vel - 25);
-        midiEvents.push({ tick: graceTick, type: 'on', note: graceNote, vel: graceVel });
-        midiEvents.push({ tick: graceTick + 1, type: 'off', note: graceNote });
+        if (graceTick > 0) {
+          var graceVel = Math.max(30, e.vel - 25);
+          midiEvents.push({ tick: graceTick, type: 'on', note: graceNote, vel: graceVel });
+          midiEvents.push({ tick: graceTick + 1, type: 'off', note: graceNote });
+        }
       }
 
       // ── Pull-off grace note (descending — from higher note down to target) ──
       if (e.pullOff && e._pullFromNote) {
         var poGraceTick = stepTick - 2;
-        if (poGraceTick < 0) poGraceTick = 0;
-        var poGraceVel = Math.max(30, e.vel - 10); // pull-off starts louder than hammer-on
-        midiEvents.push({ tick: poGraceTick, type: 'on', note: e._pullFromNote, vel: poGraceVel });
-        midiEvents.push({ tick: poGraceTick + 1, type: 'off', note: e._pullFromNote });
+        if (poGraceTick > 0) {
+          var poGraceVel = Math.max(30, e.vel - 10); // pull-off starts louder than hammer-on
+          midiEvents.push({ tick: poGraceTick, type: 'on', note: e._pullFromNote, vel: poGraceVel });
+          midiEvents.push({ tick: poGraceTick + 1, type: 'off', note: e._pullFromNote });
+        }
       }
 
       // ── Fix #5: Slide — shorten previous note, then insert glissando ──
@@ -1797,7 +1801,8 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
         var dir = diff > 0 ? 1 : -1;
         if (slideSteps > 1 && slideSteps <= 7) {
           var slideStartTick = stepTick - Math.floor(ticksPerStep * 0.5);
-          if (slideStartTick < 0) slideStartTick = 0;
+          // Skip slide if it would start at or before tick 0 (file start)
+          if (slideStartTick > 0) {
 
           // Shorten previous note: insert early note-off before slide begins
           // Find and adjust the previous note's off event
@@ -1818,6 +1823,7 @@ function buildBassMidiBytes(sectionList, bpm, noSwing) {
             midiEvents.push({ tick: slideTick, type: 'on', note: slideNote, vel: slideVel });
             midiEvents.push({ tick: slideTick + slideDur - 1, type: 'off', note: slideNote });
           }
+          } // end if slideStartTick > 0
         }
       }
 

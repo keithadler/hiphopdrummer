@@ -19,8 +19,21 @@ function analyzeBeat() {
   // Resolve regional variants for map lookups (styleDescs, refMap, etc.)
   var songFeelBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel;
 
+  // Quick-jump navigation bar — sticky at top of analysis panel
+  lines.push('<div class="about-quickjump" id="aboutQuickJump">');
+  lines.push('<span class="qj-label">Jump:</span>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=start]\')?.scrollIntoView({behavior:\'smooth\'})">🚀</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=tempo]\')?.scrollIntoView({behavior:\'smooth\'})">🎚</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=swing]\')?.scrollIntoView({behavior:\'smooth\'})">⏱</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=style]\')?.scrollIntoView({behavior:\'smooth\'})">🎨</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=flow]\')?.scrollIntoView({behavior:\'smooth\'})">🎤</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=key]\')?.scrollIntoView({behavior:\'smooth\'})">🎹</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=arr]\')?.scrollIntoView({behavior:\'smooth\'})">📋</button>');
+  lines.push('<button class="qj-btn" onclick="document.querySelector(\'[data-qj=tech]\')?.scrollIntoView({behavior:\'smooth\'})">🔍</button>');
+  lines.push('</div>');
+
   // === START HERE — quick orientation for new users ===
-  lines.push('🚀 <b>START HERE</b>');
+  lines.push('<span data-qj="start"></span>🚀 <b>START HERE</b>');
   lines.push('<b>New to this?</b> Three steps: <b>1.</b> Hit EXPORT → download the ZIP. <b>2.</b> Open <b>HOW_TO_USE.txt</b> inside the ZIP — it tells you exactly how to load these patterns into your DAW or MPC. <b>3.</b> Read the sections below to understand what makes this beat work and how to recreate it.');
   lines.push('');
   lines.push('<b>📚 Learning path by level:</b>');
@@ -39,7 +52,7 @@ function analyzeBeat() {
   lines.push('');
 
   // === TEMPO ===
-  lines.push('🎚 <b>TEMPO: ' + bpm + ' BPM</b>');
+  lines.push('<span data-qj="tempo"></span>🎚 <b>TEMPO: ' + bpm + ' BPM</b>');
   if (bpm <= 74) lines.push('Slow and heavy — Griselda/Westside Gunn territory. Dark, cinematic, menacing. Every hit breathes.');
   else if (bpm <= 82) lines.push('Slow pocket — Mobb Deep and Wu-Tang range. Heavy enough to feel dangerous, with room for complex rhyme schemes. "Shook Ones Pt. II," "C.R.E.A.M."');
   else if (bpm <= 92) lines.push('The boom bap sweet spot. DJ Premier, Pete Rock, Large Professor all live here. Fast enough to bounce, slow enough to feel heavy.');
@@ -49,7 +62,7 @@ function analyzeBeat() {
 
   // === SWING ===
   lines.push('');
-  lines.push('⏱ <b>SWING: ' + swing + '%</b>');
+  lines.push('<span data-qj="swing"></span>⏱ <b>SWING: ' + swing + '%</b>');
   lines.push('<b>What it does:</b> Delays every even 16th-note step (2, 4, 6…16). Odd steps stay on the grid. That lopsided spacing is what makes your head nod. 50% = robotic. 58% = classic feel. 66%+ = heavy/drunk groove.');
   if (swing >= 62) lines.push('<b>' + swing + '% is heavy</b> — the even steps drag noticeably behind the grid. J Dilla, Questlove, Pete Rock territory. The hats lean back.');
   else if (swing >= 55) lines.push('<b>' + swing + '% is natural</b> — human feel without sounding sloppy. DJ Premier and Large Professor territory.');
@@ -115,12 +128,12 @@ function analyzeBeat() {
     ratchet: 'West Coast ratchet — minimal, formulaic drums with the signature beat-3 rest, synth stabs, sustained 808 sub, and nearly straight timing. The sound of LA club music stripped to its essentials.',
     philly: 'Philadelphia live-drums production — organic, wide-dynamic drum programming that sounds like a real drummer behind the kit. Dense brush-like ghost snares, ride cymbal as primary timekeeper, walking bass, Rhodes chords, and heavy swing. The Soulquarians sound — where jazz meets hip hop in a live room.'
   };
-  lines.push('🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
+  lines.push('<span data-qj="style"></span>🎨 <b>STYLE: ' + (styleNames[songFeel] || 'CLASSIC BOOM BAP') + '</b>');
   lines.push(styleDescs[songFeelBase] || styleDescs.normal);
 
   // === FLOW GUIDE ===
   lines.push('');
-  lines.push('🎤 <b>FLOW GUIDE</b>');
+  lines.push('<span data-qj="flow"></span>🎤 <b>FLOW GUIDE</b>');
   lines.push('<span style="font-size:0.85em;color:#606078">Tip: double-click the BPM display (or press T) to tap in your own tempo.</span>');
   var kickHitsForFlow = 0; for (var i = 0; i < 16; i++) if (baseKick[i]) kickHitsForFlow++;
 
@@ -189,7 +202,7 @@ function analyzeBeat() {
 
   // === KEY SUGGESTION ===
   lines.push('');
-  lines.push('🎹 <b>SUGGESTED KEY / SCALE</b>');
+  lines.push('<span data-qj="key"></span>🎹 <b>SUGGESTED KEY / SCALE</b>');
   lines.push('<b>Note: the drums are key-neutral</b> — they work in any key. This suggestion is for your <b>melodic parts, samples, and bass</b> only. The key shown in the header is a starting point, not a constraint.');
 
   var keyData = {
@@ -1448,7 +1461,7 @@ function analyzeBeat() {
 
   // === TECHNIQUE SPOTLIGHT ===
   lines.push('');
-  lines.push('🔬 <b>TECHNIQUE SPOTLIGHT</b>');
+  lines.push('<span data-qj="tech"></span>🔬 <b>TECHNIQUE SPOTLIGHT</b>');
   var spotlights = [
     '<b>The Backbeat</b> — The snare on beats 2 and 4. The most important element in hip hop drums — more important than the kick. Remove the kick and the beat still grooves. Remove the snare and the beat collapses. Make the snare on 2 and 4 your first priority — everything else is decoration around it.',
     '<b>Space as an Instrument</b> — The steps where nothing plays are as important as the hits. Count the empty steps in the kick pattern — those gaps are where the groove breathes. Silence creates tension and anticipation. Try removing one hit from this pattern and listen — the space it creates might actually make the beat feel better.',
@@ -1669,7 +1682,7 @@ function analyzeBeat() {
 
   // === PROGRAMMING DETAILS TIER ===
   lines.push('');
-  lines.push('📋 <b>— PROGRAMMING DETAILS —</b>');
+  lines.push('<span data-qj="arr"></span>📋 <b>— PROGRAMMING DETAILS —</b>');
   lines.push('Step-by-step guides for recreating each instrument on your drum machine or DAW.');
 
   // === KICK ===
