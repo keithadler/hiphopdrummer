@@ -2,6 +2,12 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.68] - 2026-04-10
+
+### Changed — SoundFont Upgrade
+- Replaced GeneralUser GS (10MB) with FluidR3 GM SF3 (19MB) — significantly better drum samples, fuller instrument sounds across all GM programs. Same GM-compatible mappings, drop-in replacement. FluidR3 by Frank Wen, MIT license.
+- Version bumped to 1.68
+
 ## [1.67] - 2026-04-10
 
 ### Fixed

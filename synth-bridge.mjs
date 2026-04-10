@@ -51,7 +51,7 @@ async function _doInit() {
     await audioContext.audioWorklet.addModule("spessasynth_processor.min.js");
     // FIX 5: Load the SoundFont once and cache the buffer
     if (!_sfCached) {
-      const sfResponse = await fetch("GeneralUserGS.sf3");
+      const sfResponse = await fetch("FluidR3.sf3");
       soundFontBuffer = await sfResponse.arrayBuffer();
       _sfCached = true;
     }
