@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.67] - 2026-04-10
+
+### Fixed
+- Horn stabs missing from export for rocafella, cashmoney, and nolimit styles — `generateHornPattern()` had a guard clause that suppressed horns whenever the section's feel was in EP_STYLES or PAD_STYLES, even when the style was explicitly designed to have both (e.g. rocafella = EP chords + horn stabs). The guard now only suppresses horns for styles that inherit horn capability from the song feel but aren't themselves in HORN_STYLES.
+
+### Changed
+- Version bumped to 1.67
+
 ## [1.65] - 2026-04-08
 
 ### Added — SEO & Discoverability
