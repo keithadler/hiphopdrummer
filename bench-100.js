@@ -64,7 +64,7 @@ for (var i = 0; i < N; i++) {
   times.push(ms);
   var stats = _lastGenStats || {};
   attempts.push(stats.attempts || 0);
-  var groove = scoreBeat(patterns, secSteps, secFeels);
+  var groove = scoreFullBeat(patterns, secSteps, secFeels);
   bounces.push(groove.overall);
 }
 

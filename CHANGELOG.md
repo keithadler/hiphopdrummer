@@ -2,6 +2,19 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.71] - 2026-04-12
+
+### Fixed — 10 Bug Fixes
+- Density scoring in groove bounce scorer used `||` instead of `&&` — the "too sparse/too dense" penalty branch was unreachable, every beat scored 7 or 10 on density regardless of actual hit count
+- `machineFeels` variable declared inside pocket scoring block but referenced in kick quality block — moved to function scope for clarity (worked by accident via `var` hoisting)
+- EP scoring in `scoreFullBeat` used bass's chord progression instead of generating its own — EP now clears progression cache before generation
+- `scoreFullBeat` didn't save/restore `_sectionOctaveDrops` — bass octave drop decisions from scoring leaked into the real generation pipeline
+- `applySectionTransitions` compared `songFeel` directly against base feel names without resolving regional variants — styles like `gfunk_dre`, `normal_bronx`, `gfunk_battlecat` missed their style-specific breakdown re-entry velocities and fell through to defaults
+- `writeSnare` else branch was an identical copy-paste of the normal branch — Dilla/lo-fi/Nujabes now get flat dynamics with softer backbeats, jazzy gets wider jitter for a live feel
+- Pocket delay (snare shift from step 4→5 or 12→13) overwrote existing ghost notes at the target position without checking — now skips the delay if a ghost is already there
+- `bench-100.js` used `scoreBeat` (drums-only) instead of `scoreFullBeat` (drums+bass+EP) — bounce scores didn't match what the generation loop reports
+- Backbeat validation penalized pocket-delayed beats as "missing backbeat" — now checks steps 5 and 13 as valid backbeat positions alongside 4 and 12
+
 ## [1.70] - 2026-04-12
 
 ### Added — Sound Replacement Guide

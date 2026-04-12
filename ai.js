@@ -1634,8 +1634,8 @@ function generatePattern(sec) {
     var pocketProb = isDilla ? 0.65 : 0.35;
     var pocketBars = isDilla ? (bar % 2 === 1) : (bar % 4 === 1); // dilla: every other bar, others: bar 2 of each 4
     if (pocketFeels && pocketBars) {
-      if (maybe(pocketProb) && p.snare[off+4] > 80) { p.snare[off+5] = p.snare[off+4]; p.snare[off+4] = 0; if (p.clap[off+4] > 0) { p.clap[off+5] = p.clap[off+4]; p.clap[off+4] = 0; } }
-      if (maybe(pocketProb) && p.snare[off+12] > 80) { p.snare[off+13] = p.snare[off+12]; p.snare[off+12] = 0; if (p.clap[off+12] > 0) { p.clap[off+13] = p.clap[off+12]; p.clap[off+12] = 0; } }
+      if (maybe(pocketProb) && p.snare[off+4] > 80 && p.snare[off+5] === 0) { p.snare[off+5] = p.snare[off+4]; p.snare[off+4] = 0; if (p.clap[off+4] > 0) { p.clap[off+5] = p.clap[off+4]; p.clap[off+4] = 0; } }
+      if (maybe(pocketProb) && p.snare[off+12] > 80 && p.snare[off+13] === 0) { p.snare[off+13] = p.snare[off+12]; p.snare[off+12] = 0; if (p.clap[off+12] > 0) { p.clap[off+13] = p.clap[off+12]; p.clap[off+12] = 0; } }
     }
   }
 
@@ -1823,11 +1823,12 @@ function applySectionTransitions() {
     // Rule 2: Breakdown → next section gets maximum-impact re-entry ("the drop")
     if (curSec === 'breakdown') {
       var reKick = 125, reSnare = 115, reClap = 110, reCrash = 110;
-      if (songFeel === 'lofi') { reKick = 88; reSnare = 85; reClap = 78; reCrash = 80; }
-      else if (songFeel === 'dilla') { reKick = 100; reSnare = 100; reClap = 90; reCrash = 95; }
-      else if (songFeel === 'crunk') { reKick = 127; reSnare = 127; reClap = 127; reCrash = 120; }
-      else if (songFeel === 'gfunk') { reKick = 112; reSnare = 108; reClap = 100; reCrash = 100; }
-      else if (songFeel === 'memphis') { reKick = 118; reSnare = 112; reClap = 105; reCrash = 95; }
+      var reEntryFeel = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : songFeel;
+      if (reEntryFeel === 'lofi') { reKick = 88; reSnare = 85; reClap = 78; reCrash = 80; }
+      else if (reEntryFeel === 'dilla') { reKick = 100; reSnare = 100; reClap = 90; reCrash = 95; }
+      else if (reEntryFeel === 'crunk') { reKick = 127; reSnare = 127; reClap = 127; reCrash = 120; }
+      else if (reEntryFeel === 'gfunk') { reKick = 112; reSnare = 108; reClap = 100; reCrash = 100; }
+      else if (reEntryFeel === 'memphis') { reKick = 118; reSnare = 112; reClap = 105; reCrash = 95; }
       nextPat.kick[0] = Math.max(nextPat.kick[0], v(reKick, 5));
       if (nextPat.crash[0] === 0) nextPat.crash[0] = v(reCrash, 8);
       nextPat.clap[0] = v(reClap, 8);
