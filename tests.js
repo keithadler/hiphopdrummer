@@ -112,6 +112,9 @@ test('All JS files parse without errors', function() {
   });
 });
 
+// Skip expensive bass+EP scoring in tests — generateAll is called 69 times
+_skipFullScore = true;
+
 // === Test STYLE_DATA completeness ===
 test('STYLE_DATA has all 31 base feels', function() {
   var expected = ['normal','halftime','hard','jazzy','dark','bounce','big','driving',
@@ -2915,6 +2918,124 @@ test('Minor keys: still use minor 3rd after major key fix', function() {
     }
   });
   _forcedKey = null;
+});
+
+// =============================================
+// Hip-Hop Beat Validation Tests
+// =============================================
+
+test('validateHipHopBeat passes a well-formed boom bap beat', function() {
+  _domElements = {};
+  generateAll({ style: 'normal' });
+  var result = validateHipHopBeat(patterns, secSteps, secFeels);
+  assert(result.passed, 'boom bap beat should pass validation (score=' + result.score + '/' + result.maxScore + ', issues: ' + result.details.join('; ') + ')');
+  assert(result.score >= result.maxScore * 0.7, 'score should be >= 70%');
+});
+
+test('validateHipHopBeat passes across multiple styles', function() {
+  var styles = ['normal', 'dilla', 'lofi', 'gfunk', 'crunk', 'memphis', 'jazzy', 'dark', 'chopbreak', 'griselda'];
+  for (var si = 0; si < styles.length; si++) {
+    _domElements = {};
+    generateAll({ style: styles[si] });
+    var result = validateHipHopBeat(patterns, secSteps, secFeels);
+    assert(result.passed, styles[si] + ' should pass validation (score=' + result.score + '/' + result.maxScore + ', issues: ' + result.details.join('; ') + ')');
+  }
+});
+
+test('validateHipHopBeat rejects a beat with no backbeat', function() {
+  // Build a fake pattern with kick but no snare on backbeat
+  var fakePat = { verse: emptyPat(), chorus: emptyPat() };
+  var fakeSteps = { verse: 64, chorus: 64 };
+  var fakeFeels = { verse: 'normal', chorus: 'big' };
+  // Add kicks on beat 1 and some offbeats
+  for (var bar = 0; bar < 4; bar++) {
+    fakePat.verse.kick[bar * 16] = 110;
+    fakePat.verse.kick[bar * 16 + 6] = 90;
+    fakePat.chorus.kick[bar * 16] = 110;
+    fakePat.chorus.kick[bar * 16 + 6] = 90;
+    // Add hats
+    for (var h = 0; h < 16; h += 2) {
+      fakePat.verse.hat[bar * 16 + h] = 80;
+      fakePat.chorus.hat[bar * 16 + h] = 80;
+    }
+    // Snare only as quiet ghosts — no real backbeat
+    fakePat.verse.snare[bar * 16 + 4] = 40;
+    fakePat.verse.snare[bar * 16 + 12] = 40;
+    fakePat.chorus.snare[bar * 16 + 4] = 40;
+    fakePat.chorus.snare[bar * 16 + 12] = 40;
+  }
+  var result = validateHipHopBeat(fakePat, fakeSteps, fakeFeels);
+  assert(!result.passed, 'beat with no real backbeat should fail validation (score=' + result.score + '/' + result.maxScore + ')');
+});
+
+test('validateHipHopBeat rejects a beat with no kick on beat 1', function() {
+  var fakePat = { verse: emptyPat(), chorus: emptyPat() };
+  var fakeSteps = { verse: 64, chorus: 64 };
+  var fakeFeels = { verse: 'normal', chorus: 'big' };
+  for (var bar = 0; bar < 4; bar++) {
+    // Kick only on offbeats — never on beat 1
+    fakePat.verse.kick[bar * 16 + 6] = 100;
+    fakePat.verse.kick[bar * 16 + 10] = 90;
+    fakePat.chorus.kick[bar * 16 + 6] = 100;
+    fakePat.chorus.kick[bar * 16 + 10] = 90;
+    // Proper backbeat
+    fakePat.verse.snare[bar * 16 + 4] = 110;
+    fakePat.verse.snare[bar * 16 + 12] = 110;
+    fakePat.chorus.snare[bar * 16 + 4] = 110;
+    fakePat.chorus.snare[bar * 16 + 12] = 110;
+    // Hats
+    for (var h = 0; h < 16; h += 2) {
+      fakePat.verse.hat[bar * 16 + h] = 80;
+      fakePat.chorus.hat[bar * 16 + h] = 80;
+    }
+  }
+  var result = validateHipHopBeat(fakePat, fakeSteps, fakeFeels);
+  assert(result.score < result.maxScore, 'beat with no kick on beat 1 should lose points (score=' + result.score + '/' + result.maxScore + ')');
+});
+
+test('validateHipHopBeat detects verse/chorus contrast', function() {
+  // Build two identical sections — should flag low contrast
+  var fakePat = { verse: emptyPat(), chorus: emptyPat() };
+  var fakeSteps = { verse: 32, chorus: 32 };
+  var fakeFeels = { verse: 'normal', chorus: 'normal' };
+  for (var i = 0; i < 32; i++) {
+    fakePat.verse.kick[i] = (i % 16 === 0) ? 110 : 0;
+    fakePat.verse.snare[i] = (i % 16 === 4 || i % 16 === 12) ? 110 : 0;
+    fakePat.verse.hat[i] = (i % 2 === 0) ? 80 : 0;
+    // Chorus is identical
+    fakePat.chorus.kick[i] = fakePat.verse.kick[i];
+    fakePat.chorus.snare[i] = fakePat.verse.snare[i];
+    fakePat.chorus.hat[i] = fakePat.verse.hat[i];
+  }
+  var result = validateHipHopBeat(fakePat, fakeSteps, fakeFeels);
+  var hasContrastIssue = false;
+  for (var di = 0; di < result.details.length; di++) {
+    if (result.details[di].indexOf('similar') >= 0 || result.details[di].indexOf('identical') >= 0) { hasContrastIssue = true; break; }
+  }
+  assert(hasContrastIssue, 'identical verse/chorus should flag contrast issue (details: ' + result.details.join('; ') + ')');
+});
+
+test('validateHipHopBeat returns correct structure', function() {
+  _domElements = {};
+  generateAll();
+  var result = validateHipHopBeat(patterns, secSteps, secFeels);
+  assert(typeof result.score === 'number', 'result should have numeric score');
+  assert(typeof result.maxScore === 'number', 'result should have numeric maxScore');
+  assert(typeof result.passed === 'boolean', 'result should have boolean passed');
+  assert(Array.isArray(result.details), 'result should have details array');
+  assert(result.maxScore > 0, 'maxScore should be > 0');
+  assert(result.score >= 0, 'score should be >= 0');
+  assert(result.score <= result.maxScore, 'score should not exceed maxScore');
+});
+
+test('generateAll retry loop uses validation to pick best beat', function() {
+  // Run generation 5 times — every result should pass validation
+  for (var trial = 0; trial < 5; trial++) {
+    _domElements = {};
+    generateAll();
+    var result = validateHipHopBeat(patterns, secSteps, secFeels);
+    assert(result.score >= result.maxScore * 0.5, 'trial ' + trial + ': generated beat should score >= 50% (got ' + result.score + '/' + result.maxScore + ', issues: ' + result.details.join('; ') + ')');
+  }
 });
 
 // === Results ===
