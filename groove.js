@@ -386,8 +386,9 @@ function validateHipHopBeat(pat, sec, feels) {
         if ((p.snare[off + 8] > 80) || (p.clap[off + 8] > 80)) backbeatHits++;
       } else {
         backbeatSlots += 2;
-        if ((p.snare[off + 4] > 80) || (p.clap[off + 4] > 80)) backbeatHits++;
-        if ((p.snare[off + 12] > 80) || (p.clap[off + 12] > 80)) backbeatHits++;
+        // Check both on-beat (4, 12) and pocket-delayed (5, 13) positions
+        if ((p.snare[off + 4] > 80) || (p.clap[off + 4] > 80) || (p.snare[off + 5] > 80) || (p.clap[off + 5] > 80)) backbeatHits++;
+        if ((p.snare[off + 12] > 80) || (p.clap[off + 12] > 80) || (p.snare[off + 13] > 80) || (p.clap[off + 13] > 80)) backbeatHits++;
       }
     }
     var backbeatRatio = backbeatSlots > 0 ? backbeatHits / backbeatSlots : 0;
@@ -565,6 +566,8 @@ function scoreGrooveQuality(p, len, feel) {
   var bars = Math.floor(len / 16);
   if (bars < 1) return { bounceScore: 0, breakdown: {}, notes: ['no bars'] };
   var notes = [];
+  // Machine-driven styles used across multiple scoring dimensions
+  var machineFeels = ['crunk', 'oldschool', 'miamibass', 'nolimit', 'ratchet'];
 
   // ── 1. Kick-snare pocket (0–10, weight ×3) ──
   // Measures the rhythmic tension between kick syncopation and the backbeat.
@@ -593,11 +596,9 @@ function scoreGrooveQuality(p, len, feel) {
   // Bonus for beat-1 anchor
   if (kickPositions[0] && kickPositions[0] >= bars * 0.5) pocketScore = Math.min(10, pocketScore + 1);
   // Machine-driven styles get a flat pocket score — their groove is in the repetition
-  var machineFeels = ['crunk', 'oldschool', 'miamibass', 'nolimit', 'ratchet'];
   if (machineFeels.indexOf(baseFeel) >= 0) pocketScore = 7;
 
-  // ── 2. Ghost note pocket (0–10, weight ×2) ──
-  // Ghost snares, ghost kicks, and rimshots create the "pocket" — the
+  // ── 2. Ghost note pocket (0–10, weight ×2) ──  // Ghost snares, ghost kicks, and rimshots create the "pocket" — the
   // subtle rhythmic texture between the main hits. More ghosts = deeper pocket.
   var ghostScore = 0;
   var ghostSnares = 0, ghostKicks = 0, rimshots = 0;
@@ -694,17 +695,17 @@ function scoreGrooveQuality(p, len, feel) {
   if (sparseFeels.indexOf(baseFeel) >= 0) {
     // Sparse feels: 6–14 hits/bar is ideal
     if (hitsPerBar >= 6 && hitsPerBar <= 14) densityScore = 10;
-    else if (hitsPerBar >= 4 || hitsPerBar <= 18) densityScore = 7;
+    else if (hitsPerBar >= 4 && hitsPerBar <= 18) densityScore = 7;
     else densityScore = 4;
   } else if (denseFeels.indexOf(baseFeel) >= 0) {
     // Dense feels: 12–22 hits/bar is ideal
     if (hitsPerBar >= 12 && hitsPerBar <= 22) densityScore = 10;
-    else if (hitsPerBar >= 8 || hitsPerBar <= 26) densityScore = 7;
+    else if (hitsPerBar >= 8 && hitsPerBar <= 26) densityScore = 7;
     else densityScore = 4;
   } else {
     // Normal feels: 8–18 hits/bar is ideal
     if (hitsPerBar >= 8 && hitsPerBar <= 18) densityScore = 10;
-    else if (hitsPerBar >= 5 || hitsPerBar <= 22) densityScore = 7;
+    else if (hitsPerBar >= 5 && hitsPerBar <= 22) densityScore = 7;
     else densityScore = 4;
   }
 
@@ -1052,6 +1053,11 @@ function scoreFullBeat(pat, sec, feels, bpm) {
   if (typeof _sectionProgressions !== 'undefined') {
     for (var sp in _sectionProgressions) { savedProgs[sp] = _sectionProgressions[sp]; }
   }
+  // Save octave drop decisions so scoring doesn't leak into real generation
+  var savedOctaveDrops = {};
+  if (typeof _sectionOctaveDrops !== 'undefined') {
+    for (var sod in _sectionOctaveDrops) { savedOctaveDrops[sod] = _sectionOctaveDrops[sod]; }
+  }
 
   for (var si = 0; si < scoreSections.length; si++) {
     var s = scoreSections[si];
@@ -1084,6 +1090,10 @@ function scoreFullBeat(pat, sec, feels, bpm) {
     if (typeof generateEPPattern === 'function') {
       var savedPatterns2 = patterns, savedSecSteps2 = secSteps, savedSecFeels2 = secFeels;
       patterns = pat; secSteps = sec; secFeels = feels;
+      // Clear progression cache so EP picks fresh chords (not bass's choices)
+      if (typeof _sectionProgressions !== 'undefined') {
+        for (var sp5 in _sectionProgressions) { delete _sectionProgressions[sp5]; }
+      }
       try { epEvents = generateEPPattern(s, bpm); } catch(e) { epEvents = []; }
       patterns = savedPatterns2; secSteps = savedSecSteps2; secFeels = savedSecFeels2;
     }
@@ -1100,6 +1110,11 @@ function scoreFullBeat(pat, sec, feels, bpm) {
   if (typeof _sectionProgressions !== 'undefined') {
     for (var sp3 in _sectionProgressions) { delete _sectionProgressions[sp3]; }
     for (var sp4 in savedProgs) { _sectionProgressions[sp4] = savedProgs[sp4]; }
+  }
+  // Restore octave drop decisions
+  if (typeof _sectionOctaveDrops !== 'undefined') {
+    for (var sod2 in _sectionOctaveDrops) { delete _sectionOctaveDrops[sod2]; }
+    for (var sod3 in savedOctaveDrops) { _sectionOctaveDrops[sod3] = savedOctaveDrops[sod3]; }
   }
 
   var drumAvg = count > 0 ? Math.round(drumTotal / count) : 0;

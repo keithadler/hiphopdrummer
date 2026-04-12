@@ -355,9 +355,14 @@ function writeSnA(p, feel, off) {
   if (skipBarScaling) {
     // Minimal feels: no bar-position scaling, keep dynamics flat
     p.snare[off + 4] = v(117, 10); p.snare[off + 12] = v(122, 10);
-  } else if (feel === 'normal' || feel === 'chopbreak' || feel === 'bounce' || feel === 'driving') {
-    p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
+  } else if (feel === 'dilla' || feel === 'lofi' || feel === 'nujabes') {
+    // Behind-the-beat feels: flat dynamics, slightly softer backbeat
+    p.snare[off + 4] = v(112, 10); p.snare[off + 12] = v(117, 10);
+  } else if (feel === 'jazzy') {
+    // Jazz: softer backbeat with wider jitter for a live feel
+    p.snare[off + 4] = v(108 + velBoost, 14); p.snare[off + 12] = v(113 + velBoost, 14);
   } else {
+    // Standard feels (normal, chopbreak, bounce, driving, big, griselda, etc.)
     p.snare[off + 4] = v(117 + velBoost, 10); p.snare[off + 12] = v(122 + velBoost, 10);
   }
   if (feel === 'hard') {

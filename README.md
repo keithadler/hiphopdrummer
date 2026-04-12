@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-1.70-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-1.71-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
