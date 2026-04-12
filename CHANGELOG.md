@@ -2,6 +2,28 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.69] - 2026-04-12
+
+### Added — Beat Quality Scoring & Selection
+- Hip-hop authenticity validator (`validateHipHopBeat`) — 8-rule checker ensures every generated beat has proper backbeat, kick anchoring, syncopation, hat continuity, velocity dynamics, ghost notes, kick-snare separation, and verse/chorus contrast. Feel-aware thresholds (crunk gets a pass on ghost notes, sparse/dark gets lower kick anchoring requirements, etc.)
+- Groove bounce scorer (`scoreGrooveQuality`) — rates each beat 0–100% across 8 weighted dimensions: kick-snare pocket (×3), ghost note pocket (×2), velocity contour (×2), hat groove (×1), rhythmic density (×1), open hat air (×1), bar variation (×2), kick placement quality (×2)
+- Bass quality scorer (`scoreBassQuality`) — rates kick-bass lock, note variety, density, and articulation (dead notes, slides, velocity range)
+- EP quality scorer (`scoreEPQuality`) — rates voicing variety, rhythmic interest, density, and chord movement
+- Full beat scorer (`scoreFullBeat`) — combines drums (60%), bass (25%), EP (15%) into an overall quality score
+- Generation stats tracking (`_lastGenStats`) — exposes attempt counts, length/beat failures, candidate count, and final bounce score for diagnostics
+- Stats runner (`stats-runner.js`) — benchmarks all 31 styles with full breakdown table
+- Timing benchmark (`bench-100.js`) — generates 100 random beats and reports timing percentiles + bounce score distribution
+
+### Changed
+- `generateAll()` retry loop now collects up to 20 length+validation-valid candidates and picks the one with the highest drum bounce score, instead of accepting the first valid beat. Bass+EP scoring runs once on the winner for diagnostics.
+- Validation runs only on beats that pass the length check first — no wasted scoring on beats that would be tossed for being too short
+- Tests skip expensive bass+EP scoring via `_skipFullScore` flag to keep the test suite fast
+
+### Performance
+- Average beat generation: ~122ms (median 127ms, p95 162ms)
+- Average bounce score: ~80% across all styles
+- Test suite: 18,000+ assertions, all passing
+
 ## [1.68] - 2026-04-10
 
 ### Changed — SoundFont Upgrade

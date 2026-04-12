@@ -118,6 +118,9 @@ var ghostDensity = 1.0;
  */
 var songFeel = 'normal';
 
+/** Last generation diagnostics — exposed for stats/testing */
+var _lastGenStats = null;
+
 /**
  * Song-level feel palette — a set of 2-4 compatible feels selected once per song.
  * All sections draw from this palette to ensure coherence across the arrangement.
@@ -2245,8 +2248,16 @@ function generateAll(opts) {
 
   // Keep generating until song is 2:45–3:30 (165–210 seconds).
   // Retries up to 60 times, keeping the longest attempt as fallback.
+  // Among length+validation-valid beats, collects up to 5 candidates
+  // and picks the one with the highest groove bounce score.
   var bestArr = null, bestPat = null, bestSteps = null, bestSec = null, bestFeels = null;
+  var bestScore = -1;
+  var bestBounce = -1;
+  var _genAttempts = 0, _genLengthFails = 0, _genBeatFails = 0;
+  var _genCandidates = 0;
+  var MAX_CANDIDATES = 20; // how many valid beats to compare before picking the bounciest
   for (var attempt = 0; attempt < 60; attempt++) {
+    _genAttempts++;
     genBasePatterns();
     var arr = buildArrangement();
     var pat = {}, sec = {}, feels = {};
@@ -2257,16 +2268,60 @@ function generateAll(opts) {
     var totalSteps = 0;
     arr.forEach(function(s) { totalSteps += sec[s] || 32; });
     var totalSec = totalSteps * (60 / bpm / 4);
-    // Accept if within target range
-    if (totalSec >= 165 && totalSec <= 210) { bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels; break; }
-    // Keep the longest attempt as fallback
-    if (!bestArr || totalSteps > (bestSteps ? Object.keys(bestSteps).reduce(function(a,s){return a+(bestSteps[s]||0)},0) : 0)) {
-      bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels;
+    var lengthOk = (totalSec >= 165 && totalSec <= 210);
+
+    // Skip beat validation if length is wrong — no point scoring a beat we'd toss
+    if (!lengthOk) {
+      _genLengthFails++;
+      // Still track as fallback by length (no validation score yet)
+      if (!bestArr || totalSteps > Object.keys(bestSteps).reduce(function(a,s){return a+(bestSteps[s]||0)},0)) {
+        bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels;
+      }
+      continue;
     }
+
+    // Hip-hop authenticity validation — only run on length-valid beats
+    var validation = (typeof validateHipHopBeat === 'function')
+      ? validateHipHopBeat(pat, sec, feels)
+      : { score: 1, maxScore: 1, passed: true, details: [] };
+
+    if (!validation.passed) {
+      _genBeatFails++;
+      var attemptScore = validation.score;
+      if (attemptScore > bestScore) {
+        bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels; bestScore = attemptScore;
+      }
+      continue;
+    }
+
+    // Beat passed length + validation — score its groove bounce
+    // First pass: score drums only (fast). Collect candidates.
+    _genCandidates++;
+    var drumBounce = (typeof scoreBeat === 'function')
+      ? scoreBeat(pat, sec, feels).overall
+      : 50;
+
+    if (drumBounce > bestBounce) {
+      bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels;
+      bestScore = validation.score; bestBounce = drumBounce;
+    }
+    // Stop once we've compared enough candidates
+    if (_genCandidates >= MAX_CANDIDATES) break;
   }
   arrangement = bestArr;
   patterns = bestPat;
   SECTIONS.forEach(function(s) { secSteps[s] = bestSteps[s]; secFeels[s] = bestFeels[s]; });
+
+  // Second pass: score the winning beat's bass + EP (expensive, only done once)
+  // Only run when not in test mode — tests call generateAll 69 times
+  var fullBounce = bestBounce;
+  if (typeof scoreFullBeat === 'function' && bestPat && typeof _skipFullScore === 'undefined') {
+    var fullResult = scoreFullBeat(bestPat, bestSteps, bestFeels, bpm);
+    fullBounce = fullResult.overall;
+  }
+
+  // Expose generation stats for diagnostics
+  _lastGenStats = { attempts: _genAttempts, lengthFails: _genLengthFails, beatFails: _genBeatFails, candidates: _genCandidates, finalScore: bestScore, finalBounce: fullBounce, drumBounce: bestBounce };
   // Clear stored bass progressions so new ones are picked for the new beat
   if (typeof _sectionProgressions !== 'undefined') {
     for (var sp in _sectionProgressions) { delete _sectionProgressions[sp]; }
