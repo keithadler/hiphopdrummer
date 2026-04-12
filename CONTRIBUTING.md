@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This project is vanilla JS with one bu
 
 1. **No frameworks.** Everything runs by opening `index.html` in a browser.
 2. **One build step.** Only `synth-bridge.mjs` requires bundling via `npm run build`. All other files work with edit-and-refresh.
-3. **No external audio files.** All sounds come from the GeneralUser GS SoundFont via SpessaSynth.
+3. **No external audio files.** All sounds come from the FluidR3 GM SoundFont via SpessaSynth.
 4. **Keep it musical.** Pattern generation changes should sound right to someone who actually makes beats.
 5. **Test in Chrome and Safari** at minimum before submitting.
 
@@ -16,48 +16,52 @@ Thanks for your interest in contributing! This project is vanilla JS with one bu
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes
 4. Run `npm run build` if you edited `synth-bridge.mjs`
-5. Run `node tests.js` — all assertions must pass (15,000+)
-6. Test by opening `index.html` locally
-7. Submit a pull request with a clear description
+5. Run `node tests.js` — all assertions must pass (18,000+)
+6. Run `node stats-runner.js` to verify groove scores across all 31 styles
+7. Test by opening `index.html` locally
+8. Submit a pull request with a clear description
 
 ## Architecture
 
 The project is split into focused modules:
 
 - **`patterns.js`** — Constants, state, `STYLE_DATA` (with `drumKit` and `bassSound` per style), `INSTRUMENT_SWING`, regional variants, player profiles
-- **`ai.js`** — Generation pipeline, 312 kick patterns, feel/swing pools, `FEEL_PALETTES`, section orchestration, beat drops, arrangement arc
+- **`ai.js`** — Generation pipeline, 312 kick patterns, feel/swing pools, `FEEL_PALETTES`, section orchestration, beat drops, arrangement arc, candidate selection loop
 - **`writers.js`** — All `write*()` drum bar writers, intro/outro, fills
-- **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`
+- **`groove.js`** — `applyGroove()`, `humanizeVelocities()`, `postProcessPattern()`, `validateHipHopBeat()`, `scoreGrooveQuality()`, `scoreBassQuality()`, `scoreEPQuality()`, `scoreFullBeat()`
 - **`bass.js`** — Bass line generator, `CHORD_PROGRESSIONS`, `BASS_STYLES`, call-and-response, fills, MIDI/MPC export
-- **`ep.js`** — Electric piano generator (30 musicality features, 12 styles, MIDI ch 2)
-- **`pad.js`** — Synth pad generator (10 musicality features, 7 dark styles, MIDI ch 3)
-- **`lead.js`** — Synth lead generator (G-Funk whistle, pentatonic melody, MIDI ch 4)
-- **`organ.js`** — Organ generator (sustained drawbar, jazz/Nujabes, MIDI ch 5)
-- **`horns.js`** — Horn stabs generator (brass section, boom bap/big/driving, MIDI ch 6)
-- **`vibes.js`** — Vibraphone generator (bell-like arpeggios, Nujabes/jazzy, MIDI ch 7)
-- **`clav.js`** — Clavinet generator (funky 16th-note comping, bounce/G-Funk, MIDI ch 8)
-- **`analysis.js`** — `analyzeBeat()` educational text generator (30+ collapsible sections), key selection, chord progressions
+- **`ep.js`** — Electric piano generator (30 musicality features, 12 styles, MIDI ch 3)
+- **`pad.js`** — Synth pad generator (10 musicality features, 7 dark styles, MIDI ch 4)
+- **`lead.js`** — Synth lead generator (G-Funk whistle, pentatonic melody, MIDI ch 5)
+- **`organ.js`** — Organ generator (sustained drawbar, jazz/Nujabes, MIDI ch 6)
+- **`horns.js`** — Horn stabs generator (brass section, boom bap/big/driving, MIDI ch 7)
+- **`vibes.js`** — Vibraphone generator (bell-like arpeggios, Nujabes/jazzy, MIDI ch 8)
+- **`clav.js`** — Clavinet generator (funky 16th-note comping, bounce/G-Funk, MIDI ch 9)
+- **`analysis.js`** — `analyzeBeat()` educational text generator (30+ collapsible sections), key selection, chord progressions, sound replacement guide
 - **`ui.js`** — Grid rendering, arrangement editor, chord sheet, tooltips, glossary, marquee
 - **`midi-export.js`** — MIDI file writer, MPC pattern builder, combined 9-instrument MIDI, WAV stem rendering, ZIP export, strict/improvise cache
-- **`daw-help.js`** — DAW-specific help file builders (9 DAWs + MPC, all mention 9 instruments)
+- **`daw-help.js`** — DAW-specific help file builders (9 DAWs + MPC + KO II + generic drum machine)
 - **`pdf-export.js`** — PDF beat sheet + chord sheet PDF generator
 - **`beat-history.js`** — Beat history storage and UI (last 100 beats in localStorage)
-- **`app.js`** — Main controller, New Beat / Export / Preferences / About dialogs, keyboard shortcuts, playback, visual FX
+- **`app.js`** — Main controller, New Beat / Export / Preferences / About dialogs, keyboard shortcuts, playback, visual FX, tip ticker, What's Next
 - **`synth-bridge.mjs`** — SpessaSynth integration (ES module, bundled to `synth.js` by esbuild)
-- **`tests.js`** — Automated test suite (15,000+ assertions, zero dependencies)
+- **`tests.js`** — Automated test suite (18,000+ assertions, zero dependencies)
+- **`stats-runner.js`** — Benchmarks all 31 styles with groove bounce scores and retry stats
+- **`bench-100.js`** — Generates 100 random beats and reports timing percentiles + bounce score distribution
 
 ## Key Concepts
 
 - **37 Styles + 6 Regional Variants** — Each style controls kick libraries, hat approach, ghost density, swing pools, fill types, bar variations, accent curves, humanization profiles, drum kit, and bass sound.
-- **9 Instruments** — Drums (ch 10), Bass (ch 1), EP (ch 2), Pad (ch 3), Lead (ch 4), Organ (ch 5), Horns (ch 6), Vibes (ch 7), Clav (ch 8). Each has its own generator, MIDI builder, and MPC pattern builder.
+- **9 Instruments** — Drums (ch 10), Bass (ch 1), EP (ch 3), Pad (ch 4), Lead (ch 5), Organ (ch 6), Horns (ch 7), Vibes (ch 8), Clav (ch 9). Each has its own generator, MIDI builder, and MPC pattern builder.
+- **14 Drum Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker, Cowbell, Tom Hi, Tom Mid, Tom Lo.
 - **Style-Matched Sounds** — `STYLE_DATA` in `patterns.js` includes `drumKit` and `bassSound` fields. Each style auto-selects the right GM drum kit and bass program (TR-808 for G-Funk, Brush Kit for Nujabes, etc.).
-- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 32 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.
+- **Song Palette System** — `FEEL_PALETTES` in `ai.js` is an array of 37 compatible feel families. Each generation picks one palette; all sections draw from it so the arrangement stays coherent.
+- **Beat Quality Scoring** — `generateAll()` collects up to 20 valid candidates and picks the one with the highest groove bounce score. `validateHipHopBeat()` enforces 8 authenticity rules. `scoreGrooveQuality()` rates bounce across 8 weighted dimensions. `scoreFullBeat()` combines drums (60%), bass (25%), EP (15%).
 - **Beat Drops** — `_isDrumDrop()` in `midi-export.js` checks if all drums are silent at a step. ALL instruments skip events during drops.
 - **Strict vs Improvise** — `_instrumentCache` in `midi-export.js` caches instrument patterns in Strict mode. Improvise clears the cache each play.
-- **Generation Pipeline** — `generatePattern()` → `write*()` → `postProcessPattern()` → `applyGroove()` → `humanizeVelocities()`. Each stage is a separate function.
+- **Generation Pipeline** — `generateAll()` → `genBasePatterns()` → `generatePattern()` → `write*()` → `postProcessPattern()` → `applyGroove()` → `humanizeVelocities()` → `applySectionTransitions()` → `applyArrangementArc()`. Candidate selection via `scoreBeat()`.
 - **Export Dialog** — 5 sections: MIDI Files, Instrument Tracks, DAW Help Files, Audio (full mix + 9 WAV stems + master FX), Documents (PDF beat sheet + chord sheet).
-- **10 Drum Rows** — Kick, Snare, Clap, Rimshot, Ghost Kick, Hat, Open Hat, Ride, Crash, Shaker.
-- **Educational Content** — `analyzeBeat()` generates 30+ collapsible sections with skill-level paths, style history, technique spotlights, and more.
+- **Educational Content** — `analyzeBeat()` generates 30+ collapsible sections with skill-level paths, style history, technique spotlights, sound replacement guide, and more.
 
 ## Adding a New Feel
 
@@ -75,9 +79,12 @@ The project is split into focused modules:
 12. Add `BASS_STYLES` entry in `bass.js`
 13. Decide which melodic instruments apply — add the feel to the style lookup in each generator (ep.js, pad.js, lead.js, organ.js, horns.js, vibes.js, clav.js)
 14. Add style description, key data, flow guide, and reference tracks in `analyzeBeat()` (`analysis.js`)
-15. Add `KEY_MOODS` entries in `patterns.js` for any new key roots
-16. Update `tests.js` — add the feel to expected counts
-17. Run `node tests.js` — all assertions must pass
+15. Add sound replacement suggestions in `analyzeBeat()` (`analysis.js`)
+16. Add tip ticker entry in `getRoleSectionTips()` (`app.js`)
+17. Add `KEY_MOODS` entries in `patterns.js` for any new key roots
+18. Update `tests.js` — add the feel to expected counts
+19. Run `node tests.js` — all assertions must pass
+20. Run `node stats-runner.js` — verify groove scores
 
 ## Adding a New Melodic Instrument
 
@@ -120,4 +127,4 @@ Artist, producer, and track references throughout this tool are for educational 
 
 ## Trademarks
 
-All product names, logos, and brands mentioned in this project are property of their respective owners. Use of these names does not imply endorsement.
+All product names, logos, and brands — including Roland, TR-808, Akai, MPC, E-mu, SP-1200, Moog, Minimoog, Korg, Triton, Juno, Prophet, Sequential, Oberheim, Fender Rhodes, Wurlitzer, Teenage Engineering, Ensoniq, Boss, Casio, Yamaha, Steinway, and others — are trademarks or registered trademarks of their respective owners. Use of these names is for descriptive and educational purposes only and does not imply any affiliation or endorsement.
