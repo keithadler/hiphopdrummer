@@ -2,6 +2,18 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.70] - 2026-04-12
+
+### Added — Sound Replacement Guide
+- Style-aware sound replacement suggestions in the "About This Beat" analysis panel — tells users exactly what synths, samples, and plugins to use when replacing GM sounds with their own
+- Bass recommendations per style (e.g. "Fretless bass with chorus for Dilla," "808 sub with long sustain for G-Funk," "Upright bass with room verb for Nujabes")
+- Keys/EP recommendations per style (e.g. "Rhodes Mark I for boom bap," "Minimoog lead for G-Funk," "Acoustic piano for jazz hop")
+- Pad recommendations per style (e.g. "Juno-60 analog pad for Dilla," "Horror movie strings for Memphis," "Solina strings for Philly")
+- Clavinet recommendations when active (e.g. "Clav D6 through wah for G-Funk," "Clav with phaser for Dilla")
+- Horn/brass recommendations when active (e.g. "Marching band brass for NOLA," "Orchestral brass for Roc-A-Fella," "Sampled funk horn hits for chopbreak")
+- Vibraphone recommendations when active (e.g. "Milt Jackson tone for jazzy," "Vibes through tape saturation for lo-fi")
+- Covers 18+ style-specific sound profiles across all instrument types
+
 ## [1.69] - 2026-04-12
 
 ### Added — Beat Quality Scoring & Selection
