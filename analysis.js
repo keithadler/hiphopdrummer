@@ -1216,6 +1216,123 @@ function analyzeBeat() {
     lines.push('Each instrument follows the same chord progressions as the bass and EP. Load the MIDI into separate tracks in your DAW.');
   }
 
+  // === SOUND REPLACEMENT GUIDE ===
+  // Style-aware suggestions for replacing GM sounds with real instruments/plugins
+  var replacements = [];
+  var sfb = songFeelBase;
+
+  // Bass replacements
+  var bassReplace = {
+    normal: 'Finger bass (Trilian, Scarbee) or sampled upright. Warm, round, no distortion. Slight compression to even out ghost notes.',
+    halftime: 'Sub-heavy synth bass (808 with long decay) or deep finger bass. Let the notes ring — halftime needs sustained low end.',
+    hard: 'Aggressive pick bass or distorted DI bass. Compress hard, boost 1–2kHz for attack. Think Mobb Deep — the bass bites.',
+    jazzy: 'Fretless bass or upright with a little room verb. Smooth, vocal-like tone. Ron Carter meets Tribe Called Quest.',
+    dark: 'Sub sine bass or 808 with minimal harmonics. Pure low end, no mid-range. The bass should be felt, not heard.',
+    bounce: 'Slap bass or punchy finger bass with a pop. Bright, funky, danceable. Think Biggie "Juicy" — the bass bounces.',
+    dilla: 'Fretless bass with chorus, or Moog sub bass. Slightly detuned, warm, behind the beat. Pino Palladino on D\'Angelo.',
+    lofi: 'Muted finger bass through tape saturation. Roll off everything above 2kHz. Dusty, warm, like it\'s coming through a cassette.',
+    gfunk: '808 sub bass with long sustain and pitch bend. Clean sine wave, no distortion. The 808 IS the bass — let it breathe.',
+    crunk: '808 with maximum sustain and slight distortion. Tune it to the key. The 808 should rattle the trunk.',
+    memphis: 'Distorted 808 or detuned sine bass. Dark, menacing, with audible harmonics from saturation.',
+    chopbreak: 'Sampled funk bass from a break, or finger bass with a wah pedal. Funky, rhythmic, locked to the kick.',
+    griselda: 'Deep sub bass or sampled soul bass. Wide dynamics — loud hits and quiet ghosts. Daringer keeps the bass simple and heavy.',
+    phonk: '808 with heavy distortion and pitch slides. Lo-fi, dark, and hypnotic. Cowbell and bass are the whole track.',
+    nujabes: 'Upright bass or fretless with room reverb. Jazz tone, warm and woody. The bass should sound like a live session.',
+    oldschool: '808 kick-bass (the kick IS the bass) or simple synth bass. One note, one octave, no frills. Run-DMC era.',
+    detroit: 'Finger bass or Motown-style flatwound strings. Warm, punchy, slightly compressed. Think James Jamerson chopped on an MPC.',
+    philly: 'Upright or fretless bass with a live feel. Dynamic, expressive, slightly behind the beat. The Roots\' bass chair.'
+  };
+  var bassRec = bassReplace[sfb] || bassReplace.normal;
+  replacements.push('<b>Bass:</b> ' + bassRec);
+
+  // EP/Keys replacements
+  var epReplace = {
+    normal: 'Rhodes Mark I or Wurlitzer. Warm, slightly overdriven on loud chords. Classic boom bap keys — Pete Rock\'s signature.',
+    jazzy: 'Rhodes with tremolo and a touch of chorus. Clean, bell-like tone. Think Herbie Hancock "Headhunters" meets hip hop.',
+    dilla: 'Rhodes with heavy tremolo and phaser. Warm, washy, slightly detuned. The keys should float behind the beat like everything else.',
+    lofi: 'Rhodes or Wurlitzer through a bitcrusher or tape sim. Muffled, warm, lo-fi. Like the keys are playing through a phone speaker.',
+    gfunk: 'Minimoog lead or Juno-106 pad for the main melody. Bright, wide, with chorus. The synth floats above the 808.',
+    nujabes: 'Acoustic piano (Steinway or Yamaha C7) with room mic. Clean, intimate, like a jazz club at 2am.',
+    detroit: 'Rhodes or Wurlitzer with auto-wah. Motown soul keys chopped and replayed. Warm, funky, slightly dirty.',
+    bounce: 'Bright piano or Rhodes with a pop. Staccato chords, punchy attack. Bad Boy era — the keys drive the hook.',
+    chipmunk: 'Pitched-up soul vocal sample or bright Rhodes in the high register. The "chipmunk" sound is the melody — keep it bright and fast.',
+    philly: 'Rhodes Mark I with a warm, round tone. No effects — just the natural bell and bark of the tines. Soulquarians sound.',
+    cashmoney: 'Church organ or gospel piano. Bright, full, with sustain pedal. Mannie Fresh kept the keys simple but churchy.',
+    timbaland: 'Synth pad or processed Rhodes. Unusual textures — reversed, filtered, or granular. Timbaland\'s keys are never straight.'
+  };
+  var epRec = epReplace[sfb] || epReplace.normal;
+  replacements.push('<b>Keys / EP:</b> ' + epRec);
+
+  // Pad replacements
+  var padReplace = {
+    normal: 'Warm analog pad (Juno-60, OB-6) or string ensemble. Sustained, low-pass filtered, sitting underneath everything. Felt, not heard.',
+    dilla: 'Lush polysynth pad (Prophet-5, Juno-106) with slow attack and long release. Warm, dreamy, slightly detuned.',
+    lofi: 'Tape-saturated string pad or vinyl noise layer. The pad IS the texture — it fills the space between instruments with warmth.',
+    gfunk: 'Bright string ensemble or Juno pad with chorus. Wide stereo, sustained. The pad creates the "sunny California" atmosphere.',
+    dark: 'Dark drone pad or reversed reverb tail. Ominous, evolving, barely audible. Creates unease without being a melody.',
+    memphis: 'Horror movie string pad or dark choir. Sinister, sustained, with slow filter movement. Three 6 Mafia\'s haunted house sound.',
+    jazzy: 'Soft string pad or Rhodes pad patch. Warm, transparent, just adding body to the chord changes without competing with the EP.',
+    nujabes: 'Warm string ensemble with a slow attack. Cinematic, emotional, like a film score underneath the jazz. Subtle and beautiful.',
+    phonk: 'Dark, distorted pad or reversed vocal texture. Lo-fi, hypnotic, barely there. The pad is atmosphere, not harmony.',
+    halftime: 'Slow-attack string pad or ambient texture. The halftime feel needs sustained sounds that fill the extra space.',
+    chipmunk: 'Warm analog pad underneath the pitched-up sample. Fills the low-mid gap that the chipmunk melody leaves open.',
+    philly: 'Warm string section (real strings or Solina). Lush, organic, like a Philly International Records arrangement.'
+  };
+  var padRec = padReplace[sfb] || padReplace.normal;
+  replacements.push('<b>Pad:</b> ' + padRec);
+
+  // Clavinet replacements (only if active)
+  if (typeof CLAV_STYLES !== 'undefined' && (CLAV_STYLES[songFeel] || CLAV_STYLES[sfb])) {
+    var clavReplace = {
+      gfunk: 'Clavinet D6 through a wah pedal. Funky, percussive, 16th-note comping. Stevie Wonder meets Dr. Dre.',
+      bounce: 'Clavinet with auto-wah or envelope filter. Bright, snappy, rhythmic. The clav adds funk to the bounce.',
+      dilla: 'Clavinet with phaser and light distortion. Behind the beat, loose, funky. Herbie Hancock "Chameleon" energy.',
+      detroit: 'Clavinet through a wah or envelope filter. Motown funk — choppy, rhythmic, locked to the hi-hat.',
+      cashmoney: 'Clavinet or funky guitar stab. Short, percussive, rhythmic. Adds the New Orleans funk element.',
+      nujabes: 'Clean clavinet or guitar with a jazz tone. Soft, rhythmic comping. Adds texture without dominating.',
+      philly: 'Clavinet D6 with a clean, funky tone. Think Stevie Wonder — percussive but musical.'
+    };
+    var clavRec = clavReplace[sfb] || 'Clavinet D6 or funky guitar. Percussive, rhythmic, 16th-note comping. Adds funk texture.';
+    replacements.push('<b>Clavinet:</b> ' + clavRec);
+  }
+
+  // Horn replacements (only if active)
+  if (typeof HORN_STYLES !== 'undefined' && (HORN_STYLES[songFeel] || HORN_STYLES[sfb])) {
+    var hornReplace = {
+      rocafella: 'Full brass section (trumpet, trombone, sax) or orchestral brass library. Punchy stabs, tight and in unison. Just Blaze\'s signature.',
+      nolimit: 'Marching band brass or military-style horn stabs. Aggressive, short, punchy. No Limit Records\' signature sound.',
+      cashmoney: 'New Orleans brass band horns — tuba, trombone, trumpet. Funky, second-line feel. Mannie Fresh bounce.',
+      chopbreak: 'Sampled horn hits from funk breaks. Short, punchy, one-shot stabs locked to the kick. Premier-style.',
+      bounce: 'Bright horn stabs or soul horn section. Punchy, danceable, locked to the groove. Bad Boy era brass.',
+      hard: 'Aggressive brass stabs or distorted horn samples. Short, loud, maximum impact. The horns are a weapon.',
+      gfunk: 'Smooth trumpet or sax melody over the chords. Legato, expressive, with vibrato. The horn floats above the beat.'
+    };
+    var hornRec = hornReplace[sfb] || 'Brass section stabs (trumpet + trombone) or sampled horn hits. Short, punchy, locked to the kick pattern.';
+    replacements.push('<b>Horns / Brass:</b> ' + hornRec);
+  }
+
+  // Vibraphone replacements (only if active)
+  if (typeof VIBES_STYLES !== 'undefined' && (VIBES_STYLES[songFeel] || VIBES_STYLES[sfb])) {
+    var vibesReplace = {
+      jazzy: 'Real vibraphone (Milt Jackson tone) or marimba. Soft mallets, motor on slow. The vibes add sparkle to jazz chords.',
+      nujabes: 'Vibraphone with slow motor and sustain pedal. Warm, bell-like, meditative. The signature Nujabes shimmer.',
+      dilla: 'Vibraphone or kalimba with a lo-fi filter. Warm, muted, slightly behind the beat. Adds texture without competing.',
+      lofi: 'Vibraphone through tape saturation. Muffled, warm, like a dusty jazz record playing in the next room.'
+    };
+    var vibesRec = vibesReplace[sfb] || 'Vibraphone or bell-like mallet instrument. Soft, arpeggiated, adding high-frequency shimmer.';
+    replacements.push('<b>Vibraphone:</b> ' + vibesRec);
+  }
+
+  if (replacements.length > 0) {
+    lines.push('');
+    lines.push('🔊 <b>SOUND REPLACEMENT GUIDE</b>');
+    lines.push('Using your own sounds instead of GM? Here\'s what to reach for to match this style:');
+    for (var ri = 0; ri < replacements.length; ri++) {
+      lines.push('• ' + replacements[ri]);
+    }
+    lines.push('<b>General rule:</b> The MIDI patterns capture the rhythm, velocity, and note choices. Your job is the tone. Load the MIDI, swap the sound, and the groove stays intact.');
+  }
+
   // === HOW THE BAND WORKS TOGETHER ===
   lines.push('');
   lines.push('🤝 <b>HOW THE BAND WORKS TOGETHER</b>');
