@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-1.69-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-1.70-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
@@ -209,6 +209,12 @@ Covers all 37 styles × 10 instruments, bass generation, all 7 melodic generator
 MIT — see [LICENSE](LICENSE).
 
 **Beats you generate are yours.** Commercial releases, demos, freestyles, DJ sets, samples, remixes — no attribution required, no royalties, no restrictions.
+
+## Disclaimer
+
+Artist, producer, and track references throughout Hip Hop Drummer are for educational purposes only. This project is not affiliated with or endorsed by any artist, producer, label, or company mentioned.
+
+All product names, logos, and brands — including Roland, TR-808, Akai, MPC, E-mu, SP-1200, Moog, Minimoog, Korg, Triton, Juno, Prophet, Sequential, Oberheim, Fender Rhodes, Wurlitzer, Teenage Engineering, Ensoniq, Boss, Casio, Yamaha, Steinway, and others — are trademarks or registered trademarks of their respective owners. Use of these names is for descriptive and educational purposes only and does not imply any affiliation or endorsement.
 
 ---
 

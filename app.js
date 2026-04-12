@@ -820,7 +820,7 @@ var WHAT_NEXT = {
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Hit Play</b> and listen to the full arrangement. Pay attention to how the instruments interact — the bass locks to the kick, the melodic instruments react to the drums, the energy builds across sections.</p>'
         + '<p><b>2. Export the ZIP</b> — you get MIDI for every instrument on separate channels, MPC patterns, WAV stems for mixing, chord sheets, and setup guides for your DAW. Load the MIDI into your session and swap the sounds for your own.</p>'
-        + '<p><b>3. Make it yours</b> — add your own samples, re-voice the bass with your 808 or synth, adjust the ghost note velocities, layer your own textures. The patterns are musically correct — you\'re customizing, not starting from scratch.</p>'
+        + '<p><b>3. Make it yours</b> — add your own samples, re-voice the bass with your 808 or synth, adjust the ghost note velocities, layer your own textures. The patterns are musically correct — you\'re customizing, not starting from scratch. Check the <b>Sound Replacement Guide</b> in About This Beat for style-specific suggestions on what synths, samples, and plugins match this style.</p>'
         + '<p><b>4. Read About This Beat</b> — the analysis explains every production decision. Study it, then apply those techniques to your own beats.</p>'
         + '<p>This is production-ready material. Use it as a starting point, a learning tool, or export the WAV and release it. Your beat, your call.</p>';
     }
@@ -857,7 +857,7 @@ var WHAT_NEXT = {
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Hit Play</b> and watch the chord overlay — it highlights the current chord with a piano diagram as the song plays.</p>'
         + '<p><b>2. Play along</b> — follow the voicings on screen. The chord sheet in About This Beat shows the full progression with hand-split guidance per style.</p>'
-        + '<p><b>3. Disable the EP in Preferences</b> and play your own part over the rhythm section. The generated part is a reference — learn from it, then make it yours.</p>'
+        + '<p><b>3. Disable the EP in Preferences</b> and play your own part over the rhythm section. The generated part is a reference — learn from it, then make it yours. The <b>Sound Replacement Guide</b> in About This Beat suggests specific synths and plugins for each style.</p>'
         + '<p><b>4. Export the EP MIDI</b> to study the voicings in your DAW, or export the WAV stem to hear the EP part isolated.</p>'
         + '<p>The harmony is real — Dorian IV for G-Funk warmth, Phrygian bII for dark menace, ii-V turnarounds for jazz. This is how session keyboardists actually play.</p>';
     }
@@ -905,7 +905,7 @@ var WHAT_NEXT = {
         + '<h3>Your Next Move</h3>'
         + '<p><b>1. Check the key</b> — filter Splice or Tracklib by <b>' + key + '</b>. Samples in the relative major/minor use the same notes but sound brighter or darker.</p>'
         + '<p><b>2. Read the Sample Hunting Guide</b> in About This Beat — it names specific genres, decades, and artists to dig through based on this style.</p>'
-        + '<p><b>3. Export the MIDI to your MPC or DAW</b> — load the drum patterns, then layer your samples on top. The beat is the harmonic foundation — your samples are the melody, the texture, the identity. That\'s always been how it works.</p>'
+        + '<p><b>3. Export the MIDI to your MPC or DAW</b> — load the drum patterns, then layer your samples on top. The beat is the harmonic foundation — your samples are the melody, the texture, the identity. That\'s always been how it works. The <b>Sound Replacement Guide</b> in About This Beat tells you what sounds match this style.</p>'
         + '<p><b>4. Use the section tips</b> — verse: your main 2-4 bar loop. Chorus: counter-melody or vocal chop. Breakdown: raw uncut sample, reversed or filtered. Last chorus: everything at once.</p>'
         + '<p>The beat is the skeleton. Your samples are the flesh. Export it, load it up, and start chopping.</p>';
     }
@@ -2555,6 +2555,32 @@ function getRoleSectionTips(sec, role) {
   if (tips.length > 8) {
     tips.push('This beat is the harmonic foundation. Your rap, sample, guitar, or scratch is the melody on top.');
   }
+
+  // Sound replacement tips — style-aware suggestions for users with their own sounds
+  var soundTips = {
+    normal: 'Swap the EP for a Rhodes Mark I or Wurlitzer. Warm, slightly overdriven. Classic boom bap keys.',
+    dilla: 'Bass: try a fretless with chorus or Moog sub. Keys: Rhodes with heavy tremolo and phaser. Everything floats.',
+    lofi: 'Run everything through tape saturation. Roll off highs. The lo-fi aesthetic is the point.',
+    gfunk: 'Bass: 808 sub with long sustain. Lead: Minimoog or Juno with chorus. Pad: bright string ensemble.',
+    crunk: '808 with maximum sustain for bass. Aggressive synth stabs for melody. No subtlety needed.',
+    memphis: 'Distorted 808 bass. Horror movie string pad. Dark choir. The sound should feel haunted.',
+    jazzy: 'Fretless or upright bass. Rhodes with tremolo. Vibraphone with slow motor. Live jazz session feel.',
+    nujabes: 'Upright bass with room verb. Acoustic piano, not electric. Vibes with sustain pedal. Warm and intimate.',
+    chopbreak: 'Sampled funk bass or finger bass with wah. Horn stabs from funk breaks. Dense and funky.',
+    griselda: 'Deep sub bass, wide dynamics. Sampled soul textures. Vinyl grit on everything.',
+    phonk: '808 with heavy distortion and pitch slides. Dark drone pad. Cowbell is essential.',
+    detroit: 'Finger bass or Motown flatwounds. Rhodes with auto-wah. Warm, punchy, soul-chopped.',
+    philly: 'Upright bass, live feel. Rhodes Mark I, no effects. Real strings or Solina. Organic and dynamic.',
+    dark: 'Sub sine bass, minimal harmonics. Dark drone pad. The bass should be felt, not heard.',
+    halftime: 'Sub-heavy synth bass with long decay. Slow-attack string pad. Sustained sounds fill the extra space.',
+    bounce: 'Slap bass or punchy finger bass. Bright piano or Rhodes. The keys drive the hook.',
+    oldschool: '808 kick-bass — the kick IS the bass. Simple synth bass, one note, no frills.',
+    chipmunk: 'Pitch up your soul samples. Warm bass guitar underneath. Rhodes in the high register.',
+    rocafella: 'Orchestral brass library for stabs. Piano chords, not Rhodes. Heavy, anthem-level production.',
+    cashmoney: 'Church organ or gospel piano. Funky clav or guitar stab. New Orleans bounce energy.',
+    timbaland: 'Processed Rhodes or unusual synth textures. Reversed, filtered, or granular. Never straight.'
+  };
+  if (soundTips[songFeelBase]) tips.push('🔊 Sound swap: ' + soundTips[songFeelBase]);
 
   // Shuffle tips so the user doesn't see the same order every time
   for (var si = tips.length - 1; si > 0; si--) {
