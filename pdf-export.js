@@ -71,13 +71,14 @@ function exportPDF(returnBlob) {
    * @param {string} [color='#000000'] - Text color as hex string
    */
   function addText(text, size, bold, color) {
-    doc.setFontSize(size || 10);
+    var fs = size || 10;
+    doc.setFontSize(fs);
     doc.setFont('helvetica', bold ? 'bold' : 'normal');
     doc.setTextColor(color || '#000000');
     var lines = doc.splitTextToSize(clean(text), contentW);
-    if (y + lines.length * (size * 0.45) > 280) { doc.addPage(); y = margin; }
+    if (y + lines.length * (fs * 0.45) > 280) { doc.addPage(); y = margin; }
     doc.text(lines, margin, y);
-    y += lines.length * (size * 0.45) + 1;
+    y += lines.length * (fs * 0.45) + 1;
   }
 
   /** Draw a horizontal separator line at the current y position. */

@@ -11,7 +11,6 @@
 var MAX_HISTORY_SLOTS = 100;
 
 /**
-/**
  * Capture complete beat state for saving.
  */
 function captureBeatState() {
@@ -121,8 +120,6 @@ function restoreBeatState(beatData) {
   secSteps = JSON.parse(JSON.stringify(beatData.secSteps));
   secFeels = JSON.parse(JSON.stringify(beatData.secFeels));
   
-  // Restore kick patterns
-  if (beatData.baseKick !== null) baseKick = beatData.baseKick;
   // Restore kick patterns (use != null to catch both null and undefined from old saves)
   if (beatData.baseKick != null) baseKick = beatData.baseKick;
   if (beatData.baseKickB != null) baseKickB = beatData.baseKickB;
