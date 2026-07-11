@@ -118,7 +118,12 @@ function applyGroove(p, len, feel) {
     // Determine arc intensity based on section type (via secFeels lookup)
     var arcIntensity = 1.0; // default
     var currentSec = '';
-    for (var sk in secFeels) { if (secFeels[sk] === feel && secSteps[sk] === len) { currentSec = sk; break; } }
+    // secFeels stores variant names (e.g. 'normal_bronx') while feel is the
+    // resolved base feel — resolve before comparing or variants never match
+    for (var sk in secFeels) {
+      var skBase = (typeof resolveBaseFeel === 'function') ? resolveBaseFeel(secFeels[sk]) : secFeels[sk];
+      if (skBase === feel && secSteps[sk] === len) { currentSec = sk; break; }
+    }
     if (currentSec === 'chorus' || currentSec === 'chorus2' || currentSec === 'lastchorus') arcIntensity = 0.5; // flatter, high-energy
     else if (currentSec === 'instrumental') arcIntensity = 1.5; // more dynamic
     else if (currentSec === 'breakdown') arcIntensity = 0.3; // minimal arc
@@ -889,7 +894,7 @@ function scoreBassQuality(events, drumPat, len, feel) {
   var lockScore;
   // Sweet spot: 30–70% lock. Too high = no independence, too low = disconnected
   if (lockRatio >= 0.3 && lockRatio <= 0.7) lockScore = 10;
-  else if (lockRatio >= 0.2 || lockRatio <= 0.8) lockScore = 7;
+  else if (lockRatio >= 0.2 && lockRatio <= 0.8) lockScore = 7;
   else lockScore = 4;
 
   // ── 2. Note variety (0–10) ──

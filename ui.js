@@ -407,8 +407,13 @@ function renderArr(skipMidiUpdate) {
       el.classList.remove('drag-over');
       var toIdx = parseInt(el.dataset.i);
       if (dragIdx === null || dragIdx === toIdx) return;
-      var item = arrangement.splice(dragIdx, 1)[0];
+      var fromIdx = dragIdx;
+      var item = arrangement.splice(fromIdx, 1)[0];
       arrangement.splice(toIdx, 0, item);
+      // Keep the selection on the same section after the reorder
+      if (arrIdx === fromIdx) arrIdx = toIdx;
+      else if (fromIdx < arrIdx && toIdx >= arrIdx) arrIdx--;
+      else if (fromIdx > arrIdx && toIdx <= arrIdx) arrIdx++;
       renderArr();
     };
     /** Click: select this section (or remove/move it if button was clicked) */
@@ -1438,7 +1443,9 @@ function _flushEditToHistory() {
   if (typeof captureBeatState !== 'function' || typeof saveBeatHistory !== 'function' || typeof loadBeatHistory !== 'function') return;
   var history = loadBeatHistory();
   if (history.length > 0) {
+    var wasStarred = history[0].starred;
     history[0] = captureBeatState();
+    if (wasStarred) history[0].starred = true;
     saveBeatHistory(history);
   }
 }
@@ -1452,7 +1459,9 @@ window.addEventListener('beforeunload', function() {
       if (typeof captureBeatState === 'function' && typeof saveBeatHistory === 'function' && typeof loadBeatHistory === 'function') {
         var history = loadBeatHistory();
         if (history.length > 0) {
+          var wasStarred = history[0].starred;
           history[0] = captureBeatState();
+          if (wasStarred) history[0].starred = true;
           saveBeatHistory(history);
         }
       }

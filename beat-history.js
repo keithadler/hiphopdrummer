@@ -374,7 +374,8 @@ function backupBeatHistory() {
   a.href = url;
   a.download = 'hiphopdrummer_backup_' + Date.now() + '.json';
   a.click();
-  URL.revokeObjectURL(url);
+  // Delay revocation so the download can start (mobile Safari needs time)
+  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
 }
 
 /**

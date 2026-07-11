@@ -1961,7 +1961,11 @@ function renderGuitarChord(chordName) {
   var fretNums = [];
   for (var i = 0; i < 6; i++) { if (f[i] > 0) fretNums.push(f[i]); }
   var minFret = fretNums.length > 0 ? Math.min.apply(null, fretNums) : 1;
-  var startFret = minFret > 3 ? minFret : 1;
+  var maxFret = fretNums.length > 0 ? Math.max.apply(null, fretNums) : 1;
+  // Shift the 4-fret window up whenever the chord doesn't fit from fret 1 —
+  // keying off minFret alone lets chords like Gm (frets 3-5) draw dots
+  // below the bottom fret line
+  var startFret = maxFret > 4 ? minFret : 1;
   var isOpen = (startFret === 1);
 
   var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">';

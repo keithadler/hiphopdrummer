@@ -2127,11 +2127,25 @@ function applyArrangementArc() {
       }
     }
 
+    // Detect an intentional beat drop at the section end — applySectionTransitions
+    // (which runs before this arc pass) silences the last 2-4 steps of a
+    // pre-chorus for maximum chorus impact. Don't fill that silence back in.
+    var endDropped = false;
+    if (sec === 'pre' && len >= 2) {
+      endDropped = true;
+      for (var eds = len - 2; eds < len && endDropped; eds++) {
+        for (var edr = 0; edr < ROWS.length; edr++) {
+          if (pat[ROWS[edr]][eds] > 0) { endDropped = false; break; }
+        }
+      }
+    }
+
     // ── 8. Double-time hat section — 16th notes in last chorus or pre-chorus ──
     if ((sec === 'lastchorus' || sec === 'pre') && len >= 32) {
       // Add 16th note hats in the last 2 bars (fill the gaps between 8th notes)
       var dtStart = len - 32; // last 2 bars
-      for (var i = dtStart; i < len; i++) {
+      var dtEnd = endDropped ? len - 4 : len; // preserve the beat-drop silence
+      for (var i = dtStart; i < dtEnd; i++) {
         if (pat.hat[i] === 0 && i % 2 === 1 && maybe(0.6)) {
           // Add soft 16th note hat on odd steps (the "e" and "ah" positions)
           pat.hat[i] = v(45, 8); // soft — these are texture, not accents
@@ -2140,7 +2154,8 @@ function applyArrangementArc() {
     }
 
     // ── 9. Snare roll build — before chorus entries ──
-    if (sec === 'pre' && len >= 16) {
+    // Skipped when the section ends in a beat drop — the silence IS the build.
+    if (sec === 'pre' && len >= 16 && !endDropped) {
       // 16th note snare roll in the last 4 steps with increasing velocity
       var rollStart = len - 4;
       for (var i = rollStart; i < len; i++) {
@@ -2274,8 +2289,9 @@ function generateAll(opts) {
     // Skip beat validation if length is wrong — no point scoring a beat we'd toss
     if (!lengthOk) {
       _genLengthFails++;
-      // Still track as fallback by length (no validation score yet)
-      if (!bestArr || totalSteps > Object.keys(bestSteps).reduce(function(a,s){return a+(bestSteps[s]||0)},0)) {
+      // Still track as fallback by length (no validation score yet) — but never
+      // replace a fully valid candidate with an invalid one
+      if (bestBounce < 0 && (!bestArr || totalSteps > Object.keys(bestSteps).reduce(function(a,s){return a+(bestSteps[s]||0)},0))) {
         bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels;
       }
       continue;
@@ -2289,7 +2305,9 @@ function generateAll(opts) {
     if (!validation.passed) {
       _genBeatFails++;
       var attemptScore = validation.score;
-      if (attemptScore > bestScore) {
+      // Fallback only while no valid candidate exists — a failing beat must
+      // never replace one that passed validation
+      if (bestBounce < 0 && attemptScore > bestScore) {
         bestArr = arr; bestPat = pat; bestSteps = sec; bestFeels = feels; bestScore = attemptScore;
       }
       continue;

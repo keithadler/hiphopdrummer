@@ -2,6 +2,20 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.72] - 2026-07-11
+
+### Fixed — 10 Bug Fixes
+- Combined MIDI builder left `secTickStart` unassigned when bass playback was disabled — every melodic instrument (EP, pad, lead, organ, horns, vibes, clav) got NaN ticks, corrupting playback MIDI whenever Bass was muted
+- Lead, Organ, Horn Stabs, Vibraphone, and Clavinet exports were gated on the MIDI Patterns folder existing — the "MPC" export preset silently produced no MPC patterns for those five instruments, and instrument MIDI could be written when only section MIDI was requested
+- `generateAll()` fallback tracking could overwrite an already-found valid candidate with a length-invalid or validation-failed attempt — a valid beat is now never displaced by an invalid one
+- Kick-bass lock scoring used `||` instead of `&&` — the low-score branch was unreachable, every bass line scored at least 7 on lock
+- Drag-and-drop arrangement reorder didn't update the selected index (`arrIdx`) — after a drag, the highlighted card and the displayed grid pointed at the wrong section (the ◀/▶ buttons and keyboard reorder already handled this)
+- Pre-chorus "beat drop" silence was immediately refilled by the arrangement arc's snare roll and double-time hats — the drop was dead code; the roll and hat fill now skip a section that ends in an intentional drop
+- `applyGroove()` section lookup compared stored variant feel names (e.g. `normal_bronx`) against the resolved base feel — regional-variant styles never got their chorus/breakdown/instrumental arc intensity
+- Editing a beat (BPM/swing/cell edits) replaced history slot 0 without preserving the `starred` flag — starring a beat and then tweaking it silently unfavorited it
+- History backup revoked the download's object URL synchronously after `click()` — could abort the download on mobile Safari; now deferred 5s like every other download in the app
+- Guitar chord diagrams drew dots outside the 4-fret box for chords spanning fret 5 with a low fret ≤ 3 (e.g. Gm at frets 3-5) — the fret window now shifts whenever the chord doesn't fit from fret 1
+
 ## [1.71] - 2026-04-12
 
 ### Fixed — 10 Bug Fixes
