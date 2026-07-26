@@ -733,7 +733,7 @@ document.addEventListener('keydown', function(e) {
   if ((e.key === 't' || e.key === 'T') && !e.ctrlKey && !e.metaKey) {
     if (window.synthBridge && window.synthBridge.isPlaying) return;
     e.preventDefault();
-    if (typeof _showTapOverlay === 'function') { _tapTimes = []; _showTapOverlay(); }
+    if (typeof _openTapTempo === 'function') _openTapTempo();
   }
   // ← → — navigate sections
   if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
@@ -1085,11 +1085,19 @@ var _INST_PREF_MAP = {
   if (typeof loadBeatHistory === 'function') {
     var history = loadBeatHistory();
     if (history && history.length > 0) {
-      // History exists - always load the last beat
+      // History exists - always load the last beat.
+      // Guarded: a corrupt slot 0 (e.g. from a hand-edited or truncated
+      // backup restore) would otherwise throw BEFORE the app is shown,
+      // bricking every subsequent page load into the loading screen.
       if (typeof loadLastBeat === 'function') {
-        loadLastBeat();
-        historyLoaded = true;
-        console.log('Loaded beat from history:', history[0].songStyle, 'at', history[0].bpm, 'BPM in', history[0].songKey);
+        try {
+          loadLastBeat();
+          historyLoaded = true;
+          console.log('Loaded beat from history:', history[0].songStyle, 'at', history[0].bpm, 'BPM in', history[0].songKey);
+        } catch(e) {
+          console.error('Corrupt beat in history slot 0 - falling back to fresh generation:', e);
+          historyLoaded = false;
+        }
       }
     }
   }
@@ -1389,6 +1397,13 @@ var _INST_PREF_MAP = {
       if (typeof _saveEditToHistory === 'function') _saveEditToHistory();
     });
   };
+
+  // Expose IIFE locals needed by the top-level keyboard handler and playback
+  // callbacks. Without these, the `typeof ... === 'function'` guards out there
+  // are always false — the T tap-tempo shortcut and the "close header editor
+  // on generate/play" behaviors silently never fire.
+  window._openTapTempo = function() { _tapTimes = []; _showTapOverlay(); };
+  window._hideHeaderEditor = _hideHeaderEditor;
 
   // Show welcome screen on first visit
   initWelcome();

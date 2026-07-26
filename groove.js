@@ -104,8 +104,8 @@ function applyGroove(p, len, feel) {
         else if (pos === 8) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 1.03));
         else if (pos === 6) p.kick[i] = Math.min(127, Math.round(p.kick[i] * 0.94)); // syncopated: softer
         else if (pos === 4 || pos === 12) p.kick[i] = p.kick[i];
+        else if (pos === 14 || pos === 15) p.kick[i] = Math.max(45, Math.round(p.kick[i] * 0.85)); // pickups softest
         else if (pos % 2 === 0) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
-        else if (pos === 14 || pos === 15) p.kick[i] = Math.max(50, Math.round(p.kick[i] * 0.92));
         else p.kick[i] = Math.max(45, Math.round(p.kick[i] * 0.85));
       }
     }
@@ -268,9 +268,6 @@ function postProcessPattern(p, len, isCh, feel) {
   try {
     bpm = parseInt(document.getElementById('bpm').textContent) || 90;
   } catch(e) {}
-  
-  // Tempo-aware choke duration: slower = longer choke
-  var chokeDuration = (bpm <= 80) ? 4 : (bpm <= 95) ? 3 : 2;
   
   for (var i = 0; i < len; i++) {
     var pos = i % 16;

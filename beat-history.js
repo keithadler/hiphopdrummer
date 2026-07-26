@@ -314,6 +314,20 @@ function renderBeatHistorySlots() {
       e.stopPropagation();
       var idx = parseInt(btn.dataset.idx);
       restoreBeatState(history[idx]);
+      // Promote a copy of the loaded beat to slot 0 — edits always write
+      // history[0] (the "current" beat), so without this, editing a loaded
+      // older beat silently overwrites the newest saved beat. The original
+      // stays in its slot; the copy becomes the working beat.
+      if (idx > 0) {
+        var workingCopy = JSON.parse(JSON.stringify(history[idx]));
+        workingCopy.timestamp = Date.now();
+        workingCopy.starred = false;
+        history.unshift(workingCopy);
+        if (typeof MAX_HISTORY_SLOTS !== 'undefined' && history.length > MAX_HISTORY_SLOTS) {
+          history = history.slice(0, MAX_HISTORY_SLOTS);
+        }
+        saveBeatHistory(history);
+      }
       document.getElementById('beatHistoryOverlay').style.display = 'none';
       // Show What Next dialog after loading a beat from history
       if (typeof _showWhatNext === 'function') setTimeout(_showWhatNext, 300);
@@ -397,9 +411,25 @@ function restoreBeatHistory() {
           alert('Invalid backup file format.');
           return;
         }
-        
-        if (confirm('This will replace your current history with ' + backup.beats.length + ' beats from the backup. Continue?')) {
-          saveBeatHistory(backup.beats);
+
+        // Validate each beat has the fields restoreBeatState() requires —
+        // a single malformed beat in slot 0 would otherwise crash the boot
+        // sequence on every page load until localStorage is cleared.
+        var validBeats = backup.beats.filter(function(b) {
+          return b && typeof b === 'object'
+            && b.patterns && typeof b.patterns === 'object'
+            && Array.isArray(b.arrangement)
+            && b.secSteps && typeof b.secSteps === 'object'
+            && b.secFeels && typeof b.secFeels === 'object';
+        });
+        if (validBeats.length === 0) {
+          alert('Invalid backup file format: no restorable beats found.');
+          return;
+        }
+        var skipped = backup.beats.length - validBeats.length;
+
+        if (confirm('This will replace your current history with ' + validBeats.length + ' beats from the backup' + (skipped > 0 ? ' (' + skipped + ' malformed beat' + (skipped !== 1 ? 's' : '') + ' skipped)' : '') + '. Continue?')) {
+          saveBeatHistory(validBeats);
           renderBeatHistorySlots();
           alert('History restored successfully!');
         }

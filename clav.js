@@ -27,6 +27,16 @@ function _clavScaleNotes(chordRoot, register, degree) {
     var n = base + pentatonic[i];
     if (n >= 48 && n <= 72) notes.push(n);
   }
+  // High roots (A#/B in mid register) clamp against the 72 ceiling and leave
+  // only 1-2 notes — the clav would hammer a single pitch all song. Fill from
+  // the octave below (like vibes/lead do) so there's a scale to comp with.
+  // Root-octave notes stay first so the "stick to root area" picker holds.
+  if (notes.length < pentatonic.length) {
+    for (var fi = 0; fi < pentatonic.length && notes.length < pentatonic.length; fi++) {
+      var fn = base - 12 + pentatonic[fi];
+      if (fn >= 48 && fn <= 72 && notes.indexOf(fn) < 0) notes.push(fn);
+    }
+  }
   return notes;
 }
 

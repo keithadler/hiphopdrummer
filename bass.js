@@ -700,7 +700,10 @@ function generateBassPattern(sec, bpm) {
   for (var barIdx = 0; barIdx < totalBars; barIdx++) {
     var barStart = barIdx * 16;
     var barEnd = Math.min(barStart + 16, len);
-    var barInPhrase = barIdx % 4;
+    // Index the FULL progression — all pools are 8 bars. A % 4 here made the
+    // bass replay chords 1-4 during bars 5-8 while the chord sheet, EP, and
+    // every other instrument played chords 5-8 (wrong harmony, e.g. IV under V).
+    var barInPhrase = barIdx % progression.length;
     var isRepeatBar = (barIdx >= 4 && motifIntervals !== null);
     var motifBarIdx = barIdx % 4;
 
@@ -788,8 +791,8 @@ function generateBassPattern(sec, bpm) {
           if (maybe(0.10)) { shouldPlay = false; }
           else if (maybe(0.15)) { midiNote = maybe(0.5) ? fifth : currentRoot; }
           if (maybe(0.08) && !isDead) { noteVel = v(noteVel, 10); }
-          // Bar 4 fill
-          if (barInPhrase === 3 && pos >= 12 && maybe(0.3)) {
+          // Bar 4 fill (every 4th bar — barInPhrase spans the full 8-bar phrase)
+          if (barInPhrase % 4 === 3 && pos >= 12 && maybe(0.3)) {
             midiNote = maybe(0.5) ? currentRoot + 12 : fifth;
             if (midiNote > _bassCeil) midiNote -= 12;
             noteVel = v(style.velBase + 5, style.velRange);
@@ -884,7 +887,7 @@ function generateBassPattern(sec, bpm) {
 
       // FIX #1 (Round 10): Walk-up starts earlier (steps 9-15) for better momentum
       if (pos >= 9 && maybe(style.walkUp) && step + (16 - pos) < len && !isDead && !isFromKick) {
-        var nextBar = Math.floor((step + (16 - pos)) / 16) % 4;
+        var nextBar = Math.floor((step + (16 - pos)) / 16);
         var nextRoot = degreeToNote(progression[nextBar % progression.length]);
 
         if (style.walkDiatonic > 0 && maybe(style.walkDiatonic)) {
@@ -965,15 +968,21 @@ function generateBassPattern(sec, bpm) {
       });
     }
 
-    // Capture motif after bar 3 (4-bar phrase) for better musical development
+    // Capture motif after bar 3 (4-bar phrase) for better musical development.
+    // Intervals are recorded relative to EACH BAR'S OWN chord root — recording
+    // everything against the I root and replaying against the current chord
+    // root double-transposed any note from a iv/v bar into a chromatic wrong
+    // note (e.g. the IV root replayed as IV+5).
     if (barIdx === 3 && motifIntervals === null) {
       motifIntervals = [];
       motifChordRoot = rootNote;
       for (var ei = 0; ei < events.length; ei++) {
         if (events[ei].step < 64) {
+          var evBar = Math.floor(events[ei].step / 16);
+          var evRoot = isIntroOutro ? rootNote : degreeToNote(progression[evBar % progression.length]);
           motifIntervals.push({
             relStep: events[ei].step,
-            interval: events[ei].note - motifChordRoot,
+            interval: events[ei].note - evRoot,
             vel: events[ei].vel,
             dur: events[ei].dur,
             slide: events[ei].slide,
@@ -1213,11 +1222,14 @@ function applyBassistFeatures(events, len, style, rootNote, feel, isIntroOutro) 
     var curr = events[i];
     var next = events[i + 1];
     if (curr._isRake) continue; // rakes are intentionally overlapping dead notes
-    var currEndStep = curr.step + Math.ceil(curr.dur * 4); // dur is in quarter-note fractions
+    if (next.step === curr.step) continue; // simultaneous notes are a double-stop — let them ring together
+    // dur is in 16th-step units — the renderers all compute ticksPerStep * dur.
+    // (Treating it as quarter-note fractions here truncated sustains on any
+    // notes ≤ 3 steps apart even though they never actually overlapped.)
+    var currEndStep = curr.step + curr.dur;
     if (currEndStep > next.step) {
-      // Truncate: set duration so it ends 1 tick before next note
-      var maxDur = Math.max(0.08, (next.step - curr.step) / 4);
-      curr.dur = Math.min(curr.dur, maxDur);
+      // Truncate: set duration so it ends before the next note-on
+      curr.dur = Math.max(0.08, next.step - curr.step);
     }
   }
 

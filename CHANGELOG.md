@@ -2,6 +2,26 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.73] - 2026-07-26
+
+### Fixed — 13 Bug Fixes
+- Bass indexed chord progressions with `% 4` while every progression is 8 bars — bars 5-8 replayed chords 1-4 while the chord sheet, EP, and all other instruments played chords 5-8 (e.g. bass on IV under everyone else's V). Walk-ups also targeted the wrong next chord, and the documented "bar 5 of 8-bar phrase" octave drop was unreachable
+- Bass motif replay double-transposed: motifs were recorded relative to the I root but replayed relative to the current bar's chord root, turning any note recorded on a iv/v bar into a chromatic wrong note (the IV root replayed as IV+5)
+- Bass monophonic overlap prevention treated `dur` as quarter-note fractions while every renderer treats it as 16th-step units — sustains on notes ≤3 steps apart were chopped to a quarter of their length even when they never overlapped, and the root of every double-stop was truncated to a 2-tick blip
+- Clavinet scale builder clamped high roots (A#/B in mid register) against the range ceiling leaving 1-2 notes — the clav hammered a single pitch for the entire song in Bb/B keys; now fills from the octave below like vibes and lead do
+- `writeHB` was missing the `useRide` foot-pedal guard for jazzy, lofi, and nujabes that `writeHA` has — with ride active, odd bars stacked a full hat line on the ride while even bars correctly played foot hats on 2/4 only
+- Kick accent "pickups softest" was unreachable — steps 14/15 were captured by the even-step branch at ×0.92 before the pickup branch could apply ×0.85; also removed the dead `chokeDuration` variable left over from the hat-choke re-tune
+- Bar-4 kick variation in 8-bar sections applied to oldschool and crunk, adding syncopated kicks to drum-machine styles that every neighboring variation branch deliberately excludes — oldschool bars could exceed their simple-pattern kick budget
+- Muted drums exported a silent drums-stem WAV: the stem's MIDI bytes were built lazily inside the async render chain, after `exportMIDI` had already restored the session mute flag — now captured synchronously while the mute override is in effect
+- The documented T tap-tempo keyboard shortcut was dead: the top-level keydown handler guarded on `_showTapOverlay`, an IIFE-local it can never see — same scope hole meant the BPM/swing editor popup was never closed when generation or playback started
+- Loading an older beat from history and then editing it destroyed the newest saved beat — edits always write history slot 0, but "Load Beat" never made the loaded beat current; a working copy is now promoted to slot 0 and the original stays in its slot
+- A malformed history backup bricked the app into a boot crash-loop: restore validated only the top-level shape, and a beat missing `patterns`/`arrangement` threw before the app was shown, on every reload, until localStorage was cleared — backup beats are now validated individually and boot falls back to fresh generation
+- KO II and generic drum machine guides comma-collapsed the entire SWING NOTE section into one unreadable line (the lines array was embedded instead of joined)
+- Hardware guides contradicted the actual MIDI output: the Studio One Impact XT map assigned instruments to sequential pads the MIDI never plays (closed hats would trigger the open-hat sample; ride/crash/open-hat were silent), the MPC snare-layering tip pointed at the rimshot/snare pads instead of snare/clap, the Reason Kong pad list called note 37 "Snare", the GM note map documented ghost kick as note 36 when the .mid files write 35, and the What You Get panel's MIDI channel list was off by one for all seven melodic instruments
+
+### Fixed — Test Suite Stability
+- Four flaky assertions rewrote single random samples into hard limits: EP major-3rd presence (`big` style has EP only in a 2-bar breakdown), bass key-root percentage (now measured on i-chord bars — a section slice without the i chord legitimately has no root notes), bass out-of-scale percentage in Am (median 0% but rare 40% spikes from chromatic walk-ups on sparse verses), and the verse2-vs-verse1 ghost-rate comparison — all now aggregate across multiple generations
+
 ## [1.72] - 2026-07-11
 
 ### Fixed — 10 Bug Fixes

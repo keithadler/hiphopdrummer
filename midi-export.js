@@ -710,11 +710,15 @@ function exportMIDI(opts) {
       });
     }
     
-    // Drums-only stem (mute already overridden at top of exportMIDI)
+    // Drums-only stem — build the MIDI bytes NOW, synchronously, while the
+    // mute override from the top of exportMIDI is still in effect. The
+    // promise chain below runs after exportMIDI returns and restores
+    // _drumsMuted, so a lazy buildMidiBytes there would render silence
+    // whenever the user had drums muted.
     if (opts.wavDrums) {
+      var drumsMidi = buildMidiBytes(arrangement, bpm);
       wavChain = wavChain.then(function() {
         if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering Drums Stem...</strong><br><br><div class="progress-spinner"></div></div>';
-        var drumsMidi = buildMidiBytes(arrangement, bpm);
         return window.synthBridge.renderToWav(drumsMidi, opts.masterFx).then(function(blob) {
           return blob.arrayBuffer();
         }).then(function(buf) {

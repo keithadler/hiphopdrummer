@@ -1097,6 +1097,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'jazzy') {
+    // When ride is active, hat plays foot pedal on 2/4 only — same as A bar
+    if (useRide) {
+      p.hat[off+4]=v(60,8); p.hat[off+12]=v(60,8);
+      return;
+    }
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(90,12):v(65,18);
     if (maybe(.5)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(38,10); }
     if (maybe(.4)) { var gp2=pick([1,5,15]); p.hat[off+gp2]=v(32,8); }
@@ -1111,6 +1116,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'lofi') {
+    // When ride is active, hat plays foot pedal on 2/4 only — same as A bar
+    if (useRide) {
+      p.hat[off+4]=v(50,6); p.hat[off+12]=v(50,6);
+      return;
+    }
     // Lo-fi B: slightly different accent curve than A for subtle variation
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(70,6):v(62,8);
     // Bar B: skip on a different position than A, and add a ghost 16th
@@ -1172,6 +1182,11 @@ function writeHB(p, feel, off) {
     return;
   }
   if (feel === 'nujabes') {
+    // When ride is active, hat plays foot pedal on 2/4 only — same as A bar
+    if (useRide) {
+      p.hat[off+4]=v(55,8); p.hat[off+12]=v(55,8);
+      return;
+    }
     for (var i=0;i<16;i+=2) p.hat[off+i]=i%4===0?v(68,12):v(48,15);
     if (maybe(.4)) { var gp=pick([3,7,11]); p.hat[off+gp]=v(28,8); }
     return;

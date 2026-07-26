@@ -1539,10 +1539,12 @@ function generatePattern(sec) {
         // Rimshot: add one on a new position
         if (maybe(.3)) { var rp = pick([3, 7, 11]); if (!p.rimshot[off+rp] && !p.snare[off+rp] && !p.kick[off+rp]) p.rimshot[off+rp] = v(58, 10); }
       }
-      // Bar 4 (posIn=3): Kick variation (skip for lofi/dilla — keep pattern stable)
+      // Bar 4 (posIn=3): Kick variation (skip for lofi/dilla — keep pattern stable;
+      // skip for oldschool/crunk — drum machines don't add syncopated kicks, and
+      // this was pushing oldschool bars past their simple-pattern kick budget)
       // Protect step 14 ("and-of-4") — it's a bar connector that shouldn't be removed on turnarounds
       if (posIn === 3) {
-        if (feel !== 'lofi' && feel !== 'dilla') {
+        if (feel !== 'lofi' && feel !== 'dilla' && feel !== 'oldschool' && feel !== 'crunk') {
           var kp = pick([8, 10, 12]);  // exclude 14 — it's a bar connector
           if (p.kick[off+kp] > 0) p.kick[off+kp] = 0;
           else if (!p.snare[off+kp]) p.kick[off+kp] = v(100, 15);
