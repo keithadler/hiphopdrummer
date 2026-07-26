@@ -306,6 +306,7 @@ function showExportDialog() {
     if (typeof saved.mpc === 'boolean') document.getElementById('expMpc').checked = saved.mpc;
     if (typeof saved.instrMidi === 'boolean') document.getElementById('expInstrMidi').checked = saved.instrMidi;
     if (typeof saved.instrMpc === 'boolean') document.getElementById('expInstrMpc').checked = saved.instrMpc;
+    if (typeof saved.mpcSamples === 'boolean') document.getElementById('expMpcSamples').checked = saved.mpcSamples;
     // Legacy: map old per-instrument prefs to new unified ones
     if (typeof saved.bassMidi === 'boolean' && typeof saved.instrMidi === 'undefined') document.getElementById('expInstrMidi').checked = saved.bassMidi;
     if (typeof saved.bassMpc === 'boolean' && typeof saved.instrMpc === 'undefined') document.getElementById('expInstrMpc').checked = saved.bassMpc;
@@ -424,9 +425,10 @@ document.querySelectorAll('.export-preset').forEach(function(btn) {
       document.getElementById('expPdf').checked = true;
     }
     else if (preset === 'mpc') {
-      // MPC: MPC patterns + instrument MPC + bass MPC
+      // MPC: MPC patterns + instrument MPC + pad samples
       document.getElementById('expMpc').checked = true;
       document.getElementById('expInstrMpc').checked = true;
+      document.getElementById('expMpcSamples').checked = true;
       document.getElementById('expPdf').checked = true;
     }
     // Update DAW and stem toggle button text to match new state
@@ -475,6 +477,7 @@ document.getElementById('exportGo').onclick = function() {
     mpc:         document.getElementById('expMpc').checked,
     instrMidi:   document.getElementById('expInstrMidi').checked,
     instrMpc:    document.getElementById('expInstrMpc').checked,
+    mpcSamples:  document.getElementById('expMpcSamples').checked,
     pdf:         document.getElementById('expPdf').checked,
     chordSheet:  document.getElementById('expChordSheet').checked,
     wav:         document.getElementById('expWav').checked,

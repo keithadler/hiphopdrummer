@@ -373,6 +373,80 @@ async function renderToWav(midiBytes, applyFx) {
 }
 
 /**
+ * Render a MIDI file offline and slice the result into individual one-shot
+ * samples. Used by the MPC sample export: the caller builds one MIDI with a
+ * note every `sliceSeconds`, we render it ONCE (one SoundFont parse instead
+ * of one per sample) and cut the audio at the slot boundaries. Each slice is
+ * trimmed of trailing silence with a short fade so pads don't carry seconds
+ * of dead air.
+ * @param {Uint8Array} midiBytes - MIDI with one note per slice slot
+ * @param {number} sliceCount - Number of slots to cut
+ * @param {number} sliceSeconds - Seconds per slot in the source MIDI
+ * @returns {Promise<Blob[]>} One WAV blob per slot, in slot order
+ */
+async function renderSampleSlices(midiBytes, sliceCount, sliceSeconds) {
+  await initSynth();
+
+  const sampleRate = 44100;
+  const BLOCK = 128;
+
+  const midi = BasicMIDI.fromArrayBuffer(new Uint8Array(midiBytes).buffer, "samples.mid");
+  const sf = SoundBankLoader.fromArrayBuffer(soundFontBuffer.slice(0));
+
+  const renderer = new SpessaSynthProcessor(sampleRate, { enableEventSystem: false });
+  renderer.soundBankManager.addSoundBank(sf, "gm");
+  const seq = new SpessaSynthSequencer(renderer);
+  seq.loadNewSongList([midi]);
+  seq.play();
+
+  // Render the full strip: every slot plus tail room for the last sample
+  const totalSamples = Math.ceil(sampleRate * (sliceCount * sliceSeconds + 2));
+  const dryL = new Float32Array(totalSamples);
+  const dryR = new Float32Array(totalSamples);
+  let index = 0;
+  while (index < totalSamples) {
+    seq.processTick();
+    const blockSize = Math.min(BLOCK, totalSamples - index);
+    renderer.process(dryL, dryR, index, blockSize);
+    index += blockSize;
+  }
+
+  const sliceSamples = Math.floor(sampleRate * sliceSeconds);
+  const SILENCE = 0.0005;               // amplitude below this counts as silence
+  const PAD = Math.floor(sampleRate * 0.05);   // keep 50ms after the last audible sample
+  const FADE = Math.floor(sampleRate * 0.01);  // 10ms fade-out to avoid clicks
+  const MIN_LEN = Math.floor(sampleRate * 0.15);
+
+  const blobs = [];
+  for (let s = 0; s < sliceCount; s++) {
+    const start = s * sliceSamples;
+    // Last slice gets the extra tail room; others end at the next slot
+    const hardEnd = (s === sliceCount - 1) ? totalSamples : start + sliceSamples;
+    // Trim: find the last sample above the silence threshold
+    let end = hardEnd;
+    while (end > start + MIN_LEN) {
+      if (Math.abs(dryL[end - 1]) > SILENCE || Math.abs(dryR[end - 1]) > SILENCE) break;
+      end--;
+    }
+    end = Math.min(hardEnd, end + PAD);
+    const len = end - start;
+    const buf = new AudioBuffer({ sampleRate, numberOfChannels: 2, length: len });
+    const chL = dryL.slice(start, end);
+    const chR = dryR.slice(start, end);
+    // Fade the tail so a mid-decay cut doesn't click
+    for (let f = 0; f < FADE && f < len; f++) {
+      const gain = f / FADE;
+      chL[len - 1 - f] *= gain;
+      chR[len - 1 - f] *= gain;
+    }
+    buf.copyToChannel(chL, 0);
+    buf.copyToChannel(chR, 1);
+    blobs.push(new Blob([audioBufferToWav(buf)], { type: "audio/wav" }));
+  }
+  return blobs;
+}
+
+/**
  * Change the drum kit (MIDI program on channel 10).
  * GM drum kits: 0=Standard, 8=Room, 16=Power, 24=Electronic,
  * 25=TR-808, 32=Jazz, 40=Brush, 48=Orchestra, 56=SFX
@@ -468,6 +542,7 @@ window.synthBridge = {
   seek: seekSynth,
   state: getSynthState,
   renderToWav: renderToWav,
+  renderSampleSlices: renderSampleSlices,
   setDrumKit: setDrumKit,
   setBassProgram: setBassProgram,
   setEPProgram: setEPProgram,

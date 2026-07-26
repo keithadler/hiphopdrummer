@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-1.73-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-1.74-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
@@ -21,6 +21,7 @@ Every beat is assembled in real time from hundreds of musical rules — not sele
 | 🎧 **WAV Export** | Full mix with master FX + individual stems for all 9 instruments |
 | 🎹 **MIDI Export** | Full song + individual sections on separate GM channels |
 | 📱 **MPC Patterns** | .mpcpattern files for Akai MPC Live, One, X, Force |
+| 🥁 **MPC Pad Samples** | WAV one-shots of the beat's drum kit, named by pad — build a Drum program in seconds |
 | 📄 **Chord Sheets** | Piano keyboard diagrams with style-aware voicings |
 | 📋 **PDF Beat Sheet** | Printable color-coded pattern grids |
 | 🎛 **DAW Guides** | Step-by-step setup for Ableton, Logic, FL Studio, Pro Tools, Maschine, Reason, Reaper, Studio One, GarageBand |

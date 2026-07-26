@@ -67,6 +67,129 @@ var MPC_NOTE_MAP = {
 };
 
 /**
+ * Pad manifest for the MPC sample export — one WAV one-shot per drum sound,
+ * in pad order, named so that dropping each file on its pad reproduces the
+ * chromatic C1 layout that MPC_NOTE_MAP (and every .mpcpattern) uses.
+ * Ghost kick shares the kick sample (same note, lower velocity in patterns).
+ * @type {Array.<{row: string, pad: string, file: string, label: string}>}
+ */
+var MPC_SAMPLE_PADS = [
+  { row: 'kick',    pad: 'A01', file: 'A01_Kick.wav',       label: 'Kick' },
+  { row: 'rimshot', pad: 'A02', file: 'A02_Rimshot.wav',    label: 'Rimshot' },
+  { row: 'snare',   pad: 'A03', file: 'A03_Snare.wav',      label: 'Snare' },
+  { row: 'clap',    pad: 'A04', file: 'A04_Clap.wav',       label: 'Clap' },
+  { row: 'hat',     pad: 'A07', file: 'A07_Closed_Hat.wav', label: 'Closed Hat' },
+  { row: 'tomlo',   pad: 'A10', file: 'A10_Tom_Low.wav',    label: 'Low Tom' },
+  { row: 'openhat', pad: 'A11', file: 'A11_Open_Hat.wav',   label: 'Open Hat' },
+  { row: 'tommid',  pad: 'A12', file: 'A12_Tom_Mid.wav',    label: 'Mid Tom' },
+  { row: 'crash',   pad: 'A14', file: 'A14_Crash.wav',      label: 'Crash' },
+  { row: 'tomhi',   pad: 'A15', file: 'A15_Tom_High.wav',   label: 'High Tom' },
+  { row: 'ride',    pad: 'A16', file: 'A16_Ride.wav',       label: 'Ride' },
+  { row: 'shaker',  pad: 'B03', file: 'B03_Shaker.wav',     label: 'Shaker' },
+  { row: 'cowbell', pad: 'B05', file: 'B05_Cowbell.wav',    label: 'Cowbell' }
+];
+
+/** Seconds of render time per sample slot in the strip MIDI. */
+var MPC_SAMPLE_SLOT_SECONDS = 4;
+
+/** GM drum kit program → human name, for the samples README. */
+var GM_KIT_NAMES = { 0: 'Standard Kit', 8: 'Room Kit', 16: 'Power Kit', 24: 'Electronic Kit', 25: 'TR-808 Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
+
+/** Current style's GM drum kit program (same lookup the MIDI builders use). */
+function _currentDrumKitProgram() {
+  var feel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var sd = STYLE_DATA[feel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(feel) : 'normal'] || {};
+  return (typeof sd.drumKit === 'number') ? sd.drumKit : 0;
+}
+
+/**
+ * Build the "sample strip" MIDI for the MPC sample export: one full-velocity
+ * hit of each drum sound in MPC_SAMPLE_PADS, spaced MPC_SAMPLE_SLOT_SECONDS
+ * apart, using the current style's GM drum kit. Rendered once offline and
+ * sliced into individual one-shot WAVs by renderSampleSlices().
+ *
+ * Tempo is fixed at 60 BPM (1 quarter note = exactly 1 second) so slot
+ * boundaries land on exact sample counts regardless of the beat's BPM.
+ * @returns {Uint8Array} Complete SMF-0 MIDI file bytes
+ */
+function buildDrumSampleStripMidi() {
+  var ppq = 96, ch = 9;
+  var td = [];
+  // Tempo: 60 BPM — one quarter note = 1,000,000 microseconds = 1 second
+  var us = 1000000;
+  td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
+  td.push(0, 0xC0 | ch, _currentDrumKitProgram());
+
+  var slotTicks = ppq * MPC_SAMPLE_SLOT_SECONDS;
+  var events = [];
+  for (var i = 0; i < MPC_SAMPLE_PADS.length; i++) {
+    var note = MPC_NOTE_MAP[MPC_SAMPLE_PADS[i].row];
+    events.push({ tick: i * slotTicks, type: 'on', note: note, vel: 127 });
+    events.push({ tick: i * slotTicks + ppq * 2, type: 'off', note: note });
+  }
+
+  var lastTick = 0;
+  for (var ei = 0; ei < events.length; ei++) {
+    var e = events[ei];
+    var vlq = vl(e.tick - lastTick);
+    for (var vi = 0; vi < vlq.length; vi++) td.push(vlq[vi]);
+    if (e.type === 'on') td.push(0x90 | ch, e.note, e.vel);
+    else td.push(0x80 | ch, e.note, 64);
+    lastTick = e.tick;
+  }
+  td.push.apply(td, vl(ppq));
+  td.push(0xFF, 0x2F, 0x00);
+
+  var fileData = new Uint8Array(14 + 8 + td.length);
+  fileData.set([0x4D,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (ppq>>8)&0xFF, ppq&0xFF], 0);
+  fileData.set([0x4D,0x54,0x72,0x6B, (td.length>>24)&0xFF,(td.length>>16)&0xFF,(td.length>>8)&0xFF,td.length&0xFF], 14);
+  fileData.set(td, 22);
+  return fileData;
+}
+
+/**
+ * Build the README that ships alongside the MPC pad samples.
+ * @param {number} bpm - Beat tempo, for context
+ * @returns {string} README text (CRLF line endings)
+ */
+function buildMpcSamplesReadme(bpm) {
+  var kit = _currentDrumKitProgram();
+  var kitName = GM_KIT_NAMES[kit] || ('GM Kit ' + kit);
+  var lines = [
+    'MPC PAD SAMPLES',
+    '===============',
+    '',
+    'These are one-shot WAV samples (44.1kHz, 16-bit stereo) of the exact',
+    'drum sounds this beat plays in the browser — the GM ' + kitName + ',',
+    'sampled at full velocity.',
+    '',
+    'HOW TO USE',
+    '----------',
+    '1. Copy this Samples folder to your MPC storage.',
+    '2. Create a new Drum program.',
+    '3. Load each WAV onto the pad in its filename:',
+    ''
+  ];
+  MPC_SAMPLE_PADS.forEach(function(p) {
+    lines.push('   ' + p.pad + '  ' + p.file.replace('.wav', '').replace(p.pad + '_', '').replace(/_/g, ' ') + '  (note ' + MPC_NOTE_MAP[p.row] + ')');
+  });
+  lines = lines.concat([
+    '',
+    '4. Load the .mpcpattern files from the MPC folder — the pad layout',
+    '   matches the patterns\' note map, so they play back correctly.',
+    '5. Assign ' + 'A07 (Closed Hat) and A11 (Open Hat) to the same mute',
+    '   group so the closed hat chokes the open hat.',
+    '',
+    'Ghost kick notes use pad A01 at lower velocity — no separate sample needed.',
+    '',
+    'These samples are a starting point: swap any pad for your own sounds',
+    'and the patterns keep working. The groove is in the pattern, not the kit.',
+    ''
+  ]);
+  return lines.join('\r\n');
+}
+
+/**
  * Build raw MIDI file bytes for a list of sections played in sequence.
  *
  * Produces a complete SMF-0 (single track) byte array including:
@@ -689,7 +812,7 @@ function exportMIDI(opts) {
 
   // WAV audio export (async — render before generating ZIP)
   var wavPromise = null;
-  var needsAnyWav = (opts.wav || opts.wavDrums || opts.wavBass || opts.wavEP || opts.wavPad || opts.wavLead || opts.wavOrgan || opts.wavHorns || opts.wavVibes || opts.wavClav) && window.synthBridge && window._currentMidiBytes;
+  var needsAnyWav = (opts.wav || opts.wavDrums || opts.wavBass || opts.wavEP || opts.wavPad || opts.wavLead || opts.wavOrgan || opts.wavHorns || opts.wavVibes || opts.wavClav || opts.mpcSamples) && window.synthBridge && window._currentMidiBytes;
   if (needsAnyWav) {
     var toast = document.getElementById('exportToast');
     if (toast) {
@@ -845,6 +968,27 @@ function exportMIDI(opts) {
       });
     }
     
+    // MPC pad samples — one-shot WAVs of this beat's drum kit, named by pad.
+    // One offline render of the full sample strip, sliced per pad.
+    if (opts.mpcSamples && window.synthBridge.renderSampleSlices) {
+      wavChain = wavChain.then(function() {
+        if (toast) toast.innerHTML = '<div style="padding: 20px; text-align: center;"><strong>⏳ Rendering MPC Samples...</strong><br><br>Sampling the drum kit, one pad at a time.<br><br><div class="progress-spinner"></div></div>';
+        var stripMidi = buildDrumSampleStripMidi();
+        return window.synthBridge.renderSampleSlices(stripMidi, MPC_SAMPLE_PADS.length, MPC_SAMPLE_SLOT_SECONDS).then(function(blobs) {
+          var samplesFolder = folder.folder('MPC').folder('Samples');
+          var chain = Promise.resolve();
+          blobs.forEach(function(blob, i) {
+            chain = chain.then(function() { return blob.arrayBuffer(); }).then(function(buf) {
+              samplesFolder.file(MPC_SAMPLE_PADS[i].file, new Uint8Array(buf));
+            });
+          });
+          return chain.then(function() {
+            samplesFolder.file('README.txt', buildMpcSamplesReadme(bpm));
+          });
+        });
+      });
+    }
+
     wavPromise = wavChain.then(function() {
       if (toast) toast.classList.remove('show');
     }).catch(function(err) {

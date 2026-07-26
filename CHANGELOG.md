@@ -2,6 +2,15 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.74] - 2026-07-26
+
+### Added — MPC Pad Sample Export
+- New "MPC pad samples" export option: WAV one-shots (44.1kHz, 16-bit stereo) of the beat's actual GM drum kit, one per drum sound, named by pad (`A01_Kick.wav`, `A03_Snare.wav`, ... `B05_Cowbell.wav`) to match the chromatic C1 layout the .mpcpattern files already use — drop each file on its pad and the patterns play back with the exact sounds heard in the browser
+- All 13 samples come from a single offline render (one SoundFont parse, ~1s total) sliced at slot boundaries, with per-sample trailing-silence trim and a 10ms fade so pads don't carry dead air; cymbals keep their full ring
+- Ships with a README in the Samples folder: pad-by-pad load list with GM note numbers, kit name, hat mute-group tip
+- Wired into the export dialog (saved in export prefs) and the MPC workflow preset; the MPC how-to guide documents the Samples folder
+- New `renderSampleSlices()` in the synth bridge (offline strip render + slice + trim), `MPC_SAMPLE_PADS` manifest, and `buildDrumSampleStripMidi()` (60 BPM strip so slots land on exact sample counts); covered by new tests for manifest/note-map consistency and strip MIDI correctness
+
 ## [1.73] - 2026-07-26
 
 ### Fixed — 13 Bug Fixes

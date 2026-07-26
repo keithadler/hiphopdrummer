@@ -3088,6 +3088,53 @@ test('generateAll retry loop uses validation to pick best beat', function() {
   }
 });
 
+// === Test: MPC sample export manifest and strip MIDI ===
+test('MPC sample pads cover every unique drum note in pad order', function() {
+  // Every manifest row must exist in MPC_NOTE_MAP
+  var seenFiles = {}, seenPads = {}, seenNotes = {};
+  MPC_SAMPLE_PADS.forEach(function(p) {
+    assert(typeof MPC_NOTE_MAP[p.row] === 'number', 'MPC_SAMPLE_PADS row ' + p.row + ' missing from MPC_NOTE_MAP');
+    assert(!seenFiles[p.file], 'duplicate sample file ' + p.file);
+    assert(!seenPads[p.pad], 'duplicate pad ' + p.pad);
+    assert(p.file.indexOf(p.pad + '_') === 0, p.file + ' should start with its pad name ' + p.pad);
+    seenFiles[p.file] = true;
+    seenPads[p.pad] = true;
+    seenNotes[MPC_NOTE_MAP[p.row]] = true;
+  });
+  // Every unique note in MPC_NOTE_MAP must have a sample (ghostkick shares kick's note)
+  Object.keys(MPC_NOTE_MAP).forEach(function(row) {
+    assert(seenNotes[MPC_NOTE_MAP[row]], 'no sample covers ' + row + ' (note ' + MPC_NOTE_MAP[row] + ')');
+  });
+});
+
+test('Drum sample strip MIDI has one full-velocity hit per pad in order', function() {
+  _domElements = {};
+  generateAll();
+  var bytes = buildDrumSampleStripMidi();
+  // Valid SMF header
+  assert(bytes[0] === 0x4D && bytes[1] === 0x54 && bytes[2] === 0x68 && bytes[3] === 0x64, 'strip MIDI should start with MThd');
+  var channelNotes = _parseMidiNoteOns(bytes);
+  var drumNotes = channelNotes[9] || [];
+  assert(drumNotes.length === MPC_SAMPLE_PADS.length,
+    'strip should have ' + MPC_SAMPLE_PADS.length + ' note-ons on channel 10, got ' + drumNotes.length);
+  for (var i = 0; i < MPC_SAMPLE_PADS.length; i++) {
+    assert(drumNotes[i] === MPC_NOTE_MAP[MPC_SAMPLE_PADS[i].row],
+      'strip note ' + i + ' should be ' + MPC_NOTE_MAP[MPC_SAMPLE_PADS[i].row] + ' (' + MPC_SAMPLE_PADS[i].row + '), got ' + drumNotes[i]);
+  }
+  // Program change should match the style's drum kit
+  var kit = _currentDrumKitProgram();
+  var foundProgram = -1;
+  for (var b = 0; b < bytes.length - 1; b++) {
+    if (bytes[b] === (0xC0 | 9)) { foundProgram = bytes[b + 1]; break; }
+  }
+  assert(foundProgram === kit, 'strip program change should be kit ' + kit + ', got ' + foundProgram);
+  // README lists every pad file
+  var readme = buildMpcSamplesReadme(90);
+  MPC_SAMPLE_PADS.forEach(function(p) {
+    assert(readme.indexOf(p.pad) >= 0, 'samples README should mention pad ' + p.pad);
+  });
+});
+
 // === Results ===
 console.log('');
 console.log('='.repeat(60));
