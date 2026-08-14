@@ -54,6 +54,7 @@ function _getOrCreateElement(id) {
       style: { display: '' },
       scrollTop: 0,
       disabled: false,
+      dataset: {},
       classList: { add: function(){}, remove: function(){}, contains: function(){ return false; } },
       addEventListener: function() {},
       removeEventListener: function() {},

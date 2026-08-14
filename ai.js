@@ -2420,6 +2420,9 @@ function generateAll(opts) {
 
   // Reset UI to show intro, render everything
   curSec = 'intro'; arrIdx = 0;
+  // New beat — start the grid back at bar 1 rather than wherever the last
+  // beat's intro happened to be parked
+  window._gridRenderedSection = null;
   var styleEl = document.getElementById('songStyle');
   if (styleEl) {
     var label = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;

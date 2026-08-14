@@ -18,7 +18,7 @@ function captureBeatState() {
     timestamp: Date.now(),
     bpm: parseInt(document.getElementById('bpm').textContent) || 90,
     swing: parseInt(document.getElementById('swing').textContent) || 62,
-    songStyle: document.getElementById('songStyle').textContent,
+    songStyle: getStyleLabel(),
     songKey: document.getElementById('songKey').textContent,
     songFeel: typeof songFeel !== 'undefined' ? songFeel : null,
     songPalette: typeof songPalette !== 'undefined' ? songPalette : null,

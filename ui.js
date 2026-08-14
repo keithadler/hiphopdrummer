@@ -49,44 +49,65 @@
  *   #patternLabel, #patternInfo, and the section MIDI player.
  */
 /**
- * Apply a scrolling marquee effect to an element if its text overflows.
- * Duplicates the text so the scroll loops seamlessly.
+ * Split the style label across the two LCD lines.
+ *
+ * The generator builds labels as "<style> — <Kit> + <Bass> + <Keys>", where
+ * the style part may itself contain an em-dash ("Boom Bap — Long Island").
+ * The gear tail is what we peel off onto the second line, so the style name
+ * itself gets the full width of line one and never needs to scroll.
+ *
+ * The untruncated label stays on `dataset.full` — beat history captures that
+ * rather than textContent, so a restored beat keeps its kit names.
  */
 function _applyMarquee(el, text) {
-  // Reset first
-  el.textContent = text;
-  el.classList.remove('marquee-active');
-  // Check overflow after a frame so layout is computed
-  requestAnimationFrame(function() {
-    // Guard: element may have been removed from DOM during the frame
-    if (!el.parentNode) return;
-    if (el.scrollWidth > el.clientWidth + 2) {
-      // Scale animation speed with text length — longer text scrolls slower
-      // Base: 6s for ~20 chars, scales up ~0.2s per extra char
-      var duration = Math.max(6, 6 + (text.length - 20) * 0.2);
-      // Escape HTML entities for safe innerHTML
-      var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      el.innerHTML = '<span class="marquee-inner" style="animation-duration:' + duration.toFixed(1) + 's">' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0' + safe + '\u00A0\u00A0\u00A0\u2014\u00A0\u00A0\u00A0</span>';
-      el.classList.add('marquee-active');
-    }
-  });
+  el.dataset.full = text;
+  el.title = text;
+
+  var primary = text, gear = '';
+  var cut = text.lastIndexOf(' — ');
+  if (cut > 0) {
+    var tail = text.slice(cut + 3);
+    // Only the gear list gets demoted — a style's own em-dash stays on line one
+    if (/Kit|Bass|Piano/.test(tail)) { primary = text.slice(0, cut); gear = tail; }
+  }
+  el.textContent = primary;
+
+  var sub = document.getElementById('songStyleSub');
+  if (sub) { sub.textContent = gear; sub.title = gear; }
 }
+
+/**
+ * The full style label, including the kit/bass/keys tail that the LCD moves
+ * to its second line. Use this anywhere the whole label matters — history,
+ * license text, analysis — instead of reading #songStyle.textContent.
+ */
+function getStyleLabel() {
+  var el = document.getElementById('songStyle');
+  if (!el) return '';
+  return el.dataset.full || el.textContent || '';
+}
+
 
 function renderGrid() {
   var pat = patterns[curSec];
   if (!pat) return;
   var len = secSteps[curSec] || STEPS;
   var totalPages = Math.ceil(len / 16);
-  // Cache velocity display mode once (avoid 1000+ localStorage reads)
-  var _gridVelMode = 'percent';
-  try { _gridVelMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  // Cache velocity display mode once (avoid 1000+ localStorage reads).
+  // 'off' is the default: velocity reads as cell brightness, which is how a
+  // drum machine shows it. Numbers in every cell turn the grid into a table.
+  var _gridVelMode = 'off';
+  try { _gridVelMode = localStorage.getItem('hhd_velocity_mode') || 'off'; } catch(e) {}
 
   // Swing visualization: calculate pixel offset for odd steps
   // Swing 50% = straight (0px), 62% = ~3px, 66% = ~4px, 75% = 6px
   // Uses translateX in CSS so the cell visually shifts without breaking flex layout
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
   var swingNorm = Math.max(0, (swing - 50) / 50); // 0 = straight, 0.5 = max
-  var swingPx = Math.round(swingNorm * 12); // 0-12px range
+  // Scale the nudge to the cell width — 12px on a ~20px phone cell reads as a
+  // layout bug rather than as swing
+  var swingMax = (typeof window !== 'undefined' && window.innerWidth < 700) ? 5 : 12;
+  var swingPx = Math.round(swingNorm * swingMax);
   var swingStyle = swingPx > 0 ? ' style="--swing-offset:' + swingPx + 'px"' : '';
   var swingClass = swingPx > 0 ? ' swing-offset' : '';
 
@@ -114,23 +135,29 @@ function renderGrid() {
 
   // Section MIDI player removed — use the full song player above
 
-  // Build bar tab buttons — highlight the active bar as user scrolls
+  // Build bar select buttons — one bar is on screen at a time, so these
+  // switch the visible bar rather than scrolling to it.
   var bt = document.getElementById('barTabs'), bh = '';
   for (var b = 0; b < totalPages; b++) {
-    bh += '<button class="bar-btn" data-b="' + b + '" id="bar-tab-' + b + '">Bar ' + (b + 1) + '</button>';
+    bh += '<button class="bar-btn" data-b="' + b + '" id="bar-tab-' + b + '"><span class="bar-btn-led"></span>Bar ' + (b + 1) + '</button>';
   }
   bt.innerHTML = bh;
-  // Highlight bar 0 as active by default
-  var firstTab = bt.querySelector('.bar-btn');
-  if (firstTab) firstTab.classList.add('bar-btn-active');
+  bt.classList.toggle('bar-tabs-single', totalPages < 2);
   bt.querySelectorAll('.bar-btn').forEach(function(btn) {
-    btn.onclick = function() {
-      bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
-      btn.classList.add('bar-btn-active');
-      var target = document.getElementById('grid-page-' + btn.dataset.b);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
+    btn.onclick = function() { showGridPage(parseInt(btn.dataset.b, 10)); };
   });
+
+  // Rows that never fire anywhere in this section are hidden. A 13-row grid
+  // with eight permanently empty rows reads as noise, and the empties are the
+  // same for every bar of the section. Edit mode and the "show all" toggle
+  // bring them back — you need somewhere to click to add a hit.
+  var silent = {};
+  var silentCount = 0;
+  for (var si = 0; si < ROWS.length; si++) {
+    var sr = ROWS[si], hasHit = false;
+    for (var sp = 0; sp < len; sp++) { if (pat[sr][sp] > 0) { hasHit = true; break; } }
+    if (!hasHit) { silent[sr] = true; silentCount++; }
+  }
 
   // PERF: Build the entire grid as a single HTML string and assign once
   // via innerHTML. This is significantly faster than createElement +
@@ -152,7 +179,9 @@ function renderGrid() {
       var fnColor = (fn === 'I') ? 'var(--accent-red)' : (fn === 'IV' || fn === 'ii' || fn === 'bVI' || fn === 'bIII') ? 'var(--accent-blue)' : (fn === 'V' || fn === 'bII' || fn === 'bVII' || fn === '#idim') ? 'var(--accent-green)' : 'var(--text-dim)';
       barLabelText += ' <span style="color:' + fnColor + ';font-size:0.85em;margin-left:6px">' + chordName + ' (' + fn + ')</span>';
     }
-    gridHtml += '<div id="grid-page-' + page + '" class="grid-page-label' + secClassName + '">' + barLabelText + '</div>';
+    // One bar per page — only the selected page is displayed (see showGridPage)
+    gridHtml += '<div id="grid-page-' + page + '" class="grid-page" data-page="' + page + '">';
+    gridHtml += '<div class="grid-page-label' + secClassName + '">' + barLabelText + '</div>';
 
     // Step number header
     gridHtml += '<div class="grid-header">';
@@ -166,7 +195,7 @@ function renderGrid() {
     for (var ri = 0; ri < ROWS.length; ri++) {
       var r = ROWS[ri];
       var rowTip = ROW_TIPS[r] ? ' title="' + ROW_TIPS[r] + '"' : '';
-      gridHtml += '<div class="grid-row"><div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
+      gridHtml += '<div class="grid-row' + (silent[r] ? ' row-silent' : '') + '"><div class="row-label" data-row="' + r + '"' + rowTip + '>' + RN[r] + '</div>';
       for (var i = barStart; i < barEnd; i++) {
         var vel = pat[r][i];
         var pct = vel > 0 ? Math.min(100, Math.round(vel / 127 * 100)) : 0;
@@ -174,7 +203,7 @@ function renderGrid() {
         if (vel > 0) {
           if (_gridVelMode === 'midi') {
             velText = (vel < 127) ? vel.toString() : '';
-          } else {
+          } else if (_gridVelMode === 'percent') {
             velText = (pct > 0 && pct < 100) ? pct + '%' : '';
           }
         }
@@ -182,69 +211,86 @@ function renderGrid() {
         var isOddStep = (stepInBar % 2 === 1);
         var beatStartClass = (stepInBar > 0 && stepInBar % 4 === 0) ? ' beat-start' : '';
         var ariaVel = _gridVelMode === 'midi' ? vel + ' MIDI' : pct + ' percent';
-        // Combine swing offset with velocity bar into one style attribute
+        // --vel-a drives the cell's opacity so a 35% ghost note actually looks
+        // like a ghost note. Floor at 0.3 so the quietest hits stay visible.
         var styleStr = '';
-        if (vel > 0 && isOddStep && swingPx > 0) styleStr = ' style="--vel-h:' + pct + '%;--swing-offset:' + swingPx + 'px"';
-        else if (vel > 0) styleStr = ' style="--vel-h:' + pct + '%"';
-        else if (isOddStep && swingPx > 0) styleStr = ' style="--swing-offset:' + swingPx + 'px"';
+        var parts = [];
+        if (vel > 0) parts.push('--vel-a:' + (0.3 + 0.7 * (pct / 100)).toFixed(2), '--vel-h:' + pct + '%');
+        if (isOddStep && swingPx > 0) parts.push('--swing-offset:' + swingPx + 'px');
+        if (parts.length) styleStr = ' style="' + parts.join(';') + '"';
         gridHtml += '<div class="cell ' + r + (vel > 0 ? ' on' : '') + beatStartClass + (isOddStep ? swingClass : '') + '"' + styleStr + ' data-step="' + i + '" tabindex="0" role="gridcell" aria-label="' + RN[r] + ' step ' + (stepInBar + 1) + (vel > 0 ? ', ' + ariaVel : ', empty') + '">' + velText + '</div>';
       }
       gridHtml += '</div>';
     }
+    gridHtml += '</div>'; // .grid-page
+  }
+
+  // Silent-row disclosure — states plainly what is hidden rather than just
+  // dropping rows on the floor
+  if (silentCount > 0) {
+    gridHtml += '<button type="button" class="silent-toggle" id="silentToggle">' +
+      '<span class="silent-toggle-count">' + silentCount + '</span> silent row' + (silentCount > 1 ? 's' : '') +
+      ' hidden <span class="silent-toggle-action">— show all</span></button>';
   }
 
   // Single innerHTML assignment — one parse, one layout
   var rows = document.getElementById('gridR');
   rows.innerHTML = gridHtml;
 
-  // Scroll grid container to top so Bar 1 is visible after render
-  var gridContainer = document.getElementById('gridR');
-  if (gridContainer && gridContainer.parentElement) {
-    gridContainer.parentElement.scrollTop = 0;
-    gridContainer.scrollTop = 0;
-  }
-  var patPanel = document.getElementById('patternPanel');
-  if (patPanel) patPanel.scrollTop = 0;
-  // Only scroll the page to grid-page-0 if NOT during playback with follow-playhead off
-  // During playback without follow, the user controls their own scroll position
-  var isPlaybackActive = window._playbackControlsBarTabs;
-  var followOn = false;
-  try { followOn = localStorage.getItem('hhd_follow_playhead') === 'true'; } catch(e) {}
-  if (!isPlaybackActive || followOn) {
-    var firstPage = document.getElementById('grid-page-0');
-    if (firstPage) firstPage.scrollIntoView({ block: 'start' });
+  // Silent-row disclosure toggles the whole grid, not one row at a time.
+  // The class lives on #gridR and survives re-renders, so the freshly built
+  // label has to be re-synced to it.
+  var st = document.getElementById('silentToggle');
+  if (st) {
+    var action = st.querySelector('.silent-toggle-action');
+    var setLabel = function(showing) {
+      if (action) action.textContent = showing ? '— hide' : '— show all';
+    };
+    setLabel(rows.classList.contains('show-all-rows'));
+    st.onclick = function() { setLabel(rows.classList.toggle('show-all-rows')); };
   }
 
-  // IntersectionObserver: highlight the bar tab matching the bar currently in view
-  // Disabled during playback — playback tracking controls bar tabs instead
-  // Delayed slightly so it doesn't fire on the initial render scroll-to-top
-  if (window.IntersectionObserver && totalPages > 1) {
-    setTimeout(function() {
-      // Re-force Bar 1 active after delay (observer may have fired during scroll reset)
-      bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
-      var firstBtn = bt.querySelector('.bar-btn');
-      if (firstBtn) firstBtn.classList.add('bar-btn-active');
-
-      // Disconnect previous observer if any
-      if (window._gridBarObserver) { try { window._gridBarObserver.disconnect(); } catch(e) {} }
-      var barObserver = new IntersectionObserver(function(entries) {
-        if (window._playbackControlsBarTabs) return;
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            var barIdx = entry.target.id.replace('grid-page-', '');
-            bt.querySelectorAll('.bar-btn').forEach(function(b) { b.classList.remove('bar-btn-active'); });
-            var activeTab = bt.querySelector('[data-b="' + barIdx + '"]');
-            if (activeTab) activeTab.classList.add('bar-btn-active');
-          }
-        });
-      }, { root: document.getElementById('gridR').parentElement, threshold: 0.5 });
-      for (var ob = 0; ob < totalPages; ob++) {
-        var lbl = document.getElementById('grid-page-' + ob);
-        if (lbl) barObserver.observe(lbl);
-      }
-      window._gridBarObserver = barObserver;
-    }, 100);
+  // Stay on the bar the user is looking at. An edit re-renders the whole
+  // grid, and snapping back to bar 1 every time you nudge a hit in bar 3 is
+  // its own small hell. A new section (or a new beat) starts at bar 1.
+  var startPage = 0;
+  if (window._playbackControlsBarTabs && typeof window._lastPlayedBar === 'number') {
+    startPage = window._lastPlayedBar;
+  } else if (window._gridRenderedSection === curSec && typeof window._visibleGridPage === 'number') {
+    startPage = window._visibleGridPage;
   }
+  window._gridRenderedSection = curSec;
+  showGridPage(Math.min(startPage, totalPages - 1));
+}
+
+/**
+ * Show one bar of the pattern and mark its bar-select button active.
+ *
+ * The grid used to render every bar stacked vertically, which made an 8-bar
+ * section a 6,000px scroll. Every bar is still in the DOM — playback looks up
+ * cells by absolute step index — but only one page is displayed at a time.
+ *
+ * @param {number} page - Zero-based bar index
+ */
+function showGridPage(page) {
+  var rows = document.getElementById('gridR');
+  if (!rows) return;
+  var pages = rows.querySelectorAll('.grid-page');
+  if (!pages.length) return;
+  if (page < 0) page = 0;
+  if (page > pages.length - 1) page = pages.length - 1;
+
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.toggle('grid-page-active', i === page);
+  }
+  var bt = document.getElementById('barTabs');
+  if (bt) {
+    var btns = bt.querySelectorAll('.bar-btn');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].classList.toggle('bar-btn-active', b === page);
+    }
+  }
+  window._visibleGridPage = page;
 }
 
 // =============================================
@@ -685,7 +731,7 @@ function buildAboutSummary() {
   var bpm = document.getElementById('bpm').textContent || '90';
   var swing = document.getElementById('swing').textContent || '62';
   var key = document.getElementById('songKey').textContent || '';
-  var style = document.getElementById('songStyle').textContent || '';
+  var style = getStyleLabel();
   var sectionCount = arrangement.length;
   var totalTime = typeof calcArrTime === 'function' ? calcArrTime(true) : '';
 

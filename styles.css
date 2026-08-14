@@ -1,10 +1,16 @@
 /* Hip Hop Drummer — Desktop Studio UI. Copyright (c) 2026 Keith Adler — MIT License */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
-:root{--bg-deep:#0d0d12;--bg-surface:#15151c;--bg-raised:#1c1c26;--bg-input:#101018;--border:#28283a;--border-light:#363650;--text-primary:#e0e0ea;--text-secondary:#9090a8;--text-muted:#606078;--text-dim:#404058;--accent-red:#e04848;--accent-blue:#50a0ff;--accent-green:#48cc68;--radius-sm:4px;--radius-md:6px;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif}
+:root{--bg-deep:#0d0d12;--bg-surface:#15151c;--bg-raised:#1c1c26;--bg-input:#101018;--border:#28283a;--border-light:#363650;--text-primary:#e0e0ea;--text-secondary:#9090a8;--text-muted:#606078;--text-dim:#404058;--accent-red:#e04848;--accent-blue:#50a0ff;--accent-green:#48cc68;--radius-sm:4px;--radius-md:6px;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif;--chassis-top:#1e1e28;--chassis-bot:#141419;--chassis-edge:#000;--btn-top:#26262f;--btn-bot:#1b1b23;--lcd-bg:#070a11;--lcd-text:#6cb8ff;--lcd-dim:#3f5f88;--lcd-glow:rgba(80,160,255,.4);--cell-off:#0b0b11;--cell-off-beat:#101019}
 /* Light theme — applied via .theme-light on body */
 body.theme-light{--bg-deep:#f0f0f4;--bg-surface:#ffffff;--bg-raised:#f5f5f8;--bg-input:#eaeaef;--border:#d0d0da;--border-light:#b8b8c8;--text-primary:#1a1a2e;--text-secondary:#4a4a60;--text-muted:#7a7a90;--text-dim:#a0a0b0;--accent-red:#d03030;--accent-blue:#2070e0;--accent-green:#28a048}
 body.theme-light .cell.on{color:rgba(255,255,255,.95)}
 body.theme-light .cell{color:var(--text-dim)}
+body.theme-light{--chassis-top:#fbfbfd;--chassis-bot:#ececf2;--chassis-edge:#c4c4d2;--btn-top:#fff;--btn-bot:#eeeef4;--cell-off:#e4e4ec;--cell-off-beat:#dcdce6}
+/* Tinted transport faces need darker ink on a light chassis — the dark
+   theme's glowing greens wash out to nothing on white */
+body.theme-light .btn-play-header{color:#1d7a33;text-shadow:none;background:linear-gradient(180deg,rgba(40,160,72,.2),rgba(40,160,72,.08));border-color:rgba(40,160,72,.45)}
+body.theme-light .btn-play-header.playing{color:#b02525;text-shadow:none;background:linear-gradient(180deg,rgba(208,48,48,.18),rgba(208,48,48,.06));border-color:rgba(208,48,48,.45)}
+body.theme-light .btn-gen{color:#b52d2d}
 body.theme-light .brand span{color:var(--accent-blue)}
 body.theme-light .chord-piano-white{background:#e8e8e8;border-color:#bbb}
 body.theme-light .chord-piano-black{background:#444;border-color:#333}
@@ -15,33 +21,43 @@ body.theme-light .tip-ticker{background:rgba(255,255,255,.94);border-top-color:v
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans);font-size:23px;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #app-wrap{display:flex;flex-direction:column;height:100vh}
-.header-bar{display:flex;align-items:center;gap:10px;padding:6px 20px;background:var(--bg-surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
-.brand{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text-muted);letter-spacing:1.5px;white-space:nowrap;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+/* The header is the machine's faceplate: transport on the left, a screen
+   in the middle, everything else demoted to the right. */
+.header-bar{display:flex;align-items:center;gap:12px;padding:9px 16px;background:linear-gradient(180deg,var(--chassis-top),var(--chassis-bot));border-bottom:1px solid var(--chassis-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 2px 10px rgba(0,0,0,.45);flex-shrink:0;flex-wrap:nowrap}
+.transport{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.brand{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:1.4px;white-space:nowrap;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-shrink:0}
 .brand span{color:#fff}
 .brand:hover{color:var(--accent-blue)}
-.brand-icon{width:24px;height:24px;border-radius:4px}
-.credit{font-family:var(--mono);font-size:13px;color:var(--text-dim);white-space:nowrap;margin-left:auto;letter-spacing:.5px}
+.brand-icon{width:30px;height:30px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.credit{font-family:var(--mono);font-size:10px;color:var(--text-dim);white-space:nowrap;letter-spacing:.5px;flex-shrink:0}
 .credit-link{color:var(--text-dim);text-decoration:none;transition:color .15s}
 .credit-link:hover{color:var(--accent-blue)}
-.controls-bar{display:flex;align-items:center;gap:10px;width:100%}
-.ctrl-group{display:flex;align-items:center;gap:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;height:36px}
-.ctrl-label{font-family:var(--mono);font-size:18px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:500}
-.ctrl-input{background:transparent;color:var(--accent-blue);border:none;font-family:var(--mono);font-size:19px;font-weight:700;width:36px;text-align:center;outline:none;cursor:pointer}
-.ctrl-input-wide{width:auto;max-width:160px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:clip;position:relative}
-.ctrl-input-wide .marquee-inner{display:inline-block;animation:marquee-scroll 6s linear infinite;padding-right:2em}
-@keyframes marquee-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.btn{background:var(--bg-raised);color:var(--text-secondary);border:1px solid var(--border);padding:0 16px;height:36px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:1.2px;white-space:nowrap;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px}
+/* Two-line screen. Line 1 is the style name at full width — it used to be
+   a 160px box the text had to scroll through. Line 2 carries the kit list
+   and the key/tempo/swing readouts. */
+.lcd{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;height:46px;padding:5px 14px;background:var(--lcd-bg);border:1px solid var(--chassis-edge);border-radius:5px;box-shadow:inset 0 2px 8px rgba(0,0,0,.75)}
+.lcd-line{display:flex;align-items:baseline;gap:9px;min-width:0}
+.lcd-line-params{justify-content:space-between}
+.lcd-key{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--lcd-dim);flex-shrink:0}
+.lcd-style{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.3px;color:var(--lcd-text);text-shadow:0 0 14px var(--lcd-glow);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lcd-sub{font-family:var(--mono);font-size:10px;color:var(--lcd-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;letter-spacing:.3px}
+.lcd-readouts{display:flex;align-items:baseline;gap:16px;flex-shrink:0}
+.readout{display:flex;align-items:baseline;gap:5px}
+.readout-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--lcd-text);text-shadow:0 0 12px var(--lcd-glow);cursor:pointer}
+.readout-tap{cursor:pointer}
+.btn{background:linear-gradient(180deg,var(--btn-top),var(--btn-bot));color:var(--text-secondary);border:1px solid var(--border);padding:0 14px;height:34px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1.2px;white-space:nowrap;transition:background .15s ease,color .15s ease,border-color .15s ease;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 1px 2px rgba(0,0,0,.35)}
 .btn:hover{background:var(--border-light);color:#fff;border-color:var(--border-light)}
-.btn:active{transform:scale(.97)}
-.btn-gen{color:var(--accent-red);border-color:rgba(224,72,72,.3);background:rgba(224,72,72,.06)}
+.btn:active{transform:translateY(1px);box-shadow:inset 0 2px 5px rgba(0,0,0,.5)}
+.btn-gen{color:var(--accent-red);border-color:rgba(224,72,72,.32);background:linear-gradient(180deg,rgba(224,72,72,.12),rgba(224,72,72,.03));height:44px;padding:0 18px}
 .btn-gen:hover{background:var(--accent-red);color:#fff;border-color:var(--accent-red)}
-.btn-play-header{color:#4caf50;border-color:rgba(76,175,80,.3);background:rgba(76,175,80,.06);font-size:14px;padding:0 16px;min-width:90px;letter-spacing:1px}
+.btn-play-header{color:#5ed37a;border-color:rgba(76,175,80,.45);background:linear-gradient(180deg,rgba(76,175,80,.18),rgba(76,175,80,.05));font-size:15px;height:44px;padding:0 22px;min-width:128px;letter-spacing:1.5px;text-shadow:0 0 10px rgba(94,211,122,.4)}
 .btn-play-header:hover{background:#4caf50;color:#fff;border-color:#4caf50}
-.btn-play-header.playing{color:var(--accent-red);border-color:rgba(224,72,72,.3);background:rgba(224,72,72,.06)}
+.btn-play-header.playing{color:#ff6b6b;border-color:rgba(224,72,72,.45);background:linear-gradient(180deg,rgba(224,72,72,.2),rgba(224,72,72,.05));text-shadow:0 0 10px rgba(255,107,107,.45)}
 .btn-play-header.playing:hover{background:var(--accent-red);color:#fff;border-color:var(--accent-red)}
 .btn-play-header:disabled{opacity:0.4;cursor:not-allowed}
 .btn:disabled:not(.btn-play-header){opacity:0.25;cursor:not-allowed;pointer-events:none;filter:grayscale(1)}
-.btn-export{color:var(--accent-blue);border-color:rgba(80,160,255,.3);background:rgba(80,160,255,.06);margin-left:auto}
+.btn-export{color:var(--accent-blue);border-color:rgba(80,160,255,.3);background:linear-gradient(180deg,rgba(80,160,255,.12),rgba(80,160,255,.03))}
 .btn-export:hover{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
 .btn-prefs{color:var(--text-muted);border-color:var(--border);padding:0 16px;font-size:15px;margin-left:0}
 .btn-prefs .prefs-text{display:inline}
@@ -71,7 +87,11 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .welcome-roles{display:flex;flex-direction:column;gap:8px;padding:0 20px 20px}
 .welcome-role{width:100%;justify-content:center;font-size:15px;height:44px;letter-spacing:0.5px}
 .welcome-role:hover{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
-.role-tips-dialog{max-width:520px;max-height:80vh;display:flex;flex-direction:column}
+.role-tips-card{border-color:var(--border-light)}
+.role-tips-card .about-scroll{max-height:260px;padding:0 2px}
+.role-tips-card .panel-title{justify-content:space-between}
+.role-tips-card #roleTipsTitle{font-size:13px;letter-spacing:1px;color:var(--text-secondary);text-transform:none}
+.role-tips-dismiss{margin-left:auto}
 .prefs-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);line-height:1.4;padding-top:4px}
 
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 16px;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
@@ -111,8 +131,9 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--sans)
 .scroll-area::-webkit-scrollbar{width:5px}
 .scroll-area::-webkit-scrollbar-track{background:transparent}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-.panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:10px}
-.panel-title{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.028),0 1px 3px rgba(0,0,0,.28)}
+.panel-title{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:2.2px;text-transform:uppercase;padding-bottom:9px;margin-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#patternLabel{font-size:15px;letter-spacing:.8px;color:var(--text-primary);text-transform:none;font-weight:700}
 .top-row{display:grid;grid-template-columns:2fr 3fr;gap:10px;margin-bottom:10px}
 .top-left{display:flex;flex-direction:column;gap:10px}
 .top-left .panel{margin-bottom:0}
@@ -197,7 +218,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .chord-sheet-notes{font-size:11px;color:var(--text-dim);text-align:center;margin-top:3px}
 .chord-sheet-hint{font-size:10px;color:var(--text-dim);line-height:1.3;margin-top:4px}
 .arr-time{font-family:var(--mono);font-size:16px;color:var(--accent-blue);font-weight:600}
-.arr-hint{font-family:var(--mono);font-size:18px;color:var(--text-dim);margin-bottom:8px;line-height:1.5}
+.arr-hint{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:10px;line-height:1.5;letter-spacing:.3px}
 /* First-visit pulse on arrangement items to draw attention */
 .arr-item.first-visit-pulse{animation:arr-first-pulse 1.2s ease-in-out 3}
 @keyframes arr-first-pulse{0%,100%{box-shadow:0 0 0 0 rgba(80,160,255,0)}50%{box-shadow:0 0 10px 2px rgba(80,160,255,.35)}}
@@ -219,28 +240,46 @@ midi-player::part(play-button){color:var(--accent-green)}
 .arr-controls{display:flex;gap:4px;flex-wrap:wrap}
 .arr-add{background:transparent;color:var(--text-dim);border:1px dashed var(--border);padding:3px 8px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:18px;font-weight:500;letter-spacing:.5px;transition:all .12s ease}
 .arr-add:hover{color:var(--text-secondary);border-color:var(--border-light)}
-.bar-tabs{display:flex;gap:4px;margin-bottom:8px}
-.bar-btn{background:var(--bg-raised);color:var(--text-dim);border:1px solid var(--border);padding:4px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--mono);font-size:18px;font-weight:600;transition:all .12s ease}
+/* One bar is displayed at a time; these switch it. */
+.bar-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.bar-tabs-single{display:none}
+.bar-btn-led{width:6px;height:6px;border-radius:50%;background:var(--border-light);flex-shrink:0;transition:background .12s,box-shadow .12s}
+.bar-btn-active .bar-btn-led{background:var(--accent-green);box-shadow:0 0 7px var(--accent-green)}
+.bar-btn-playing .bar-btn-led{background:var(--accent-green);animation:led-blink .5s steps(2,jump-none) infinite}
+@keyframes led-blink{0%{opacity:.25}100%{opacity:1}}
+.grid-page{display:none}
+.grid-page-active{display:block}
+.silent-toggle{margin-top:12px;background:none;border:1px dashed var(--border);border-radius:var(--radius-sm);color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:.6px;padding:6px 11px;cursor:pointer;transition:color .15s,border-color .15s}
+.silent-toggle:hover{color:var(--text-secondary);border-color:var(--border-light)}
+.silent-toggle-count{color:var(--text-secondary);font-weight:700}
+.silent-toggle-action{color:var(--accent-blue)}
+#gridR:not(.grid-edit-mode):not(.show-all-rows) .grid-row.row-silent{display:none}
+.bar-btn{background:linear-gradient(180deg,var(--btn-top),var(--btn-bot));color:var(--text-dim);border:1px solid var(--border);padding:5px 12px;border-radius:5px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .12s ease;display:inline-flex;align-items:center;gap:7px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .bar-btn:hover{color:var(--text-secondary)}
 .bar-btn-active{color:var(--accent-blue);border-color:rgba(80,160,255,.4);background:rgba(80,160,255,.06)}
-.vel-legend{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-bottom:6px;letter-spacing:.3px}
+.vel-legend{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:10px;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.vel-legend-ramp{display:inline-block;width:64px;height:9px;border-radius:2px;background:linear-gradient(90deg,rgba(208,64,64,.3),#d04040)}
 .vel-full{color:var(--accent-red);font-weight:700}
 .vel-accent{color:#e8a020;font-weight:600}
 .vel-ghost{color:var(--text-muted);font-weight:500}
-.ctrl-swing-desc{font-family:var(--mono);font-size:11px;color:var(--text-muted);font-style:italic;margin-left:2px;white-space:nowrap}
-.grid-page-label{font-family:var(--mono);font-size:18px;color:var(--text-dim);padding:10px 0 4px 0;letter-spacing:1.5px;font-weight:600;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.ctrl-swing-desc{font-family:var(--mono);font-size:10px;color:var(--lcd-dim);font-style:italic;margin-left:3px;white-space:nowrap}
+.grid-page-label{font-family:var(--mono);font-size:12px;color:var(--text-dim);padding:2px 0 8px 0;letter-spacing:1.8px;font-weight:700;text-transform:uppercase;display:flex;align-items:center;gap:8px}
 .grid-page-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .grid-page-label:first-child{padding-top:0}
 .section-flash{animation:sec-flash 0.4s ease-out;will-change:background}
 @keyframes sec-flash{0%{background:rgba(80,160,255,.15)}100%{background:transparent}}
-.grid-header{display:flex;align-items:center;margin-bottom:2px;padding-left:90px}
-.beat-num{flex:1;text-align:center;min-width:0;font-family:var(--mono);font-size:18px;color:var(--text-dim);font-weight:500;padding:2px 0}
-.beat-num.db{color:var(--accent-red);font-weight:700}
+.grid-header{display:flex;align-items:center;margin-bottom:4px;padding-left:88px}
+.beat-num{flex:1;text-align:center;min-width:0;font-family:var(--mono);font-size:11px;color:var(--text-dim);font-weight:600;padding:2px 0;margin:0 1.5px}
+.beat-num.db{color:var(--text-secondary);font-weight:700}
 .grid-row{display:flex;align-items:center;margin-bottom:1px;contain:layout}
-.row-label{width:90px;flex-shrink:0;font-family:var(--mono);font-size:18px;color:var(--text-muted);text-align:right;padding-right:8px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:500;cursor:pointer}
+.row-label{width:88px;flex-shrink:0;font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:right;padding-right:10px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:600;cursor:pointer}
 .row-label:hover{color:var(--accent-blue)}
-.cell{flex:1;height:28px;margin:1px;border-radius:3px;min-width:0;border:1px solid transparent;background:var(--bg-deep);font-family:var(--mono);font-size:18px;color:rgba(255,255,255,.9);font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;position:relative;contain:layout style}
-.cell.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:var(--vel-h,0%);background:rgba(255,255,255,.15);border-radius:0 0 2px 2px;pointer-events:none;transition:height .1s}
+.cell{flex:1;height:34px;margin:1.5px;border-radius:3px;min-width:0;border:1px solid transparent;background:var(--cell-off);font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.92);font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none;position:relative;contain:layout style}
+/* Quiet hits read quiet: a scrim in the panel colour dims the cell in
+   proportion to velocity, so ghost notes look like ghost notes. */
+.cell.on::before{content:'';position:absolute;inset:0;background:var(--bg-surface);opacity:calc(1 - var(--vel-a,1));border-radius:2px;pointer-events:none}
+.cell.beat-1{box-shadow:inset 1px 0 0 var(--border-light)}
+
 .cell.kick.on{background:#d04040}
 .cell.snare.on{background:#e8a020}
 .cell.clap.on{background:#d07818}
@@ -255,11 +294,11 @@ midi-player::part(play-button){color:var(--accent-green)}
 .cell.tomhi.on{background:#a050c0}
 .cell.tommid.on{background:#9060b0}
 .cell.tomlo.on{background:#7050a0}
-.cell.beat-start{margin-left:3px}
+.cell.beat-start{margin-left:6px}
 /* Edit mode: cells get a subtle border and pointer cursor to indicate they're clickable */
 .grid-edit-mode .cell{cursor:pointer;border-color:rgba(224,72,72,.15)}
 .grid-edit-mode .cell:hover{border-color:rgba(224,72,72,.5)}
-.cell.playback-cursor{box-shadow:inset 0 0 0 2px var(--accent-green);border-color:var(--accent-green)}
+.cell.playback-cursor{box-shadow:inset 0 0 0 2px var(--accent-green),0 0 10px rgba(72,204,104,.35);border-color:var(--accent-green);z-index:2}
 /* FX: Cursor trail — fading ghost on previous steps */
 .cell.cursor-trail{box-shadow:inset 0 0 0 1px rgba(80,255,160,.25);border-color:rgba(80,255,160,.15);transition:box-shadow .3s ease-out,border-color .3s ease-out}
 .beat-num.cursor-trail{color:rgba(80,255,160,.3);transition:color .3s ease-out}
@@ -302,7 +341,7 @@ midi-player::part(play-button){color:var(--accent-green)}
 .arr-progress-mark{position:absolute;top:0;width:1px;height:100%;background:rgba(255,255,255,.2)}
 
 /* FX: Audio visualizer */
-.audio-visualizer{height:96px;background:var(--bg-deep);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
+.audio-visualizer{height:72px;background:var(--bg-deep);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden}
 .audio-visualizer canvas{width:100%;height:100%;display:block}
 
 /* Instrument mute strip */
@@ -415,30 +454,25 @@ midi-player::part(play-button){color:var(--accent-green)}
   .scroll-area{overflow:visible;padding:8px}
   .top-row{grid-template-columns:1fr;gap:8px}
   #aboutBeatPanel{position:static;max-height:none}
-  .brand{font-size:17px}
-  .credit{margin-left:auto;font-size:11px;letter-spacing:0}
-  /* Controls: single row — everything compact */
-  .controls-bar{
-    display:flex;
-    flex-wrap:nowrap;
-    gap:4px;
-    align-items:center;
-  }
-  .btn-play-header{font-size:11px;height:30px;padding:0 10px;min-width:70px}
-  .btn-gen{font-size:11px;height:30px;padding:0 8px}
-  .ctrl-group{height:28px;padding:2px 5px;gap:3px}
-  .ctrl-label{font-size:10px;letter-spacing:0.5px}
-  .ctrl-input{font-size:12px;width:auto}
-  .ctrl-input-wide{max-width:90px;font-size:11px}
-  .btn-export{margin-left:auto;font-size:10px;height:28px;padding:0 7px}
-  .btn-history{font-size:10px;height:28px;padding:0 7px}
-  .btn-prefs{font-size:10px;height:28px;padding:0 7px}
+  .brand{font-size:11px}
+  .brand-text{display:none}
+  .credit{display:none}
+  .btn-play-header{font-size:12px;height:38px;padding:0 14px;min-width:96px}
+  .btn-gen{font-size:11px;height:38px;padding:0 11px}
+  .lcd{height:40px;padding:4px 10px;gap:2px}
+  .lcd-style{font-size:13px}
+  .lcd-sub{font-size:9px}
+  .lcd-readouts{gap:10px}
+  .readout-val{font-size:12px}
+  .btn-export{font-size:10px;height:30px;padding:0 8px}
+  .btn-history{font-size:10px;height:30px;padding:0 8px}
+  .btn-prefs{font-size:10px;height:30px;padding:0 8px}
   .btn-prefs .prefs-text{display:none}
   .btn-prefs .prefs-icon{display:inline}
   .grid-row{overflow-x:hidden}
   .cell{flex:1;min-width:0}
-  .row-label{width:70px;font-size:13px;padding-right:4px}
-  .grid-header{padding-left:70px}
+  .row-label{width:68px;font-size:11px;padding-right:6px}
+  .grid-header{padding-left:68px}
   .beat-num{flex:1;min-width:0}
   .arr-flow{min-height:60px}
   .panel{padding:8px 10px}
@@ -474,83 +508,35 @@ midi-player::part(play-button){color:var(--accent-green)}
     flex-wrap:wrap;
     align-items:center;
   }
-  .brand{font-size:16px;flex-shrink:0;width:auto;text-align:center;order:0;justify-content:center;margin:0 auto}
-  .credit{
-    width:100%;
-    order:3;
-    text-align:center;
-    font-size:10px;
-    letter-spacing:0;
-    margin-left:0;
-    white-space:nowrap;
-    padding-top:2px;
-  }
-  .controls-bar{
-    width:100%;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:5px;
-    order:2;
-  }
-  /* PLAY + NEW BEAT on same line */
-  .btn-play-header{
-    justify-content:center;
-    font-size:13px;
-    height:38px;
-  }
-  .btn-gen{
-    justify-content:center;
-    font-size:13px;
-    height:38px;
-  }
-  /* EXPORT on left */
-  .btn-export{
-    justify-content:center;
-    font-size:12px;
-    height:36px;
-    margin-left:0;
-  }
-  /* HISTORY on left */
-  .btn-history{
-    justify-content:center;
-    font-size:12px;
-    height:36px;
-  }
-  /* Preferences shares row with History */
-  .btn-prefs{
-    font-size:12px;
-    height:36px;
-    padding:0 12px;
-    justify-content:center;
-  }
+  /* Three compact rows — transport, screen, actions — instead of a
+     600px block of buttons on an 812px screen. */
+  .brand{order:0;font-size:11px;flex-shrink:0}
+  .brand-text{display:none}
+  .transport{order:1;flex:1;justify-content:flex-end;gap:6px}
+  .transport .btn{flex:1;max-width:none}
+  .btn-play-header{font-size:13px;height:40px;padding:0 12px;min-width:0}
+  .btn-gen{font-size:12px;height:40px;padding:0 12px}
+  .lcd{order:2;width:100%;flex:none;height:auto;padding:7px 11px}
+  .lcd-style{font-size:14px}
+  .lcd-line-params{flex-wrap:wrap;gap:4px 10px}
+  .lcd-readouts{gap:12px}
+  .header-actions{order:3;width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .header-actions .btn{font-size:11px;height:34px;padding:0 6px}
   .btn-prefs .prefs-icon{display:none}
   .btn-prefs .prefs-text{display:inline}
-  /* Style text: scrolls if long */
-  .ctrl-input-wide{
-    max-width:none;
-    font-size:12px;
-    width:auto;
-    overflow:hidden;
-    text-overflow:clip;
-    text-align:center;
-  }
-  /* Style group spans full width on mobile */
-  .ctrl-style{grid-column:1 / -1;overflow:hidden}
-  .ctrl-group{
-    justify-content:center;
-    padding:4px 6px;
-    height:auto;
-    text-align:center;
-    flex-wrap:wrap;
-  }
-  .ctrl-label{font-size:11px;width:100%;text-align:center}
-  .ctrl-input{font-size:14px;width:auto;text-align:center}
+  .credit{order:4;width:100%;text-align:center;font-size:9px;padding-top:1px}
 
   /* Grid: tighter but readable */
-  .cell{flex:1;min-width:0;height:24px;font-size:9px}
-  .beat-num{flex:1;min-width:0;font-size:9px}
-  .row-label{width:48px;font-size:9px;padding-right:3px;letter-spacing:0}
-  .grid-header{padding-left:48px}
+  .cell{flex:1;min-width:0;height:26px;font-size:8px;margin:1px}
+  /* Only the four beats are numbered — 16 numbers across a phone collide */
+  .beat-num{flex:1;min-width:0;font-size:9px;margin:0 1px;visibility:hidden}
+  .beat-num.db{visibility:visible;color:var(--text-secondary)}
+  .cell.beat-start{margin-left:4px}
+  .row-label{width:52px;font-size:9px;padding-right:5px;letter-spacing:0}
+  .grid-header{padding-left:52px}
+  .bar-btn{font-size:10px;padding:5px 9px;gap:5px}
+  .vel-legend{font-size:9px;gap:6px}
+  .vel-legend-hint{display:none}
 
   /* Panels */
   .panel{padding:8px 8px}
@@ -674,3 +660,25 @@ midi-player::part(play-button){color:var(--accent-green)}
 
 /* ── Keyboard Shortcut Hints ── */
 .shortcut-hint{font-size:10px;color:var(--text-dim);font-family:var(--mono);margin-left:4px;opacity:.6}
+
+/* ── Single-column ordering (≤1024px) ──
+   On one column the pattern grid is the thing you came for, so it goes
+   directly under the arrangement. The analysis — 30+ accordion sections —
+   goes last instead of pushing the grid thousands of pixels down. */
+@media (max-width: 1024px) {
+  #app{display:flex;flex-direction:column}
+  .top-row,.top-right-wrap{display:contents}
+  .top-left{order:1}
+  #patternPanel{order:2}
+  #aboutBeatPanel{order:3;position:static;overflow:visible;margin-bottom:12px}
+  .top-left .panel:last-child{overflow-y:visible;flex:none}
+}
+
+/* ── Desktop: keep the grid above the fold ──
+   The top row used to grow to whatever the arrangement and analysis needed
+   — 852px on a 900px screen — which pushed the pattern grid, the thing this
+   app is for, entirely off screen. Both panels already scroll internally. */
+@media (min-width: 1025px) {
+  .top-row{height:clamp(320px,50vh,560px)}
+  .top-left{min-height:0}
+}

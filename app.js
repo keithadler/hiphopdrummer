@@ -245,8 +245,13 @@ document.getElementById('regenGo').onclick = function() {
       if (loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
       // Update instrument mute strip for new style
       if (typeof updateInstrMuteStrip === 'function') updateInstrMuteStrip();
-      // Show role-specific "What Next" advice
-      _showWhatNext();
+      // Role-specific "What Next" advice — once per session. Somebody
+      // auditioning ten beats in a row does not need the same 300 words
+      // ten times.
+      if (!window._whatNextShown) {
+        window._whatNextShown = true;
+        _showWhatNext();
+      }
     }, _genDelay);
     
     // Scroll to top of the page so the user sees the new beat
@@ -567,9 +572,9 @@ function showPrefsDialog() {
   var whatNextOn = true;
   try { var wn = localStorage.getItem('hhd_skip_whatnext'); if (wn !== null) whatNextOn = (wn !== 'true'); } catch(e) {}
   document.getElementById('prefsWhatNext').checked = whatNextOn;
-  // Restore velocity indicator preference (default: percent)
-  var velocityMode = 'percent';
-  try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  // Restore velocity indicator preference (default: brightness only)
+  var velocityMode = 'off';
+  try { velocityMode = localStorage.getItem('hhd_velocity_mode') || 'off'; } catch(e) {}
   document.getElementById('prefsVelocity').value = velocityMode;
   // Restore theme preference (default: dark)
   var theme = 'dark';
@@ -615,8 +620,8 @@ document.getElementById('prefsSave').onclick = function() {
   var whatNextOn = document.getElementById('prefsWhatNext').checked;
   try { localStorage.setItem('hhd_skip_whatnext', whatNextOn ? 'false' : 'true'); } catch(e) {}
   var velocityMode = document.getElementById('prefsVelocity').value;
-  var oldVelocityMode = 'percent';
-  try { oldVelocityMode = localStorage.getItem('hhd_velocity_mode') || 'percent'; } catch(e) {}
+  var oldVelocityMode = 'off';
+  try { oldVelocityMode = localStorage.getItem('hhd_velocity_mode') || 'off'; } catch(e) {}
   try { localStorage.setItem('hhd_velocity_mode', velocityMode); } catch(e) {}
   var newTheme = document.getElementById('prefsTheme').value;
   try { localStorage.setItem('hhd_theme', newTheme); } catch(e) {}
@@ -701,7 +706,7 @@ document.addEventListener('keydown', function(e) {
     document.getElementById('aboutOverlay').style.display = 'none';
     document.getElementById('beatHistoryOverlay').style.display = 'none';
     var wn = document.getElementById('whatNextOverlay'); if (wn) wn.style.display = 'none';
-    var rt = document.getElementById('roleTipsOverlay'); if (rt) rt.style.display = 'none';
+    var rt = document.getElementById('roleTipsCard'); if (rt) rt.style.display = 'none';
   }
   if (e.key === 'Enter' && document.getElementById('regenOverlay').style.display !== 'none') {
     e.preventDefault();
@@ -796,21 +801,30 @@ var ROLE_TIPS = {
   }
 };
 
+/**
+ * Show the role tips as a card at the top of the app.
+ *
+ * These used to be a second full-screen dialog stacked behind the role
+ * picker — several hundred words between a first-time visitor and the Play
+ * button. As a card they are still the first thing on the page, but the app
+ * is right there and the tips can be dismissed without reading them.
+ */
 function showRoleTips(role) {
   var tips = ROLE_TIPS[role];
   if (!tips) return;
   var titleEl = document.getElementById('roleTipsTitle');
   var contentEl = document.getElementById('roleTipsContent');
+  var card = document.getElementById('roleTipsCard');
   if (titleEl) titleEl.textContent = tips.title;
   if (contentEl) contentEl.innerHTML = tips.html;
-  document.getElementById('roleTipsOverlay').style.display = 'flex';
+  if (card) {
+    card.style.display = '';
+    card.scrollIntoView({ block: 'nearest' });
+  }
 }
 
 document.getElementById('roleTipsClose').onclick = function() {
-  document.getElementById('roleTipsOverlay').style.display = 'none';
-};
-document.getElementById('roleTipsOverlay').onclick = function(e) {
-  if (e.target === this) this.style.display = 'none';
+  document.getElementById('roleTipsCard').style.display = 'none';
 };
 
 // ── What Next Dialog — role-specific actionable advice after beat generation ──
@@ -1049,13 +1063,22 @@ function initBeatHistoryHandlers() {
     'hhd_follow_playhead': 'true',
     'hhd_show_chords': 'false',
     'hhd_countdown': 'false',
-    'hhd_velocity_mode': 'percent'
+    'hhd_velocity_mode': 'off'
   };
   try {
     for (var key in defaults) {
       if (localStorage.getItem(key) === null) {
         localStorage.setItem(key, defaults[key]);
       }
+    }
+    // The old default ('percent') was auto-seeded, not chosen, so every
+    // existing install has it stored and would never see the new default.
+    // Clear it once — anyone who actually wants numbers can set them again.
+    if (localStorage.getItem('hhd_vel_default_migrated') !== 'true') {
+      if (localStorage.getItem('hhd_velocity_mode') === 'percent') {
+        localStorage.setItem('hhd_velocity_mode', 'off');
+      }
+      localStorage.setItem('hhd_vel_default_migrated', 'true');
     }
   } catch(e) {}
 })();
@@ -1130,6 +1153,7 @@ var _INST_PREF_MAP = {
   // Show the app
   document.getElementById('loadMsg').style.display = 'none';
   document.getElementById('app').style.display = '';
+  if (typeof vfxDrawIdleViz === 'function') setTimeout(vfxDrawIdleViz, 0);
   
   // First-visit: pulse arrangement items to draw attention
   var _isFirstVisit = false;
@@ -1147,12 +1171,9 @@ var _INST_PREF_MAP = {
     }, 800);
   }
   
-  // Show "What Next" dialog for returning users (first-time users get the welcome flow instead)
-  var _hasRole = false;
-  try { _hasRole = !!localStorage.getItem('hhd_user_role'); } catch(e) {}
-  if (_hasRole && typeof _showWhatNext === 'function') {
-    setTimeout(_showWhatNext, 500); // slight delay so the UI settles first
-  }
+  // "What Next" fires after you generate a beat — not on arrival. A returning
+  // user opening the app already knows what the app is; a dialog over the
+  // machine before they have touched anything is just a door to close.
   
   // Initialize player controls and tracking
   initPlayerControls();
@@ -2878,16 +2899,36 @@ function vfxStartVisualizer() {
   drawFrame();
 }
 
+/**
+ * Resting state for the visualizer — a dim floor of bars.
+ *
+ * A cleared canvas left a black rectangle as the first thing on the page.
+ * Equipment at rest still shows a display.
+ */
+function vfxDrawIdleViz() {
+  var canvas = document.getElementById('vizCanvas');
+  if (!canvas || !canvas.offsetHeight) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = canvas.offsetHeight * dpr;
+  var w = canvas.width, h = canvas.height, barCount = 32, sliceW = w / barCount;
+  ctx.clearRect(0, 0, w, h);
+  for (var i = 0; i < barCount; i++) {
+    // A little shape across the band so it reads as a resting spectrum
+    // rather than a drawn rule
+    var barH = h * (0.07 + 0.05 * Math.abs(Math.sin(i * 0.55)));
+    ctx.fillStyle = 'rgba(80,160,255,0.2)';
+    ctx.fillRect(i * sliceW + 1, h - barH, sliceW - 2, barH);
+  }
+}
+
 function vfxStopVisualizer() {
   _vfx.vizActive = false;
   _vfx.vizW = 0;
   _vfx.vizH = 0;
   if (_vfx.vizRAF) { cancelAnimationFrame(_vfx.vizRAF); _vfx.vizRAF = null; }
-  var canvas = document.getElementById('vizCanvas');
-  if (canvas) {
-    var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
+  vfxDrawIdleViz();
 }
 
 /** 4. Section color themes — add sec-* class to arrangement cards and grid labels */
@@ -3086,29 +3127,23 @@ function initPlaybackTracking() {
     lastHighlightedStep = stepIdx;
     if (stepIdx < 0) return;
 
-    // Auto-select the bar tab for the current step
+    // Flip the grid to the bar being played
     var currentBar = Math.floor(stepIdx / 16);
     if (currentBar !== _lastActiveBar) {
       _lastActiveBar = currentBar;
-      // FIX 10: Cache bar tab elements to avoid querySelectorAll on every bar change
-      var barTabs = document.getElementById('barTabs');
-      if (barTabs) {
-        var prevActive = barTabs.querySelector('.bar-btn-active');
-        if (prevActive) prevActive.classList.remove('bar-btn-active');
-        var activeTab = document.getElementById('bar-tab-' + currentBar);
-        if (activeTab) activeTab.classList.add('bar-btn-active');
-      }
-      // Scroll the bar's grid page into view (only if follow playhead is on)
-      if (_followPlayhead && !_touchPauseFollow) {
-        var gridPage = document.getElementById('grid-page-' + currentBar);
-        if (gridPage) {
-          // Scroll the bar label to the top of the pattern panel so the
-          // entire bar (label + all instrument rows) is visible at once.
-          var patPanel = document.getElementById('patternPanel');
-          if (patPanel) patPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          setTimeout(function() {
-            gridPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 50);
+      window._lastPlayedBar = currentBar;
+      // One bar is on screen at a time, so following the playhead means
+      // switching pages — no scrolling, and nothing to fight on mobile.
+      if (_followPlayhead && !_touchPauseFollow && typeof showGridPage === 'function') {
+        showGridPage(currentBar);
+      } else {
+        // Not following: leave the visible bar alone, just move the marker
+        var barTabs = document.getElementById('barTabs');
+        if (barTabs) {
+          var prevActive = barTabs.querySelector('.bar-btn-playing');
+          if (prevActive) prevActive.classList.remove('bar-btn-playing');
+          var activeTab = document.getElementById('bar-tab-' + currentBar);
+          if (activeTab) activeTab.classList.add('bar-btn-playing');
         }
       }
       // Update chord highlight when bar changes

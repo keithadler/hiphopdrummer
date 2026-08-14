@@ -2,6 +2,23 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [1.75] - 2026-08-13
+
+### Changed — Interface Rebuilt Around the Machine
+
+The app read as a document about a beat rather than as an instrument. This
+release rebuilds the surface as a drum machine: a transport faceplate, a
+screen, one bar of pattern at a time.
+
+- **Transport faceplate.** Play and New Beat are full-height hardware buttons on the left of the header; Export/History/Prefs are demoted to the right. Style, key, tempo, and swing now live in a two-line LCD instead of four boxes styled to look like inputs
+- **The style name no longer scrolls.** It had a 160px box and a marquee animation, which reads as a bug. The style gets the full width of the screen's first line, with the kit/bass/keys tail on the second line. The full label is kept on `dataset.full` for history, license text, and analysis
+- **One bar at a time.** Every bar used to render its own full 13-row table, stacked — an 8-bar section was a 6,500px page. Bars are now pages switched by the bar-select buttons, which follow the playhead during playback (no more scroll-chasing on mobile). The visible bar survives an edit instead of snapping back to bar 1
+- **Silent rows hidden.** Rows that never fire in a section (usually ride, crash, cowbell, three toms) are collapsed behind a `n silent rows hidden — show all` toggle. Edit mode shows everything, since you need somewhere to click
+- **Velocity reads as brightness.** A percentage printed inside every cell made the grid a spreadsheet. Cells are now dimmed in proportion to velocity — a 35% ghost note looks like one. Numbers are still on hover, in the velocity editor, and on printed beat sheets; the old numbers-in-cells display is a preference
+- **First run is one screen, not three.** The role tips are an inline dismissible card instead of a second full-screen dialog behind the role picker, "What Next" no longer opens over the app on arrival, and it appears once per session rather than after every generate
+- **Layout.** On desktop the top row is capped so the pattern grid is above the fold; below 1024px the grid moves above the 30-section analysis instead of below it. The mobile header is three compact rows (~190px) rather than a 600px block of buttons on an 812px screen, and only beats 1/5/9/13 are numbered so the step labels stop colliding
+- **Idle visualizer.** The output display drew a resting spectrum instead of leaving a black rectangle as the first thing on the page
+
 ## [1.74] - 2026-07-26
 
 ### Added — MPC Pad Sample Export

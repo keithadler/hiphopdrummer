@@ -53,7 +53,7 @@ function _footerSection() {
   var bpmStr = '';
   try { var be = document.getElementById('bpm'); if (be) bpmStr = be.textContent; } catch(e) {}
   var styleStr = '';
-  try { var se = document.getElementById('songStyle'); if (se) styleStr = se.textContent; } catch(e) {}
+  try { styleStr = getStyleLabel(); } catch(e) {}
   return [
     '',
     'LICENSE FOR THIS BEAT',

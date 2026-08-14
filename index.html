@@ -67,32 +67,36 @@
   <div id="app-wrap">
 
     <div class="header-bar" role="banner">
-      <div class="brand" id="brandAbout" title="About Hip Hop Drummer" style="cursor:pointer"><img src="icon-192.png" alt="" class="brand-icon">HipHop<span>Drummer</span></div>
-      <div class="credit">
-        <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener" class="credit-link">hiphopdrummer.com</a>
-      </div>
-      <div class="controls-bar">
+      <div class="brand" id="brandAbout" title="About Hip Hop Drummer" style="cursor:pointer"><img src="icon-192.png" alt="" class="brand-icon"><span class="brand-text">HipHop<span>Drummer</span></span></div>
+
+      <div class="transport">
         <button class="btn btn-play-header" id="headerPlayBtn" title="Play/Stop (Space)" disabled>▶ PLAY</button>
         <button class="btn btn-gen" id="btnGen" title="New Beat (R)">NEW BEAT</button>
-        <div class="ctrl-group ctrl-style">
-          <span class="ctrl-label">Style</span>
-          <span class="ctrl-input ctrl-input-wide" id="songStyle">—</span>
+      </div>
+
+      <div class="lcd" id="lcd">
+        <div class="lcd-line lcd-line-style">
+          <span class="lcd-key">Style</span>
+          <span class="lcd-style" id="songStyle">—</span>
         </div>
-        <div class="ctrl-group">
-          <span class="ctrl-label">Key</span>
-          <span class="ctrl-input" id="songKey" style="width:68px">—</span>
+        <div class="lcd-line lcd-line-params">
+          <span class="lcd-sub" id="songStyleSub"></span>
+          <span class="lcd-readouts">
+            <span class="readout" title="Song key"><span class="lcd-key">Key</span><span class="readout-val" id="songKey">—</span></span>
+            <span class="readout readout-tap" title="Click to adjust, double-click to tap tempo"><span class="lcd-key">BPM</span><span class="readout-val" id="bpm">90</span></span>
+            <span class="readout" title="Swing timing: how much even 16th-note steps are delayed"><span class="lcd-key">Swing</span><span class="readout-val" id="swing">62</span><span class="ctrl-swing-desc" id="swingDesc"></span></span>
+          </span>
         </div>
-        <div class="ctrl-group">
-          <span class="ctrl-label">BPM</span>
-          <span class="ctrl-input" id="bpm" title="Click to adjust, double-click to tap tempo">90</span>
-        </div>
-        <div class="ctrl-group">
-          <span class="ctrl-label">Swing</span>
-          <span class="ctrl-input" id="swing">62</span><span class="ctrl-swing-desc" id="swingDesc" title="Swing timing: how much even 16th-note steps are delayed"></span>
-        </div>
+      </div>
+
+      <div class="header-actions">
         <button class="btn btn-export" id="btnExport">EXPORT</button>
         <button class="btn btn-history" id="btnHistory" title="Beat History">HISTORY</button>
         <button class="btn btn-prefs" id="btnPrefs" title="Preferences"><span class="prefs-icon">⚙</span><span class="prefs-text">PREFS</span></button>
+      </div>
+
+      <div class="credit">
+        <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener" class="credit-link">hiphopdrummer.com</a>
       </div>
     </div>
 
@@ -108,7 +112,7 @@
           <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
           <div class="about-hero-text">
             <div class="about-app-name">HipHop<span>Drummer</span></div>
-            <div class="about-version">Release 1.74</div>
+            <div class="about-version">Release 1.75</div>
           </div>
         </div>
         <p class="welcome-intro">Every beat is uniquely generated — up to 9 instruments (drums, bass, keys, pad, lead, organ, horns, vibes, clav), fills, chord progressions, and a full song arrangement assembled from scratch. The beat is the harmonic foundation — you bring the melody. Your rap, your sample, your guitar, your scratch. What's your role?</p>
@@ -126,18 +130,16 @@
       </div>
     </div>
 
-    <!-- Role tips overlay -->
-    <div id="roleTipsOverlay" class="regen-overlay" style="display:none">
-      <div class="regen-dialog role-tips-dialog">
-        <div class="regen-title" id="roleTipsTitle"></div>
-        <div class="about-scroll" id="roleTipsContent"></div>
-        <div class="regen-actions">
-          <button class="btn regen-go" id="roleTipsClose">Let's Go</button>
-        </div>
-      </div>
-    </div>
-
     <div class="scroll-area" id="app" style="display:none" role="main">
+
+      <!-- Role tips — an inline card, not a wall of text between you and Play -->
+      <div class="panel role-tips-card" id="roleTipsCard" style="display:none">
+        <div class="panel-title">
+          <span id="roleTipsTitle"></span>
+          <button class="btn btn-tool role-tips-dismiss" id="roleTipsClose" title="Dismiss">✕ Dismiss</button>
+        </div>
+        <div class="about-scroll" id="roleTipsContent"></div>
+      </div>
 
       <div class="top-row">
         <div class="top-left">
@@ -191,7 +193,7 @@
           </span>
         </div>
 <div id="barTabs" class="bar-tabs"></div>
-        <div class="vel-legend"><span class="vel-full">100%</span> full stroke &nbsp;·&nbsp; <span class="vel-accent">70–95%</span> accent &nbsp;·&nbsp; <span class="vel-ghost">30–50%</span> ghost note</div>
+        <div class="vel-legend"><span class="vel-legend-ramp"></span>ghost note → full stroke &nbsp;·&nbsp; brighter is harder<span class="vel-legend-hint"> &nbsp;·&nbsp; hover a cell for its velocity</span></div>
         <div id="gridR"></div>
       </div>
 
@@ -358,10 +360,11 @@
         <div class="regen-field">
           <label class="regen-label">Velocity Indicator</label>
           <select id="prefsVelocity" class="regen-select">
+            <option value="off">Brightness only</option>
             <option value="percent">0-100%</option>
             <option value="midi">0-127 (MIDI)</option>
           </select>
-          <div class="prefs-hint">How velocity values are displayed in the grid cells.</div>
+          <div class="prefs-hint">Velocity always shows as cell brightness. This adds a number on top of it. (Printed beat sheets always show percentages.)</div>
         </div>
         <div class="regen-field">
           <label class="regen-label">Theme</label>
@@ -402,7 +405,7 @@
         <img src="icon-192.png" alt="Hip Hop Drummer" class="about-logo">
         <div class="about-hero-text">
           <div class="about-app-name">HipHop<span>Drummer</span></div>
-          <div class="about-version">Release 1.74</div>
+          <div class="about-version">Release 1.75</div>
           <div class="about-author">by <a href="https://github.com/keithadler/hiphopdrummer" target="_blank" rel="noopener">Keith Adler</a></div>
         </div>
       </div>

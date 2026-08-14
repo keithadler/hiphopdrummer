@@ -12,6 +12,7 @@ function _getOrCreateElement(id) {
     _domElements[id] = {
       textContent: vals[id] || '', innerHTML: '', value: '', style: { display: '' },
       scrollTop: 0, disabled: false,
+      dataset: {},
       classList: { add: function(){}, remove: function(){}, contains: function(){ return false; } },
       addEventListener: function(){}, querySelector: function(){ return null; },
       querySelectorAll: function(){ return []; }, setAttribute: function(){},
