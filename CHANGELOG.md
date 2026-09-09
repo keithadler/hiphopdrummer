@@ -2,6 +2,13 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [2.1] - 2026-09-09
+
+### Changed — Synth Leads and Pads of Our Own
+
+- **Four melodic presets synthesized into `hhd-kits.sf2`**: G-Funk Lead (80, sine whistle with delayed vibrato), Saw Lead (81), Warm Pad (89) and Dark Pad (91). Additive waves on an exact loop grid, so they sustain with no loop click
+- **Pads and leads are now style-matched in playback.** The combined MIDI and live synth used to hard-code GM String Ensemble for every pad and GM Square Lead for every lead even though `pad.js` and `lead.js` carried per-style programs. Memphis/phonk get the Dark Pad, dark/Griselda/hard/sparse/NOLA get the Warm Pad, crunk/Miami/ratchet/Raw NY stabs use the Saw Lead, DJ Quik leads use the Saw Lead
+
 ## [2.0] - 2026-09-09
 
 ### Changed — The Beat Finally Swings, and the Drums Are Ours

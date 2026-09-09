@@ -1400,12 +1400,12 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   if (typeof _cSd.epProgram === 'number') epProgram = _cSd.epProgram;
   td.push(0, 0xC0 | epCh, epProgram);
 
-  // Program change on channel 3: Synth Pad
-  var padProgram = 48; // GM String Ensemble
+  // Program change on channel 3: Synth Pad — style-matched (89 Warm Pad, 91 Dark Pad, 81 Saw)
+  var padProgram = (typeof padProgramFor === 'function') ? padProgramFor(_cFeel) : 89;
   td.push(0, 0xC0 | 3, padProgram);
 
-  // Program change on channel 4: Synth Lead
-  var leadProgram = 80; // GM Square Lead
+  // Program change on channel 4: Synth Lead — style-matched (80 G-Funk Lead, 81 Saw Lead)
+  var leadProgram = (typeof leadProgramFor === 'function') ? leadProgramFor(_cFeel) : 80;
   td.push(0, 0xC0 | 4, leadProgram);
 
   // Program change on channel 5: Organ

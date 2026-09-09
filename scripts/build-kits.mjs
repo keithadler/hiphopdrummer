@@ -15,9 +15,13 @@
 //   32  Jazz       — small tight kit, prominent ride
 //   40  Brush      — brushed snare swell, warm kick, washy ride
 //
-// Plus two melodic presets in bank 0 that replace the GM synth basses:
-//   38  808 Sub    — sine with the attack knock, looped, envelope decay
-//   39  Sub Round  — saturated sub with 2nd/3rd harmonic for small speakers
+// Plus melodic presets in bank 0 that replace the GM sounds the styles use:
+//   38  808 Sub     — sine with the attack knock, looped, envelope decay
+//   39  Sub Round   — saturated sub with 2nd/3rd harmonic for small speakers
+//   80  G-Funk Lead — sine whistle with a little edge and delayed vibrato
+//   81  Saw Lead    — two detuned saws, for DJ Quik leads and crunk stabs
+//   89  Warm Pad    — three detuned saws + sub octave, low-passed, slow attack
+//   91  Dark Pad    — the same, darker and wider, for Memphis / phonk
 //
 // Every sample is generated from scratch (no recordings, nothing
 // downloaded) so the whole kit is MIT like the rest of the app.
@@ -451,6 +455,91 @@ for (const [prog, kind, name] of [[38, 'sine', '808 Sub'], [39, 'round', 'Sub Ro
   console.log(`bass ${prog}  ${name}`);
 }
 
+// ---------------------------------------------------------------
+// Additive, exactly-periodic synth waves for the looped melodic presets.
+// Every partial sits on the SR/N frequency grid, so a loop of N samples
+// is seamless even with detuned copies — no crossfade, no click.
+// ---------------------------------------------------------------
+const N_LOOP = 16384;
+const GRID = SR / N_LOOP; // 2.69 Hz
+/**
+ * @param {number} f0 target fundamental (Hz)
+ * @param {Array<{idx:number, harm:(h:number)=>number, gainOf?:number}>} voices
+ *   each voice: index offset from the fundamental grid index (detune) and a
+ *   harmonic amplitude function (saw = 1/h, square = odd 1/h, sine = h===1)
+ * @param {number} lpHz spectral roll-off (2-pole style weighting)
+ * @returns {{data: Float32Array, cents: number}} one loop period + tuning error
+ */
+function periodic(f0, voices, lpHz) {
+  const idx0 = Math.round(f0 / GRID);
+  const cents = 1200 * Math.log2((idx0 * GRID) / f0);
+  const out = new Float32Array(N_LOOP);
+  for (const v of voices) {
+    const idx = idx0 + (v.idx || 0);
+    const fBase = idx * GRID;
+    const gain = v.gain === undefined ? 1 : v.gain;
+    for (let h = 1; h * fBase < SR * 0.45; h++) {
+      const a = v.harm(h);
+      if (!a) continue;
+      const f = h * fBase;
+      const roll = 1 / (1 + Math.pow(f / lpHz, 2));
+      const amp = a * roll * gain;
+      const ph = rnd() * Math.PI * 2; // random phase per partial → no buzz-saw peaky sum
+      const w = 2 * Math.PI * h * idx / N_LOOP;
+      for (let i = 0; i < N_LOOP; i++) out[i] += amp * Math.sin(w * i + ph);
+    }
+  }
+  return { data: normalize(out, 0.9), cents };
+}
+const SAW = (h) => 1 / h;
+const SQUARE = (h) => (h % 2 === 1) ? 1 / h : 0;
+const SINE = (h) => (h === 1 ? 1 : 0);
+
+function addSynthPreset(prog, name, wave, rootKey, gen, level) {
+  const s = new BasicSample(`syn_${prog}`, SR, rootKey, Math.round(-wave.cents), sampleTypes.monoSample, 0, N_LOOP - 1);
+  s.setAudioData(gain(wave.data, level), SR);
+  bank.addSamples(s);
+  sampleCount++; totalSamples += N_LOOP;
+  const inst = new BasicInstrument();
+  inst.name = name;
+  const z = inst.createZone(s);
+  z.keyRange = { min: 0, max: 127 };
+  z.setGenerator(generatorTypes.overridingRootKey, rootKey);
+  z.setGenerator(generatorTypes.sampleModes, 1);
+  for (const [k, v] of Object.entries(gen)) z.setGenerator(generatorTypes[k], v);
+  bank.addInstruments(inst);
+  const preset = new BasicPreset(bank);
+  preset.name = name; preset.program = prog; preset.bankMSB = 0; preset.bankLSB = 0; preset.isGMGSDrum = false;
+  preset.createZone(inst);
+  bank.addPresets(preset);
+  console.log(`syn  ${prog}  ${name}`);
+}
+const lfoHz = (hz) => Math.round(1200 * Math.log2(hz / 8.176));
+
+reseed(0x7E4D);
+// 80 — G-Funk lead: sine whistle with a touch of 2nd/3rd harmonic, delayed vibrato
+addSynthPreset(80, 'G-Funk Lead', periodic(261.63, [{ idx: 0, harm: (h) => h === 1 ? 1 : h === 2 ? 0.18 : h === 3 ? 0.08 : 0 }], 6000), 60, {
+  attackVolEnv: timecents(0.006), releaseVolEnv: timecents(0.09), sustainVolEnv: 0,
+  vibLfoToPitch: 20, delayVibLFO: timecents(0.28), freqVibLFO: lfoHz(5.6),
+  chorusEffectsSend: 40
+}, 0.8);
+// 81 — Saw lead: two saws detuned ±1 grid step (~±9 cents at C4) plus a sub sine
+addSynthPreset(81, 'Saw Lead', periodic(261.63, [{ idx: -1, harm: SAW, gain: 0.7 }, { idx: 1, harm: SAW, gain: 0.7 }, { idx: 0, harm: SINE, gain: 0.5 }], 3200), 60, {
+  attackVolEnv: timecents(0.01), releaseVolEnv: timecents(0.12), sustainVolEnv: 0,
+  vibLfoToPitch: 12, delayVibLFO: timecents(0.35), freqVibLFO: lfoHz(5.2),
+  chorusEffectsSend: 60
+}, 0.75);
+// 89 — Warm analog pad: three detuned saws + square an octave down, low-passed
+addSynthPreset(89, 'Warm Pad', periodic(130.81, [{ idx: -1, harm: SAW, gain: 0.6 }, { idx: 0, harm: SAW, gain: 0.6 }, { idx: 1, harm: SAW, gain: 0.6 }, { idx: 0, harm: (h) => SQUARE(h * 2) * 0.35 }], 1400), 48, {
+  attackVolEnv: timecents(0.22), releaseVolEnv: timecents(0.4), sustainVolEnv: 0,
+  chorusEffectsSend: 90
+}, 0.62);
+// 91 — Dark pad: wider detune, darker roll-off, slower attack — Memphis / phonk
+addSynthPreset(91, 'Dark Pad', periodic(130.81, [{ idx: -2, harm: SAW, gain: 0.55 }, { idx: 0, harm: SAW, gain: 0.6 }, { idx: 2, harm: SAW, gain: 0.55 }, { idx: 0, harm: (h) => SQUARE(h * 2) * 0.5 }], 800), 48, {
+  attackVolEnv: timecents(0.35), releaseVolEnv: timecents(0.55), sustainVolEnv: 0,
+  chorusEffectsSend: 120
+}, 0.62);
+
 const buf = await bank.writeSF2({ compress: false, writeDefaultModulators: false });
 fs.writeFileSync(OUT, Buffer.from(buf));
 console.log(`\nwrote ${OUT}  ${(buf.byteLength / 1048576).toFixed(2)} MB  (${sampleCount} samples, ${(totalSamples / SR).toFixed(1)}s audio)`);
@@ -464,7 +553,7 @@ if (process.argv.includes('--verify')) {
   const notes = Object.keys(NOTES).map(Number).sort((a, b) => a - b);
   for (const p of sf.presets) {
     const isDrum = p.isGMGSDrum;
-    const testNotes = isDrum ? notes : [36, 43, 48];
+    const testNotes = isDrum ? notes : (p.program < 40 ? [36, 43, 48] : [48, 60, 72]);
     const ch = isDrum ? 9 : 0;
     const ppq = 96;
     const vlq = (v) => { const out = [v & 0x7F]; v >>= 7; while (v > 0) { out.unshift((v & 0x7F) | 0x80); v >>= 7; } return out; };
