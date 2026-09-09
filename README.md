@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-2.2-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-2.3-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
@@ -158,10 +158,10 @@ npm test             # run 18,000+ assertions
 
 - **37 styles + 6 regional variants** — from old school 808s to modern boom bap revival
 - **9 instruments** playing together with style-matched sounds (TR-808 for G-Funk, Brush Kit for Nujabes, etc.)
-- **Own drum kits, 808 sub basses, synth leads and pads** — synthesized from scratch (`scripts/build-kits.mjs`), no recordings, MIT like everything else
+- **Own drum kits, 808 sub basses, FM Rhodes, tonewheel organ, vibes, clav, synth leads and pads** — synthesized from scratch (`scripts/build-kits.mjs`), no recordings, MIT like everything else
 - **Timing engine** — MPC swing math, per-feel pocket, seeded micro-drift, 960 PPQ (`timing.js`)
 - **Master chain** — HPF, mud cut, glue compression, tape-style saturation and a limiter on live playback and WAV export, with a dusty/boom-bap/live/clean character per kit
-- **SpessaSynth audio engine** — SoundFont playback for the keys, horns and GM basses
+- **SpessaSynth audio engine** — SoundFont playback; FluidR3 GM only for the acoustic piano, horns and the electric basses
 - **Beat drops** — dramatic silences where ALL instruments drop out
 - **Strict vs Improvise** — same part every time, or slight variations like a live band
 - **Tap tempo** — double-click BPM or press T
@@ -204,7 +204,7 @@ Covers all 37 styles × 10 instruments, bass generation, all 7 melodic generator
 ├── app.js              Main controller, dialogs, playback
 ├── synth-bridge.mjs    SpessaSynth integration + master chain (ES module)
 ├── synth.js            Bundled synth engine
-├── hhd-kits.sf2        The app's drum kits + sub basses (built, 7MB)
+├── hhd-kits.sf2        The app's kits, basses, keys, leads and pads (built, 10MB)
 ├── scripts/
 │   ├── build-kits.mjs  Synthesizes hhd-kits.sf2 from scratch
 │   ├── dsp.mjs         Shared DSP primitives
