@@ -10,6 +10,10 @@ All notable changes to Hip Hop Drummer are documented in this file.
 - **Tonewheel organ** (16), **vibraphone** (11) and **clavinet** (7) synthesized into the bank as well: drawbar organ with percussion, key click and chorale vibrato; vibes with mallet thump and motor tremolo; clav as a pulse pluck through a filter envelope
 - Mix trims re-measured for the new patches. `hhd-kits.sf2` is now 10MB
 
+### Fixed
+- Two places in the play path re-sent GM String Ensemble / Square Lead program changes right after playback started, racing the style-matched pads and leads in the MIDI (2.3.1)
+- First-play loading timeout raised from 15s to 40s now that two SoundFonts load
+
 ## [2.2] - 2026-09-09
 
 ### Changed — Mix Balance and a Real Glide

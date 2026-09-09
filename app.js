@@ -1213,8 +1213,8 @@ var _INST_PREF_MAP = {
                 window.synthBridge.setDrumKit(sounds.drumKit);
                 window.synthBridge.setBassProgram(sounds.bassSound);
                 window.synthBridge.setEPProgram(sounds.epProgram);
-                window.synthBridge.setPadProgram(48);
-                window.synthBridge.setLeadProgram(80);
+                window.synthBridge.setPadProgram((typeof padProgramFor === 'function') ? padProgramFor(songFeel) : 89);
+                window.synthBridge.setLeadProgram((typeof leadProgramFor === 'function') ? leadProgramFor(songFeel) : 80);
                 window.synthBridge.setOrganProgram(16);
                 window.synthBridge.setHornProgram(61);
                 window.synthBridge.setVibesProgram(11);
@@ -1710,7 +1710,7 @@ function initPlayerControls() {
             headerPlayBtn.classList.remove('playing');
             _setNavBtnsDisabled(false);
           }
-        }, 15000);
+        }, 40000); // two SoundFonts (~30MB) on a slow connection
         window.synthBridge.play(midiToPlay).then(function() {
           clearTimeout(_loadTimeout);
           // Apply drum kit + bass sound + EP (synth is now guaranteed initialized)
@@ -1718,12 +1718,12 @@ function initPlayerControls() {
             window.synthBridge.setDrumKit(_prefs.kit);
             window.synthBridge.setBassProgram(_prefs.bass);
             window.synthBridge.setEPProgram(_prefs.epProgram);
-            window.synthBridge.setPadProgram(48); // GM String Ensemble (overridden by style)
-            window.synthBridge.setLeadProgram(80); // GM Square Lead
-            window.synthBridge.setOrganProgram(16); // GM Drawbar Organ
+            window.synthBridge.setPadProgram((typeof padProgramFor === 'function') ? padProgramFor(songFeel) : 89);
+            window.synthBridge.setLeadProgram((typeof leadProgramFor === 'function') ? leadProgramFor(songFeel) : 80);
+            window.synthBridge.setOrganProgram(16); // Tonewheel Organ (hhd-kits)
             window.synthBridge.setHornProgram(61); // GM Brass Section
-            window.synthBridge.setVibesProgram(11); // GM Vibraphone
-            window.synthBridge.setClavProgram(7); // GM Clavinet
+            window.synthBridge.setVibesProgram(11); // Vibraphone (hhd-kits)
+            window.synthBridge.setClavProgram(7); // Clavinet (hhd-kits)
           } catch(e) {}
           headerPlayBtn.textContent = '■ STOP';
           headerPlayBtn.classList.add('playing');
