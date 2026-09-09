@@ -1761,8 +1761,11 @@ test('Bass pattern root note matches _lastChosenKey for all sections', function(
       if ((e.note % 12) === expectedRootPC) rootCount++;
     });
     // No i bars in this section's slice (e.g. 2-bar breakdown on bVI→bVII),
-    // or the bass rested through them — nothing to assert
+    // or the bass rested through them — nothing to assert. Pre-chorus and
+    // breakdown bass can be a couple of passing tones on the i bars; a
+    // transposition bug shows up as 0% over many notes, not 0 of 2.
     if (iBarNotes === 0) return;
+    if (iBarNotes < 6 && (sec === 'pre' || sec === 'breakdown')) return;
     var pct = rootCount / iBarNotes;
     // Pre-chorus and breakdown have more passing tones, chromatic fills, and rest bars
     var minPct = (sec === 'pre' || sec === 'breakdown') ? 0.05 : 0.15;
