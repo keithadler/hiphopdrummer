@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [2.3] - 2026-09-09
+
+### Changed — Keys of Our Own
+
+- **FM Rhodes** (program 4) replaces the GM electric piano: a DX7-style tine piano with body and tine operator pairs, five roots, soft and hard velocity layers, key-scaled decay and tremolo. Used by Dilla, lo-fi, G-Funk, bounce, halftime, Detroit and the NOLA/Virginia styles
+- **Tonewheel organ** (16), **vibraphone** (11) and **clavinet** (7) synthesized into the bank as well: drawbar organ with percussion, key click and chorale vibrato; vibes with mallet thump and motor tremolo; clav as a pulse pluck through a filter envelope
+- Mix trims re-measured for the new patches. `hhd-kits.sf2` is now 10MB
+
 ## [2.2] - 2026-09-09
 
 ### Changed — Mix Balance and a Real Glide

@@ -1141,16 +1141,16 @@ function _isDrumDrop(drumPat, step) {
 function channelMixFor(bassProgram, epProgram) {
   var bassVel = { 33: 1.55, 34: 1.55, 35: 1.0, 36: 1.2, 38: 1.0, 39: 1.0 };
   var bassCc7 = { 33: 118, 34: 118, 35: 110, 36: 112, 38: 108, 39: 108 };
-  var epVel = { 0: 1.6, 4: 1.0, 5: 1.0 };
+  var epVel = { 0: 1.2, 4: 0.8, 5: 0.8 };
   return {
     bass: bassVel[bassProgram] || 1.2,
     ep: epVel[epProgram] || 1.0,
     pad: 1.8,
     lead: 1.25,
-    organ: 1.5,
+    organ: 0.9,
     horn: 1.25,
     vibes: 1.5,
-    clav: 1.15,
+    clav: 1.6,
     // CC7 (default 100). Drums stay at 100; melodic channels get up to +4dB.
     cc7: { 9: 100, 0: bassCc7[bassProgram] || 112, 2: 118, 3: 127, 4: 118, 5: 127, 6: 118, 7: 118, 8: 118 }
   };

@@ -22,6 +22,10 @@
 //   81  Saw Lead    — two detuned saws, for DJ Quik leads and crunk stabs
 //   89  Warm Pad    — three detuned saws + sub octave, low-passed, slow attack
 //   91  Dark Pad    — the same, darker and wider, for Memphis / phonk
+//   4   FM Rhodes   — DX7-style tine piano, five roots, soft/hard layers, tremolo
+//   16  Tonewheel   — drawbar organ 888, percussion, key click, chorale vibrato
+//   11  Vibes       — vibraphone with mallet attack and motor tremolo
+//   7   Clav        — pulse pluck through a filter envelope
 //
 // Every sample is generated from scratch (no recordings, nothing
 // downloaded) so the whole kit is MIT like the rest of the app.
@@ -540,6 +544,150 @@ addSynthPreset(91, 'Dark Pad', periodic(130.81, [{ idx: -2, harm: SAW, gain: 0.5
   chorusEffectsSend: 120
 }, 0.62);
 
+// ---------------------------------------------------------------
+// Multisampled keyboard presets. Each sample is a tone at an exact
+// integer period so the tail loops seamlessly; timbre evolution is
+// baked into the first part of the sample, the SF2 envelope does the
+// amplitude decay.
+// ---------------------------------------------------------------
+function snapPeriod(f0) { const P = Math.round(SR / f0); return { P, f: SR / P, cents: 1200 * Math.log2((SR / P) / f0) }; }
+function keyFreq(key) { return 440 * Math.pow(2, (key - 69) / 12); }
+
+/** Generic looped-tone sample: gen(t, phaseInc) fills one Float32Array. */
+function tone(f0, dur, gen, loopPeriods = 32) {
+  const { P, f, cents } = snapPeriod(f0);
+  const n = Math.ceil(SR * dur / P) * P;             // whole periods
+  const out = new Float32Array(n);
+  gen(out, f, n);
+  const loopEnd = n - 1;
+  const loopStart = n - loopPeriods * P;
+  return { data: normalize(out, 0.9), cents, loopStart, loopEnd };
+}
+
+function addMultiPreset(prog, name, roots, layers, gens, level) {
+  const inst = new BasicInstrument();
+  inst.name = name;
+  roots.forEach((r, ri) => {
+    const lo = ri === 0 ? 0 : Math.round((roots[ri - 1].key + r.key) / 2) + 1;
+    const hi = ri === roots.length - 1 ? 127 : Math.round((r.key + roots[ri + 1].key) / 2);
+    layers.forEach((L) => {
+      const w = L.make(keyFreq(r.key), r.key);
+      const smp = new BasicSample(`k${prog}_${r.key}${L.tag}`, SR, r.key, Math.round(-w.cents), sampleTypes.monoSample, w.loopStart, w.loopEnd);
+      smp.setAudioData(gain(w.data, level * (L.level || 1)), SR);
+      bank.addSamples(smp); sampleCount++; totalSamples += w.data.length;
+      const z = inst.createZone(smp);
+      z.keyRange = { min: lo, max: hi };
+      z.velRange = { min: L.velMin, max: L.velMax };
+      z.setGenerator(generatorTypes.overridingRootKey, r.key);
+      z.setGenerator(generatorTypes.sampleModes, 1);
+      for (const [k, v] of Object.entries(gens)) z.setGenerator(generatorTypes[k], v);
+      for (const [k, v] of Object.entries(L.gens || {})) z.setGenerator(generatorTypes[k], v);
+    });
+  });
+  bank.addInstruments(inst);
+  const preset = new BasicPreset(bank);
+  preset.name = name; preset.program = prog; preset.bankMSB = 0; preset.bankLSB = 0; preset.isGMGSDrum = false;
+  preset.createZone(inst);
+  bank.addPresets(preset);
+  console.log(`key  ${String(prog).padStart(2)}  ${name} (${roots.length} roots × ${layers.length} layers)`);
+}
+
+// --- FM Rhodes: DX7 E.PIANO-style — body pair (1:1), tine pair (14:1), soft 2nd harmonic
+function rhodes(f0, hard, bright) {
+  return tone(f0, 1.8, (out, f, n) => {
+    const w = 2 * Math.PI * f / SR;
+    const keyBright = Math.min(1.6, Math.max(0.6, 300 / f)); // low notes growl more, high notes ring cleaner
+    for (let i = 0; i < n; i++) {
+      const t = i / SR;
+      const I1 = ((hard ? 1.7 : 0.9) * (bright ? 1.25 : 1)) * keyBright * Math.exp(-t / 0.4) + 0.12;
+      const I2 = (hard ? 0.9 : 0.35) * (bright ? 1.3 : 1) * Math.exp(-t / 0.09);
+      const body = Math.sin(w * i + I1 * Math.sin(w * i));
+      const tine = Math.sin(w * i + I2 * Math.sin(14 * w * i));
+      const oct = 0.1 * Math.sin(2 * w * i) * Math.exp(-t / 0.8);
+      const att = Math.min(1, i / secs(0.0015));
+      out[i] = (body + 0.35 * tine * Math.exp(-t / 0.5) + oct) * att;
+    }
+  }, 24);
+}
+const RHODES_ROOTS = [36, 48, 60, 72, 84].map((k) => ({ key: k }));
+const rhodesGens = {
+  attackVolEnv: timecents(0.001), holdVolEnv: timecents(0.01), decayVolEnv: timecents(6.5), sustainVolEnv: 1440, releaseVolEnv: timecents(0.32),
+  keyNumToVolEnvDecay: -40, // high notes die sooner, like real tines
+  modLfoToVolume: 12, freqModLFO: lfoHz(4.3), delayModLFO: timecents(0.2),
+  chorusEffectsSend: 35
+};
+reseed(0xEB01);
+addMultiPreset(4, 'FM Rhodes', RHODES_ROOTS, [
+  { tag: 's', velMin: 0, velMax: 84, make: (f) => rhodes(f, false, false), level: 0.9 },
+  { tag: 'h', velMin: 85, velMax: 127, make: (f) => rhodes(f, true, false) }
+], rhodesGens, 0.85);
+
+// --- Tonewheel organ: drawbars 16' 5⅓' 8' 4' 2⅔' at 8-8-8-3-2, 2nd-harmonic percussion, key click
+function tonewheel(f0) {
+  return tone(f0, 1.4, (out, f, n) => {
+    const w = 2 * Math.PI * f / SR;
+    const bars = [[0.5, 0.8], [1.5, 0.8], [1, 1.0], [2, 0.3], [3, 0.18], [4, 0.06]];
+    for (let i = 0; i < n; i++) {
+      const t = i / SR;
+      let y = 0;
+      for (const [r, g] of bars) y += g * Math.sin(r * w * i + r);
+      y += 0.5 * Math.sin(4 * w * i) * Math.exp(-t / 0.25);          // percussion (2nd harmonic of 8', 2 octaves up)
+      if (i < secs(0.006)) y += (rnd() * 2 - 1) * 0.6 * (1 - i / secs(0.006)); // key click
+      out[i] = y * Math.min(1, i / secs(0.003));
+    }
+  }, 16);
+}
+addMultiPreset(16, 'Tonewheel Organ', [36, 48, 60, 72].map((k) => ({ key: k })), [
+  { tag: 'a', velMin: 0, velMax: 127, make: (f) => tonewheel(f) }
+], {
+  attackVolEnv: timecents(0.004), sustainVolEnv: 0, releaseVolEnv: timecents(0.06),
+  vibLfoToPitch: 6, freqVibLFO: lfoHz(6.2), delayVibLFO: timecents(0.05),
+  chorusEffectsSend: 110
+}, 0.7);
+
+// --- Vibraphone: fundamental + 4th partial + bar overtone, mallet thump, motor tremolo
+function vibes(f0) {
+  return tone(f0, 2.2, (out, f, n) => {
+    const w = 2 * Math.PI * f / SR;
+    for (let i = 0; i < n; i++) {
+      const t = i / SR;
+      let y = Math.sin(w * i) + 0.45 * Math.sin(4 * w * i) * Math.exp(-t / 0.6) + 0.12 * Math.sin(9.96 * w * i) * Math.exp(-t / 0.12);
+      if (i < secs(0.004)) y += (rnd() * 2 - 1) * 0.8 * (1 - i / secs(0.004));
+      out[i] = y * Math.min(1, i / secs(0.001));
+    }
+  }, 16);
+}
+addMultiPreset(11, 'Vibraphone', [55, 67, 79, 91].map((k) => ({ key: k })), [
+  { tag: 'a', velMin: 0, velMax: 127, make: (f) => vibes(f) }
+], {
+  attackVolEnv: timecents(0.001), decayVolEnv: timecents(3.2), sustainVolEnv: 1440, releaseVolEnv: timecents(0.5),
+  keyNumToVolEnvDecay: -30,
+  modLfoToVolume: 30, freqModLFO: lfoHz(4.0), delayModLFO: 0,
+  chorusEffectsSend: 20
+}, 0.8);
+
+// --- Clavinet: narrow pulse pluck; the SF2 filter envelope does the "wah" of the pickup
+function clav(f0) {
+  return tone(f0, 0.8, (out, f, n) => {
+    const w = 2 * Math.PI * f / SR;
+    const duty = 0.18;
+    for (let h = 1; h * f < SR * 0.45 && h < 80; h++) {
+      const a = Math.sin(Math.PI * duty * h) / (Math.PI * h) * 2 + 0.25 / h; // pulse + a little saw
+      const ph = rnd() * 6.28;
+      for (let i = 0; i < n; i++) out[i] += a * Math.sin(h * w * i + ph);
+    }
+    for (let i = 0; i < n; i++) out[i] *= Math.min(1, i / secs(0.001));
+  }, 16);
+}
+addMultiPreset(7, 'Clavinet', [40, 52, 64, 76].map((k) => ({ key: k })), [
+  { tag: 'a', velMin: 0, velMax: 127, make: (f) => clav(f) }
+], {
+  attackVolEnv: timecents(0.001), decayVolEnv: timecents(1.4), sustainVolEnv: 1440, releaseVolEnv: timecents(0.05),
+  initialFilterFc: 8800, initialFilterQ: 60,       // ~1.3kHz, a little resonance
+  modEnvToFilterFc: 3600, attackModEnv: timecents(0.001), decayModEnv: timecents(0.16), sustainModEnv: 1000, releaseModEnv: timecents(0.05),
+  chorusEffectsSend: 10
+}, 0.8);
+
 const buf = await bank.writeSF2({ compress: false, writeDefaultModulators: false });
 fs.writeFileSync(OUT, Buffer.from(buf));
 console.log(`\nwrote ${OUT}  ${(buf.byteLength / 1048576).toFixed(2)} MB  (${sampleCount} samples, ${(totalSamples / SR).toFixed(1)}s audio)`);
@@ -553,7 +701,7 @@ if (process.argv.includes('--verify')) {
   const notes = Object.keys(NOTES).map(Number).sort((a, b) => a - b);
   for (const p of sf.presets) {
     const isDrum = p.isGMGSDrum;
-    const testNotes = isDrum ? notes : (p.program < 40 ? [36, 43, 48] : [48, 60, 72]);
+    const testNotes = isDrum ? notes : (p.program === 38 || p.program === 39 ? [36, 43, 48] : [48, 60, 72]);
     const ch = isDrum ? 9 : 0;
     const ppq = 96;
     const vlq = (v) => { const out = [v & 0x7F]; v >>= 7; while (v > 0) { out.unshift((v & 0x7F) | 0x80); v >>= 7; } return out; };
