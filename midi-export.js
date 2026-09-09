@@ -7,18 +7,17 @@
 // which is the General MIDI standard drum channel.
 //
 // MIDI timing:
-//   - PPQ (pulses per quarter note): 96
-//   - Ticks per 16th note: 24 (= 96 / 4)
-//   - Note duration: 75% of one 16th note (18 ticks) — short enough
-//     to avoid overlapping the next step
+//   - PPQ (pulses per quarter note): 960 (PPQ in timing.js) — MPC native
+//   - Ticks per 16th note: 240 (TICKS_PER_STEP)
+//   - Note duration: 75% of one 16th note — short enough to avoid
+//     overlapping the next step
 //
-// Swing implementation:
-//   Swing delays every EVEN 16th-note step (1-indexed: 2, 4, 6, …, 16;
-//   0-indexed: 1, 3, 5, …, 15). The delay amount is derived from the
-//   swing percentage: 50% = no delay (straight), 66% = heavy boom-bap
-//   shuffle. The formula scales linearly between 0 and half a 16th note.
+// Swing, pocket and micro-timing all come from timing.js:
+//   drumHitOffsetTicks() / melodicOffsetTicks() turn a (row, step, feel)
+//   into a tick offset from the grid. This file only places events.
 //
 // Depends on: patterns.js (ROWS, patterns, secSteps, arrangement),
+//             timing.js (PPQ, TICKS_PER_STEP, drumHitOffsetTicks …),
 //             pdf-export.js (generatePDFBlob), JSZip (external lib)
 //
 // Copyright (c) 2026 Keith Adler — MIT License
@@ -93,7 +92,7 @@ var MPC_SAMPLE_PADS = [
 var MPC_SAMPLE_SLOT_SECONDS = 4;
 
 /** GM drum kit program → human name, for the samples README. */
-var GM_KIT_NAMES = { 0: 'Standard Kit', 8: 'Room Kit', 16: 'Power Kit', 24: 'Electronic Kit', 25: 'TR-808 Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
+var GM_KIT_NAMES = { 0: 'Boom Bap Kit', 8: 'Dusty Kit', 16: 'Hard Kit', 24: 'Electro Kit', 25: 'TR-808 Kit', 26: 'Live Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
 
 /** Current style's GM drum kit program (same lookup the MIDI builders use). */
 function _currentDrumKitProgram() {
@@ -160,7 +159,7 @@ function buildMpcSamplesReadme(bpm) {
     '===============',
     '',
     'These are one-shot WAV samples (44.1kHz, 16-bit stereo) of the exact',
-    'drum sounds this beat plays in the browser — the GM ' + kitName + ',',
+    'drum sounds this beat plays in the browser — the ' + kitName + ',',
     'sampled at full velocity.',
     '',
     'HOW TO USE',
@@ -196,8 +195,8 @@ function buildMpcSamplesReadme(bpm) {
  *   - MThd header (format 0, 1 track, PPQ = 96)
  *   - MTrk with tempo meta-event, note-on/off pairs, and end-of-track
  *
- * Swing is read live from the DOM (#swing element) and applied as a
- * tick offset on every even 16th-note step within each bar.
+ * Swing is read live from the DOM (#swing element). With noSwing the
+ * file is a straight, un-humanized grid (for adding swing in a DAW).
  *
  * @param {string[]} sectionList - Ordered section ids to concatenate
  *   (e.g. ["intro", "verse", "chorus"])
@@ -206,20 +205,15 @@ function buildMpcSamplesReadme(bpm) {
  *   be saved as a .mid file or fed to a MIDI player element
  */
 function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
-  var ppq = 96, ch = 9;
-  var ticksPerStep = ppq / 4;
+  var ppq = PPQ, ch = 9;
+  var ticksPerStep = TICKS_PER_STEP;
   var noteDurTicks = Math.floor(ticksPerStep * 0.75);
   var events = [];
   var tickPos = 0;
   var eventMap = {};
 
-  // Swing: read from UI and apply unless noSwing is true
-  // Uses a slightly exponential curve to match real MPC swing feel —
-  // the jump from 62% to 66% feels bigger than 54% to 58%
+  // Swing: read from UI. noSwing = straight grid, no pocket, no jitter.
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingNorm = (swing - 50) / 50; // 0 = straight, 0.4 = heavy
-  var swingCurved = swingNorm * (1 + swingNorm * 0.5); // gentle exponential
-  var baseSwingAmount = noSwing ? 0 : Math.round(swingCurved * ticksPerStep * 0.5);
 
   sectionList.forEach(function(sec) {
     var pat = patterns[sec];
@@ -238,11 +232,8 @@ function buildMidiBytes(sectionList, bpm, noSwing, keepLeadingSilence) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
-          // Per-instrument swing
-          var instrSwingMult = (typeof getInstrumentSwing === 'function') ? getInstrumentSwing(r, vel, secFeel) : 1.0;
-          var instrSwing = Math.round(baseSwingAmount * instrSwingMult);
-          var swingOffset = (stepInBar % 2 === 1) ? instrSwing : 0;
-          var stepTick = tickPos + swingOffset;
+          var offset = noSwing ? 0 : drumHitOffsetTicks(r, vel, s, sec, secFeel, bpm, swing);
+          var stepTick = tickPos + offset;
           var key = stepTick + ':' + note;
           if (eventMap[key] !== undefined) {
             // Duplicate note at same tick — keep louder velocity
@@ -1136,18 +1127,16 @@ function _isDrumDrop(drumPat, step) {
 }
 
 function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
-  var ppq = 96, drumCh = 9, bassCh = 0, epCh = 2;
-  var ticksPerStep = ppq / 4;
+  var ppq = PPQ, drumCh = 9, bassCh = 0, epCh = 2;
+  var ticksPerStep = TICKS_PER_STEP;
   var noteDurTicks = Math.floor(ticksPerStep * 0.75);
   var events = [];
   var tickPos = 0;
   var eventMap = {};
+  var tickScale = LEGACY_TICK_SCALE; // instrument generators still speak 96-PPQ ticks
 
-  // Swing from UI — per-instrument swing multipliers applied below
+  // Swing from UI — timing.js applies it per instrument
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingNorm = (swing - 50) / 50;
-  var swingCurved = swingNorm * (1 + swingNorm * 0.5);
-  var baseSwingAmount = Math.round(swingCurved * ticksPerStep * 0.5);
 
   // Determine the song feel for per-instrument swing lookup
   var combinedFeel = songFeel || 'normal';
@@ -1163,11 +1152,8 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
 
     // Drum events (channel 10) — skip if drums are muted (session-only)
     var _drumsOff = (typeof _drumsMuted !== 'undefined' && _drumsMuted);
-    // Pocket shift: chorus pushes slightly ahead, verse lays back
-    var sectionTimingBias = 0;
-    if (sec === 'chorus' || sec === 'chorus2' || sec === 'lastchorus') sectionTimingBias = -1;
-    else if (sec === 'verse' || sec === 'verse2') sectionTimingBias = 1;
-    else if (sec === 'breakdown') sectionTimingBias = 2;
+    // Section push/pull (chorus leans forward, verse sits back) is inside
+    // drumHitOffsetTicks / melodicOffsetTicks via sectionBiasMs().
     if (!_drumsOff) {
     for (var s = 0; s < len; s++) {
       var stepInBar = s % 16;
@@ -1178,11 +1164,8 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         if (pat[r][s] > 0) {
           var note = MIDI_NOTE_MAP[r];
           var vel = Math.min(127, Math.max(1, pat[r][s]));
-          // Per-instrument swing: each instrument swings by a different amount
-          var instrSwingMult = (typeof getInstrumentSwing === 'function') ? getInstrumentSwing(r, vel, swingFeel) : 1.0;
-          var instrSwing = Math.round(baseSwingAmount * instrSwingMult);
-          var swingOffset = (stepInBar % 2 === 1) ? instrSwing : 0;
-          var stepTick = tickPos + swingOffset + sectionTimingBias;
+          // Swing + pocket + micro-timing, per instrument and per hit
+          var stepTick = tickPos + drumHitOffsetTicks(r, vel, s, sec, swingFeel, bpm, swing);
           if (stepTick < 0) stepTick = 0;
           var key = stepTick + ':' + note + ':d';
           if (eventMap[key] !== undefined) {
@@ -1216,14 +1199,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     if (/^intro_[abc]$/.test(secFeels[sec] || '')) bassFeel = 'sparse';
     if (/^outro_/.test(secFeels[sec] || '')) bassFeel = 'sparse';
     var bassSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[bassFeel]) ? INSTRUMENT_SWING[bassFeel].bass : 0.9;
-    var bassSwing = Math.round(baseSwingAmount * bassSwingMult);
     bassEvents.forEach(function(e) {
       // Skip bass events during beat drops (all drums silent)
       if (_isDrumDrop(pat, e.step)) return;
-      var stepInBar = e.step % 16;
-      var swingOffset = (stepInBar % 2 === 1) ? bassSwing : 0;
-      var timingOff = (e.timingOffset || 0);
-      var stepTick = secTickStart + (e.step * ticksPerStep) + swingOffset + timingOff + sectionTimingBias;
+      var stepTick = secTickStart + (e.step * ticksPerStep) + melodicOffsetTicks('bass', e.step, sec, bassFeel, bpm, swing, bassSwingMult, e.timingOffset);
       if (stepTick < 0) stepTick = 0;
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
       events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
@@ -1240,24 +1219,20 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
       if (/^intro_[abc]$/.test(secFeels[sec] || '')) epFeel = 'sparse';
       if (/^outro_/.test(secFeels[sec] || '')) epFeel = 'sparse';
       var epSwingMult = (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[epFeel]) ? INSTRUMENT_SWING[epFeel].hat * 0.8 : 0.8;
-      var epSwing = Math.round(baseSwingAmount * epSwingMult);
       for (var epi = 0; epi < epEvents.length; epi++) {
         var epE = epEvents[epi];
         // Skip events during beat drops (all drums silent at this step)
         if (_isDrumDrop(pat, epE.step)) continue;
-        var epStepInBar = epE.step % 16;
-        var epSwingOff = (epStepInBar % 2 === 1) ? epSwing : 0;
-        var epTimingOff = epE.timingOffset || 0;
-        var epStepTick = secTickStart + (epE.step * ticksPerStep) + epSwingOff + epTimingOff;
+        var epStepTick = secTickStart + (epE.step * ticksPerStep) + melodicOffsetTicks('ep', epE.step, sec, epFeel, bpm, swing, epSwingMult, epE.timingOffset);
         if (epStepTick < 0) epStepTick = 0;
         var epDurTicks = Math.max(1, Math.floor(ticksPerStep * epE.dur));
         for (var epni = 0; epni < epE.notes.length; epni++) {
           var epNoteVel = (epE.vels && epE.vels[epni] !== undefined) ? epE.vels[epni] : (epE.vel || 60);
-          // FIX 1: Apply crush offset per note (staggered chord attack)
-          var epCrushOff = (epE.crush && epE.crush[epni]) ? epE.crush[epni] : 0;
+          // Crushed chord: staggered note attacks (legacy ticks → real ticks)
+          var epCrushOff = ((epE.crush && epE.crush[epni]) ? epE.crush[epni] : 0) * tickScale;
           var epNoteTick = Math.max(0, epStepTick + epCrushOff);
-          // FIX 10: Apply duration jitter
-          var epNoteDur = Math.max(1, epDurTicks + (epE.durJitter || 0));
+          // Duration jitter (legacy ticks → real ticks)
+          var epNoteDur = Math.max(1, epDurTicks + (epE.durJitter || 0) * tickScale);
           events.push({ tick: epNoteTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epNoteVel)) });
           events.push({ tick: epNoteTick + epNoteDur, type: 'off', ch: epCh, note: epE.notes[epni] });
         }
@@ -1270,15 +1245,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     if (padOn && typeof generatePadPattern === 'function') {
       var padEvents = _getCachedOrGenerate('pad', generatePadPattern, sec, bpm);
       var padCh = 3;
-      var padSwingMult = 0.3;
-      var padSwing = Math.round(baseSwingAmount * padSwingMult);
       for (var padi = 0; padi < padEvents.length; padi++) {
         var padE = padEvents[padi];
         if (_isDrumDrop(pat, padE.step)) continue;
-        var padStepInBar = padE.step % 16;
-        var padSwingOff = (padStepInBar % 2 === 1) ? padSwing : 0;
-        var padTimingOff = padE.timingOffset || 0;
-        var padStepTick = secTickStart + (padE.step * ticksPerStep) + padSwingOff + padTimingOff;
+        var padStepTick = secTickStart + (padE.step * ticksPerStep) + melodicOffsetTicks('pad', padE.step, sec, swingFeel, bpm, swing, 0.3, padE.timingOffset);
         if (padStepTick < 0) padStepTick = 0;
         var padDurTicks = Math.max(1, Math.floor(ticksPerStep * padE.dur));
         for (var padni = 0; padni < padE.notes.length; padni++) {
@@ -1295,14 +1265,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     if (leadOn && typeof generateLeadPattern === 'function') {
       var leadEvents = _getCachedOrGenerate('lead', generateLeadPattern, sec, bpm);
       var leadCh = 4;
-      var leadSwing = Math.round(baseSwingAmount * 0.9);
       for (var li = 0; li < leadEvents.length; li++) {
         var lE = leadEvents[li];
         if (_isDrumDrop(pat, lE.step)) continue;
-        var lStepInBar = lE.step % 16;
-        var lSwingOff = (lStepInBar % 2 === 1) ? leadSwing : 0;
-        var lTimingOff = lE.timingOffset || 0;
-        var lStepTick = secTickStart + (lE.step * ticksPerStep) + lSwingOff + lTimingOff;
+        var lStepTick = secTickStart + (lE.step * ticksPerStep) + melodicOffsetTicks('lead', lE.step, sec, swingFeel, bpm, swing, 0.9, lE.timingOffset);
         if (lStepTick < 0) lStepTick = 0;
         var lDurTicks = Math.max(1, Math.floor(ticksPerStep * lE.dur));
         for (var lni = 0; lni < lE.notes.length; lni++) {
@@ -1319,13 +1285,10 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     if (organOn && typeof generateOrganPattern === 'function') {
       var organEvents = _getCachedOrGenerate('organ', generateOrganPattern, sec, bpm);
       var organCh = 5;
-      var organSwing = Math.round(baseSwingAmount * 0.4);
       for (var oi = 0; oi < organEvents.length; oi++) {
         var oE = organEvents[oi];
         if (_isDrumDrop(pat, oE.step)) continue;
-        var oStepInBar = oE.step % 16;
-        var oSwingOff = (oStepInBar % 2 === 1) ? organSwing : 0;
-        var oStepTick = secTickStart + (oE.step * ticksPerStep) + oSwingOff + (oE.timingOffset || 0);
+        var oStepTick = secTickStart + (oE.step * ticksPerStep) + melodicOffsetTicks('organ', oE.step, sec, swingFeel, bpm, swing, 0.4, oE.timingOffset);
         if (oStepTick < 0) oStepTick = 0;
         var oDurTicks = Math.max(1, Math.floor(ticksPerStep * oE.dur));
         for (var oni = 0; oni < oE.notes.length; oni++) {
@@ -1341,11 +1304,11 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     try { var hp = localStorage.getItem('hhd_horn_playback'); if (hp !== null) hornOn = (hp !== 'false'); } catch(e6) {}
     if (hornOn && typeof generateHornPattern === 'function') {
       var hornEvents = _getCachedOrGenerate('horn', generateHornPattern, sec, bpm);
-      var hornCh = 6; var hornSwing = Math.round(baseSwingAmount * 0.8);
+      var hornCh = 6;
       for (var hi = 0; hi < hornEvents.length; hi++) {
-        var hE = hornEvents[hi]; var hSIB = hE.step % 16;
+        var hE = hornEvents[hi];
         if (_isDrumDrop(pat, hE.step)) continue;
-        var hTick = secTickStart + (hE.step * ticksPerStep) + ((hSIB % 2 === 1) ? hornSwing : 0) + (hE.timingOffset || 0);
+        var hTick = secTickStart + (hE.step * ticksPerStep) + melodicOffsetTicks('horn', hE.step, sec, swingFeel, bpm, swing, 0.8, hE.timingOffset);
         if (hTick < 0) hTick = 0; var hDur = Math.max(1, Math.floor(ticksPerStep * hE.dur));
         for (var hni = 0; hni < hE.notes.length; hni++) {
           var hVel = (hE.vels && hE.vels[hni] !== undefined) ? hE.vels[hni] : 80;
@@ -1360,11 +1323,11 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     try { var vp = localStorage.getItem('hhd_vibes_playback'); if (vp !== null) vibesOn = (vp !== 'false'); } catch(e7) {}
     if (vibesOn && typeof generateVibesPattern === 'function') {
       var vibesEvts = _getCachedOrGenerate('vibes', generateVibesPattern, sec, bpm);
-      var vibesCh = 7; var vibesSwing = Math.round(baseSwingAmount * 1.0);
+      var vibesCh = 7;
       for (var vbi = 0; vbi < vibesEvts.length; vbi++) {
-        var vbE = vibesEvts[vbi]; var vbSIB = vbE.step % 16;
+        var vbE = vibesEvts[vbi];
         if (_isDrumDrop(pat, vbE.step)) continue;
-        var vbTick = secTickStart + (vbE.step * ticksPerStep) + ((vbSIB % 2 === 1) ? vibesSwing : 0) + (vbE.timingOffset || 0);
+        var vbTick = secTickStart + (vbE.step * ticksPerStep) + melodicOffsetTicks('vibes', vbE.step, sec, swingFeel, bpm, swing, 1.0, vbE.timingOffset);
         if (vbTick < 0) vbTick = 0; var vbDur = Math.max(1, Math.floor(ticksPerStep * vbE.dur));
         for (var vbni = 0; vbni < vbE.notes.length; vbni++) {
           var vbVel = (vbE.vels && vbE.vels[vbni] !== undefined) ? vbE.vels[vbni] : 50;
@@ -1379,11 +1342,11 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     try { var cp2 = localStorage.getItem('hhd_clav_playback'); if (cp2 !== null) clavOn = (cp2 !== 'false'); } catch(e8) {}
     if (clavOn && typeof generateClavPattern === 'function') {
       var clavEvts = _getCachedOrGenerate('clav', generateClavPattern, sec, bpm);
-      var clavCh = 8; var clavSwing = Math.round(baseSwingAmount * 1.1);
+      var clavCh = 8;
       for (var cli = 0; cli < clavEvts.length; cli++) {
-        var clE = clavEvts[cli]; var clSIB = clE.step % 16;
+        var clE = clavEvts[cli];
         if (_isDrumDrop(pat, clE.step)) continue;
-        var clTick = secTickStart + (clE.step * ticksPerStep) + ((clSIB % 2 === 1) ? clavSwing : 0) + (clE.timingOffset || 0);
+        var clTick = secTickStart + (clE.step * ticksPerStep) + melodicOffsetTicks('clav', clE.step, sec, swingFeel, bpm, swing, 1.1, clE.timingOffset);
         if (clTick < 0) clTick = 0; var clDur = Math.max(1, Math.floor(ticksPerStep * clE.dur));
         for (var clni = 0; clni < clE.notes.length; clni++) {
           var clVel = (clE.vels && clE.vels[clni] !== undefined) ? clE.vels[clni] : 65;
@@ -1455,6 +1418,15 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   td.push(0, 0xC0 | 7, 11);
   // Program change on channel 8: Clavinet
   td.push(0, 0xC0 | 8, 7);
+
+  // Effect sends (CC91 reverb, CC93 chorus). Drums and bass stay dry —
+  // their room is baked into the kit samples; keys and horns get a
+  // little space so they sit behind the drums instead of on top.
+  var reverbSends = { 9: 0, 0: 0, 2: 28, 3: 55, 4: 22, 5: 24, 6: 38, 7: 42, 8: 12 };
+  for (var rcCh in reverbSends) {
+    td.push(0, 0xB0 | rcCh, 91, reverbSends[rcCh]);
+    td.push(0, 0xB0 | rcCh, 93, 0);
+  }
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)

@@ -2,6 +2,25 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [2.0] - 2026-09-09
+
+### Changed — The Beat Finally Swings, and the Drums Are Ours
+
+Every style shared the same problem: the swing on the screen was not the
+swing in your ears, and the drums were General MIDI. This release replaces
+the timing math and the drum sounds.
+
+- **Swing is now real MPC swing.** The old formula produced about half the labeled amount at 96 PPQ (62% came out as 21ms instead of 40ms at 90 BPM), then per-instrument multipliers halved it again — kicks were effectively straight. `timing.js` implements the MPC definition (off-16th at swing% of the 8th note), renders at 960 PPQ, and compresses the per-instrument multipliers into the 10–20ms range real records show. Capped at the 75% triplet point so nothing crosses into the next step
+- **Pocket and micro-timing.** Every hit gets a per-feel placement in milliseconds: boom bap backbeat 8ms behind, Dilla 24ms (up to 40ms on pocket bars), hard/driving pushed ahead, all 808/Memphis/crunk styles machine-tight. Seeded per-hit drift on played feels (Dilla kicks ±12ms, Questlove-style ghosts ±8ms). Deterministic per beat, so Strict mode still plays the same thing every time
+- **The "pocket-delayed snare" no longer moves the snare a whole 16th late.** That was a displaced hit, not a lazy one. It is now a 10–40ms drag from the timing engine
+- **Eight drum kits synthesized from scratch** (`hhd-kits.sf2`, built by `scripts/build-kits.mjs`): Boom Bap (SP-1200 flavour: 12-bit, 26kHz sample-and-hold, crunchy), Dusty (Dilla / lo-fi: dark, tape-saturated), Hard (big click, gated-room snare), Electro (DMX / Linn), TR-808 (six-oscillator hats, long sine kick, 808 clap and cowbell), Live (beater click, snare wires, room), Jazz (tight, ride-forward), Brush (brushed snare swell). Velocity layers on kick, snare and hats; ghost kick is a darker layer of the kick; closed and open hats choke each other. Same program numbers the styles already used, so the kit display and MPC pad-sample export work unchanged
+- **808 sub bass presets** (GM 38/39) replace the GM synth basses for G-Funk, crunk, Memphis, Miami bass, dark and NOLA styles: a looped sine with the attack knock, envelope decay, plus a rounder saturated variant
+- **Master chain on live playback** (it was export-only): HPF, low shelf, mud cut, presence, glue compressor, tape-style saturation, limiter, short dark room send for the keys. Kits pick a character — dusty rolls off at 10kHz with more drive, boom bap at 15kHz, live gets more room, 808 kits stay clean. WAV export uses the same chain
+- **Effect sends per channel.** Drums and bass are dry; EP, pads, organ, horns and vibes get a little reverb so they sit behind the drums
+- **Per-instrument MIDI exports** (bass, EP, pad, lead, organ, horns, vibes, clav) use the corrected swing formula
+- **About This Beat** describes the timing in milliseconds: swing delay, backbeat lay-back, kick drift, hat push
+- New `node scripts/render-beat.mjs --style dilla` renders a beat to WAV from the command line with a measured timing report
+
 ## [1.75] - 2026-08-13
 
 ### Changed — Interface Rebuilt Around the Machine

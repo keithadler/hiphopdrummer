@@ -210,8 +210,8 @@ function buildOrganMidiBytes(sectionList, bpm, noSwing) {
   var tickPos = 0;
 
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
-  var swingCurved = ((swing - 50) / 50) * (1 + ((swing - 50) / 50) * 0.5);
-  var baseSwingAmount = noSwing ? 0 : Math.round(swingCurved * ticksPerStep * 0.5);
+  // MPC swing: the off-16th lands at swing% of its 8th note (62% ≈ 40ms late at 90 BPM)
+  var baseSwingAmount = noSwing ? 0 : Math.round(((swing - 50) / 100) * 2 * ticksPerStep);
 
   var organProgram = 16;
   var songFeelBase = (typeof songFeel !== 'undefined' && typeof resolveBaseFeel === 'function') ? resolveBaseFeel(songFeel) : '';

@@ -5,13 +5,14 @@
 // ⚠️  UPDATE THIS VERSION when deploying changes to any cached file.
 //     The browser only re-installs the SW when this file changes.
 //     Format: hiphopdrummer-YYYYMMDD or increment the number.
-var CACHE_NAME = 'hiphopdrummer-v1.75';
+var CACHE_NAME = 'hiphopdrummer-v2.0';
 
 var ASSETS = [
   './',
   './index.html',
   './styles.css',
   './patterns.js',
+  './timing.js',
   './ai.js',
   './writers.js',
   './groove.js',
@@ -33,6 +34,7 @@ var ASSETS = [
   './synth.js',
   './spessasynth_processor.min.js',
   './FluidR3.sf3',
+  './hhd-kits.sf2',
   './icon-192.png',
   './icon-512.png',
   './manifest.json'
