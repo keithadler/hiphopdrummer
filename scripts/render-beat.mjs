@@ -12,6 +12,8 @@
 //   node scripts/render-beat.mjs [--style dilla] [--bpm 90] [--key Dm7]
 //                                [--sections verse,chorus] [--bars 8]
 //                                [--out beat.wav] [--seed 7]
+//                                [--solo 9,0]   keep only these MIDI channels (mix balance checks)
+//                                [--dry]        skip the master chain
 //
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
@@ -82,7 +84,22 @@ if (args.bars) {
   for (const s of sections) { if (have >= want) break; keep.push(s); have += (secSteps[s] || 32) / 16; }
   sections = keep;
 }
-const midiBytes = buildCombinedMidiBytes(sections, bpm);
+let midiBytes = buildCombinedMidiBytes(sections, bpm);
+if (args.solo) {
+  // Silence every note-on on channels not in the list (velocity 0 = note-off)
+  const keep = new Set(String(args.solo).split(',').map(Number));
+  midiBytes = Uint8Array.from(midiBytes);
+  let i = 22, running = 0;
+  while (i < midiBytes.length) {
+    let b; do { b = midiBytes[i++]; } while (b & 0x80);
+    let st = midiBytes[i];
+    if (st & 0x80) { running = st; i++; } else st = running;
+    if (st === 0xFF) { const type = midiBytes[i++]; let len = 0; do { b = midiBytes[i++]; len = (len << 7) | (b & 0x7F); } while (b & 0x80); if (type === 0x2F) break; i += len; continue; }
+    const hi = st & 0xF0, ch = st & 0x0F;
+    if (hi === 0x90) { if (!keep.has(ch)) midiBytes[i + 1] = 0; i += 2; }
+    else if (hi === 0xC0 || hi === 0xD0) i += 1; else i += 2;
+  }
+}
 console.log(`style=${style} feel=${songFeel} bpm=${bpm} swing=${swing}% key=${el('songKey').textContent} sections=${sections.join(',')}`);
 
 // ---------------------------------------------------------------
@@ -177,11 +194,12 @@ function chain(x) {
   for (let i = 0; i < x.length; i++) x[i] *= 0.9;
   return x;
 }
-const outL = chain(L), outR = chain(R);
+const outL = args.dry ? L : chain(L), outR = args.dry ? R : chain(R);
 let peakDry = 0, peakWet = 0, rms = 0;
 for (let i = 0; i < total; i++) { peakDry = Math.max(peakDry, Math.abs(L[i])); peakWet = Math.max(peakWet, Math.abs(outL[i])); rms += outL[i] * outL[i]; }
 rms = Math.sqrt(rms / total);
-console.log(`\nLevels: dry peak ${(20 * Math.log10(peakDry)).toFixed(1)} dBFS → mastered peak ${(20 * Math.log10(peakWet)).toFixed(1)} dBFS, RMS ${(20 * Math.log10(rms)).toFixed(1)} dBFS (${character})`);
+let rmsDry = 0; for (let i = 0; i < total; i++) rmsDry += L[i] * L[i]; rmsDry = Math.sqrt(rmsDry / total);
+console.log(`\nLevels: dry peak ${(20 * Math.log10(peakDry + 1e-9)).toFixed(1)} dBFS, dry RMS ${(20 * Math.log10(rmsDry + 1e-9)).toFixed(1)} dBFS → mastered peak ${(20 * Math.log10(peakWet + 1e-9)).toFixed(1)} dBFS, RMS ${(20 * Math.log10(rms + 1e-9)).toFixed(1)} dBFS (${character})`);
 
 for (let i = 0; i < total; i++) { outL[i] = Math.max(-0.999, Math.min(0.999, outL[i])); outR[i] = Math.max(-0.999, Math.min(0.999, outR[i])); }
 const wav = audioToWav([outL, outR], SR, { normalizeAudio: false });

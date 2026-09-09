@@ -1126,6 +1126,41 @@ function _isDrumDrop(drumPat, step) {
   return true; // all drums silent = beat drop
 }
 
+/**
+ * Per-channel mix trims for playback. The generators write velocities that
+ * are right for a DAW, but the SoundFont patches differ in level by 20dB+
+ * (a GM finger bass is ~14dB under the drums, a pad at velocity 40 is ~28dB
+ * under). These multipliers scale velocity before it hits the synth, and
+ * CC7 fine-tunes per channel. Measured with scripts/render-beat.mjs --solo.
+ * Targets (dry RMS vs drums): bass −6, EP −9, lead −9, horns −9, organ −12,
+ * vibes −12, clav −10, pad −13.
+ * @param {number} bassProgram
+ * @param {number} epProgram
+ * @returns {{bass:number, ep:number, pad:number, lead:number, organ:number, horn:number, vibes:number, clav:number, cc7:Object}}
+ */
+function channelMixFor(bassProgram, epProgram) {
+  var bassVel = { 33: 1.55, 34: 1.55, 35: 1.0, 36: 1.2, 38: 1.0, 39: 1.0 };
+  var bassCc7 = { 33: 118, 34: 118, 35: 110, 36: 112, 38: 108, 39: 108 };
+  var epVel = { 0: 1.6, 4: 1.0, 5: 1.0 };
+  return {
+    bass: bassVel[bassProgram] || 1.2,
+    ep: epVel[epProgram] || 1.0,
+    pad: 1.8,
+    lead: 1.25,
+    organ: 1.5,
+    horn: 1.25,
+    vibes: 1.5,
+    clav: 1.15,
+    // CC7 (default 100). Drums stay at 100; melodic channels get up to +4dB.
+    cc7: { 9: 100, 0: bassCc7[bassProgram] || 112, 2: 118, 3: 127, 4: 118, 5: 127, 6: 118, 7: 118, 8: 118 }
+  };
+}
+
+/** Scale a generator velocity by a mix trim, clamped to MIDI range. */
+function _mixVel(v, mult) {
+  return Math.min(127, Math.max(1, Math.round((v || 60) * mult)));
+}
+
 function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   var ppq = PPQ, drumCh = 9, bassCh = 0, epCh = 2;
   var ticksPerStep = TICKS_PER_STEP;
@@ -1137,6 +1172,13 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
 
   // Swing from UI — timing.js applies it per instrument
   var swing = parseInt(document.getElementById('swing').textContent) || 62;
+
+  // Style sounds (programs) — needed up front for the per-channel mix trims
+  var _cFeel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
+  var _cSd = STYLE_DATA[_cFeel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_cFeel) : 'normal'] || {};
+  var bassProgram = (typeof _cSd.bassSound === 'number') ? _cSd.bassSound : 33;
+  var epProgram = (typeof _cSd.epProgram === 'number') ? _cSd.epProgram : 4;
+  var mix = channelMixFor(bassProgram, epProgram);
 
   // Determine the song feel for per-instrument swing lookup
   var combinedFeel = songFeel || 'normal';
@@ -1205,7 +1247,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
       var stepTick = secTickStart + (e.step * ticksPerStep) + melodicOffsetTicks('bass', e.step, sec, bassFeel, bpm, swing, bassSwingMult, e.timingOffset);
       if (stepTick < 0) stepTick = 0;
       var durTicks = Math.max(1, Math.floor(ticksPerStep * e.dur));
-      events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: Math.min(127, Math.max(1, e.vel)) });
+      events.push({ tick: stepTick, type: 'on', ch: bassCh, note: e.note, vel: _mixVel(e.vel, mix.bass) });
       events.push({ tick: stepTick + durTicks, type: 'off', ch: bassCh, note: e.note });
     });
     } // end if (_bassOn)
@@ -1233,7 +1275,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
           var epNoteTick = Math.max(0, epStepTick + epCrushOff);
           // Duration jitter (legacy ticks → real ticks)
           var epNoteDur = Math.max(1, epDurTicks + (epE.durJitter || 0) * tickScale);
-          events.push({ tick: epNoteTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: Math.min(127, Math.max(1, epNoteVel)) });
+          events.push({ tick: epNoteTick, type: 'on', ch: epCh, note: epE.notes[epni], vel: _mixVel(epNoteVel, mix.ep) });
           events.push({ tick: epNoteTick + epNoteDur, type: 'off', ch: epCh, note: epE.notes[epni] });
         }
       }
@@ -1253,7 +1295,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         var padDurTicks = Math.max(1, Math.floor(ticksPerStep * padE.dur));
         for (var padni = 0; padni < padE.notes.length; padni++) {
           var padNoteVel = (padE.vels && padE.vels[padni] !== undefined) ? padE.vels[padni] : 40;
-          events.push({ tick: padStepTick, type: 'on', ch: padCh, note: padE.notes[padni], vel: Math.min(127, Math.max(1, padNoteVel)) });
+          events.push({ tick: padStepTick, type: 'on', ch: padCh, note: padE.notes[padni], vel: _mixVel(padNoteVel, mix.pad) });
           events.push({ tick: padStepTick + padDurTicks, type: 'off', ch: padCh, note: padE.notes[padni] });
         }
       }
@@ -1273,8 +1315,22 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         var lDurTicks = Math.max(1, Math.floor(ticksPerStep * lE.dur));
         for (var lni = 0; lni < lE.notes.length; lni++) {
           var lNoteVel = (lE.vels && lE.vels[lni] !== undefined) ? lE.vels[lni] : 60;
-          events.push({ tick: lStepTick, type: 'on', ch: leadCh, note: lE.notes[lni], vel: Math.min(127, Math.max(1, lNoteVel)) });
+          events.push({ tick: lStepTick, type: 'on', ch: leadCh, note: lE.notes[lni], vel: _mixVel(lNoteVel, mix.lead) });
           events.push({ tick: lStepTick + lDurTicks, type: 'off', ch: leadCh, note: lE.notes[lni] });
+          // Portamento: slide into the note from the previous pitch with a
+          // pitch-bend ramp (bend range 12 set in the header). The G-Funk
+          // whistle glides; it doesn't play a chromatic run.
+          if (lni === 0 && lE.slide && lE.slideFrom && lE.slideFrom !== lE.notes[0]) {
+            var semis = Math.max(-12, Math.min(12, lE.slideFrom - lE.notes[0]));
+            var glideTicks = Math.max(Math.round(ticksPerMs(bpm) * 45), Math.min(Math.round(ticksPerMs(bpm) * 110), Math.floor(lDurTicks * 0.45)));
+            var steps = 12;
+            for (var gi = 0; gi <= steps; gi++) {
+              var frac = gi / steps;
+              var eased = 1 - Math.pow(1 - frac, 2); // fast start, settles into pitch
+              var bend = Math.round(8192 + semis * (1 - eased) * (8192 / 12));
+              events.push({ tick: lStepTick + Math.round(glideTicks * frac), type: 'bend', ch: leadCh, value: Math.max(0, Math.min(16383, bend)) });
+            }
+          }
         }
       }
     }
@@ -1293,7 +1349,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         var oDurTicks = Math.max(1, Math.floor(ticksPerStep * oE.dur));
         for (var oni = 0; oni < oE.notes.length; oni++) {
           var oNoteVel = (oE.vels && oE.vels[oni] !== undefined) ? oE.vels[oni] : 40;
-          events.push({ tick: oStepTick, type: 'on', ch: organCh, note: oE.notes[oni], vel: Math.min(127, Math.max(1, oNoteVel)) });
+          events.push({ tick: oStepTick, type: 'on', ch: organCh, note: oE.notes[oni], vel: _mixVel(oNoteVel, mix.organ) });
           events.push({ tick: oStepTick + oDurTicks, type: 'off', ch: organCh, note: oE.notes[oni] });
         }
       }
@@ -1312,7 +1368,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         if (hTick < 0) hTick = 0; var hDur = Math.max(1, Math.floor(ticksPerStep * hE.dur));
         for (var hni = 0; hni < hE.notes.length; hni++) {
           var hVel = (hE.vels && hE.vels[hni] !== undefined) ? hE.vels[hni] : 80;
-          events.push({ tick: hTick, type: 'on', ch: hornCh, note: hE.notes[hni], vel: Math.min(127, Math.max(1, hVel)) });
+          events.push({ tick: hTick, type: 'on', ch: hornCh, note: hE.notes[hni], vel: _mixVel(hVel, mix.horn) });
           events.push({ tick: hTick + hDur, type: 'off', ch: hornCh, note: hE.notes[hni] });
         }
       }
@@ -1331,7 +1387,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         if (vbTick < 0) vbTick = 0; var vbDur = Math.max(1, Math.floor(ticksPerStep * vbE.dur));
         for (var vbni = 0; vbni < vbE.notes.length; vbni++) {
           var vbVel = (vbE.vels && vbE.vels[vbni] !== undefined) ? vbE.vels[vbni] : 50;
-          events.push({ tick: vbTick, type: 'on', ch: vibesCh, note: vbE.notes[vbni], vel: Math.min(127, Math.max(1, vbVel)) });
+          events.push({ tick: vbTick, type: 'on', ch: vibesCh, note: vbE.notes[vbni], vel: _mixVel(vbVel, mix.vibes) });
           events.push({ tick: vbTick + vbDur, type: 'off', ch: vibesCh, note: vbE.notes[vbni] });
         }
       }
@@ -1350,19 +1406,18 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
         if (clTick < 0) clTick = 0; var clDur = Math.max(1, Math.floor(ticksPerStep * clE.dur));
         for (var clni = 0; clni < clE.notes.length; clni++) {
           var clVel = (clE.vels && clE.vels[clni] !== undefined) ? clE.vels[clni] : 65;
-          events.push({ tick: clTick, type: 'on', ch: clavCh, note: clE.notes[clni], vel: Math.min(127, Math.max(1, clVel)) });
+          events.push({ tick: clTick, type: 'on', ch: clavCh, note: clE.notes[clni], vel: _mixVel(clVel, mix.clav) });
           events.push({ tick: clTick + clDur, type: 'off', ch: clavCh, note: clE.notes[clni] });
         }
       }
     }
   });
 
-  // Sort: by tick, note-offs before note-ons at same tick
+  // Sort: by tick; note-offs, then bends, then note-ons at the same tick
+  var _order = { off: 0, bend: 1, on: 2 };
   events.sort(function(a, b) {
     if (a.tick !== b.tick) return a.tick - b.tick;
-    if (a.type === 'off' && b.type === 'on') return -1;
-    if (a.type === 'on' && b.type === 'off') return 1;
-    return 0;
+    return (_order[a.type] || 0) - (_order[b.type] || 0);
   });
 
   // Preserve bar grid — clamp negative ticks only (see buildMidiBytes comment)
@@ -1384,10 +1439,6 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   var us = Math.round(60000000 / bpm);
   td.push(0, 0xFF, 0x51, 0x03, (us >> 16) & 0xFF, (us >> 8) & 0xFF, us & 0xFF);
   // Program change on channel 1: bass sound — style-matched from STYLE_DATA
-  var bassProgram = 33;
-  var _cFeel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
-  var _cSd = STYLE_DATA[_cFeel] || STYLE_DATA[typeof resolveBaseFeel === 'function' ? resolveBaseFeel(_cFeel) : 'normal'] || {};
-  if (typeof _cSd.bassSound === 'number') bassProgram = _cSd.bassSound;
   td.push(0, 0xC0 | bassCh, bassProgram);
 
   // Drum kit program change on channel 10 (GM drum kits: 0=Standard, 8=Room, 16=Power, etc.)
@@ -1396,8 +1447,6 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   td.push(0, 0xC0 | drumCh, drumKitProgram);
 
   // Program change on channel 2: Piano/EP (style-dependent: 0=Acoustic Grand, 4=Electric Piano 1)
-  var epProgram = 4;
-  if (typeof _cSd.epProgram === 'number') epProgram = _cSd.epProgram;
   td.push(0, 0xC0 | epCh, epProgram);
 
   // Program change on channel 3: Synth Pad — style-matched (89 Warm Pad, 91 Dark Pad, 81 Saw)
@@ -1426,7 +1475,11 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
   for (var rcCh in reverbSends) {
     td.push(0, 0xB0 | rcCh, 91, reverbSends[rcCh]);
     td.push(0, 0xB0 | rcCh, 93, 0);
+    td.push(0, 0xB0 | rcCh, 7, mix.cc7[rcCh] !== undefined ? mix.cc7[rcCh] : 100);
   }
+  // Lead channel: pitch-bend range 12 semitones (RPN 0) for portamento slides
+  td.push(0, 0xB0 | 4, 101, 0, 0, 0xB0 | 4, 100, 0, 0, 0xB0 | 4, 6, 12, 0, 0xB0 | 4, 38, 0, 0, 0xB0 | 4, 101, 127, 0, 0xB0 | 4, 100, 127);
+  td.push(0, 0xE0 | 4, 0x00, 0x40);
 
   // Write events
   // PERF: Inline VLQ for common case (delta < 128)
@@ -1437,6 +1490,7 @@ function buildCombinedMidiBytes(sectionList, bpm, keepLeadingSilence) {
     if (delta < 128) { td.push(delta); }
     else { var vlq = vl(delta); for (var vi = 0; vi < vlq.length; vi++) td.push(vlq[vi]); }
     if (e.type === 'on') td.push(0x90 | e.ch, e.note, e.vel);
+    else if (e.type === 'bend') td.push(0xE0 | e.ch, e.value & 0x7F, (e.value >> 7) & 0x7F);
     else td.push(0x80 | e.ch, e.note, 64);
     lastTick = e.tick;
   }

@@ -2,6 +2,14 @@
 
 All notable changes to Hip Hop Drummer are documented in this file.
 
+## [2.2] - 2026-09-09
+
+### Changed — Mix Balance and a Real Glide
+
+- **Per-channel mix trims in playback.** Measured every instrument solo: the GM finger bass sat 14dB under the drums, organ 23dB under, pads 28dB under. Velocities are now scaled per instrument (and per bass/EP program) with CC7 per channel, so every style lands near the same balance — bass about 5dB under the drums, keys, lead and horns about 8dB, pads about 13dB. MIDI exports are unchanged
+- **G-Funk lead slides are pitch-bend glides.** The whistle bends in from the previous note over 45–110ms (bend range 12 on the lead channel) instead of playing nothing — playback had ignored the slide flag entirely
+- `render-beat.mjs` gained `--solo` and `--dry` for balance measurements
+
 ## [2.1] - 2026-09-09
 
 ### Changed — Synth Leads and Pads of Our Own
