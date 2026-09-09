@@ -5,6 +5,16 @@
 // Provides: play/pause/stop/seek, WAV rendering, drum kit + bass
 // program selection.
 //
+// Sound banks (in priority order):
+//   hhd-kits.sf2 — the app's own drum kits + 808 sub basses, synthesized
+//                  by scripts/build-kits.mjs. Bank 128 programs 0/8/16/24/
+//                  25/26/32/40 and bank 0 programs 38/39.
+//   FluidR3.sf3  — General MIDI for everything else (EP, pads, horns …)
+//
+// Live playback and WAV export share one master chain (buildMasterChain):
+// HPF → low shelf → mud cut → presence → glue compressor → tape-style
+// saturation → limiter, plus a short dark room send for the keys.
+//
 // This is an ES module that gets bundled by esbuild into synth.js.
 //
 // Copyright (c) 2026 Keith Adler — MIT License
@@ -23,6 +33,8 @@ let onPlayStateChange = null;
 let trackingRAF = null;       // FIX 1: rAF replaces setInterval
 let _initPromise = null;      // FIX 5: deduplicate concurrent init calls
 let _sfCached = false;        // FIX 5: track SoundFont cache state
+let kitBuffer = null;         // hhd-kits.sf2 bytes (drum kits + sub basses)
+let master = null;            // live master chain nodes (see buildMasterChain)
 
 /**
  * Initialize the synthesizer with the SoundFont.
@@ -49,16 +61,23 @@ async function _doInit() {
     };
     // Load the worklet processor
     await audioContext.audioWorklet.addModule("spessasynth_processor.min.js");
-    // FIX 5: Load the SoundFont once and cache the buffer
+    // FIX 5: Load the SoundFonts once and cache the buffers
     if (!_sfCached) {
-      const sfResponse = await fetch("FluidR3.sf3");
+      const [sfResponse, kitResponse] = await Promise.all([fetch("FluidR3.sf3"), fetch("hhd-kits.sf2")]);
       soundFontBuffer = await sfResponse.arrayBuffer();
+      kitBuffer = kitResponse.ok ? await kitResponse.arrayBuffer() : null;
       _sfCached = true;
     }
-    // Create the synthesizer
+    // Create the synthesizer and route it through the master chain
     synth = new WorkletSynthesizer(audioContext);
-    synth.connect(audioContext.destination);
+    master = buildMasterChain(audioContext);
+    synth.connect(master.input);
+    master.output.connect(audioContext.destination);
     await synth.soundBankManager.addSoundBank(soundFontBuffer.slice(0), "gm");
+    if (kitBuffer) {
+      await synth.soundBankManager.addSoundBank(kitBuffer.slice(0), "hhd");
+      synth.soundBankManager.priorityOrder = ["hhd", "gm"];
+    }
   } catch(e) {
     // Reset so a retry can succeed
     synth = null;
@@ -234,88 +253,131 @@ function _generateRoomIR(sampleRate) {
 }
 
 /**
- * Apply master FX chain to a rendered AudioBuffer using OfflineAudioContext.
- * Chain: HPF (30Hz) → Compressor → Low-mid cut EQ → High shelf EQ → Reverb send
+ * Build the master chain on any BaseAudioContext (live or offline).
+ *
+ *   input → HPF 28Hz → low shelf +1.5dB@95Hz → mud cut -2.5dB@320Hz
+ *         → presence +1.2dB@4.5k → glue compressor → tape saturation
+ *         → tone lowpass (character) → limiter → output
+ *   plus:  post-compressor → pre-delay → dark room convolver → output (8%)
+ *
+ * The tone lowpass and saturation drive are what setMasterCharacter()
+ * moves: a dusty kit gets a 10kHz roll-off and more drive, an 808 kit
+ * stays wide open.
+ *
+ * @param {BaseAudioContext} ctx
+ * @returns {{input: AudioNode, output: AudioNode, tone: BiquadFilterNode, shaper: WaveShaperNode, setCharacter: function}}
+ */
+function buildMasterChain(ctx) {
+  const input = ctx.createGain();
+  input.gain.value = 1.0;
+
+  const hpf = ctx.createBiquadFilter();
+  hpf.type = "highpass"; hpf.frequency.value = 28; hpf.Q.value = 0.7;
+
+  const lowShelf = ctx.createBiquadFilter();
+  lowShelf.type = "lowshelf"; lowShelf.frequency.value = 95; lowShelf.gain.value = 1.5;
+
+  const mudCut = ctx.createBiquadFilter();
+  mudCut.type = "peaking"; mudCut.frequency.value = 320; mudCut.Q.value = 1.2; mudCut.gain.value = -2.5;
+
+  const presence = ctx.createBiquadFilter();
+  presence.type = "peaking"; presence.frequency.value = 4500; presence.Q.value = 0.9; presence.gain.value = 1.2;
+
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 6; comp.ratio.value = 3;
+  comp.attack.value = 0.008; comp.release.value = 0.12;
+
+  const shaper = ctx.createWaveShaper();
+  shaper.oversample = "2x";
+
+  const tone = ctx.createBiquadFilter();
+  tone.type = "lowpass"; tone.frequency.value = 20000; tone.Q.value = 0.5;
+
+  const makeup = ctx.createGain();
+  makeup.gain.value = 1.9; // SpessaSynth runs quiet; bring the mix up to a healthy level
+
+  const limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = -3; limiter.knee.value = 0; limiter.ratio.value = 20;
+  limiter.attack.value = 0.0005; limiter.release.value = 0.06;
+
+  const output = ctx.createGain();
+  output.gain.value = 0.9;
+
+  input.connect(hpf); hpf.connect(lowShelf); lowShelf.connect(mudCut); mudCut.connect(presence);
+  presence.connect(comp); comp.connect(shaper); shaper.connect(tone); tone.connect(makeup);
+  makeup.connect(limiter); limiter.connect(output);
+
+  // Room send: short, dark, mixed low — glue for the keys and horns
+  const preDelay = ctx.createDelay(0.05); preDelay.delayTime.value = 0.012;
+  const convolver = ctx.createConvolver(); convolver.buffer = _generateRoomIR(ctx.sampleRate);
+  const roomHpf = ctx.createBiquadFilter(); roomHpf.type = "highpass"; roomHpf.frequency.value = 450;
+  const roomLpf = ctx.createBiquadFilter(); roomLpf.type = "lowpass"; roomLpf.frequency.value = 3800;
+  const roomSend = ctx.createGain(); roomSend.gain.value = 0.08;
+  comp.connect(preDelay); preDelay.connect(convolver); convolver.connect(roomHpf);
+  roomHpf.connect(roomLpf); roomLpf.connect(roomSend); roomSend.connect(makeup);
+
+  function setDrive(drive) {
+    const n = 2048, curve = new Float32Array(n), norm = Math.tanh(drive);
+    for (let i = 0; i < n; i++) {
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = Math.tanh(x * drive + 0.06 * x * x * drive) / norm;
+    }
+    shaper.curve = curve;
+  }
+  setDrive(1.25);
+
+  /**
+   * Shape the master for a drum kit family.
+   * @param {"dusty"|"boombap"|"live"|"clean"} kind
+   */
+  function setCharacter(kind) {
+    const now = ctx.currentTime;
+    const f = kind === "dusty" ? 10000 : kind === "boombap" ? 15000 : 20000;
+    tone.frequency.setTargetAtTime(f, now, 0.05);
+    setDrive(kind === "dusty" ? 1.7 : kind === "boombap" ? 1.45 : kind === "live" ? 1.15 : 1.25);
+    roomSend.gain.setTargetAtTime(kind === "live" ? 0.11 : kind === "clean" ? 0.06 : 0.08, now, 0.05);
+  }
+
+  return { input, output, tone, shaper, setCharacter };
+}
+
+/** Drum kit program → master character. */
+function _characterForKit(program) {
+  if (program === 8) return "dusty";
+  if (program === 0 || program === 24) return "boombap";
+  if (program === 26 || program === 32 || program === 40) return "live";
+  return "clean";
+}
+
+let _currentCharacter = "boombap";
+
+/**
+ * Apply the master chain to a rendered AudioBuffer using OfflineAudioContext.
  * @param {AudioBuffer} dryBuffer - The dry rendered audio
  * @returns {Promise<AudioBuffer>} Processed audio
  */
 async function _applyMasterFx(dryBuffer) {
   const sr = dryBuffer.sampleRate;
   const len = dryBuffer.length;
-  // Extra length for reverb tail
   const tailSamples = Math.ceil(sr * 0.5);
   const offline = new OfflineAudioContext(2, len + tailSamples, sr);
-
-  // Source
   const src = offline.createBufferSource();
   src.buffer = dryBuffer;
-
-  // 1. High-pass filter — remove sub-rumble below 30Hz
-  const hpf = offline.createBiquadFilter();
-  hpf.type = "highpass";
-  hpf.frequency.value = 30;
-  hpf.Q.value = 0.7;
-
-  // 2. Compressor — gentle glue compression
-  const comp = offline.createDynamicsCompressor();
-  comp.threshold.value = -18;  // catch the loudest hits
-  comp.knee.value = 8;         // soft knee for musical compression
-  comp.ratio.value = 3.5;      // moderate ratio
-  comp.attack.value = 0.012;   // 12ms — let transients through
-  comp.release.value = 0.15;   // 150ms — release before next hit
-
-  // 3. Low-mid cut — reduce boxiness at 350Hz
-  const eqCut = offline.createBiquadFilter();
-  eqCut.type = "peaking";
-  eqCut.frequency.value = 350;
-  eqCut.Q.value = 1.5;
-  eqCut.gain.value = -2.5;
-
-  // 4. High shelf — add air and presence above 8kHz
-  const eqShelf = offline.createBiquadFilter();
-  eqShelf.type = "highshelf";
-  eqShelf.frequency.value = 8000;
-  eqShelf.gain.value = 1.5;
-
-  // 5. Makeup gain — compensate for compression
-  const makeup = offline.createGain();
-  makeup.gain.value = 1.25; // ~+2dB
-
-  // Dry path: src → hpf → comp → eqCut → eqShelf → makeup → destination
-  src.connect(hpf);
-  hpf.connect(comp);
-  comp.connect(eqCut);
-  eqCut.connect(eqShelf);
-  eqShelf.connect(makeup);
-  makeup.connect(offline.destination);
-
-  // 6. Reverb send — short room reverb mixed low
-  const ir = _generateRoomIR(sr);
-  const convolver = offline.createConvolver();
-  convolver.buffer = ir;
-  const reverbSend = offline.createGain();
-  reverbSend.gain.value = 0.12; // 12% wet — subtle room, not a wash
-  // Pre-delay: 10ms gap before reverb (separates dry from wet)
-  const preDelay = offline.createDelay(0.05);
-  preDelay.delayTime.value = 0.01;
-  // Reverb EQ — filter the reverb return to keep it dark
-  const reverbHpf = offline.createBiquadFilter();
-  reverbHpf.type = "highpass";
-  reverbHpf.frequency.value = 400; // no low-end in the reverb
-  const reverbLpf = offline.createBiquadFilter();
-  reverbLpf.type = "lowpass";
-  reverbLpf.frequency.value = 4000; // no harsh highs in the reverb
-
-  // Send from post-EQ to reverb chain
-  makeup.connect(preDelay);
-  preDelay.connect(convolver);
-  convolver.connect(reverbHpf);
-  reverbHpf.connect(reverbLpf);
-  reverbLpf.connect(reverbSend);
-  reverbSend.connect(offline.destination);
-
+  const chain = buildMasterChain(offline);
+  chain.setCharacter(_currentCharacter);
+  src.connect(chain.input);
+  chain.output.connect(offline.destination);
   src.start(0);
   return offline.startRendering();
+}
+
+/** Load GM + the app's kits into an offline processor, kits first. */
+function _addBanks(renderer, gmBank) {
+  renderer.soundBankManager.addSoundBank(gmBank, "gm");
+  if (kitBuffer) {
+    renderer.soundBankManager.addSoundBank(SoundBankLoader.fromArrayBuffer(kitBuffer.slice(0)), "hhd");
+    renderer.soundBankManager.priorityOrder = ["hhd", "gm"];
+  }
 }
 
 /**
@@ -336,7 +398,7 @@ async function renderToWav(midiBytes, applyFx) {
 
   // Create offline processor (same approach as SpessaSynth's internal renderAudioWorker)
   const renderer = new SpessaSynthProcessor(sampleRate, { enableEventSystem: false });
-  renderer.soundBankManager.addSoundBank(sf, "gm");
+  _addBanks(renderer, sf);
 
   // Create offline sequencer and load the parsed MIDI
   const seq = new SpessaSynthSequencer(renderer);
@@ -394,7 +456,7 @@ async function renderSampleSlices(midiBytes, sliceCount, sliceSeconds) {
   const sf = SoundBankLoader.fromArrayBuffer(soundFontBuffer.slice(0));
 
   const renderer = new SpessaSynthProcessor(sampleRate, { enableEventSystem: false });
-  renderer.soundBankManager.addSoundBank(sf, "gm");
+  _addBanks(renderer, sf);
   const seq = new SpessaSynthSequencer(renderer);
   seq.loadNewSongList([midi]);
   seq.play();
@@ -453,11 +515,22 @@ async function renderSampleSlices(midiBytes, sliceCount, sliceSeconds) {
  * @param {number} program - GM drum kit program number
  */
 function setDrumKit(program) {
+  _currentCharacter = _characterForKit(program);
+  if (master) master.setCharacter(_currentCharacter);
   if (synth) {
     synth.controllerChange(9, 0, 0);   // Bank select MSB
     synth.controllerChange(9, 32, 0);  // Bank select LSB
     synth.programChange(9, program);    // Program change on ch10
   }
+}
+
+/**
+ * Shape the master chain by kit family without changing the kit.
+ * @param {"dusty"|"boombap"|"live"|"clean"} kind
+ */
+function setMasterCharacter(kind) {
+  _currentCharacter = kind;
+  if (master) master.setCharacter(kind);
 }
 
 /**
@@ -544,6 +617,7 @@ window.synthBridge = {
   renderToWav: renderToWav,
   renderSampleSlices: renderSampleSlices,
   setDrumKit: setDrumKit,
+  setMasterCharacter: setMasterCharacter,
   setBassProgram: setBassProgram,
   setEPProgram: setEPProgram,
   setPadProgram: setPadProgram,

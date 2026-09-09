@@ -22,7 +22,7 @@
 
 /**
  * Get the drum kit and bass sound for the current style from STYLE_DATA.
- * Falls back to Standard Kit (0) and Electric Bass Finger (33).
+ * Falls back to the Boom Bap Kit (0) and Electric Bass Finger (33).
  */
 function _getStyleSounds() {
   var feel = (typeof songFeel !== 'undefined') ? songFeel : 'normal';
@@ -2586,12 +2586,15 @@ function getRoleSectionTips(sec, role) {
     }
   }
 
-  // Per-instrument swing info
-  if (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[songFeelBase]) {
+  // Timing engine: what the swing, pocket and drift actually do in milliseconds
+  if (typeof describeTiming === 'function') {
+    var _tBpm = parseInt(document.getElementById('bpm').textContent) || 90;
+    tips.push(describeTiming(songFeelBase, swing, _tBpm));
+  }
+  if (typeof INSTRUMENT_SWING !== 'undefined' && INSTRUMENT_SWING[songFeelBase] && typeof effectiveSwingMult === 'function') {
     var sw = INSTRUMENT_SWING[songFeelBase];
-    if (sw.hat > 1.0) tips.push('Hats swing ' + Math.round((sw.hat - 1) * 100) + '% harder than the base — the ride hand leans back.');
-    if (sw.kick < 0.8) tips.push('Kick swings ' + Math.round((1 - sw.kick) * 100) + '% less than the base — stays closer to the grid for punch.');
-    if (sw.bass !== sw.kick) tips.push('Bass and kick swing at different rates — bass at ' + Math.round(sw.bass * 100) + '%, kick at ' + Math.round(sw.kick * 100) + '%. This creates the pocket.');
+    var hatPct = Math.round(effectiveSwingMult(sw.hat) * 100), kickPct = Math.round(effectiveSwingMult(sw.kick) * 100);
+    if (hatPct !== kickPct) tips.push('Hats take ' + hatPct + '% of the swing, kick ' + kickPct + '% — the ride hand leans back while the kick stays close to the grid. That gap is the pocket.');
   }
 
   // Foundation reminder (rotate in occasionally)

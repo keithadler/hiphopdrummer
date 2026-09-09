@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-1.75-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-2.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
@@ -42,7 +42,11 @@ Every beat is assembled in real time from hundreds of musical rules — not sele
 
 ### Drums
 
-The drum engine models over 60 distinct behaviors per style: kick placement libraries curated from real records, ghost note clustering that mimics a drummer's stick control, accent curves that shape dynamics the way a real ride hand does, hat patterns with 3-level velocity dynamics (G-Funk's signature), pocket-delayed snares that land behind the beat (Dilla's trademark), cowbell patterns for Memphis/phonk/crunk, descending 3-tom fills (high → mid → low) at section boundaries, and fill types matched to each era — from a single snare hit (Memphis minimalism) to dense flam rolls (chopped break fills). 8 GM drum kits auto-selected per style: Standard, Room, Power, Electronic, TR-808, Jazz, Brush, Orchestra.
+The drum engine models over 60 distinct behaviors per style: kick placement libraries curated from real records, ghost note clustering that mimics a drummer's stick control, accent curves that shape dynamics the way a real ride hand does, hat patterns with 3-level velocity dynamics (G-Funk's signature), pocket-delayed snares that land behind the beat (Dilla's trademark), cowbell patterns for Memphis/phonk/crunk, descending 3-tom fills (high → mid → low) at section boundaries, and fill types matched to each era — from a single snare hit (Memphis minimalism) to dense flam rolls (chopped break fills). Eight drum kits synthesized from scratch and auto-selected per style: Boom Bap (SP-1200 flavour: 12-bit, 26kHz), Dusty (Dilla / lo-fi), Hard (big room), Electro (DMX / Linn), TR-808, Live (acoustic), Jazz (tight) and Brush (jazz hop) — each with velocity layers, a real hat choke, and the room baked in.
+
+### Timing
+
+Swing is real MPC swing: at 62% the off-16ths land 40ms late at 90 BPM, at 66% it is the classic boom bap shuffle, 75% is a full triplet. On top of that every hit gets a per-feel pocket in milliseconds — the backbeat sits 8ms behind the grid on boom bap, 24ms on Dilla, dead on the grid for 808 styles — and a seeded micro-drift per hit (Dilla's kicks wander ±12ms, crunk's don't move). All of it is rendered at 960 PPQ, the MPC's own resolution, so a 3ms hat push survives export.
 
 ### Bass — 10 Pro Bassist Techniques
 
@@ -154,8 +158,10 @@ npm test             # run 18,000+ assertions
 
 - **37 styles + 6 regional variants** — from old school 808s to modern boom bap revival
 - **9 instruments** playing together with style-matched sounds (TR-808 for G-Funk, Brush Kit for Nujabes, etc.)
-- **SpessaSynth audio engine** — high-quality GM SoundFont playback
-- **Per-instrument swing** — hats, kick, ghost snares, bass each swing differently per style
+- **Own drum kits + 808 sub bass** — synthesized from scratch (`scripts/build-kits.mjs`), no recordings, MIT like everything else
+- **Timing engine** — MPC swing math, per-feel pocket, seeded micro-drift, 960 PPQ (`timing.js`)
+- **Master chain** — HPF, mud cut, glue compression, tape-style saturation and a limiter on live playback and WAV export, with a dusty/boom-bap/live/clean character per kit
+- **SpessaSynth audio engine** — SoundFont playback for the keys, horns and GM basses
 - **Beat drops** — dramatic silences where ALL instruments drop out
 - **Strict vs Improvise** — same part every time, or slight variations like a live band
 - **Tap tempo** — double-click BPM or press T
@@ -177,6 +183,7 @@ Covers all 37 styles × 10 instruments, bass generation, all 7 melodic generator
 ├── index.html          App shell and layout
 ├── styles.css          Dark/light theme, responsive
 ├── patterns.js         Style data, kick libraries, swing tables
+├── timing.js           Swing, pocket and micro-timing engine (960 PPQ)
 ├── ai.js               Generation pipeline, arrangement builder
 ├── writers.js           Bar writers, fills, intro/outro
 ├── groove.js           Accent curves, humanization
@@ -195,14 +202,20 @@ Covers all 37 styles × 10 instruments, bass generation, all 7 melodic generator
 ├── pdf-export.js       PDF beat sheet + chord sheet
 ├── beat-history.js     History storage and dialog
 ├── app.js              Main controller, dialogs, playback
-├── synth-bridge.mjs    SpessaSynth integration (ES module)
+├── synth-bridge.mjs    SpessaSynth integration + master chain (ES module)
 ├── synth.js            Bundled synth engine
+├── hhd-kits.sf2        The app's drum kits + sub basses (built, 7MB)
+├── scripts/
+│   ├── build-kits.mjs  Synthesizes hhd-kits.sf2 from scratch
+│   ├── dsp.mjs         Shared DSP primitives
+│   └── render-beat.mjs CLI: generate + render a style to WAV with a timing report
 ├── tests.js            18,000+ automated assertions
 ├── sw.js               Service worker (offline PWA)
 ├── manifest.json       PWA manifest
 ├── robots.txt          Search engine directives
 ├── sitemap.xml         Search engine sitemap
-└── GeneralUserGS.sf3   GM SoundFont (10MB)
+├── FluidR3.sf3         GM SoundFont for keys, horns, GM basses (20MB)
+└── GeneralUserGS.sf3   GM SoundFont (10MB, unused by the app)
 ```
 
 ## License

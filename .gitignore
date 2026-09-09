@@ -1,3 +1,6 @@
 .DS_Store
 *.tmp
 node_modules/
+
+# CLI renders (node scripts/render-beat.mjs)
+*.wav

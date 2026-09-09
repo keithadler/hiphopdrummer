@@ -1628,17 +1628,10 @@ function generatePattern(sec) {
     var vR = pick(ROWS), vP = pick([0,4,8,12]);
     if (p[vR][off+vP] > 0) p[vR][off+vP] = Math.min(127, Math.max(40, p[vR][off+vP] + pick([-10,-6,6,10])));
 
-    // Pocket-delayed snare: shift backbeat one step late for a "lazy" feel.
-    // Only on feels where it makes musical sense — hard/chopbreak stay locked.
-    // Dilla gets higher probability and fires on more bars.
-    var pocketFeels = (feel === 'dilla' || feel === 'jazzy' || feel === 'normal' || feel === 'bounce' || feel === 'lofi');
-    var isDilla = (feel === 'dilla');
-    var pocketProb = isDilla ? 0.65 : 0.35;
-    var pocketBars = isDilla ? (bar % 2 === 1) : (bar % 4 === 1); // dilla: every other bar, others: bar 2 of each 4
-    if (pocketFeels && pocketBars) {
-      if (maybe(pocketProb) && p.snare[off+4] > 80 && p.snare[off+5] === 0) { p.snare[off+5] = p.snare[off+4]; p.snare[off+4] = 0; if (p.clap[off+4] > 0) { p.clap[off+5] = p.clap[off+4]; p.clap[off+4] = 0; } }
-      if (maybe(pocketProb) && p.snare[off+12] > 80 && p.snare[off+13] === 0) { p.snare[off+13] = p.snare[off+12]; p.snare[off+12] = 0; if (p.clap[off+12] > 0) { p.clap[off+13] = p.clap[off+12]; p.clap[off+12] = 0; } }
-    }
+    // Pocket-delayed snare: the backbeat lays back 10–40ms on "pocket" bars.
+    // That is a timing offset, not a different step — see isPocketBar() in
+    // timing.js. (Earlier versions moved the snare a whole 16th late, which
+    // reads as a displaced hit, not a lazy one.)
   }
 
   // ── Hat Articulation Variation ──
@@ -2393,6 +2386,7 @@ function generateAll(opts) {
   // Add small per-song jitter (±2) for uniqueness
   swing = Math.max(50, Math.min(75, swing + pick([-2, -1, 0, 0, 1, 2])));
   document.getElementById('swing').textContent = swing;
+  if (typeof reseedTiming === 'function') reseedTiming(); // fresh micro-timing fingerprint per beat
   var swingDescEl = document.getElementById('swingDesc');
   if (swingDescEl) swingDescEl.textContent = swing >= 66 ? ' heavy' : swing >= 60 ? ' groove' : swing >= 55 ? ' feel' : ' straight';
 
@@ -2427,8 +2421,8 @@ function generateAll(opts) {
   if (styleEl) {
     var label = STYLE_DATA[songFeel] ? STYLE_DATA[songFeel].label : songFeel;
     // Append drum kit and bass sound names to the style label
-    var _kitNames = { 0: 'Standard Kit', 8: 'Room Kit', 16: 'Power Kit', 24: 'Electronic Kit', 25: 'TR-808 Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
-    var _bassNames = { 33: 'Finger Bass', 34: 'Pick Bass', 35: 'Fretless Bass', 36: 'Slap Bass', 38: 'Synth Bass 1', 39: 'Synth Bass 2' };
+    var _kitNames = { 0: 'Boom Bap Kit', 8: 'Dusty Kit', 16: 'Hard Kit', 24: 'Electro Kit', 25: 'TR-808 Kit', 26: 'Live Kit', 32: 'Jazz Kit', 40: 'Brush Kit', 48: 'Orchestra Kit' };
+    var _bassNames = { 33: 'Finger Bass', 34: 'Pick Bass', 35: 'Fretless Bass', 36: 'Slap Bass', 38: '808 Sub', 39: 'Sub Bass' };
     var _epNames = { 0: 'Acoustic Piano', 4: 'Electric Piano' };
     var _sd = STYLE_DATA[songFeel];
     if (_sd) {

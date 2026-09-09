@@ -98,7 +98,7 @@ global.initPlaybackTracking = function() {};
 var vm = require('vm');
 
 // === Load all source files into global scope ===
-var files = ['patterns.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'ep.js', 'pad.js', 'lead.js', 'organ.js', 'horns.js', 'vibes.js', 'clav.js', 'analysis.js',
+var files = ['patterns.js', 'timing.js', 'ai.js', 'writers.js', 'groove.js', 'bass.js', 'ep.js', 'pad.js', 'lead.js', 'organ.js', 'horns.js', 'vibes.js', 'clav.js', 'analysis.js',
              'daw-help.js', 'midi-export.js', 'beat-history.js'];
 
 test('All JS files parse without errors', function() {
@@ -1022,6 +1022,124 @@ test('INSTRUMENT_SWING covers all 31 base feels', function() {
     assert(typeof INSTRUMENT_SWING[f].backbeat === 'number', f + ' missing backbeat swing');
     assert(typeof INSTRUMENT_SWING[f].bass === 'number', f + ' missing bass swing');
   });
+});
+
+// === Test timing engine (timing.js) ===
+test('Timing engine: MPC swing math at 960 PPQ', function() {
+  assert(PPQ === 960, 'PPQ should be 960, got ' + PPQ);
+  assert(TICKS_PER_STEP === 240, 'TICKS_PER_STEP should be 240');
+  assert(LEGACY_TICK_SCALE === 10, 'legacy 96-PPQ ticks scale by 10');
+  assert(swingTicks(50) === 0, '50% swing is straight');
+  assert(Math.abs(swingTicks(62) - 57.6) < 0.01, '62% swing = 57.6 ticks, got ' + swingTicks(62));
+  assert(Math.abs(swingTicks(66) - 76.8) < 0.01, '66% swing = 76.8 ticks');
+  assert(swingTicks(75) === 120, '75% swing = half a step (triplet)');
+  assert(swingTicks(90) === 120, 'swing clamps at 75%');
+  // 62% at 90 BPM should be ~40ms late
+  var ms = swingTicks(62) / ticksPerMs(90);
+  assert(ms > 39 && ms < 41, '62% at 90 BPM ≈ 40ms, got ' + ms.toFixed(1));
+});
+
+test('Timing engine: per-instrument multipliers are compressed toward 1', function() {
+  assert(effectiveSwingMult(0) === 0, 'crash/toms stay on grid');
+  assert(effectiveSwingMult(1) === 1, '1.0 stays 1.0');
+  assert(effectiveSwingMult(1.5) === 1.25, 'hat drag caps at 1.25');
+  assert(Math.abs(effectiveSwingMult(0.5) - 0.9) < 1e-9, '0.5 → 0.9');
+  assert(Math.abs(effectiveSwingMult(0.7) - 0.94) < 1e-9, '0.7 → 0.94');
+});
+
+test('Timing engine: FEEL_TIMING covers every base feel', function() {
+  Object.keys(STYLE_DATA).forEach(function(f) {
+    var base = resolveBaseFeel(f);
+    assert(FEEL_TIMING[base], 'FEEL_TIMING missing ' + base);
+    assert(timingFeel(f) === base, 'timingFeel resolves ' + f);
+  });
+  assert(timingFeel('intro_a') === 'normal', 'intro feels time like normal');
+  assert(timingFeel('outro_fade') === 'normal', 'outro feels time like normal');
+  assert(timingFeel('nonsense') === 'normal', 'unknown feels fall back to normal');
+});
+
+test('Timing engine: drum offsets are deterministic, bounded and feel-shaped', function() {
+  reseedTiming();
+  var a = drumHitOffsetTicks('hat', 90, 3, 'verse', 'dilla', 90, 68);
+  var b = drumHitOffsetTicks('hat', 90, 3, 'verse', 'dilla', 90, 68);
+  assert(a === b, 'same hit → same offset');
+  // Off-16th hat carries the swing
+  var swingOnly = Math.round(Math.min(swingTicks(75), swingTicks(68) * effectiveSwingMult(getInstrumentSwing('hat', 90, 'dilla'))));
+  assert(Math.abs(a - swingOnly) < ticksPerMs(90) * 20, 'dilla hat off-16th ≈ swing ± ~20ms of feel, got ' + a + ' vs ' + swingOnly);
+  // Nothing ever crosses the dotted point + pocket + jitter budget
+  var rows = ['kick', 'snare', 'clap', 'hat', 'openhat', 'ride', 'rimshot', 'ghostkick', 'crash', 'shaker', 'cowbell', 'tomhi'];
+  Object.keys(FEEL_TIMING).forEach(function(feel) {
+    for (var step = 0; step < 32; step++) {
+      rows.forEach(function(r) {
+        var o = drumHitOffsetTicks(r, 110, step, 'verse', feel, 80, 75);
+        assert(o <= TICKS_PER_STEP * 0.5 + ticksPerMs(80) * 60 && o >= -ticksPerMs(80) * 30, feel + ' ' + r + ' step ' + step + ' offset out of bounds: ' + o);
+      });
+    }
+  });
+  // Machine feels: on-grid hits are exactly on the grid
+  ['crunk', 'memphis', 'oldschool', 'miamibass', 'ratchet'].forEach(function(feel) {
+    assert(drumHitOffsetTicks('kick', 120, 0, 'verse', feel, 90, 60) === 0, feel + ' kick on beat 1 is on the grid');
+    assert(drumHitOffsetTicks('snare', 120, 4, 'verse', feel, 90, 60) === 0, feel + ' backbeat is on the grid');
+  });
+  // Played feels: the backbeat lays back
+  var dillaSnare = drumHitOffsetTicks('snare', 120, 4, 'verse', 'dilla', 90, 60);
+  var dillaMs = dillaSnare / ticksPerMs(90);
+  assert(dillaMs > 12 && dillaMs < 60, 'dilla backbeat lays back 12–60ms, got ' + dillaMs.toFixed(1));
+  var hardSnare = drumHitOffsetTicks('snare', 120, 4, 'verse', 'hard', 90, 60);
+  assert(hardSnare < dillaSnare, 'hard snare sits ahead of a dilla snare');
+  // Pocket bars drag more than plain bars for the backbeat
+  var plain = drumHitOffsetTicks('snare', 120, 4, 'chorus', 'normal', 90, 50);
+  var pocket = drumHitOffsetTicks('snare', 120, 20, 'chorus', 'normal', 90, 50);
+  assert(pocket > plain, 'bar 2 (pocket bar) backbeat lays back more than bar 1');
+});
+
+test('Timing engine: melodic offsets scale legacy ticks and swing', function() {
+  var straight = melodicOffsetTicks('bass', 0, 'verse', 'crunk', 90, 50, 0.5, 0);
+  assert(straight === 0, 'crunk bass on the grid, got ' + straight);
+  var legacy = melodicOffsetTicks('bass', 0, 'verse', 'crunk', 90, 50, 0.5, 3);
+  assert(legacy === 30, 'legacy offset 3 → 30 real ticks, got ' + legacy);
+  var swung = melodicOffsetTicks('bass', 1, 'verse', 'crunk', 90, 66, 0.5, 0);
+  assert(Math.abs(swung - Math.round(swingTicks(66) * effectiveSwingMult(0.5))) <= 1, 'bass off-16th carries compressed swing, got ' + swung);
+  var d = describeTiming('dilla', 66, 90);
+  assert(typeof d === 'string' && d.indexOf('ms') > 0, 'describeTiming returns a sentence with ms');
+});
+
+test('Built MIDI is 960 PPQ and its swing matches the label', function() {
+  _domElements = {};
+  generateAll({ style: 'normal', bpm: '90' });
+  _getOrCreateElement('swing').textContent = '62';
+  var bytes = buildCombinedMidiBytes(['verse'], 90);
+  var ppq = (bytes[12] << 8) | bytes[13];
+  assert(ppq === 960, 'combined MIDI PPQ should be 960, got ' + ppq);
+  var drumBytes = buildMidiBytes(['verse'], 90, false);
+  assert(((drumBytes[12] << 8) | drumBytes[13]) === 960, 'drum MIDI PPQ should be 960');
+  // Straight export has no offsets at all
+  var straight = buildMidiBytes(['verse'], 90, true);
+  var tick = 0, i = 22, offGrid = 0, running = 0, seen = 0;
+  while (i < straight.length) {
+    var d = 0, b;
+    do { b = straight[i++]; d = (d << 7) | (b & 0x7F); } while (b & 0x80);
+    tick += d;
+    var st = straight[i];
+    if (st & 0x80) { running = st; i++; } else st = running;
+    if (st === 0xFF) { var type = straight[i++]; var len = 0; do { b = straight[i++]; len = (len << 7) | (b & 0x7F); } while (b & 0x80); if (type === 0x2F) break; i += len; continue; }
+    var hi = st & 0xF0;
+    if (hi === 0x90) { if (straight[i + 1] > 0) { seen++; if (tick % 240 !== 0) offGrid++; } i += 2; }
+    else if (hi === 0xC0 || hi === 0xD0) i += 1; else i += 2;
+  }
+  assert(seen > 0, 'straight export has notes');
+  assert(offGrid === 0, 'noSwing export is exactly on the 16th grid, ' + offGrid + ' hits off');
+});
+
+test('hhd-kits.sf2 ships with the app and is a SoundFont', function() {
+  var kitPath = __dirname + '/hhd-kits.sf2';
+  assert(fs.existsSync(kitPath), 'hhd-kits.sf2 missing — run node scripts/build-kits.mjs');
+  var head = fs.readFileSync(kitPath).subarray(0, 12).toString('latin1');
+  assert(head.indexOf('RIFF') === 0 && head.indexOf('sfbk') === 8, 'hhd-kits.sf2 should be a RIFF sfbk file');
+  var sw = fs.readFileSync(__dirname + '/sw.js', 'utf8');
+  assert(sw.indexOf("'./hhd-kits.sf2'") > 0 && sw.indexOf("'./timing.js'") > 0, 'service worker caches hhd-kits.sf2 and timing.js');
+  var html = fs.readFileSync(__dirname + '/index.html', 'utf8');
+  assert(html.indexOf('<script src="timing.js">') > 0, 'index.html loads timing.js');
 });
 
 test('getInstrumentSwing returns correct categories', function() {

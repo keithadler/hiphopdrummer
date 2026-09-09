@@ -1,4 +1,4 @@
-# 🥁 Hip Hop Drummer — Technical Documentation (Release 1.65)
+# 🥁 Hip Hop Drummer — Technical Documentation (Release 2.0)
 
 Full technical breakdown of every feature, technique, and design decision in the beat generator. 9 instruments, 37 styles, style-matched drum kits and bass sounds, 312 kick patterns, 15,000+ test assertions.
 
@@ -109,14 +109,16 @@ Every style has a dedicated curated kick library with 8-13 patterns:
 
 60–140 BPM covering slow phonk/Griselda territory through Miami Bass electro energy. Swing selected per-feel from curated pools — hard beats can be straight while jazzy beats swing heavy regardless of tempo. Range from 50% (straight) to 75% (heavy groove).
 
-### Per-Instrument Swing
-Each instrument swings by a different amount per style via the `INSTRUMENT_SWING` table. Categories: hat (closed/open/ride/shaker), kick (kick/ghost kick), ghostSnare (ghost snares/rimshot), backbeat (loud snare/clap), bass. Crashes always on grid (0x).
+### Timing Engine (`timing.js`)
+Every MIDI file the app builds is 960 PPQ (240 ticks per 16th, the Akai MPC resolution). A hit's tick is the grid tick plus `drumHitOffsetTicks(row, vel, step, section, feel, bpm, swing)`, which stacks three layers:
 
-Key values:
-- **Dilla**: hat 1.3×, kick 0.6×, ghost snare 1.5×, backbeat 0.8×, bass 0.7×
-- **G-Funk**: hat 1.2×, kick 0.7×, bass 1.1×
-- **Crunk/Old School**: everything 0.5× (nearly mechanical)
-- **Jazzy/Nujabes**: hat 1.2×, ghost snare 1.3×
+1. **Swing** — the MPC definition: at s% swing the second 16th of each pair lands at s% of the 8th note (50% straight, 66% classic shuffle, 75% full triplet). 62% at 90 BPM = 40ms late. Applied to every odd 16th step. Capped at the 75% point so a dragging hat never crosses into the next step.
+2. **Pocket** — per-feel placement in milliseconds from `FEEL_TIMING`: backbeat lay-back (boom bap 8ms, halftime 12ms, Dilla 24ms, hard −3ms i.e. pushed), ghost-note lag, hat shift (Dilla hats push 4ms ahead of the snare), and extra lay-back on *pocket bars* (bar 2 of each 4; Dilla every other bar) — this replaces the old whole-step snare displacement. Section bias: choruses lean 2ms forward, verses 2ms back, breakdowns 5ms. Layered claps sit 3ms behind the snare.
+3. **Micro-drift** — seeded per-hit jitter (`timingJitter`) so the same beat always plays the same way but no two beats share a fingerprint. Dilla kicks ±12ms, played-feel ghosts ±6–9ms, hats ±3–6ms; beat 1 is anchored (jitter × 0.3). Machine feels (crunk, Memphis, phonk, old school, Miami bass, Virginia, pop-rap, ratchet) have zero drift — their groove is the swing.
+
+`INSTRUMENT_SWING` still describes intent (hats lean back, kick stays close to the grid) but is compressed by `effectiveSwingMult()` into the 10–20ms spread real records show: 1.3× → 1.25×, 0.6× → 0.92×, 0× (crash, toms) stays on the grid. Melodic instruments use `melodicOffsetTicks()`, which applies the same swing, a lighter drift, and scales the generators' legacy 96-PPQ offsets by `LEGACY_TICK_SCALE`. The straight ("bake swing" off) export has no offsets at all, for adding swing in a DAW.
+
+`node scripts/render-beat.mjs --style dilla` renders a beat from the command line and prints the measured offsets per instrument.
 
 ## Player Touch Profiles
 
@@ -179,7 +181,7 @@ Each limb has its own dynamics with feel-scaled spread:
 - **Ghost kick**: Velocity curve — softer before snare, firmer after rebound. Scaled relative to nearby main kicks.
 
 ### Humanization
-Per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6× across all, dilla 1.4× on kicks, chopbreak 0.7× on ghost snares, gfunk wider hat / tighter kick, crunk 0.4× everything. Player touch profiles stack on top: velocity center bias shifts each instrument, tight positions reduce jitter to 0.3×, profile jitter multiplier scales the base range.
+Velocity: per-instrument jitter: hat/ride ±4 (tightest), backbeat snare ±2, kick ±10, ghost kick ±10 (widest). Feel-aware scaling: lofi 0.6× across all, dilla 1.4× on kicks, chopbreak 0.7× on ghost snares, gfunk wider hat / tighter kick, crunk 0.4× everything. Player touch profiles stack on top: velocity center bias shifts each instrument, tight positions reduce jitter to 0.3×, profile jitter multiplier scales the base range. Timing humanization is the timing engine's job (see Timing Engine above).
 
 ### Ghost Note System
 Density randomized per song (0.5–1.8), clamped per feel (chopbreak floors at 1.0, lofi caps at 1.0, dilla floors at 0.8, gfunk caps at 0.8, crunk caps at 0.4, memphis caps at 0.6). Ghost kicks use distinct A/B positions with velocity curve. Ghost snare clustering: chopbreak 50%, lofi 15%, dilla 30% with 3-step spacing, memphis 12%, crunk 0%, standard 35% with 2-step spacing.
@@ -387,22 +389,28 @@ Funky percussive comping. GM program 7 (Clavinet). Enabled for bounce, G-Funk DJ
 - **Style-specific patterns**: bounce gets danceable comping, G-Funk DJ Quik gets raw funk rhythms.
 
 ### Style-Matched Sounds
-Each style automatically gets the right drum kit and bass sound from `STYLE_DATA.drumKit` and `STYLE_DATA.bassSound`:
+Each style automatically gets the right drum kit and bass sound from `STYLE_DATA.drumKit` and `STYLE_DATA.bassSound`. Drum programs and the two synth-bass programs resolve to the app's own bank (`hhd-kits.sf2`, loaded ahead of the GM bank); the other basses and every keyboard/horn come from FluidR3 GM.
 
-| Style | Drum Kit | Bass Sound |
+| Style | Drum Kit (hhd-kits.sf2) | Bass Sound |
 |-------|----------|------------|
-| Boom bap / chopbreak | Standard (0) | Electric Bass Finger (33) |
-| Dilla / lo-fi | Room (8) | Fretless Bass (35) |
-| Jazz | Jazz (32) | Electric Bass Finger (33) |
-| Nujabes | Brush (40) | Fretless Bass (35) |
-| G-Funk / Memphis / crunk | TR-808 (25) | Synth Bass 1 (38) |
-| G-Funk DJ Quik | TR-808 (25) | Slap Bass (36) |
-| Hard / big | Power (16) | Electric Bass Pick (34) |
-| Dark / Griselda / sparse / halftime | Standard (0) | Synth Bass 2 (39) |
-| Bounce | Standard (0) | Slap Bass (36) |
-| Phonk / old school | Electronic (24) | Synth Bass 1 (38) |
-| Driving | Standard (0) | Electric Bass Pick (34) |
-| Long Island | Room (8) | Electric Bass Finger (33) |
+| Boom bap / chopbreak / Detroit / chipmunk / orchestral | Boom Bap — SP-1200 flavour (0) | Electric Bass Finger (33, GM) |
+| Dilla / lo-fi / Long Island | Dusty — dark, tape-saturated (8) | Fretless Bass (35, GM) |
+| Jazz | Jazz — tight, ride-forward (32) | Electric Bass Finger (33, GM) |
+| Nujabes | Brush — brushed snare swell (40) | Fretless Bass (35, GM) |
+| Philly | Live — acoustic kit with room (26) | Fretless Bass (35, GM) |
+| G-Funk / Memphis / crunk / Miami bass / NOLA / ratchet | TR-808 (25) | 808 Sub (38, hhd) |
+| G-Funk DJ Quik | TR-808 (25) | Slap Bass (36, GM) |
+| Hard / big / Virginia / Raw NY / pop-rap | Hard — big room, gated snare (16) | Electric Bass Pick (34, GM) / 808 Sub (38) |
+| Dark / Griselda / sparse / halftime | Boom Bap (0) | Sub Round (39, hhd) |
+| Bounce | Boom Bap (0) | Slap Bass (36, GM) |
+| Phonk / old school | Electro — DMX / Linn (24) | 808 Sub (38, hhd) |
+| Driving | Boom Bap (0) | Electric Bass Pick (34, GM) |
+
+#### The kits (`scripts/build-kits.mjs`)
+Every sample is synthesized from scratch — sine sweeps with a pitch envelope for kicks and toms, tuned body + band-passed noise + snap transient for snares, four staggered noise bursts for claps, the six-square-oscillator 808 circuit for hats/cymbals/cowbell, shaped noise with metallic partials for acoustic hats — then given the kit's character: 12-bit quantization and 26kHz sample-and-hold (SP-1200), tape-style asymmetric saturation (Dusty, Live), gated room (Hard), Schroeder room reverb baked in where a kit wants it. Kick, snare and hats have velocity layers (soft/full, ghost/mid/full), ghost kick (note 35) is a darker layer of the kick, closed and open hats share an exclusive class so they choke. Every zone has reverb/chorus send 0 and a release long enough to play the whole sample. The 808 Sub presets are a looped sine with the attack pitch knock and an SF2 envelope decay (3s), Sub Round adds 2nd/3rd harmonics for small speakers. The build is deterministic (seeded RNG); `--verify` reloads the file and renders every note.
+
+#### Master chain (`buildMasterChain` in `synth-bridge.mjs`)
+Live playback and WAV export run through the same graph: HPF 28Hz → low shelf +1.5dB@95Hz → mud cut −2.5dB@320Hz → presence +1.2dB@4.5k → glue compressor (−16dB, 3:1, 8ms/120ms) → tape-style waveshaper → tone lowpass → makeup → limiter (−3dB, 20:1) → out, plus a pre-delayed dark room send (8%) from the compressor. `setDrumKit()` picks a character: dusty (10kHz roll-off, more drive), boombap (15kHz), live (more room), clean (808 kits, wide open). The combined MIDI sets CC91 per channel: drums and bass dry, EP 28, pad 55, lead 22, organ 24, horns 38, vibes 42, clav 12.
 
 ### Instrument Style Coverage
 Every style has at least one harmonic instrument beyond drums and bass:
@@ -656,7 +664,7 @@ Printable beat sheet with BPM, swing, key, analysis text, arrangement listing, a
 
 ## Tech Stack
 
-- **Audio** — SpessaSynth (SoundFont2/SF3 synthesizer) for GM playback of all 9 instruments, WAV rendering with master FX, and cell audition. GeneralUser GS SoundFont.
+- **Audio** — SpessaSynth (SoundFont2/SF3 synthesizer) playing two banks: `hhd-kits.sf2` (the app's own drum kits and sub basses, first priority) and FluidR3 GM (keys, horns, GM basses). Shared master chain for live playback and WAV rendering, cell audition through the same synth.
 - **Rendering** — Vanilla DOM, CSS flexbox/grid, responsive layout with sticky mobile header
 - **Export** — JSZip for MIDI/MPC bundles, jsPDF for beat sheets and chord sheets
 - **PWA** — Service worker for offline support, installable on desktop/mobile
