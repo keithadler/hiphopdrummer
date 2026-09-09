@@ -319,3 +319,17 @@ function buildLeadMidiBytes(sectionList, bpm, noSwing) {
 function buildLeadMpcPattern(sectionList, bpm) {
   return _buildInstrumentMpcPattern(generateLeadPattern, sectionList, bpm);
 }
+
+
+/**
+ * Lead program for a song feel (LEAD_STYLES, regional variants resolve to
+ * their parent). 80 = G-Funk Lead, 81 = Saw Lead in hhd-kits.sf2.
+ * @param {string} feel
+ * @returns {number}
+ */
+function leadProgramFor(feel) {
+  var f = feel || 'normal';
+  var st = LEAD_STYLES[f];
+  if (!st && typeof resolveBaseFeel === 'function') st = LEAD_STYLES[resolveBaseFeel(f)];
+  return (st && typeof st.program === 'number') ? st.program : 80;
+}

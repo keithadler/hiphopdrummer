@@ -13,7 +13,7 @@
 //   9.  Chord anticipation (swell into next chord on and-of-4)
 //  10.  Kick-locked crunk stabs
 //
-// GM programs: 48=Strings, 52=Choir, 81=Saw Lead
+// Programs: 89=Warm Pad, 91=Dark Pad, 81=Saw Lead — all from hhd-kits.sf2
 // MIDI channel 3. Mutually exclusive with EP.
 // Copyright (c) 2026 Keith Adler — MIT License
 // =============================================
@@ -25,15 +25,15 @@ var PAD_STYLES = {
 };
 
 var PAD_COMP_STYLES = {
-  memphis:  { rhythm: 'sustain', velBase: 42, velRange: 8,  noteDur: 0.95, density: 0.9,  register: 'mid',  voicing: 'triad',   program: 52, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
-  phonk:    { rhythm: 'sustain', velBase: 38, velRange: 6,  noteDur: 0.95, density: 0.85, register: 'low',  voicing: 'triad',   program: 52, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
-  dark:     { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'mid',  voicing: 'seventh', program: 48, detuned: false, regShift: { chorus: 'high', breakdown: 'low' } },
-  griselda: { rhythm: 'pulse',   velBase: 45, velRange: 10, noteDur: 0.45, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
+  memphis:  { rhythm: 'sustain', velBase: 42, velRange: 8,  noteDur: 0.95, density: 0.9,  register: 'mid',  voicing: 'triad',   program: 91, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
+  phonk:    { rhythm: 'sustain', velBase: 38, velRange: 6,  noteDur: 0.95, density: 0.85, register: 'low',  voicing: 'triad',   program: 91, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
+  dark:     { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'mid',  voicing: 'seventh', program: 89, detuned: false, regShift: { chorus: 'high', breakdown: 'low' } },
+  griselda: { rhythm: 'pulse',   velBase: 45, velRange: 10, noteDur: 0.45, density: 0.7,  register: 'mid',  voicing: 'triad',   program: 89, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
   crunk:    { rhythm: 'stab',    velBase: 95, velRange: 10, noteDur: 0.35, density: 0.5,  register: 'mid',  voicing: 'triad',   program: 81, detuned: false, regShift: { chorus: 'high', breakdown: 'mid' } },
-  hard:     { rhythm: 'sustain', velBase: 44, velRange: 8,  noteDur: 0.85, density: 0.75, register: 'low',  voicing: 'triad',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
-  sparse:   { rhythm: 'sustain', velBase: 36, velRange: 6,  noteDur: 0.95, density: 0.6,  register: 'low',  voicing: 'shell',   program: 48, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
+  hard:     { rhythm: 'sustain', velBase: 44, velRange: 8,  noteDur: 0.85, density: 0.75, register: 'low',  voicing: 'triad',   program: 89, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
+  sparse:   { rhythm: 'sustain', velBase: 36, velRange: 6,  noteDur: 0.95, density: 0.6,  register: 'low',  voicing: 'shell',   program: 89, detuned: false, regShift: { chorus: 'mid', breakdown: 'low' } },
   miamibass:{ rhythm: 'stab',    velBase: 75, velRange: 12, noteDur: 0.3,  density: 0.6,  register: 'mid',  voicing: 'triad',   program: 81, detuned: false, regShift: { chorus: 'high', breakdown: 'mid' } },
-  nolimit:  { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'low',  voicing: 'triad',   program: 48, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
+  nolimit:  { rhythm: 'sustain', velBase: 40, velRange: 8,  noteDur: 0.9,  density: 0.8,  register: 'low',  voicing: 'triad',   program: 89, detuned: true,  regShift: { chorus: 'mid', breakdown: 'low' } },
   ruffryder:{ rhythm: 'stab',    velBase: 80, velRange: 10, noteDur: 0.25, density: 0.55, register: 'mid',  voicing: 'triad',   program: 81, detuned: false, regShift: { chorus: 'high', breakdown: 'mid' } },
   ratchet:  { rhythm: 'stab',    velBase: 72, velRange: 10, noteDur: 0.2,  density: 0.45, register: 'mid',  voicing: 'triad',   program: 81, detuned: false, regShift: { chorus: 'high', breakdown: 'mid' } }
 };
@@ -430,4 +430,19 @@ function buildPadMidiBytes(sectionList, bpm, noSwing) {
 
 function buildPadMpcPattern(sectionList, bpm) {
   return _buildInstrumentMpcPattern(generatePadPattern, sectionList, bpm);
+}
+
+
+/**
+ * Pad program for a song feel (from PAD_COMP_STYLES, regional variants
+ * resolve to their parent). Used by the combined MIDI builder and live
+ * playback so the pad you hear is the pad the style asks for.
+ * @param {string} feel
+ * @returns {number} GM/hhd program number
+ */
+function padProgramFor(feel) {
+  var f = feel || 'normal';
+  var st = PAD_COMP_STYLES[f];
+  if (!st && typeof resolveBaseFeel === 'function') st = PAD_COMP_STYLES[resolveBaseFeel(f)];
+  return (st && typeof st.program === 'number') ? st.program : 89;
 }

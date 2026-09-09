@@ -637,8 +637,8 @@ document.getElementById('prefsSave').onclick = function() {
     window.synthBridge.setDrumKit(sounds.drumKit);
     window.synthBridge.setBassProgram(sounds.bassSound);
     window.synthBridge.setEPProgram(sounds.epProgram);
-    window.synthBridge.setPadProgram(48);
-    window.synthBridge.setLeadProgram(80);
+    window.synthBridge.setPadProgram((typeof padProgramFor === 'function') ? padProgramFor(songFeel) : 89);
+    window.synthBridge.setLeadProgram((typeof leadProgramFor === 'function') ? leadProgramFor(songFeel) : 80);
     window.synthBridge.setOrganProgram(16);
     window.synthBridge.setHornProgram(61);
     window.synthBridge.setVibesProgram(11);

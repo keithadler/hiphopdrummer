@@ -406,6 +406,9 @@ Each style automatically gets the right drum kit and bass sound from `STYLE_DATA
 | Phonk / old school | Electro — DMX / Linn (24) | 808 Sub (38, hhd) |
 | Driving | Boom Bap (0) | Electric Bass Pick (34, GM) |
 
+#### Synth presets
+The G-Funk lead (80: sine whistle with a little 2nd/3rd harmonic and delayed 5.6Hz vibrato), Saw Lead (81: two detuned saws + sub, used for DJ Quik leads and crunk/Miami/ratchet stabs), Warm Pad (89: three detuned saws + a square an octave down, rolled off at 1.4kHz, 220ms attack) and Dark Pad (91: wider detune, 800Hz roll-off, 350ms attack, heavy chorus send) are additive waves built on an exact SR/16384 frequency grid, so one loop period is seamless with no crossfade. `padProgramFor()` / `leadProgramFor()` pick the program per style for the combined MIDI and live playback.
+
 #### The kits (`scripts/build-kits.mjs`)
 Every sample is synthesized from scratch — sine sweeps with a pitch envelope for kicks and toms, tuned body + band-passed noise + snap transient for snares, four staggered noise bursts for claps, the six-square-oscillator 808 circuit for hats/cymbals/cowbell, shaped noise with metallic partials for acoustic hats — then given the kit's character: 12-bit quantization and 26kHz sample-and-hold (SP-1200), tape-style asymmetric saturation (Dusty, Live), gated room (Hard), Schroeder room reverb baked in where a kit wants it. Kick, snare and hats have velocity layers (soft/full, ghost/mid/full), ghost kick (note 35) is a darker layer of the kick, closed and open hats share an exclusive class so they choke. Every zone has reverb/chorus send 0 and a release long enough to play the whole sample. The 808 Sub presets are a looped sine with the attack pitch knock and an SF2 envelope decay (3s), Sub Round adds 2nd/3rd harmonics for small speakers. The build is deterministic (seeded RNG); `--verify` reloads the file and renders every note.
 

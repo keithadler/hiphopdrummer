@@ -4,7 +4,7 @@
 
 ### **[▶ Try It Now — hiphopdrummer.com](https://hiphopdrummer.com)**
 
-![Version](https://img.shields.io/badge/version-2.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
+![Version](https://img.shields.io/badge/version-2.1-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![No Account](https://img.shields.io/badge/account-none_required-brightgreen) ![Offline](https://img.shields.io/badge/works-offline-orange)
 
 ---
 
@@ -158,7 +158,7 @@ npm test             # run 18,000+ assertions
 
 - **37 styles + 6 regional variants** — from old school 808s to modern boom bap revival
 - **9 instruments** playing together with style-matched sounds (TR-808 for G-Funk, Brush Kit for Nujabes, etc.)
-- **Own drum kits + 808 sub bass** — synthesized from scratch (`scripts/build-kits.mjs`), no recordings, MIT like everything else
+- **Own drum kits, 808 sub basses, synth leads and pads** — synthesized from scratch (`scripts/build-kits.mjs`), no recordings, MIT like everything else
 - **Timing engine** — MPC swing math, per-feel pocket, seeded micro-drift, 960 PPQ (`timing.js`)
 - **Master chain** — HPF, mud cut, glue compression, tape-style saturation and a limiter on live playback and WAV export, with a dusty/boom-bap/live/clean character per kit
 - **SpessaSynth audio engine** — SoundFont playback for the keys, horns and GM basses
