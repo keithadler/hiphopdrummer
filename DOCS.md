@@ -415,6 +415,12 @@ Every sample is synthesized from scratch — sine sweeps with a pitch envelope f
 #### Master chain (`buildMasterChain` in `synth-bridge.mjs`)
 Live playback and WAV export run through the same graph: HPF 28Hz → low shelf +1.5dB@95Hz → mud cut −2.5dB@320Hz → presence +1.2dB@4.5k → glue compressor (−16dB, 3:1, 8ms/120ms) → tape-style waveshaper → tone lowpass → makeup → limiter (−3dB, 20:1) → out, plus a pre-delayed dark room send (8%) from the compressor. `setDrumKit()` picks a character: dusty (10kHz roll-off, more drive), boombap (15kHz), live (more room), clean (808 kits, wide open). The combined MIDI sets CC91 per channel: drums and bass dry, EP 28, pad 55, lead 22, organ 24, horns 38, vibes 42, clav 12.
 
+#### Mix trims (`channelMixFor` in `midi-export.js`)
+The generators write DAW-sensible velocities, but the patches differ in level by 20dB+ (a GM finger bass sat 14dB under the drums, a pad at velocity 40 sat 28dB under). Playback scales velocity per instrument (per bass/EP program) and sets CC7 per channel so every style lands near the same balance: bass −5, EP/lead/horns −8, clav −10, organ/vibes −12, pad −13 dB RMS below the drums. Measured with `node scripts/render-beat.mjs --solo <channel> --dry`. MIDI exports are untouched.
+
+#### Lead portamento
+A slide event on the lead (G-Funk whistle) becomes a pitch-bend glide: bend range is set to 12 semitones on channel 5, the note starts bent to the previous pitch and eases into tune over 45–110ms. The per-instrument lead MIDI export still writes chromatic passing notes for DAWs.
+
 ### Instrument Style Coverage
 Every style has at least one harmonic instrument beyond drums and bass:
 - **Dilla/jazz/Nujabes/lo-fi/bounce/halftime**: EP (+ organ for jazz/Nujabes)
